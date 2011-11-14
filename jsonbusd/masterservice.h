@@ -46,29 +46,31 @@ namespace jsonbus {
 /**
  * @brief Dynamic library management.
  */
-class JSONBUS_EXPORT MasterService :public QCoreApplication {
+class JSONBUS_EXPORT MasterService : public QCoreApplication {
 public:
-    /**
-     * @brief Service constructor.
-     */
-    MasterService(int &argc, char **argv);
+  /**
+   * @brief Service constructor.
+   */
+  MasterService(int &argc, char **argv);
 
-    /**
-     * @brief Service destructor.
-     */
-    ~MasterService();
-    
-    /**
-     * @brief Load the service
-     * @throw Exception on error
-     */
-    void launch();
-    
-    /**
-     * @brief Load the service
-     * @throw Exception on error
-     */
-    inline static void launchInstance() {static_cast<MasterService*>(instance())->launch();}
+  /**
+   * @brief Service destructor.
+   */
+  ~MasterService();
+
+  /**
+   * @brief Load the service
+   * @throw Exception on error
+   */
+  void launch();
+
+  /**
+   * @brief Load the service
+   * @throw Exception on error
+   */
+  inline static void launchInstance() {
+    static_cast<MasterService*>(instance())->launch();
+  }
 private:
 };
 

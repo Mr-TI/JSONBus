@@ -9,7 +9,7 @@ const bool MasterService::isService = true;
 #endif
 
 MasterService::MasterService(int &argc, char **argv)
-    : QCoreApplication(argc, argv) {
+  : QCoreApplication(argc, argv) {
 }
 
 MasterService::~MasterService() {
