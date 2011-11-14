@@ -26,21 +26,19 @@
 */
 
 /**
- * @brief JSONBus : Dynamic library management.
- * @file sharedlib.h
+ * @brief JSONBus : JSONBus master service management.
+ * @file service.h
  * @author Emeric VERSCHUUR <contact@mr-ti.com>, (C) 2012
  */
 
-#ifndef JSONBUS_SHAREDLIB_H
-#define JSONBUS_SHAREDLIB_H
+#ifndef JSONBUS_MASTERSERVICE_H
+#define JSONBUS_MASTERSERVICE_H
 
 #ifndef JSONBUS_EXPORT
 #define JSONBUS_EXPORT
 #endif
 
-#ifndef WIN32
-#include <dlfcn.h>
-#endif
+#include <QCoreApplication>
 #include <QString>
 
 namespace jsonbus {
@@ -48,67 +46,30 @@ namespace jsonbus {
 /**
  * @brief Dynamic library management.
  */
-class JSONBUS_EXPORT SharedLib {
+class JSONBUS_EXPORT MasterService :public QCoreApplication {
 public:
     /**
-     * @brief SharedLib constructor.
-     * @param path Dynamic library path.
+     * @brief Service constructor.
      */
-    SharedLib(const QString &path);
+    MasterService(int &argc, char **argv);
 
     /**
-     * @brief SharedLib destructor.
+     * @brief Service destructor.
      */
-    ~SharedLib();
-
+    ~MasterService();
+    
     /**
-     * @brief Load the dynamic library.
-     * @param flags Flags.
-     * @throw Exception on error.
+     * @brief Load the service
+     * @throw Exception on error
      */
-    void load(int flags = DefaultFlags);
-
+    void launch();
+    
     /**
-     * @brief Test if the dynamic library is loaded.
-     * @return true if it is loaded, otherwise false.
+     * @brief Load the service
+     * @throw Exception on error
      */
-    inline bool isLoaded() {
-        return handle == 0 ? false: true;
-    }
-
-    /**
-     * @brief Get a symbol from this dynamic library.
-     * @param symbol The symbol name.
-     * @return A pointer to the symbol.
-     * @throw Exception on error.
-     */
-    void *getSymbol(const char *symbol);
-
-    /**
-     * @brief Unload the dynamic library.
-     * @throw Exception on error.
-     */
-    void unload();
-
-    /**
-     * @brief Return the class name.
-     * @return "jsonbus::SharedLib"
-     */
-    inline virtual QString className() const {
-        return "jsonbus::SharedLib";
-    }
+    inline static void launchInstance() {static_cast<MasterService*>(instance())->launch();}
 private:
-
-#ifdef WIN32
-    typedef HMODULE handle_t;
-    static const int DefaultFlags;
-#else
-    typedef void* handle_t;
-    static const int DefaultFlags;
-#endif
-
-    QString path;
-    handle_t handle;
 };
 
 }

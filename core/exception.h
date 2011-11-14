@@ -33,11 +33,20 @@
 #ifndef UNICOMCTRL_EXCEPTION_H
 #define UNICOMCTRL_EXCEPTION_H
 
+#ifndef JSONBUS_EXPORT
+#define JSONBUS_EXPORT
+#endif
+
 #include <QString>
+#include <QObject>
 
-#define declare_exception(name, parent) class JSONBUS_EXPORT name:public parent {public:inline name(const QString &msg):parent(msg) {};};
+#define declare_exception(name, parent)\
+class JSONBUS_EXPORT name:public parent {\
+public:\
+    inline name(const QString &msg):parent(msg) {}\
+};
 
-namespace unicomctrl {
+namespace jsonbus {
 
 /**
  * This class can manage exceptions.
@@ -49,7 +58,12 @@ public:
      * @brief Exception constructor.
      * @param message exeption message.
      */
-    inline Exception(std::string message):QObject(),message(message) {}
+    inline Exception(const QString &message):m_message(message) {}
+    /**
+     * @brief Exception constructor.
+     * @param message exeption message.
+     */
+    inline Exception(const Exception &exception):m_message(exception.m_message) {}
 
     /**
      * @brief Exception destructor.
@@ -58,32 +72,24 @@ public:
 
     /**
      * @brief Get the exeption message.
-     * @return std::string message.
+     * @return QString message.
      */
-    inline const std::string &getMsg() const {
-        return message;
+    inline const QString getMsg() const {
+        return m_message;
     }
 
     /**
      * @brief Get the exeption message.
-     * @return std::string message.
+     * @return QString message.
      */
-    inline const std::string &getMessage() const {
-        return message;
+    inline const QString getMessage() const {
+        return m_message;
     }
-
-    /**
-     * @brief Return the class name.
-     * @return "unicomctrl::Exception"
-     */
-    inline virtual std::string className() const {
-        return "UniComCtrl::Exception";
-    };
 private:
-    std::string message;
+    QString m_message;
 };
 
-declare_exception(FatalErrorException, Exception);
+declare_exception(SharedLibException, Exception);
 
 }
 

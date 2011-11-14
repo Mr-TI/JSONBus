@@ -38,5 +38,5 @@ QT4_WRAP_UI(project_UIS_H)
 QT4_WRAP_CPP(project_MOC_SRCS)
 
 # ### TARGET ###
-add_library(jsonbus STATIC ${project_SRCS} ${project_HDRS})
+add_library(jsonbus SHARED ${project_SRCS} ${project_HDRS})
 target_link_libraries(jsonbus ${QT_LIBRARIES})

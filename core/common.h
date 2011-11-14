@@ -34,9 +34,39 @@
 #ifndef JSONBUS_COMMON_H
 #define JSONBUS_COMMON_H
 
+#ifndef JSONBUS_EXPORT
+#define JSONBUS_EXPORT
+#endif
+
+#include <iostream>
+#include <QString>
+
+#define outLog cout
+#define outErr cerr
+#define outCri cerr
+#define outSysErr cerr << 
+
+using namespace std;
+
 namespace jsonbus {
 
+inline JSONBUS_EXPORT std::ostream &operator << (std::ostream &stream, const QString &string) {
+    return (stream << string.toStdString());
+}
 
+#ifdef WIN32
+inline JSONBUS_EXPORT QString getMessageError(DWORD no) {
+    LPVOID lpMsgBuf;
+    QString buf;
+    if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,NULL,GetLastError(),0,(LPTSTR) &lpMsgBuf,0,NULL)) {
+        buf=string((char*)lpMsgBuf);
+        LocalFree(lpMsgBuf);
+    } else {
+        buf="error no "+TOSTDSTR(no);
+    }
+    return buf;
+}
+#endif
 
 }
 
