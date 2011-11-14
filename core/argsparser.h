@@ -94,7 +94,7 @@ public:
     /**
      * @brief Print use instruction
      */
-    void printUse(bool help);
+    void displayUseInstructions();
 private:
 
     class JSONBUS_EXPORT Element {
@@ -105,7 +105,7 @@ private:
                 : name(name), shortTag(shortTag), value(value), description(description) {}
         QString name;
         char shortTag;
-        QVariant value;
+        QString value;
         QString description;
     };
 

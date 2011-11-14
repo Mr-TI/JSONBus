@@ -27,8 +27,12 @@
 
 #include <argsparser.h>
 #include <common.h>
+#include <QStringList>
+#include <QRegExp>
 
 namespace jsonbus {
+    
+typedef QPair<QString, QString> LineElement;
 
 ArgsParser::ArgsParser() {
 }
@@ -41,34 +45,46 @@ void ArgsParser::define(const QString &name, char shortTag, const QString &descr
         throw new ArgsParserException(tr("The argument % is already definied").arg(name));
     }
     m_arguments.insert(name, Element(name, shortTag, description, value));
+    if (shortTag) {
+        m_shortTagToName[shortTag] = name;
+    }
 }
 
-void ArgsParser::parse(const QStringList &argList) {/*
+void ArgsParser::parse(const QStringList &argList) {
     QString argName = QString::null, argValue;
-    QRegExp patternArg("^--([\w_-]+)(=(.*))$");
-    QRegExp patternShortArg("^-([a-zA-Z]+)(\d*)$");
-    foreach(QString arg, argList) {
-        if (patternArg.indexIn()
-        if (argName != QString::null) {
-            args[argName] = argValue;
-            argName = QString::null
-    }*/
+    QRegExp patternArg("^--([\\w_-]+)(=(.*))$");
+    QRegExp patternShortArg("^-([a-zA-Z]+)(\\d*)$");
+    for(auto it = argList.begin(); it != argList.end(); it++) {
+        if (patternArg.indexIn(*it)) {
+            argName = patternArg.cap(1);
+            auto elt
+            if (!patternArg.cap(2).isEmpty()) {
+                argValue = patternArg.cap(3);
+            } else {
+                argValue = *(++it)
+            }
+        }
+    }
 }
 
-void ArgsParser::printUse(bool help) {
-    QList<QPair<QString, QString> > list;
+void ArgsParser::displayUseInstructions() {
+    QList<LineElement> list;
     QString argName;
     QString argValue;
     int maxlen = 0;
-    for (QMap<QString, Element>::iterator it = m_arguments.begin(); it != m_arguments.end(); it++) {
+    for (auto it = m_arguments.begin(); it != m_arguments.end(); it++) {
         argName = "";
-        argValue = (it.value().value;
+        argValue = it.value().value;
         if (it.value().shortTag) {
-            argName = it.value().shortTag? " -" + QString(it.value().shortTag) + (argValue != QString::null ? " <value> / ": " / ");
+            argName = " -" + QString(it.value().shortTag) + (argValue != QString::null ? " <" + tr("value") + "> or": " or");
         }
-        argName = "--" + it.value().name +  + (argValue != QString::null ? "=<value>": "");
+        argName += " --" + it.value().name + (argValue != QString::null ? "=<" + tr("value") + ">": "");
         maxlen = qMax(maxlen, argName.length());
-        list.append(QPair<QString, QString>(argName, ));
+        list.append(LineElement(argName,it.value().description + (argValue != QString::null ? "(" + tr("value: ") + argValue + ")": "")));
+    }
+    cout << tr("Use:") << endl;
+    foreach(LineElement pair, list) {
+        cout << pair.first << QString(maxlen - pair.first.length() + 4, ' ') << pair.second << endl;
     }
 }
 
