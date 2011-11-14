@@ -34,3 +34,4 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 # ### SUBDIRECTORIES ###
 add_subdirectory(core)
 add_subdirectory(jsonbusd)
+add_subdirectory(test)

@@ -31,9 +31,6 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 file(GLOB project_HDRS *.h)
 file(GLOB project_SRCS *.cpp)
 
-# ### SUBDIRECTORIES ###
-add_subdirectory(argsparser)
-
 # ### QT4 ###
 find_package(Qt4 REQUIRED)
 include(${QT_USE_FILE})
@@ -41,5 +38,5 @@ QT4_WRAP_UI(project_UIS_H)
 QT4_WRAP_CPP(project_MOC_SRCS)
 
 # ### TARGET ###
-add_library(jsonbus SHARED ${project_SRCS} ${project_HDRS})
-target_link_libraries(jsonbus ${QT_LIBRARIES})
+add_executable(test ${project_SRCS} ${project_HDRS})
+target_link_libraries(test ${QT_LIBRARIES} jsonbus)

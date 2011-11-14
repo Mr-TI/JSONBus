@@ -1,6 +1,7 @@
 
 #include <jsonbus/core/common.h>
 #include <masterservice.h>
+#include <QRegExp>
 
 namespace jsonbus {
 #ifdef WIN32

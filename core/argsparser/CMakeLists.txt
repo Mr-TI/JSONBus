@@ -31,15 +31,19 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 file(GLOB project_HDRS *.h)
 file(GLOB project_SRCS *.cpp)
 
-# ### SUBDIRECTORIES ###
-add_subdirectory(argsparser)
+# ### FLEX & BISON ###
+find_package(BISON)
+find_package(FLEX)
+bison_target(Parser parser.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cc)
+flex_target(Scanner scanner.l ${CMAKE_CURRENT_BINARY_DIR}/scanner.cc)
+add_flex_bison_dependency(Scanner Parser)
 
 # ### QT4 ###
 find_package(Qt4 REQUIRED)
 include(${QT_USE_FILE})
-QT4_WRAP_UI(project_UIS_H)
-QT4_WRAP_CPP(project_MOC_SRCS)
+QT4_WRAP_UI(project_UIS_H MainWindow.ui)
+QT4_WRAP_CPP(project_MOC_SRCS MainWindow.h)
 
 # ### TARGET ###
-add_library(jsonbus SHARED ${project_SRCS} ${project_HDRS})
-target_link_libraries(jsonbus ${QT_LIBRARIES})
+add_library(argsparser STATIC ${BISON_Parser_OUTPUTS} ${FLEX_Scanner_OUTPUTS} ${project_SRCS} ${project_HDRS})
+target_link_libraries(argsparser ${QT_LIBRARIES})
