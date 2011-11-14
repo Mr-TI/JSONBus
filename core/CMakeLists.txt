@@ -32,7 +32,7 @@ file(GLOB project_HDRS *.h)
 file(GLOB project_SRCS *.cpp)
 
 # ### SUBDIRECTORIES ###
-add_subdirectory(argsparser)
+#add_subdirectory()
 
 # ### QT4 ###
 find_package(Qt4 REQUIRED)
@@ -42,4 +42,4 @@ QT4_WRAP_CPP(project_MOC_SRCS)
 
 # ### TARGET ###
 add_library(jsonbus SHARED ${project_SRCS} ${project_HDRS})
-target_link_libraries(jsonbus ${QT_LIBRARIES} argsparser)
+target_link_libraries(jsonbus ${QT_LIBRARIES})

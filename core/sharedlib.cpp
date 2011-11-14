@@ -1,6 +1,5 @@
 
 #include <sharedlib.h>
-#include <exception.h>
 #include <common.h>
 
 namespace jsonbus {

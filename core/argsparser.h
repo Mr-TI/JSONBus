@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2011, Emeric Verschuur <emericv@gmail.com>
+    Copyright (c) 2012, Emeric Verschuur <emericv@gmail.com>
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -26,13 +26,13 @@
 */
 
 /**
- * @brief JSONBus : Dynamic library management.
- * @file sharedlib.h
+ * @brief JSONBus : Argument parser management.
+ * @file argsparser.h
  * @author Emeric VERSCHUUR <contact@mr-ti.com>, (C) 2012
  */
 
-#ifndef JSONBUS_SHAREDLIB_H
-#define JSONBUS_SHAREDLIB_H
+#ifndef JSONBUS_ARGSPARSER_H
+#define JSONBUS_ARGSPARSER_H
 
 #include <jsonbus/core/exception.h>
 
@@ -44,75 +44,73 @@
 #include <dlfcn.h>
 #endif
 #include <QString>
+#include <QVariant>
 
 namespace jsonbus {
 
-declare_exception(SharedLibException, Exception);
+declare_exception(ArgsParserException, Exception);
 
 /**
  * @brief Dynamic library management.
  */
-class JSONBUS_EXPORT SharedLib {
+class JSONBUS_EXPORT ArgsParser :public QObject {
 public:
     /**
-     * @brief SharedLib constructor.
+     * @brief ArgsParser constructor.
      * @param path Dynamic library path.
      */
-    SharedLib(const QString &path);
+    ArgsParser();
 
     /**
-     * @brief SharedLib destructor.
+     * @brief ArgsParser destructor.
      */
-    ~SharedLib();
+    ~ArgsParser();
 
     /**
-     * @brief Load the dynamic library.
-     * @param flags Flags.
-     * @throw Exception on error.
+     * @brief Define an argument
+     * @param name argument name (eg: "param-name" for --param-name)
+     * @param shortTag short tag (eg: 'p' for -p), otherwise 0
+     * @param description parameter description
+     * @param hasValue is this parameter have a value
+     * @throw ArgsParserException on error
      */
-    void load(int flags = DefaultFlags);
+    void define(const QString& name, char shortTag, const QString& description, const QString& value = QString::null);
 
     /**
-     * @brief Test if the dynamic library is loaded.
-     * @return true if it is loaded, otherwise false.
+     * @brief Get an arguement value
+     * @param name argument name
+     * @return QString reference to the result
+     * @throw ArgsParserException on error
      */
-    inline bool isLoaded() {
-        return handle == 0 ? false: true;
-    }
+    const QString &getValue(const QString &name);
 
     /**
-     * @brief Get a symbol from this dynamic library.
-     * @param symbol The symbol name.
-     * @return A pointer to the symbol.
-     * @throw Exception on error.
+     * @brief Parse the argument list
+     * @param argList the argument list
+     * @throw ArgsParserException on error
      */
-    void *getSymbol(const char *symbol);
-
+    void parse(const QStringList &argList);
+    
     /**
-     * @brief Unload the dynamic library.
-     * @throw Exception on error.
+     * @brief Print use instruction
      */
-    void unload();
-
-    /**
-     * @brief Return the class name.
-     * @return "jsonbus::SharedLib"
-     */
-    inline virtual QString className() const {
-        return "jsonbus::SharedLib";
-    }
+    void printUse(bool help);
 private:
 
-#ifdef WIN32
-    typedef HMODULE handle_t;
-    static const int DefaultFlags;
-#else
-    typedef void* handle_t;
-    static const int DefaultFlags;
-#endif
+    class JSONBUS_EXPORT Element {
+    public:
+        inline Element()
+                : name(), shortTag(), value(QString::null), description() {}
+        inline Element(const QString &name, char shortTag, const QString &description, const QString &value)
+                : name(name), shortTag(shortTag), value(value), description(description) {}
+        QString name;
+        char shortTag;
+        QVariant value;
+        QString description;
+    };
 
-    QString path;
-    handle_t handle;
+    QMap<QString, Element> m_arguments;
+    QMap<char, QString> m_shortTagToName;
 };
 
 }

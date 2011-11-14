@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2011, Emeric Verschuur <emericv@gmail.com>
+    Copyright (c) 2012, Emeric Verschuur <emericv@gmail.com>
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -25,70 +25,51 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/**
- * @brief JSONBus : Exception management.
- * @file exception.h
- * @author Emeric VERSCHUUR <contact@mr-ti.com>, (C) 2012
- */
-#ifndef UNICOMCTRL_EXCEPTION_H
-#define UNICOMCTRL_EXCEPTION_H
-
-#ifndef JSONBUS_EXPORT
-#define JSONBUS_EXPORT
-#endif
-
-#include <QString>
-#include <QObject>
-
-#define declare_exception(name, parent)\
-class JSONBUS_EXPORT name:public parent {\
-public:\
-    inline name(const QString &msg):parent(msg) {}\
-};
+#include <argsparser.h>
+#include <common.h>
 
 namespace jsonbus {
 
-/**
- * This class can manage exceptions.
- * @brief JSONBus : Exceptions.
- */
-class JSONBUS_EXPORT Exception : public QObject {
-public:
-    /**
-     * @brief Exception constructor.
-     * @param message exeption message.
-     */
-    inline Exception(const QString &message):m_message(message) {}
-    /**
-     * @brief Exception constructor.
-     * @param message exeption message.
-     */
-    inline Exception(const Exception &exception):m_message(exception.m_message) {}
-
-    /**
-     * @brief Exception destructor.
-     */
-    inline ~Exception() {}
-
-    /**
-     * @brief Get the exeption message.
-     * @return QString message.
-     */
-    inline const QString getMsg() const {
-        return m_message;
-    }
-
-    /**
-     * @brief Get the exeption message.
-     * @return QString message.
-     */
-    inline const QString getMessage() const {
-        return m_message;
-    }
-private:
-    QString m_message;
-};
-
+ArgsParser::ArgsParser() {
 }
 
-#endif
+ArgsParser::~ArgsParser() {
+}
+
+void ArgsParser::define(const QString &name, char shortTag, const QString &description, const QString &value) {
+    if (m_arguments.find(name) != m_arguments.end()) {
+        throw new ArgsParserException(tr("The argument % is already definied").arg(name));
+    }
+    m_arguments.insert(name, Element(name, shortTag, description, value));
+}
+
+void ArgsParser::parse(const QStringList &argList) {/*
+    QString argName = QString::null, argValue;
+    QRegExp patternArg("^--([\w_-]+)(=(.*))$");
+    QRegExp patternShortArg("^-([a-zA-Z]+)(\d*)$");
+    foreach(QString arg, argList) {
+        if (patternArg.indexIn()
+        if (argName != QString::null) {
+            args[argName] = argValue;
+            argName = QString::null
+    }*/
+}
+
+void ArgsParser::printUse(bool help) {
+    QList<QPair<QString, QString> > list;
+    QString argName;
+    QString argValue;
+    int maxlen = 0;
+    for (QMap<QString, Element>::iterator it = m_arguments.begin(); it != m_arguments.end(); it++) {
+        argName = "";
+        argValue = (it.value().value;
+        if (it.value().shortTag) {
+            argName = it.value().shortTag? " -" + QString(it.value().shortTag) + (argValue != QString::null ? " <value> / ": " / ");
+        }
+        argName = "--" + it.value().name +  + (argValue != QString::null ? "=<value>": "");
+        maxlen = qMax(maxlen, argName.length());
+        list.append(QPair<QString, QString>(argName, ));
+    }
+}
+
+}
