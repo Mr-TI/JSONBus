@@ -141,7 +141,7 @@ void CliArguments::displayUseInstructions() {
     }
     argName += " --" + it.value().name + (argValue != QString::null ? "=<" + tr("value") + ">" : "");
     maxlen = qMax(maxlen, argName.length());
-    list.append(LineElement(argName, it.value().description + (argValue != QString::null ? "(" + tr("value: ") + argValue + ")" : "")));
+    list.append(LineElement(argName, it.value().description + (argValue != QString::null ? " (" + tr("value: ") + argValue + ")" : "")));
   }
   cout << tr("Use:") << endl;
   foreach(LineElement pair, list) {

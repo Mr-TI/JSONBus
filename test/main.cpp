@@ -26,6 +26,7 @@ int main(int argc, char **argv) {
       }
     } catch (Exception e) {
       cout << "Exception: " << e.getMessage() << endl;
+      args.displayUseInstructions();
     } catch (...) {
       cout << "Unknow exception." << endl;
     }
