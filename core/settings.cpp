@@ -44,7 +44,17 @@ void Settings::define(const QString& name, const QString& description, const QVa
 }
 
 void Settings::setup() {
-	
+	cout << tr("### SETUP ###") << endl;
+	QString newVal;
+	string buff;
+	for (auto it = m_parameters.begin(); it != m_parameters.end(); it++) {
+		cout << it.value().description  << " [" << value(it.key()).toString() << "]: ";
+		getline (cin, buff);
+		newVal = QString::fromStdString(buff);
+		if (!newVal.isEmpty()) {
+			setValue(it.key(), newVal);
+		}
+	}
 }
 
 }

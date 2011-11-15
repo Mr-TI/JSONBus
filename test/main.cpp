@@ -1,7 +1,7 @@
 
 #include <jsonbus/core/common.h>
 #include <jsonbus/core/exception.h>
-#include <jsonbus/core/cliarguments.h>
+#include <jsonbus/core/settings.h>
 
 #include <QStringList>
 #include <QCoreApplication>
@@ -13,20 +13,15 @@ using namespace std;
 
 
 int main(int argc, char **argv) {
-	QCoreApplication app(argc, argv);
-	CliArguments args;
-	args.define("daeminize", 'd', "Launch the service in background.");
-	args.define("config", 'c', "Set a custom config path.", "/etc/json/jsond.conf");
-	args.define("help", 'h', "Display this message.");
-	args.define("version", 0, "Display the version.");
 	try {
-		args.parse(QCoreApplication::arguments());
-		if (args.isEnabled("help")) {
-			args.displayUseInstructions();
-		}
+		QCoreApplication app(argc, argv);
+		Settings settings("Openihs.org", "Test");
+		settings.define("uri", "Set the service URI", "https://openihs.org/ws");
+		settings.define("login", "Login name to connect to the service", "admin");
+		settings.define("passwd", "Password to connect to the service", "passwd");
+		settings.setup();
 	} catch (Exception e) {
 		cout << "Exception: " << e.getMessage() << endl;
-		args.displayUseInstructions();
 	} catch (...) {
 		cout << "Unknow exception." << endl;
 	}
