@@ -34,12 +34,16 @@ Settings::~Settings() {
 }
 
 void Settings::define(const QString& name, const QString& description, const QVariant& defaultValue) {
-	if (m_defaults.find(name) != m_defaults.end()) {
-		throw SettingsException(tr("The parameter % is already definied").arg(name));
+	if (m_parameters.find(name) != m_parameters.end()) {
+		throw SettingsException(tr("The parameter %1 is already definied").arg(name));
+	}
+	m_parameters.insert(name, Element(description, defaultValue));
+	if (!contains(name)) {
+		setValue(name, defaultValue);
 	}
 }
 
-void Settings::setup(bool interactive) {
+void Settings::setup() {
 	
 }
 

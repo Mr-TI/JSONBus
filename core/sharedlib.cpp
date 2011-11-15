@@ -25,7 +25,7 @@ void SharedLib::load(int flags) {
 	if (handle != 0) {
 		lastError = "Dynamic library already loaded.";
 		outErr << lastError << "\n" << endl;
-		throw SharedLibException("Fail to load the plugin : " + lastError);
+		throw SharedLibException(tr("Fail to load the dynamic library : ") + lastError);
 	}
 #ifdef WIN32
 	//Chargement de la lib
@@ -33,7 +33,7 @@ void SharedLib::load(int flags) {
 	if (!handle) {
 		lastError = "LoadLibrary() >> " + getMessageError(GetLastError());
 		outErr << lastError << "\n" << endl;
-		throw SharedLibException("Fail to load the dynamic library : " + lastError);
+		throw SharedLibException(tr("Fail to load the dynamic library : " + lastError);
 	}
 #else
 	char *dl_error;
@@ -43,7 +43,7 @@ void SharedLib::load(int flags) {
 		dl_error = dlerror();
 		lastError = "dlopen() >> " + QString(dl_error);
 		outErr << lastError << "\n" << endl;
-		throw SharedLibException("Fail to load the dynamic library : " + lastError);
+		throw SharedLibException(tr("Fail to load the dynamic library : ") + lastError);
 	}
 #endif
 }
@@ -53,7 +53,7 @@ void *SharedLib::getSymbol(const char *symbol) {
 	if (handle == 0) {
 		lastError = "Dynamic library not loaded.";
 		outErr << lastError << "\n" << endl;
-		throw SharedLibException("Fail to get a symbol : " + lastError);
+		throw SharedLibException(tr("Fail to get a symbol : ") + lastError);
 	}
 	void *ptr;
 #ifdef WIN32
@@ -61,7 +61,7 @@ void *SharedLib::getSymbol(const char *symbol) {
 	if (ptr == NULL)  {
 		lastError = "GetProcAddress(\"" + QString(symbol) + "\") >> " + getMessageError(GetLastError());
 		outErr << lastError << "\n" << endl;
-		throw SharedLibException("Fail to get the symbol : " + lastError);
+		throw SharedLibException(tr("Fail to get the symbol : ") + lastError);
 	}
 #else
 	char *dl_error;
@@ -69,7 +69,7 @@ void *SharedLib::getSymbol(const char *symbol) {
 	if ((dl_error = dlerror()) != NULL)  {
 		lastError = "dlsym() >> " + QString(dl_error);
 		outErr << lastError << "\n" << endl;
-		throw SharedLibException("Fail to load the plugin : " + lastError);
+		throw SharedLibException(tr("Fail to load the plugin : ") + lastError);
 	}
 #endif
 	return ptr;
@@ -80,7 +80,7 @@ void SharedLib::unload() {
 	if (handle == 0) {
 		lastError = "Dynamic library not loaded.";
 		outErr << lastError << "\n" << endl;
-		throw SharedLibException("Fail to unload the plugin : " + lastError);
+		throw SharedLibException(tr("Fail to unload the plugin : ") + lastError);
 	}
 #ifdef WIN32
 	FreeLibrary(handle);

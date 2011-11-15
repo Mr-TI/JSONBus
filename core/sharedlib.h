@@ -52,7 +52,7 @@ declare_exception(SharedLibException, Exception);
 /**
  * @brief Dynamic library management.
  */
-class JSONBUS_EXPORT SharedLib {
+class JSONBUS_EXPORT SharedLib: public QObject {
 public:
 	/**
 	 * @brief SharedLib constructor.

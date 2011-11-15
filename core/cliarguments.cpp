@@ -43,7 +43,7 @@ CliArguments::~CliArguments() {
 const QVariant &CliArguments::getValue(const QString &name) const {
 	auto it = m_arguments.find(name);
 	if (it == m_arguments.end()) {
-		throw CliArgumentsException(tr("The parameter % is not definied").arg(name));
+		throw CliArgumentsException(tr("The parameter %1 is not definied").arg(name));
 	}
 	return it.value().value;
 }
@@ -51,17 +51,17 @@ const QVariant &CliArguments::getValue(const QString &name) const {
 bool CliArguments::isEnabled(const QString &name) const {
 	auto it = m_arguments.find(name);
 	if (it == m_arguments.end()) {
-		throw CliArgumentsException(tr("The parameter % is not definied").arg(name));
+		throw CliArgumentsException(tr("The parameter %1 is not definied").arg(name));
 	}
 	if (it.value().value.type() != QVariant::Bool) {
-		throw CliArgumentsException(tr("The parameter % is not an boolean value").arg(name));
+		throw CliArgumentsException(tr("The parameter %1 is not an boolean value").arg(name));
 	}
 	return it.value().value.toBool();
 }
 
 void CliArguments::define(const QString& name, char shortTag, const QString& description, const QVariant& value) {
 	if (m_arguments.find(name) != m_arguments.end()) {
-		throw CliArgumentsException(tr("The argument % is already definied").arg(name));
+		throw CliArgumentsException(tr("The argument %1 is already definied").arg(name));
 	}
 	m_arguments.insert(name, Element(name, shortTag, description, value));
 	if (shortTag) {
@@ -74,7 +74,7 @@ void CliArguments::parse(const QStringList &argList) {
 	QRegExp patternArg("^--([\\w_-]+)(=(.*))?$");
 	QRegExp patternShortArg("^-([a-zA-Z]+)(.*)$");
 	for (auto it = ++argList.begin(); it != argList.end(); it++) {
-		if (patternArg.indexIn(*it) != -1) {
+		if (patternArg.indexIn(*it) != -1) { // arguments matching --arg-name[=a value] or --arg-name[ a value]
 			argName = patternArg.cap(1);
 			auto eltIt = m_arguments.find(argName);
 			if (eltIt == m_arguments.end()) {
@@ -93,7 +93,7 @@ void CliArguments::parse(const QStringList &argList) {
 			} else {
 				eltIt.value().value = true;
 			}
-		} else if (patternShortArg.indexIn(*it) != -1) {
+		} else if (patternShortArg.indexIn(*it) != -1) { // arguments matching -oneorseveralletters[ value]
 			QString sargs = patternShortArg.cap(1);
 			for (int i = 0; i < sargs.length(); i++) {
 				auto argIt = m_shortTagToName.find(sargs[i].toAscii());

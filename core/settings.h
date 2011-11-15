@@ -91,7 +91,7 @@ public:
 	/**
 	 * @brief Setup parameters
 	 */
-	void setup(bool interactive);
+	void setup();
 private:
 
 	class JSONBUS_EXPORT Element {
@@ -104,7 +104,7 @@ private:
 		QString description;
 	};
 
-	QMap<QString, Element> m_defaults;
+	QMap<QString, Element> m_parameters;
 };
 
 }

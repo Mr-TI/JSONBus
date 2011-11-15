@@ -50,11 +50,35 @@ using namespace std;
 
 namespace jsonbus {
 
-inline JSONBUS_EXPORT std::ostream &operator << (std::ostream &stream, const QString &string) {
-	return (stream << string.toStdString());
+/**
+ * @brief Outpout stream operator
+ * @param stream Outpout stream
+ * @param data QString object
+ * @return the stream reference
+ */
+inline JSONBUS_EXPORT ostream &operator << (ostream &stream, const QString &data) {
+	return (stream << data.toUtf8().data());
+}
+
+/**
+ * @brief Input stream operator
+ * @param stream Input stream
+ * @param data QString object
+ * @return the stream reference
+ */
+inline JSONBUS_EXPORT istream &operator >> (QString &data, istream &stream) {
+	string buff;
+	stream >> buff;
+	data = QString::fromUtf8(buff.c_str());
+	return stream;
 }
 
 #ifdef WIN32
+/**
+ * @brief Get the message from the Windows error code
+ * @param no Error code
+ * @return QString opject
+ */
 inline JSONBUS_EXPORT QString getMessageError(DWORD no) {
 	LPVOID lpMsgBuf;
 	QString buf;

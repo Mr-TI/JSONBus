@@ -8,13 +8,12 @@ namespace jsonbus {
 
 MasterService::MasterService(int &argc, char **argv)
 		: QCoreApplication(argc, argv) {
-	m_cliArguments.define("daemonize", 'd', "Launch this service in background");
-	m_cliArguments.define("config", 'c', "Set a custom config path", "/etc/jsonbus/jsonbus.conf");
-	m_cliArguments.define("help", 'h', "Display this help");
-	m_cliArguments.define("setup", 's', "Setup the service");
-	m_cliArguments.define("setup-type", '\0', "Setup type (can be \"interactive\" or \"defaults\")", "interactive");
+	m_cliArguments.define("daemonize", 'd', tr("Launch this service in background"));
+	m_cliArguments.define("config", 'c', tr("Set a custom config path"), "/etc/jsonbus/jsonbus.conf");
+	m_cliArguments.define("help", 'h', tr("Display this help"));
+	m_cliArguments.define("setup", 's', tr("Setup the service"));
 #ifdef WIN32
-	m_cliArguments.define("win-cli", '\0', "Switch to cli mode, don't launch a Windows service");
+	m_cliArguments.define("win-cli", '\0', tr("Switch to cli mode, don't launch a Windows service"));
 #endif
 	m_cliArguments.parse(arguments());
 }
@@ -24,8 +23,7 @@ MasterService::~MasterService() {
 
 void MasterService::launch() {
 	
-	if (m_cliArguments.isEnabled("setup") || m_cliArguments.isEnabled("setup-default")) {
-		bool defaultConf = m_cliArguments.isEnabled("setup-default");
+	if (m_cliArguments.isEnabled("setup")) {
 		
 	}
 }
