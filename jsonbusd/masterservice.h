@@ -39,7 +39,8 @@
 #endif
 
 #include <QCoreApplication>
-#include <QString>
+class CliArguments;
+#include <jsonbus/core/exception.h>
 
 namespace jsonbus {
 
@@ -63,6 +64,12 @@ public:
    * @throw Exception on error
    */
   void launch();
+  
+  /**
+   * @brief Get the cli argument object
+   * @return CliArguments reference
+   */
+  inline CliArguments &getCliArguments() { return m_cliArguments; }
 
   /**
    * @brief Load the service
@@ -72,6 +79,7 @@ public:
     static_cast<MasterService*>(instance())->launch();
   }
 private:
+   CliArguments m_cliArguments;
 };
 
 }
