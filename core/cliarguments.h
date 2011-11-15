@@ -55,71 +55,70 @@ declare_exception(CliArgumentsException, Exception);
  */
 class JSONBUS_EXPORT CliArguments : public QObject {
 public:
-  /**
-   * @brief CliArguments constructor.
-   * @param path Dynamic library path.
-   */
-  CliArguments();
+	/**
+	 * @brief CliArguments constructor.
+	 * @param path Dynamic library path.
+	 */
+	CliArguments();
 
-  /**
-   * @brief CliArguments destructor.
-   */
-  ~CliArguments();
+	/**
+	 * @brief CliArguments destructor.
+	 */
+	~CliArguments();
 
-  /**
-   * @brief Define an argument
-   * @param name argument name (eg: "param-name" for --param-name)
-   * @param shortTag short tag (eg: 'p' for -p), otherwise 0
-   * @param description parameter description
-   * @param hasValue is this parameter have a value
-   * @throw CliArgumentsException on error
-   */
-  void define(const QString& name, char shortTag, const QString& description, const QString& value = QString::null);
+	/**
+	 * @brief Define an argument
+	 * @param name argument name (eg: "param-name" for --param-name)
+	 * @param shortTag short tag (eg: 'p' for -p), otherwise 0
+	 * @param description parameter description
+	 * @param hasValue is this parameter have a value
+	 * @throw CliArgumentsException on error
+	 */
+	void define(const QString& name, char shortTag, const QString& description, const QVariant& value = QVariant(false));
 
-  /**
-   * @brief Get an arguement value
-   * @param name argument name
-   * @return QString reference to the result
-   * @throw CliArgumentsException on error
-   */
-  const QString &getValue(const QString &name) const;
+	/**
+	 * @brief Get an arguement value
+	 * @param name argument name
+	 * @return QVariant reference to the result
+	 * @throw CliArgumentsException on error
+	 */
+	const QVariant &getValue(const QString& name) const;
 
-  /**
-   * @brief Get an arguement state (enabled/disabled)
-   * @param name argument name
-   * @return bool enabled or not
-   * @throw CliArgumentsException on error
-   */
-  bool isEnabled(const QString &name) const;
+	/**
+	 * @brief Get an arguement state (enabled/disabled)
+	 * @param name argument name
+	 * @return bool enabled or not
+	 * @throw CliArgumentsException on error
+	 */
+	bool isEnabled(const QString &name) const;
 
-  /**
-   * @brief Parse the argument list
-   * @param argList the argument list
-   * @throw CliArgumentsException on error
-   */
-  void parse(const QStringList &argList);
+	/**
+	 * @brief Parse the argument list
+	 * @param argList the argument list
+	 * @throw CliArgumentsException on error
+	 */
+	void parse(const QStringList &argList);
 
-  /**
-   * @brief Print use instruction
-   */
-  void displayUseInstructions();
+	/**
+	 * @brief Print use instruction
+	 */
+	void displayUseInstructions();
 private:
 
-  class JSONBUS_EXPORT Element {
-  public:
-    inline Element()
-        : name(), shortTag(), value(QString::null), enabled(false), description() {}
-    inline Element(const QString &name, char shortTag, const QString &description, const QString &value)
-        : name(name), shortTag(shortTag), value(value), enabled(false), description(description) {}
-    QString name;
-    char shortTag;
-    QString value;
-    bool enabled;
-    QString description;
-  };
+	class JSONBUS_EXPORT Element {
+	public:
+		inline Element()
+				: name(), shortTag(), value(QVariant(false)), description() {}
+		inline Element(const QString &name, char shortTag, const QString &description, const QVariant &value)
+				: name(name), shortTag(shortTag), value(value), description(description) {}
+		QString name;
+		char shortTag;
+		QVariant value;
+		QString description;
+	};
 
-  QMap<QString, Element> m_arguments;
-  QMap<char, QString> m_shortTagToName;
+	QMap<QString, Element> m_arguments;
+	QMap<char, QString> m_shortTagToName;
 };
 
 }

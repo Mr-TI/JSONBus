@@ -54,39 +54,39 @@ namespace jsonbus {
  */
 class JSONBUS_EXPORT Exception : public QObject {
 public:
-  /**
-   * @brief Exception constructor.
-   * @param message exeption message.
-   */
-  inline Exception(const QString &message): m_message(message) {}
-  /**
-   * @brief Exception constructor.
-   * @param message exeption message.
-   */
-  inline Exception(const Exception &exception): m_message(exception.m_message) {}
+	/**
+	 * @brief Exception constructor.
+	 * @param message exeption message.
+	 */
+	inline Exception(const QString &message): m_message(message) {}
+	/**
+	 * @brief Exception constructor.
+	 * @param message exeption message.
+	 */
+	inline Exception(const Exception &exception): m_message(exception.m_message) {}
 
-  /**
-   * @brief Exception destructor.
-   */
-  inline ~Exception() {}
+	/**
+	 * @brief Exception destructor.
+	 */
+	inline ~Exception() {}
 
-  /**
-   * @brief Get the exeption message.
-   * @return QString message.
-   */
-  inline const QString getMsg() const {
-    return m_message;
-  }
+	/**
+	 * @brief Get the exeption message.
+	 * @return QString message.
+	 */
+	inline const QString getMsg() const {
+		return m_message;
+	}
 
-  /**
-   * @brief Get the exeption message.
-   * @return QString message.
-   */
-  inline const QString getMessage() const {
-    return m_message;
-  }
+	/**
+	 * @brief Get the exeption message.
+	 * @return QString message.
+	 */
+	inline const QString getMessage() const {
+		return m_message;
+	}
 private:
-  QString m_message;
+	QString m_message;
 };
 
 }

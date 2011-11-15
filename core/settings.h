@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2011, Emeric Verschuur <emericv@gmail.com>
+    Copyright (c) 2012, Emeric Verschuur <emericv@gmail.com>
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -26,62 +26,85 @@
 */
 
 /**
- * @brief JSONBus : JSONBus master service management.
- * @file service.h
+ * @brief JSONBus : Settings management.
+ * @file settings.h
  * @author Emeric VERSCHUUR <contact@mr-ti.com>, (C) 2012
  */
 
-#ifndef JSONBUS_MASTERSERVICE_H
-#define JSONBUS_MASTERSERVICE_H
+#ifndef JSONBUS_SETTINGS_H
+#define JSONBUS_SETTINGS_H
+
+#include <jsonbus/core/exception.h>
 
 #ifndef JSONBUS_EXPORT
 #define JSONBUS_EXPORT
 #endif
 
-#include <QCoreApplication>
-class CliArguments;
-#include <jsonbus/core/exception.h>
+#ifndef WIN32
+#include <dlfcn.h>
+#endif
+#include <QString>
+#include <QVariant>
+#include <QSettings>
 
 namespace jsonbus {
 
+declare_exception(SettingsException, Exception);
+
 /**
- * @brief Dynamic library management.
+ * @brief Settings management.
  */
-class JSONBUS_EXPORT MasterService : public QCoreApplication {
+class JSONBUS_EXPORT Settings : public QSettings {
 public:
 	/**
-	 * @brief Service constructor.
+	 * @brief Settings constructor.
+	 * @param fileName
+	 * @param format
+	 * @param parent
 	 */
-	MasterService(int &argc, char **argv);
+	inline Settings(const QString& fileName, Format format, QObject* parent = 0)
+		: QSettings(fileName, format, parent){}
+	
+	/**
+	 * @brief Settings constructor.
+	 * @param organization
+	 * @param application
+	 * @param parent
+	 */
+	inline explicit Settings(const QString& organization, const QString& application = QString(), QObject* parent = 0)
+		: QSettings(organization, application, parent){}
+	
+	/**
+	 * @brief Settings destructor.
+	 */
+	~Settings();
 
 	/**
-	 * @brief Service destructor.
+	 * @brief Define an parameter
+	 * @param name parameter name
+	 * @param description parameter description
+	 * @param defaultValue the default value
+	 * @throw SettingsException on error
 	 */
-	~MasterService();
+	void define(const QString& name, const QString& description, const QVariant& defaultValue = QVariant(false));
 
 	/**
-	 * @brief Load the service
-	 * @throw Exception on error
+	 * @brief Setup parameters
 	 */
-	void launch();
-
-	/**
-	 * @brief Get the cli argument object
-	 * @return CliArguments reference
-	 */
-	inline CliArguments &getCliArguments() {
-		return m_cliArguments;
-	}
-
-	/**
-	 * @brief Load the service
-	 * @throw Exception on error
-	 */
-	inline static void launchInstance() {
-		static_cast<MasterService*>(instance())->launch();
-	}
+	void setup(bool interactive);
 private:
-	CliArguments m_cliArguments;
+
+	class JSONBUS_EXPORT Element {
+	public:
+		inline Element()
+				: value(), description() {}
+		inline Element(const QString &description, const QVariant &value)
+				: value(value), description(description) {}
+		QVariant value;
+		QString description;
+	};
+
+	QMap<QString, Element> m_defaults;
 };
 
 }
