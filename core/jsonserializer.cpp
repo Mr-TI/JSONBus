@@ -41,12 +41,7 @@ JSONSerializer::~JSONSerializer() {
 }
 
 QByteArray JSONSerializer::serialize(const QVariant &variant) {
-	bool ok = true;
-	QByteArray result = static_cast<QJson::Serializer*>(m_handle)->serialize(variant);
-	if (!ok) {
-		throw JSONSerializerException(tr("Unable to serialize data"));
-	}
-	return result;
+	return static_cast<QJson::Serializer*>(m_handle)->serialize(variant);
 }
 
 void JSONSerializer::serialize(const QVariant &variant, QIODevice &output) {

@@ -37,7 +37,7 @@ JSONParser::JSONParser(QObject* parent)
 }
 
 JSONParser::~JSONParser() {
-	delete m_handle;
+	delete static_cast<QJson::Parser*>(m_handle);
 }
 
 QVariant JSONParser::parse(const QByteArray &data) {
@@ -51,7 +51,7 @@ QVariant JSONParser::parse(const QByteArray &data) {
 
 QVariant JSONParser::parse(QIODevice &input) {
 	bool ok;
-	QVariant result = static_cast<QJson::Parser*>(m_handle)->parse(input, &ok);
+	QVariant result = static_cast<QJson::Parser*>(m_handle)->parse(&input, &ok);
 	if (!ok) {
 		throw JSONParserException(tr("Unable to parse data"));
 	}
