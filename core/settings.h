@@ -56,20 +56,27 @@ declare_exception(SettingsException, Exception);
  */
 class JSONBUS_EXPORT Settings : public QSettings {
 public:
+	
 	/**
 	 * @brief Settings constructor.
-	 * @param fileName
-	 * @param format
-	 * @param parent
+	 * @param parent Parent object
+	 */
+	explicit Settings(QObject* parent = 0);
+	
+	/**
+	 * @brief Settings constructor.
+	 * @param fileName Configuration file name
+	 * @param format Configuration file format
+	 * @param parent Parent object
 	 */
 	inline Settings(const QString& fileName, Format format, QObject* parent = 0)
 		: QSettings(fileName, format, parent){}
 	
 	/**
 	 * @brief Settings constructor.
-	 * @param organization
-	 * @param application
-	 * @param parent
+	 * @param organization Organization name
+	 * @param application Application name
+	 * @param parent Parent object
 	 */
 	inline explicit Settings(const QString& organization, const QString& application = QString(), QObject* parent = 0)
 		: QSettings(organization, application, parent){}

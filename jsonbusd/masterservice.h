@@ -40,6 +40,7 @@
 
 #include <QCoreApplication>
 class CliArguments;
+class Settings;
 #include <jsonbus/core/exception.h>
 
 namespace jsonbus {
@@ -72,16 +73,25 @@ public:
 	inline CliArguments &getCliArguments() {
 		return m_cliArguments;
 	}
+	
+	/**
+	 * @brief Get the service instance
+	 * @return MasterService reference
+	 */
+	inline static MasterService &getInstance () {
+		return *(static_cast<MasterService*>(instance()));
+	}
 
 	/**
 	 * @brief Load the service
 	 * @throw Exception on error
 	 */
 	inline static void launchInstance() {
-		static_cast<MasterService*>(instance())->launch();
+		getInstance().launch();
 	}
 private:
 	CliArguments m_cliArguments;
+	Settings m_settings;
 };
 
 }

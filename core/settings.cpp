@@ -44,7 +44,7 @@ void Settings::define(const QString& name, const QString& description, const QVa
 }
 
 void Settings::setup() {
-	cout << tr("### SETUP ###") << endl;
+	cout << tr("Configuration setup") << endl;
 	QString newVal;
 	string buff;
 	for (auto it = m_parameters.begin(); it != m_parameters.end(); it++) {
@@ -55,6 +55,7 @@ void Settings::setup() {
 			setValue(it.key(), newVal);
 		}
 	}
+	sync();
 }
 
 }
