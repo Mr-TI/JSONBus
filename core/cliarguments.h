@@ -46,7 +46,7 @@
 #include <QString>
 #include <QVariant>
 
-namespace jsonbus {
+namespace JSONBus {
 
 jsonbus_declare_exception(CliArgumentsException, Exception);
 

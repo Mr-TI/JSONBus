@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2011, Emeric Verschuur <emericv@gmail.com>
+    Copyright (c) 2012, Emeric Verschuur <emericv@gmail.com>
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -25,69 +25,15 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-/**
- * @brief JSONBus : JSONBus master router management.
- * @file router.h
- * @author Emeric VERSCHUUR <contact@mr-ti.com>, (C) 2012
- */
-
-#ifndef JSONBUS_ROUTER_H
-#define JSONBUS_ROUTER_H
-
-#include <QCoreApplication>
-class CliArguments;
-#include <jsonbus/core/exception.h>
+#include <common.h>
+#include <jsonparser.h>
 
 namespace JSONBus {
 
-/**
- * @brief JSONBus router management.
- */
-class Router : public QCoreApplication {
-public:
-	/**
-	 * @brief Service constructor.
-	 */
-	Router(int &argc, char **argv);
-
-	/**
-	 * @brief Service destructor.
-	 */
-	~Router();
-
-	/**
-	 * @brief Load the router
-	 * @throw Exception on error
-	 */
-	void launch();
-
-	/**
-	 * @brief Get the cli argument object
-	 * @return CliArguments reference
-	 */
-	inline CliArguments &getCliArguments() {
-		return m_cliArguments;
-	}
-	
-	/**
-	 * @brief Get the router instance
-	 * @return Router reference
-	 */
-	inline static Router &getInstance () {
-		return *(static_cast<Router*>(instance()));
-	}
-
-	/**
-	 * @brief Load the router
-	 * @throw Exception on error
-	 */
-	inline static void launchInstance() {
-		getInstance().launch();
-	}
-private:
-	CliArguments m_cliArguments;
-};
-
+JSONParser::JSONParser(QObject* parent) {
 }
 
-#endif
+JSONParser::~JSONParser() {
+}
+
+}

@@ -28,7 +28,7 @@
 #include <settings.h>
 #include <common.h>
 
-namespace jsonbus {
+namespace JSONBus {
 
 Settings::~Settings() {
 }

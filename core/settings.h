@@ -47,7 +47,7 @@
 #include <QVariant>
 #include <QSettings>
 
-namespace jsonbus {
+namespace JSONBus {
 
 jsonbus_declare_exception(SettingsException, Exception);
 

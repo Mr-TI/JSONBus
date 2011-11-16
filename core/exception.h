@@ -46,7 +46,7 @@ public:\
     inline name(const QString &msg):parent(msg) {}\
 };
 
-namespace jsonbus {
+namespace JSONBus {
 
 /**
  * This class can manage exceptions.

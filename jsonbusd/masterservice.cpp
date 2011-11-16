@@ -5,7 +5,7 @@
 #include <jsonbus/core/settings.h>
 #include <masterservice.h>
 
-namespace jsonbus {
+namespace JSONBus {
 
 MasterService::MasterService(int &argc, char **argv)
 	: QCoreApplication(argc, argv) {

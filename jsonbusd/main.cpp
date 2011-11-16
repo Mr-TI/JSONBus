@@ -3,7 +3,7 @@
 #include <jsonbus/core/cliarguments.h>
 #include <masterservice.h>
 
-using namespace jsonbus;
+using namespace JSONBus;
 
 int main(int argc, char **argv) {
 	try {

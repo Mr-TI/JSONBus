@@ -45,7 +45,7 @@
 #endif
 #include <QString>
 
-namespace jsonbus {
+namespace JSONBus {
 
 jsonbus_declare_exception(SharedLibException, Exception);
 

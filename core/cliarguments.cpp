@@ -31,7 +31,7 @@
 #include <QRegExp>
 #include <QCoreApplication>
 
-namespace jsonbus {
+namespace JSONBus {
 
 typedef QPair<QString, QString> LineElement;
 

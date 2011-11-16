@@ -59,7 +59,7 @@
 
 using namespace std;
 
-namespace jsonbus {
+namespace JSONBus {
 
 /**
  * @brief Outpout stream operator

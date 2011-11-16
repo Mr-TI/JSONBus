@@ -6,7 +6,7 @@
 #include <QCoreApplication>
 #include <QMap>
 
-using namespace jsonbus;
+using namespace JSONBus;
 using namespace std;
 
 

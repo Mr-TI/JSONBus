@@ -2,7 +2,7 @@
 #include <sharedlib.h>
 #include <common.h>
 
-namespace jsonbus {
+namespace JSONBus {
 
 #ifdef WIN32
 const int SharedLib::DefaultFlags = 0;

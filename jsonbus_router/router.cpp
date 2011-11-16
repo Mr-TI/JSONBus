@@ -5,7 +5,7 @@
 #include <jsonbus/core/settings.h>
 #include <router.h>
 
-namespace jsonbus {
+namespace JSONBus {
 
 Router::Router(int &argc, char **argv)
 	: QCoreApplication(argc, argv) {
