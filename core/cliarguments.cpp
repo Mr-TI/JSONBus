@@ -29,12 +29,15 @@
 #include <common.h>
 #include <QStringList>
 #include <QRegExp>
+#include <QCoreApplication>
 
 namespace jsonbus {
 
 typedef QPair<QString, QString> LineElement;
 
-CliArguments::CliArguments() {
+CliArguments::CliArguments()
+	:m_execName(QCoreApplication::argv()[0])
+{
 }
 
 CliArguments::~CliArguments() {
@@ -140,7 +143,7 @@ void CliArguments::displayUseInstructions() {
 		maxlen = qMax(maxlen, argName.length());
 		list.append(LineElement(argName, it.value().description + (argValue.type() == QVariant::String ? " (" + tr("value: ") + argValue.toString() + ")" : "")));
 	}
-	cout << tr("Use:") << endl;
+	cout << tr("Use: ") << m_execName << tr(" <options>") << endl << endl << tr("Option list:") << endl;
 	foreach(LineElement pair, list) {
 		cout << pair.first << QString(maxlen - pair.first.length() + 4, ' ') << pair.second << endl;
 	}

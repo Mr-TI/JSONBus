@@ -48,7 +48,7 @@
 
 namespace jsonbus {
 
-declare_exception(CliArgumentsException, Exception);
+jsonbus_declare_exception(CliArgumentsException, Exception);
 
 /**
  * @brief Dynamic library management.
@@ -119,6 +119,7 @@ private:
 
 	QMap<QString, Element> m_arguments;
 	QMap<char, QString> m_shortTagToName;
+	QString m_execName;
 };
 
 }

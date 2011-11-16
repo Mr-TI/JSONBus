@@ -47,7 +47,7 @@
 
 namespace jsonbus {
 
-declare_exception(SharedLibException, Exception);
+jsonbus_declare_exception(SharedLibException, Exception);
 
 /**
  * @brief Dynamic library management.

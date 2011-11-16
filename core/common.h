@@ -41,6 +41,17 @@
 #include <iostream>
 #include <QString>
 
+#ifdef WIN32
+#define JSONBUS_DEFAULT_LISTEN_ADDRESSES ":3693"
+#define JSONBUS_DEFAULT_BASEDIR qApp->applicationDirPath()
+#define JSONBUS_DEFAULT_PIDFILE JSONBUS_DEFAULT_BASEDIR "/jsonbusd.pid"
+#else
+#define JSONBUS_DEFAULT_LISTEN_ADDRESSES "/var/run/jsonbus.socket,:3693"
+#define JSONBUS_DEFAULT_BASEDIR "/usr/lib/jsonbus"
+#define JSONBUS_DEFAULT_PIDFILE "/var/run/jsonbusd.pid"
+#endif
+#define JSONBUS_DEFAULT_PLUGIN_DIR_PATH JSONBUS_DEFAULT_BASEDIR "/plugins"
+
 #define outLog cout
 #define outErr cerr
 #define outCri cerr

@@ -40,7 +40,7 @@
 #include <QString>
 #include <QObject>
 
-#define declare_exception(name, parent)\
+#define jsonbus_declare_exception(name, parent)\
 class JSONBUS_EXPORT name:public parent {\
 public:\
     inline name(const QString &msg):parent(msg) {}\

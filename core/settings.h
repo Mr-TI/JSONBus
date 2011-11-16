@@ -49,7 +49,7 @@
 
 namespace jsonbus {
 
-declare_exception(SettingsException, Exception);
+jsonbus_declare_exception(SettingsException, Exception);
 
 /**
  * @brief Settings management.

@@ -25,16 +25,18 @@
 #  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-# ### PROJECT ###
-project(jsonbus)
-cmake_minimum_required(VERSION 2.8.0)
+# ### FILES ###
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+file(GLOB project_HDRS *.h)
+file(GLOB project_SRCS *.cpp)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
+# ### QT4 ###
+find_package(Qt4 REQUIRED)
+include(${QT_USE_FILE})
+QT4_WRAP_UI(project_UIS_H)
+QT4_WRAP_CPP(project_MOC_SRCS)
 
-add_definitions(-std=c++0x)
-
-# ### SUBDIRECTORIES ###
-add_subdirectory(core)
-add_subdirectory(jsonbus_router)
-add_subdirectory(jsonbusd)
-add_subdirectory(test)
+# ### TARGET ###
+add_executable(jsonbus_router ${project_SRCS} ${project_HDRS})
+target_link_libraries(jsonbus_router ${QT_LIBRARIES} jsonbus)

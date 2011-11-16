@@ -26,13 +26,13 @@
 */
 
 /**
- * @brief JSONBus : JSONBus master service management.
- * @file service.h
+ * @brief JSONBus : JSONBus master router management.
+ * @file router.h
  * @author Emeric VERSCHUUR <contact@mr-ti.com>, (C) 2012
  */
 
-#ifndef JSONBUS_MASTERSERVICE_H
-#define JSONBUS_MASTERSERVICE_H
+#ifndef JSONBUS_ROUTER_H
+#define JSONBUS_ROUTER_H
 
 #include <QCoreApplication>
 class CliArguments;
@@ -40,25 +40,23 @@ class CliArguments;
 
 namespace jsonbus {
 
-jsonbus_declare_exception(MasterServiceException, Exception);
-
 /**
- * @brief Dynamic library management.
+ * @brief JSONBus router management.
  */
-class MasterService : public QCoreApplication {
+class Router : public QCoreApplication {
 public:
 	/**
 	 * @brief Service constructor.
 	 */
-	MasterService(int &argc, char **argv);
+	Router(int &argc, char **argv);
 
 	/**
 	 * @brief Service destructor.
 	 */
-	~MasterService();
+	~Router();
 
 	/**
-	 * @brief Load the service
+	 * @brief Load the router
 	 * @throw Exception on error
 	 */
 	void launch();
@@ -72,15 +70,15 @@ public:
 	}
 	
 	/**
-	 * @brief Get the service instance
-	 * @return MasterService reference
+	 * @brief Get the router instance
+	 * @return Router reference
 	 */
-	inline static MasterService &getInstance () {
-		return *(static_cast<MasterService*>(instance()));
+	inline static Router &getInstance () {
+		return *(static_cast<Router*>(instance()));
 	}
 
 	/**
-	 * @brief Load the service
+	 * @brief Load the router
 	 * @throw Exception on error
 	 */
 	inline static void launchInstance() {
