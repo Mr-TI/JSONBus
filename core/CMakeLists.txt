@@ -40,10 +40,6 @@ include(${QT_USE_FILE})
 QT4_WRAP_UI(project_UIS_H)
 QT4_WRAP_CPP(project_MOC_SRCS)
 
-# ### qJSON ###
-find_package(QJSON REQUIRED)
-include_directories(${QJSON_INCLUDE_DIR})
-
 # ### TARGET ###
 add_library(jsonbus SHARED ${project_SRCS} ${project_HDRS})
-target_link_libraries(jsonbus ${QT_LIBRARIES} ${QJSON_LIBRARIES})
+target_link_libraries(jsonbus ${QT_LIBRARIES} qjson)

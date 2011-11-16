@@ -25,8 +25,8 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <settings.h>
 #include <common.h>
+#include <settings.h>
 
 namespace JSONBus {
 

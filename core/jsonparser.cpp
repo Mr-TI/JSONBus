@@ -27,13 +27,35 @@
 
 #include <common.h>
 #include <jsonparser.h>
+#include <qjson/parser.h>
 
 namespace JSONBus {
 
-JSONParser::JSONParser(QObject* parent) {
+JSONParser::JSONParser(QObject* parent)
+	: QObject (parent) {
+	m_handle = new QJson::Parser();
 }
 
 JSONParser::~JSONParser() {
+	delete m_handle;
+}
+
+QVariant JSONParser::parse(const QByteArray &data) {
+	bool ok;
+	QVariant result = static_cast<QJson::Parser*>(m_handle)->parse(data, &ok);
+	if (!ok) {
+		throw JSONParserException(tr("Unable to parse data"));
+	}
+	return result;
+}
+
+QVariant JSONParser::parse(QIODevice &input) {
+	bool ok;
+	QVariant result = static_cast<QJson::Parser*>(m_handle)->parse(input, &ok);
+	if (!ok) {
+		throw JSONParserException(tr("Unable to parse data"));
+	}
+	return result;
 }
 
 }

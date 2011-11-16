@@ -50,21 +50,37 @@ jsonbus_declare_exception(JSONSerializerException, Exception);
 /**
  * @brief JSON serializer management.
  */
-class JSONBUS_EXPORT JSONSerializer {
+class JSONBUS_EXPORT JSONSerializer: public QObject {
 public:
 	
 	/**
-	 * @brief Settings constructor.
+	 * @brief JSONSerializer constructor.
 	 * @param parent Parent object
 	 */
 	JSONSerializer(QObject* parent = 0);
 	
 	/**
-	 * @brief Settings destructor.
+	 * @brief JSONSerializer destructor.
 	 */
 	~JSONSerializer();
+	
+	/**
+	 * @brief Serialize an object in JSON format
+	 * @param variant object to serialize
+	 * @return QByteArray object
+	 * @throw JSONSerializerException on serializing error
+	 */
+	QByteArray serialize(const QVariant &variant);
+	
+	/**
+	 * @brief Serialize a JSON data from a input device
+	 * @param variant object to serialize
+	 * @param output Device to output the JSON string
+	 * @throw JSONSerializerException on serializing error
+	 */
+	void serialize(const QVariant &variant, QIODevice &output);
 private:
-
+	void *m_handle;
 };
 
 }

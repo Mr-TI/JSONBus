@@ -50,21 +50,37 @@ jsonbus_declare_exception(JSONParserException, Exception);
 /**
  * @brief JSON Parser management.
  */
-class JSONBUS_EXPORT JSONParser {
+class JSONBUS_EXPORT JSONParser: public QObject {
 public:
 	
 	/**
-	 * @brief Settings constructor.
+	 * @brief JSONParser constructor.
 	 * @param parent Parent object
 	 */
 	JSONParser(QObject* parent = 0);
 	
 	/**
-	 * @brief Settings destructor.
+	 * @brief JSONParser destructor.
 	 */
 	~JSONParser();
+	
+	/**
+	 * @brief Parse a JSON data from a byte array
+	 * @param data data to parse
+	 * @return QVariant object
+	 * @throw JSONParserException on parsing error
+	 */
+	QVariant parse(const QByteArray& data);
+	
+	/**
+	 * @brief Parse a JSON data from a input device
+	 * @param input Device to get data from
+	 * @return QVariant object
+	 * @throw JSONParserException on parsing error
+	 */
+	QVariant parse(QIODevice& input);
 private:
-
+	void *m_handle;
 };
 
 }
