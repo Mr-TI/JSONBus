@@ -31,7 +31,11 @@ cmake_minimum_required(VERSION 2.8.0)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
 
-add_definitions(-std=c++0x)
+if(NOT WIN32)
+set(CMAKE_CXX_FLAGS "-Wall -std=gnu++0x")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_DEBUG  "-g3")
+endif(NOT WIN32)
 
 # ### SUBDIRECTORIES ###
 add_subdirectory(container)

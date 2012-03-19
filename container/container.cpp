@@ -9,9 +9,12 @@ namespace JSONBus {
 
 Container::Container(int &argc, char **argv)
 	: QCoreApplication(argc, argv) {
-	m_cliArguments.define("config",	'c', tr("Set a custom config path"), "/etc/jsonbus/jsonbus.conf");
-	m_cliArguments.define("help",	'h', tr("Display this help"));
-	m_cliArguments.define("setup",	's', tr("Setup the service"));
+	m_cliArguments.define("plugin-dir",		'd', tr("Plugin path"), "/usr/lib/jsonbus/plugins/");
+	m_cliArguments.define("plugin-name",	'n', tr("Plugin name"), "");
+	m_cliArguments.define("plugin-path",	'f', tr("Plugin path"), "");
+	m_cliArguments.define("config",			'c', tr("Set a custom config path"), "");
+	m_cliArguments.define("setup",			's', tr("Setup the plugin"));
+	m_cliArguments.define("help",			'h', tr("Display this help"));
 	m_cliArguments.parse(arguments());
 }
 
@@ -20,12 +23,10 @@ Container::~Container() {
 
 void Container::launch() {
 #ifdef WIN32
-	Settings settings("OpenIHS.org", "JSONBus", QSettings::NativeFormat);
+	Settings settings("OpenIHS.org", "JSONBus::" + m_cliArguments.getValue("plugin-name").toString(), QSettings::NativeFormat);
 #else
 	Settings settings(m_cliArguments.getValue("config").toString(), QSettings::NativeFormat);
 #endif
-	settings.define("container/listen",		tr("Addresses where the container will listen on"),	JSONBUS_DEFAULT_LISTEN_ADDRESSES);
-	settings.define("container/plugindir",		tr("Plugin dir paths"), 							JSONBUS_DEFAULT_PLUGIN_DIR_PATH);
 	if (m_cliArguments.isEnabled("setup")) {
 		settings.setup();
 		return;

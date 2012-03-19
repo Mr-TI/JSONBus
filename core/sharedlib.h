@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2011, Emeric Verschuur <contact@openihs.org>
+    Copyright (c) 2012, Emeric Verschuur <contact@openihs.org>
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -9,7 +9,7 @@
         * Redistributions in binary form must reproduce the above copyright
         notice, this list of conditions and the following disclaimer in the
         documentation and/or other materials provided with the distribution.
-        * Neither the name of the <organization> nor the
+        * Neither the name of the OpenIHS.org nor the
         names of its contributors may be used to endorse or promote products
         derived from this software without specific prior written permission.
 
@@ -105,11 +105,13 @@ private:
 
 #ifdef WIN32
 	typedef HMODULE handle_t;
-	static const int DefaultFlags;
+#	define RTLD_LAZY 0
+#	define RTLD_GLOBAL 0
 #else
 	typedef void* handle_t;
-	static const int DefaultFlags;
 #endif
+	
+	static const int DefaultFlags = RTLD_LAZY | RTLD_GLOBAL;
 
 	QString path;
 	handle_t handle;

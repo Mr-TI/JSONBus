@@ -4,12 +4,6 @@
 
 namespace JSONBus {
 
-#ifdef WIN32
-const int SharedLib::DefaultFlags = 0;
-#else
-const int SharedLib::DefaultFlags = RTLD_LAZY | RTLD_GLOBAL;
-#endif
-
 SharedLib::SharedLib(const QString &path)
 		: path(path),
 		handle(0) {
@@ -28,7 +22,6 @@ void SharedLib::load(int flags) {
 		throw SharedLibException(tr("Fail to load the dynamic library : ") + lastError);
 	}
 #ifdef WIN32
-	//Chargement de la lib
 	handle = LoadLibrary(path.c_str());
 	if (!handle) {
 		lastError = "LoadLibrary() >> " + getMessageError(GetLastError());
@@ -37,7 +30,6 @@ void SharedLib::load(int flags) {
 	}
 #else
 	char *dl_error;
-	//Chargement de la lib
 	handle = dlopen(path.toAscii(), flags);
 	if (!handle) {
 		dl_error = dlerror();
