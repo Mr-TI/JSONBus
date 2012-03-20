@@ -36,8 +36,6 @@
 
 #include <jsonbus/core/exception.h>
 
-namespace JSONBus {
-
 /**
  * @brief JSONBus container management.
  */
@@ -54,7 +52,5 @@ public:
 	~Exemple();
 private:
 };
-
-}
 
 #endif

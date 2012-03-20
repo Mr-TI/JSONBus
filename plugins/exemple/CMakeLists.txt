@@ -38,5 +38,5 @@ QT4_WRAP_UI(project_UIS_H)
 QT4_WRAP_CPP(project_MOC_SRCS)
 
 # ### TARGET ###
-add_executable(exemple ${project_SRCS} ${project_HDRS})
+add_library(exemple SHARED ${project_SRCS} ${project_HDRS})
 target_link_libraries(exemple ${QT_LIBRARIES} jsonbus)

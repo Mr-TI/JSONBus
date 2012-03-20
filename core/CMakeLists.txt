@@ -31,9 +31,6 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 file(GLOB project_HDRS *.h)
 file(GLOB project_SRCS *.cpp)
 
-# ### SUBDIRECTORIES ###
-#add_subdirectory()
-
 # ### QT4 ###
 find_package(Qt4 REQUIRED)
 include(${QT_USE_FILE})
