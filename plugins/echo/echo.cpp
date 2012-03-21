@@ -3,11 +3,12 @@
 #include <jsonbus/core/common.h>
 #include <jsonbus/core/cliarguments.h>
 #include <jsonbus/core/settings.h>
-#include <exemple.h>
 
-Exemple::Exemple() {
+#include "echo.h"
+
+Echo::Echo() {
 	
 }
 
-Exemple::~Exemple() {
+Echo::~Echo() {
 }

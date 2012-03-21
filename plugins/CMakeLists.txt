@@ -26,4 +26,4 @@
 #
 
 # ### SUBDIRECTORIES ###
-add_subdirectory(exemple)
+add_subdirectory(echo)

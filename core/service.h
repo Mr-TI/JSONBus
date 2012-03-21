@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2011, Emeric Verschuur <contact@openihs.org>
+    Copyright (c) 2012, Emeric Verschuur <contact@openihs.org>
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -9,7 +9,7 @@
         * Redistributions in binary form must reproduce the above copyright
         notice, this list of conditions and the following disclaimer in the
         documentation and/or other materials provided with the distribution.
-        * Neither the name of the <organization> nor the
+        * Neither the name of the OpenIHS.org nor the
         names of its contributors may be used to endorse or promote products
         derived from this software without specific prior written permission.
 
@@ -26,34 +26,50 @@
 */
 
 /**
- * @brief JSONBus : JSONBus master container management.
- * @file exemple.h
+ * @brief JSONBus : Service management.
+ * @file service.h
  * @author Emeric VERSCHUUR <contact@openihs.org>, (C) 2012
  */
 
-#ifndef JSONBUS_PLUGIN_ECHO_H
-#define JSONBUS_PLUGIN_ECHO_H
+#ifndef JSONBUS_SERVICE_H
+#define JSONBUS_SERVICE_H
 
 #include <jsonbus/core/exception.h>
-#include <jsonbus/core/plugin.h>
 
-using namespace JSONBus;
+#ifndef JSONBUS_EXPORT
+#define JSONBUS_EXPORT
+#endif
+
+#include <QString>
+
+namespace JSONBus {
+
+jsonbus_declare_exception(ServiceException, Exception);
+jsonbus_declare_exception(InvalidPrefixServiceException, ServiceException);
+jsonbus_declare_exception(InvalidNameServiceException, ServiceException);
 
 /**
- * @brief Sample JSONBus echo plugin.
+ * @brief Service management.
  */
-class Echo: public Plugin {
+class JSONBUS_EXPORT Service: public QObject {
 public:
 	/**
 	 * @brief Service constructor.
+	 * @param name 
 	 */
-	Echo();
+	Service(const QString &prefix, const QString &name);
 
 	/**
 	 * @brief Service destructor.
 	 */
-	~Echo();
+	~Service();
 private:
+	/// @brief Service prefix (eg: org.openihs.path)
+	QString m_prefix;
+	/// @brief Service name
+	QString m_name;
 };
 
-#endif // JSONBUS_PLUGIN_ECHO_H
+}
+
+#endif

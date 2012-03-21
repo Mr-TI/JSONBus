@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2011, Emeric Verschuur <contact@openihs.org>
+    Copyright (c) 2012, Emeric Verschuur <contact@openihs.org>
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -9,7 +9,7 @@
         * Redistributions in binary form must reproduce the above copyright
         notice, this list of conditions and the following disclaimer in the
         documentation and/or other materials provided with the distribution.
-        * Neither the name of the <organization> nor the
+        * Neither the name of the OpenIHS.org nor the
         names of its contributors may be used to endorse or promote products
         derived from this software without specific prior written permission.
 
@@ -26,34 +26,50 @@
 */
 
 /**
- * @brief JSONBus : JSONBus master container management.
- * @file exemple.h
+ * @brief JSONBus : Plugin service management.
+ * @file service.h
  * @author Emeric VERSCHUUR <contact@openihs.org>, (C) 2012
  */
 
-#ifndef JSONBUS_PLUGIN_ECHO_H
-#define JSONBUS_PLUGIN_ECHO_H
+#ifndef JSONBUS_SERVICE_H
+#define JSONBUS_SERVICE_H
 
 #include <jsonbus/core/exception.h>
-#include <jsonbus/core/plugin.h>
+#include <jsonbus/core/settings.h>
 
-using namespace JSONBus;
+#ifndef JSONBUS_EXPORT
+#define JSONBUS_EXPORT
+#endif
+
+#include <QString>
+
+namespace JSONBus {
+
+jsonbus_declare_exception(PluginException, Exception);
 
 /**
- * @brief Sample JSONBus echo plugin.
+ * @brief Plugin management.
  */
-class Echo: public Plugin {
+class JSONBUS_EXPORT Plugin: public QObject {
 public:
 	/**
-	 * @brief Service constructor.
+	 * @brief Plugin constructor.
 	 */
-	Echo();
+	Plugin();
 
 	/**
-	 * @brief Service destructor.
+	 * @brief Plugin destructor.
 	 */
-	~Echo();
+	~Plugin();
+	
+	inline virtual void onInit (Settings &settings) {};
+	
+	inline virtual void onLoad () {};
+	
+	inline virtual void onUnload () {};
 private:
 };
 
-#endif // JSONBUS_PLUGIN_ECHO_H
+}
+
+#endif

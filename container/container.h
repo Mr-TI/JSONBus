@@ -40,6 +40,8 @@ class CliArguments;
 
 namespace JSONBus {
 
+jsonbus_declare_exception(ContainerException, Exception);
+
 /**
  * @brief JSONBus container management.
  */
