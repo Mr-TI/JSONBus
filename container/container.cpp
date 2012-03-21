@@ -16,8 +16,6 @@
 
 namespace JSONBus {
 
-typedef Plugin& (*get_singleton_t) ();
-
 Container::Container(int &argc, char **argv)
 	: QCoreApplication(argc, argv) {
 	m_cliArguments.define("service-root",	'd', tr("Plugin root directory (excluding namaspace directory)"), "/usr/lib/jsonbus/services/");
@@ -34,15 +32,6 @@ Container::~Container() {
 }
 
 void Container::launch() {
-#ifdef WIN32
-	Settings settings("OpenIHS.org", "JSONBus::" + m_cliArguments.getValue("service-name").toString(), QSettings::NativeFormat);
-#else
-	Settings settings(m_cliArguments.getValue("config").toString(), QSettings::NativeFormat);
-#endif
-	if (m_cliArguments.isEnabled("setup")) {
-		settings.setup();
-		return;
-	}
 	QString serviceRoot = m_cliArguments.getValue("service-root").toString();
 	QString serviceName = m_cliArguments.getValue("service-name").toString();
 	QString serviceNs = m_cliArguments.getValue("service-ns").toString();
@@ -64,10 +53,23 @@ void Container::launch() {
 	
 	SharedLib pluginlib(servicePath);
 	
-	get_singleton_t *getSingleton = static_cast<get_singleton_t*>(pluginlib.getSymbol("getSingleton"));
+#ifdef WIN32
+	Settings settings("OpenIHS.org", "JSONBus::" + serviceNs + "." + serviceName, QSettings::NativeFormat);
+#else
+	QString confPath = m_cliArguments.getValue("config").toString();
+	if (confPath.isEmpty()) {
+		confPath = "/etc/jsonbus/services/" + serviceNs + "/" + serviceName + ".conf";
+	}
+	Settings settings(confPath, QSettings::NativeFormat);
+#endif
 	
-	Plugin &plugin = *getSingleton();
-	plugin.onInit();
+	Plugin &plugin = (*static_cast<Plugin&(**)()>(pluginlib.getSymbol("getSingleton")))();
+	
+	plugin.onInit(settings);
+	if (m_cliArguments.isEnabled("setup")) {
+		settings.setup();
+		return;
+	}
 }
 
 }

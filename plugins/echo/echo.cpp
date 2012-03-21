@@ -6,6 +6,8 @@
 
 #include "echo.h"
 
+jsonbus_declare_plugin(Echo)
+
 Echo::Echo() {
 	
 }

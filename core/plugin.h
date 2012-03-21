@@ -37,6 +37,13 @@
 #include <jsonbus/core/exception.h>
 #include <jsonbus/core/settings.h>
 
+#define jsonbus_declare_plugin(class_name) \
+extern "C" {\
+	JSONBus::Plugin &getSingleton () {\
+		return *new class_name();\
+	}\
+}
+
 #ifndef JSONBUS_EXPORT
 #define JSONBUS_EXPORT
 #endif
@@ -60,14 +67,24 @@ public:
 	/**
 	 * @brief Plugin destructor.
 	 */
-	~Plugin();
+	virtual ~Plugin() = 0;
 	
+	/**
+	 * @brief Function called on plugin init
+	 */
 	inline virtual void onInit (Settings &settings) {};
 	
+	/**
+	 * @brief Function called on plugin load
+	 */
 	inline virtual void onLoad () {};
 	
+	/**
+	 * @brief Function called on plugin unload
+	 */
 	inline virtual void onUnload () {};
-private:
+protected:
+	static Plugin *m_instance = NULL;
 };
 
 }
