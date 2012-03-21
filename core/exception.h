@@ -74,7 +74,7 @@ public:
 	 * @brief Get the exeption message.
 	 * @return QString message.
 	 */
-	inline const QString getMsg() const {
+	inline const QString message() const {
 		return m_message;
 	}
 

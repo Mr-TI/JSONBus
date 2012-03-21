@@ -35,10 +35,13 @@
 #define JSONBUS_CONTAINER_H
 
 #include <QCoreApplication>
-class CliArguments;
 #include <jsonbus/core/exception.h>
 
 namespace JSONBus {
+
+class CliArguments;
+class SharedLib;
+class Plugin;
 
 jsonbus_declare_exception(ContainerException, Exception);
 
@@ -88,6 +91,8 @@ public:
 	}
 private:
 	CliArguments m_cliArguments;
+	SharedLib *m_pluginFile;
+	Plugin *m_plugin;
 };
 
 }

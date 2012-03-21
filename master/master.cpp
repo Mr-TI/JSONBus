@@ -3,26 +3,26 @@
 #include <jsonbus/core/common.h>
 #include <jsonbus/core/cliarguments.h>
 #include <jsonbus/core/settings.h>
-#include <masterservice.h>
+#include <master.h>
 
 namespace JSONBus {
 
-MasterService::MasterService(int &argc, char **argv)
+Master::Master(int &argc, char **argv)
 	: QCoreApplication(argc, argv) {
 	m_cliArguments.define("daemonize",	'd', tr("Launch this service in background"));
 	m_cliArguments.define("config",		'c', tr("Set a custom config path"), "/etc/jsonbus/jsonbus.conf");
 	m_cliArguments.define("help",		'h', tr("Display this help"));
 	m_cliArguments.define("setup",		's', tr("Setup the service"));
 #ifdef WIN32
-	m_cliArguments.define("win-cli", '\0', tr("Switch to cli mode, don't launch a Windows service"));
+	m_cliArguments.define("win-cli",	'\0', tr("Switch to cli mode, don't launch a Windows service"));
 #endif
 	m_cliArguments.parse(arguments());
 }
 
-MasterService::~MasterService() {
+Master::~Master() {
 }
 
-void MasterService::launch() {
+void Master::launch() {
 #ifdef WIN32
 	Settings settings("OpenIHS.org", "JSONBus", QSettings::NativeFormat);
 #else

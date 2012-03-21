@@ -18,7 +18,7 @@
     WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
     DISCLAIMED. IN NO EVENT SHALL Emeric Verschuur <contact@openihs.org> BE LIABLE FOR ANY
     DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR S;
     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
     ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
@@ -31,8 +31,8 @@
  * @author Emeric VERSCHUUR <contact@openihs.org>, (C) 2012
  */
 
-#ifndef JSONBUS_MASTERSERVICE_H
-#define JSONBUS_MASTERSERVICE_H
+#ifndef JSONBUS_MASTER_H
+#define JSONBUS_MASTER_H
 
 #include <QCoreApplication>
 class CliArguments;
@@ -40,22 +40,22 @@ class CliArguments;
 
 namespace JSONBus {
 
-jsonbus_declare_exception(MasterServiceException, Exception);
+jsonbus_declare_exception(MasterException, Exception);
 
 /**
  * @brief Dynamic library management.
  */
-class MasterService : public QCoreApplication {
+class Master : public QCoreApplication {
 public:
 	/**
 	 * @brief Service constructor.
 	 */
-	MasterService(int &argc, char **argv);
+	Master(int &argc, char **argv);
 
 	/**
 	 * @brief Service destructor.
 	 */
-	~MasterService();
+	~Master();
 
 	/**
 	 * @brief Load the service
@@ -73,10 +73,10 @@ public:
 	
 	/**
 	 * @brief Get the service instance
-	 * @return MasterService reference
+	 * @return Master reference
 	 */
-	inline static MasterService &getInstance () {
-		return *(static_cast<MasterService*>(instance()));
+	inline static Master &getInstance () {
+		return *(static_cast<Master*>(instance()));
 	}
 
 	/**

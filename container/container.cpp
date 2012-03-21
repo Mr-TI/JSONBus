@@ -17,7 +17,8 @@
 namespace JSONBus {
 
 Container::Container(int &argc, char **argv)
-	: QCoreApplication(argc, argv) {
+	: QCoreApplication(argc, argv),
+	m_pluginFile(NULL), m_plugin(NULL) {
 	m_cliArguments.define("service-root",	'd', tr("Plugin root directory (excluding namaspace directory)"), "/usr/lib/jsonbus/services/");
 	m_cliArguments.define("service-ns",		'N', tr("Plugin namespace"), "");
 	m_cliArguments.define("service-name",	'n', tr("Plugin name"), "");
@@ -29,6 +30,8 @@ Container::Container(int &argc, char **argv)
 }
 
 Container::~Container() {
+	delete m_plugin;
+	delete m_pluginFile;
 }
 
 void Container::launch() {
@@ -38,20 +41,21 @@ void Container::launch() {
 	QString servicePath = m_cliArguments.getValue("service-path").toString();
 	
 	if (serviceNs.isEmpty()) {
-		throw new ContainerException("Undefinied service namespace");
+		throw ContainerException("Undefinied service namespace");
 	}
 	if (serviceName.isEmpty()) {
-		throw new ContainerException("Undefinied service name");
+		throw ContainerException("Undefinied service name");
 	}
 	
 	if (servicePath.isEmpty()) {
 		if (serviceRoot.isEmpty()) {
-			throw new ContainerException("Undefinied root service directory");
+			throw ContainerException("Undefinied root service directory");
 		}
 		servicePath = serviceRoot + "/" + serviceNs + "/" JSONBUS_SERVICEFILE_PREFIX + serviceName + JSONBUS_SERVICEFILE_SUFFIX;
 	}
 	
-	SharedLib pluginlib(servicePath);
+	m_pluginFile = new SharedLib(servicePath);
+	m_pluginFile->load();
 	
 #ifdef WIN32
 	Settings settings("OpenIHS.org", "JSONBus::" + serviceNs + "." + serviceName, QSettings::NativeFormat);
@@ -63,13 +67,17 @@ void Container::launch() {
 	Settings settings(confPath, QSettings::NativeFormat);
 #endif
 	
-	Plugin &plugin = (*static_cast<Plugin&(**)()>(pluginlib.getSymbol("getSingleton")))();
+	m_plugin = (*(Plugin*(*)())(m_pluginFile->getSymbol("getSingleton")))();
 	
-	plugin.onInit(settings);
+	m_plugin->onInit(settings);
 	if (m_cliArguments.isEnabled("setup")) {
 		settings.setup();
 		return;
 	}
+	
+	m_plugin->onLoad();
+	
+	exec();
 }
 
 }

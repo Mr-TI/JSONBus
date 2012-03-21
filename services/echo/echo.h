@@ -26,13 +26,13 @@
 */
 
 /**
- * @brief JSONBus : JSONBus master container management.
- * @file exemple.h
+ * @brief Sample JSONBus echo plugin.
+ * @file echo.h
  * @author Emeric VERSCHUUR <contact@openihs.org>, (C) 2012
  */
 
-#ifndef JSONBUS_PLUGIN_ECHO_H
-#define JSONBUS_PLUGIN_ECHO_H
+#ifndef JSONBUS_SERVICES_ECHO_H
+#define JSONBUS_SERVICES_ECHO_H
 
 #include <jsonbus/core/exception.h>
 #include <jsonbus/core/plugin.h>
@@ -53,6 +53,21 @@ public:
 	 * @brief Service destructor.
 	 */
 	~Echo();
+	
+	/**
+	 * @brief Function called on plugin init
+	 */
+	virtual void onInit (Settings &settings);
+	
+	/**
+	 * @brief Function called on plugin load
+	 */
+	virtual void onLoad ();
+	
+	/**
+	 * @brief Function called on plugin unload
+	 */
+	virtual void onUnload ();
 private:
 };
 

@@ -39,8 +39,8 @@
 
 #define jsonbus_declare_plugin(class_name) \
 extern "C" {\
-	JSONBus::Plugin &getSingleton () {\
-		return *new class_name();\
+	JSONBus::Plugin *getSingleton () {\
+		return new class_name();\
 	}\
 }
 
@@ -83,8 +83,6 @@ public:
 	 * @brief Function called on plugin unload
 	 */
 	inline virtual void onUnload () {};
-protected:
-	static Plugin *m_instance = NULL;
 };
 
 }

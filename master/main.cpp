@@ -1,20 +1,20 @@
 
 #include <jsonbus/core/common.h>
 #include <jsonbus/core/cliarguments.h>
-#include <masterservice.h>
+#include <master.h>
 
 using namespace JSONBus;
 
 int main(int argc, char **argv) {
 	try {
-		MasterService service(argc, argv);
+		Master service(argc, argv);
 		if (service.getCliArguments().isEnabled("help")) {
 			service.getCliArguments().displayUseInstructions();
 			return 0;
 		}
 #ifdef WIN32
 		if (service.getCliArguments().isEnabled("win32-cli")) {
-			SERVICE_TABLE_ENTRY Table[] = {{"JSONBus Service", MasterService::launchInstance}, {NULL, NULL}};
+			SERVICE_TABLE_ENTRY Table[] = {{"JSONBus Service", Master::launchInstance}, {NULL, NULL}};
 			if (!StartServiceCtrlDispatcher(Table)) {
 				clog << getMessageError(GetLastError());
 			}
@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
 		service.launch();
 #endif
 	} catch (Exception e) {
-		outErr << e.getMsg() << "\n" << endl;
+		outErr << "Exception: " << e.message() << "\n" << endl;
 	} catch (...) {
 		outErr << "### WARNING ! WARNING ! WARNING ! ### Exception not managed !\n" << endl;
 	}

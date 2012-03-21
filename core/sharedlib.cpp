@@ -18,14 +18,12 @@ void SharedLib::load(int flags) {
 	QString lastError;
 	if (handle != 0) {
 		lastError = "Dynamic library already loaded.";
-		outErr << lastError << "\n" << endl;
 		throw SharedLibException(tr("Fail to load the dynamic library : ") + lastError);
 	}
 #ifdef WIN32
 	handle = LoadLibrary(path.c_str());
 	if (!handle) {
 		lastError = "LoadLibrary() >> " + getMessageError(GetLastError());
-		outErr << lastError << "\n" << endl;
 		throw SharedLibException(tr("Fail to load the dynamic library : " + lastError);
 	}
 #else
@@ -34,7 +32,6 @@ void SharedLib::load(int flags) {
 	if (!handle) {
 		dl_error = dlerror();
 		lastError = "dlopen() >> " + QString(dl_error);
-		outErr << lastError << "\n" << endl;
 		throw SharedLibException(tr("Fail to load the dynamic library : ") + lastError);
 	}
 #endif
@@ -44,7 +41,6 @@ void *SharedLib::getSymbol(const char *symbol) {
 	QString lastError;
 	if (handle == 0) {
 		lastError = "Dynamic library not loaded.";
-		outErr << lastError << "\n" << endl;
 		throw SharedLibException(tr("Fail to get a symbol : ") + lastError);
 	}
 	void *ptr;
@@ -52,7 +48,6 @@ void *SharedLib::getSymbol(const char *symbol) {
 	ptr = GetProcAddress(handle, symbol);
 	if (ptr == NULL)  {
 		lastError = "GetProcAddress(\"" + QString(symbol) + "\") >> " + getMessageError(GetLastError());
-		outErr << lastError << "\n" << endl;
 		throw SharedLibException(tr("Fail to get the symbol : ") + lastError);
 	}
 #else
@@ -60,7 +55,6 @@ void *SharedLib::getSymbol(const char *symbol) {
 	ptr = dlsym(handle, symbol);
 	if ((dl_error = dlerror()) != NULL)  {
 		lastError = "dlsym() >> " + QString(dl_error);
-		outErr << lastError << "\n" << endl;
 		throw SharedLibException(tr("Fail to load the plugin : ") + lastError);
 	}
 #endif
@@ -71,7 +65,6 @@ void SharedLib::unload() {
 	QString lastError;
 	if (handle == 0) {
 		lastError = "Dynamic library not loaded.";
-		outErr << lastError << "\n" << endl;
 		throw SharedLibException(tr("Fail to unload the plugin : ") + lastError);
 	}
 #ifdef WIN32

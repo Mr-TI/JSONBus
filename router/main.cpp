@@ -14,7 +14,7 @@ int main(int argc, char **argv) {
 		}
 		router.launch();
 	} catch (Exception e) {
-		outErr << e.getMsg() << "\n" << endl;
+		outErr << "Exception: " << e.message() << "\n" << endl;
 	} catch (...) {
 		outErr << "### WARNING ! WARNING ! WARNING ! ### Exception not managed !\n" << endl;
 	}
