@@ -39,4 +39,4 @@ QT4_WRAP_CPP(project_MOC_SRCS)
 
 # ### TARGET ###
 add_library(exemple SHARED ${project_SRCS} ${project_HDRS})
-target_link_libraries(exemple ${QT_LIBRARIES} jsonbus)
+# target_link_libraries(exemple ${QT_LIBRARIES} jsonbus)

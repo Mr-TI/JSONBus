@@ -5,8 +5,6 @@
 #include <jsonbus/core/settings.h>
 #include <exemple.h>
 
-namespace JSONBus {
-
 Exemple::Exemple() {
 	
 }

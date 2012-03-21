@@ -31,10 +31,12 @@
  * @author Emeric VERSCHUUR <contact@openihs.org>, (C) 2012
  */
 
-#ifndef JSONBUS_CONTAINER_H
-#define JSONBUS_CONTAINER_H
+#ifndef JSONBUS_PLUGIN_ECHO_H
+#define JSONBUS_PLUGIN_ECHO_H
 
 #include <jsonbus/core/exception.h>
+
+using namespace JSONBus;
 
 /**
  * @brief JSONBus container management.
@@ -44,7 +46,7 @@ public:
 	/**
 	 * @brief Service constructor.
 	 */
-	Exemple(int &argc, char **argv);
+	Exemple();
 
 	/**
 	 * @brief Service destructor.
@@ -53,4 +55,4 @@ public:
 private:
 };
 
-#endif
+#endif // JSONBUS_PLUGIN_ECHO_H
