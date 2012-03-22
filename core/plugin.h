@@ -58,6 +58,7 @@ jsonbus_declare_exception(PluginException, Exception);
  * @brief Plugin management.
  */
 class JSONBUS_EXPORT Plugin: public QObject {
+	Q_OBJECT
 public:
 	/**
 	 * @brief Plugin constructor.
@@ -77,12 +78,29 @@ public:
 	/**
 	 * @brief Function called on plugin load
 	 */
-	inline virtual void onLoad () {};
+	inline virtual void onLoad () {m_loaded = true;};
 	
 	/**
 	 * @brief Function called on plugin unload
 	 */
-	inline virtual void onUnload () {};
+	inline virtual void onUnload () {m_loaded = false;};
+	
+	/**
+	 * @brief Return true if the plugin is loaded
+	 */
+	inline bool isLoaded() {return m_loaded;};
+	
+	/**
+	 * @brief Function called on plugin request
+	 */
+	virtual void onRequest(QVariant request) = 0;
+	
+signals:
+	void resultAvailable(QVariant result);
+	
+private:
+	
+	bool m_loaded;
 };
 
 }

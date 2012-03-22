@@ -4,7 +4,8 @@
 
 namespace JSONBus {
 
-Plugin::Plugin() {
+Plugin::Plugin()
+: m_loaded(false) {
 }
 
 Plugin::~Plugin() {

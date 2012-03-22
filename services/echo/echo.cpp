@@ -22,8 +22,10 @@ void Echo::onInit (Settings &settings) {
 
 void Echo::onLoad () {
 	cerr << "Loading echo service..." << endl;
+	Plugin::onLoad();
 };
 
 void Echo::onUnload () {
 	cerr << "Unloading echo service..." << endl;
+	Plugin::onUnload();
 };

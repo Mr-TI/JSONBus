@@ -45,12 +45,12 @@ using namespace JSONBus;
 class Echo: public Plugin {
 public:
 	/**
-	 * @brief Service constructor.
+	 * @brief Echo service constructor.
 	 */
 	Echo();
 
 	/**
-	 * @brief Service destructor.
+	 * @brief Echo service destructor.
 	 */
 	~Echo();
 	

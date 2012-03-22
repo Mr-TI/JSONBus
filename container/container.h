@@ -36,12 +36,11 @@
 
 #include <QCoreApplication>
 #include <jsonbus/core/exception.h>
+#include <jsonbus/core/cliarguments.h>
+#include <jsonbus/core/sharedlib.h>
+#include <jsonbus/core/plugin.h>
 
 namespace JSONBus {
-
-class CliArguments;
-class SharedLib;
-class Plugin;
 
 jsonbus_declare_exception(ContainerException, Exception);
 
@@ -49,6 +48,7 @@ jsonbus_declare_exception(ContainerException, Exception);
  * @brief JSONBus container management.
  */
 class Container : public QCoreApplication {
+	Q_OBJECT
 public:
 	/**
 	 * @brief Service constructor.
@@ -89,6 +89,10 @@ public:
 	inline static void launchInstance() {
 		getInstance().launch();
 	}
+private slots:
+	void onDataAbailable();
+	void onResultAvailable(QVariant result);
+	
 private:
 	CliArguments m_cliArguments;
 	SharedLib *m_pluginFile;

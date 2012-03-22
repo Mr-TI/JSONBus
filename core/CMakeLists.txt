@@ -35,8 +35,8 @@ file(GLOB project_SRCS *.cpp)
 find_package(Qt4 REQUIRED)
 include(${QT_USE_FILE})
 QT4_WRAP_UI(project_UIS_H)
-QT4_WRAP_CPP(project_MOC_SRCS)
+QT4_WRAP_CPP(project_MOC_SRCS plugin.h)
 
 # ### TARGET ###
-add_library(jsonbus SHARED ${project_SRCS} ${project_HDRS})
+add_library(jsonbus SHARED ${project_SRCS} ${project_HDRS} ${project_MOC_SRCS})
 target_link_libraries(jsonbus ${QT_LIBRARIES} qjson)

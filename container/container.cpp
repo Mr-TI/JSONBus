@@ -1,10 +1,7 @@
 
 #include <QStringList>
 #include <jsonbus/core/common.h>
-#include <jsonbus/core/cliarguments.h>
 #include <jsonbus/core/settings.h>
-#include <jsonbus/core/sharedlib.h>
-#include <jsonbus/core/plugin.h>
 #include "container.h"
 
 #ifdef WIN32
@@ -31,6 +28,9 @@ Container::Container(int &argc, char **argv)
 }
 
 Container::~Container() {
+	if (m_plugin && m_plugin->isLoaded()) {
+		m_plugin->onUnload();
+	}
 	delete m_plugin;
 	delete m_pluginFile;
 }
@@ -78,7 +78,17 @@ void Container::launch() {
 	
 	m_plugin->onLoad();
 	
+	connect(m_plugin, SIGNAL(resultAvailable(QVariant)), this, SLOT(onResultAvailable(QVariant)));
+	
 	exec();
+}
+
+void Container::onDataAbailable() {
+	
+}
+
+void Container::onResultAvailable(QVariant result) {
+	
 }
 
 }

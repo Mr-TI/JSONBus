@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
 		signal(SIGTERM, onQuit);
 		cnt.launch();
 	} catch (Exception &e) {
-		outErr << "Exception: " << e.message() << "\n" << endl;
+		outErr << "Exception: " << e.message() << endl;
 	} catch (...) {
 		outErr << "### WARNING ! WARNING ! WARNING ! ### Exception not managed !\n" << endl;
 	}
