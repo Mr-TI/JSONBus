@@ -5,7 +5,8 @@
 #include <jsonbus/core/settings.h>
 #include <jsonbus/core/sharedlib.h>
 #include <jsonbus/core/plugin.h>
-#include <container.h>
+#include "container.h"
+
 #ifdef WIN32
 #	define JSONBUS_SERVICEFILE_PREFIX ""
 #	define JSONBUS_SERVICEFILE_SUFFIX ".dll"
