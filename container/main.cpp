@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
 	} catch (Exception &e) {
 		outErr << "Exception: " << e.message() << endl;
 	} catch (...) {
-		outErr << "### WARNING ! WARNING ! WARNING ! ### Exception not managed !\n" << endl;
+		outErr << ">>> Exception not managed !" << endl;
 	}
 	return 0;
 }

@@ -68,6 +68,11 @@ public:
 	 * @brief Function called on plugin unload
 	 */
 	virtual void onUnload ();
+	
+	/**
+	 * @brief Function called on plugin request
+	 */
+	virtual void onRequest(QVariant request);
 private:
 };
 

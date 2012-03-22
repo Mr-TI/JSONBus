@@ -12,11 +12,10 @@
 #	define JSONBUS_SERVICEFILE_SUFFIX ".so"
 #endif
 
-namespace JSONBus {
-
 Container::Container(int &argc, char **argv)
 	: QCoreApplication(argc, argv),
-	m_pluginFile(NULL), m_plugin(NULL) {
+	m_pluginFile(NULL), m_plugin(NULL),
+	m_inputNotifier(STDIN_FILENO, QSocketNotifier::Read, this) {
 	m_cliArguments.define("service-root",	'd', tr("Plugin root directory (excluding namaspace directory)"), "/usr/lib/jsonbus/services/");
 	m_cliArguments.define("service-ns",		'N', tr("Plugin namespace"), "");
 	m_cliArguments.define("service-name",	'n', tr("Plugin name"), "");
@@ -77,18 +76,32 @@ void Container::launch() {
 	}
 	
 	m_plugin->onLoad();
+	m_input.open(STDIN_FILENO, QIODevice::ReadOnly);
 	
 	connect(m_plugin, SIGNAL(resultAvailable(QVariant)), this, SLOT(onResultAvailable(QVariant)));
+	connect(&m_inputNotifier, SIGNAL(activated(int)), this, SLOT(onDataAbailable(int)));
+	
+	m_inputNotifier.setEnabled(true);
 	
 	exec();
 }
 
-void Container::onDataAbailable() {
-	
+void Container::onDataAbailable(int socket) {
+	outErr << "Data available" << endl;
+	jsonParser.parse(m_input);
 }
 
 void Container::onResultAvailable(QVariant result) {
-	
+	outErr << "Result available" << endl;
 }
 
+bool Container::nofity(QObject *rec, QEvent *ev) {
+	try {
+		return QCoreApplication::notify(rec, ev);
+	} catch (Exception &e) {
+		outErr << "Exception: " << e.message() << endl;
+	} catch (...) {
+		outErr << ">>> Exception not managed !" << endl;
+	}
+	return false;
 }

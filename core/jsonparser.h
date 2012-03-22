@@ -31,8 +31,8 @@
  * @author Emeric VERSCHUUR <contact@openihs.org>, (C) 2012
  */
 
-#ifndef JSONBUS_SETTINGS_H
-#define JSONBUS_SETTINGS_H
+#ifndef JSONBUS_JSONPARSER_H
+#define JSONBUS_JSONPARSER_H
 
 #include <jsonbus/core/exception.h>
 
@@ -85,4 +85,4 @@ private:
 
 }
 
-#endif
+#endif //JSONBUS_JSONPARSER_H
