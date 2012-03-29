@@ -1,4 +1,5 @@
 
+#include <typeinfo>
 #include <QStringList>
 #include <jsonbus/core/common.h>
 #include <jsonbus/core/settings.h>
@@ -76,7 +77,7 @@ void Container::launch() {
 	}
 	
 	m_plugin->onLoad();
-	m_input.open(STDIN_FILENO, QIODevice::ReadOnly);
+	m_input.open(STDIN_FILENO, QIODevice::ReadOnly | QIODevice::Text | QIODevice::Unbuffered);
 	
 	connect(m_plugin, SIGNAL(resultAvailable(QVariant)), this, SLOT(onResultAvailable(QVariant)));
 	connect(&m_inputNotifier, SIGNAL(activated(int)), this, SLOT(onDataAbailable(int)));
@@ -95,13 +96,14 @@ void Container::onResultAvailable(QVariant result) {
 	outErr << "Result available" << endl;
 }
 
-bool Container::nofity(QObject *rec, QEvent *ev) {
+bool Container::notify(QObject *rec, QEvent *ev) {
 	try {
 		return QCoreApplication::notify(rec, ev);
 	} catch (Exception &e) {
-		outErr << "Exception: " << e.message() << endl;
+		outErr << ">>> " << typeid(e).name() << ": " << e.message() << endl;
 	} catch (...) {
 		outErr << ">>> Exception not managed !" << endl;
 	}
+	quit();
 	return false;
 }

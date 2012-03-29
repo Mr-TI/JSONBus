@@ -12,13 +12,7 @@ using namespace std;
 
 
 int main(int argc, char **argv) {
-	try {
-		QCoreApplication app(argc, argv);
-		
-	} catch (Exception e) {
-		cout << "Exception: " << e.getMessage() << endl;
-	} catch (...) {
-		cout << "Unknow exception." << endl;
-	}
+	QCoreApplication app(argc, argv);
+	
 	return 0;
 }

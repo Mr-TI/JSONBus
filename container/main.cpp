@@ -12,19 +12,13 @@ void onQuit(int signum) {
 }
 
 int main(int argc, char **argv) {
-	try {
-		Container cnt(argc, argv);
-		if (cnt.getCliArguments().isEnabled("help")) {
-			cnt.getCliArguments().displayUseInstructions();
-			return 0;
-		}
-		signal(SIGINT, onQuit);
-		signal(SIGTERM, onQuit);
-		cnt.launch();
-	} catch (Exception &e) {
-		outErr << "Exception: " << e.message() << endl;
-	} catch (...) {
-		outErr << ">>> Exception not managed !" << endl;
+	Container cnt(argc, argv);
+	if (cnt.getCliArguments().isEnabled("help")) {
+		cnt.getCliArguments().displayUseInstructions();
+		return 0;
 	}
+	signal(SIGINT, onQuit);
+	signal(SIGTERM, onQuit);
+	cnt.launch();
 	return 0;
 }

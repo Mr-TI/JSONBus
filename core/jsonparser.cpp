@@ -44,7 +44,7 @@ QVariant JSONParser::parse(const QByteArray &data) {
 	bool ok;
 	QVariant result = static_cast<QJson::Parser*>(m_handle)->parse(data, &ok);
 	if (!ok) {
-		throw JSONParserException(tr("Unable to parse data"));
+		throw JSONParserException(tr("Unable to parse data: %1").arg(static_cast<QJson::Parser*>(m_handle)->errorString()));
 	}
 	return result;
 }
@@ -53,7 +53,7 @@ QVariant JSONParser::parse(QIODevice &input) {
 	bool ok;
 	QVariant result = static_cast<QJson::Parser*>(m_handle)->parse(&input, &ok);
 	if (!ok) {
-		throw JSONParserException(tr("Unable to parse data"));
+		throw JSONParserException(tr("Unable to parse data: %1").arg(static_cast<QJson::Parser*>(m_handle)->errorString()));
 	}
 	return result;
 }

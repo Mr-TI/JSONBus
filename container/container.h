@@ -94,7 +94,7 @@ public:
 		getInstance().launch();
 	}
 	
-	virtual bool nofity(QObject *rec, QEvent *ev);
+	bool notify(QObject *rec, QEvent *ev);
 	
 private slots:
 	void onDataAbailable(int socket);

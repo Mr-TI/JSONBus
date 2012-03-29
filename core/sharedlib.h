@@ -48,6 +48,9 @@
 namespace JSONBus {
 
 jsonbus_declare_exception(SharedLibException, Exception);
+jsonbus_declare_exception(InvalidSharedLibException, SharedLibException);
+jsonbus_declare_exception(LoadSharedLibException, SharedLibException);
+jsonbus_declare_exception(SymbolSharedLibException, SharedLibException);
 
 /**
  * @brief Dynamic library management.

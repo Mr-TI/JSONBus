@@ -39,11 +39,20 @@
 
 #include <QString>
 #include <QObject>
+#include <QtCore>
 
-#define jsonbus_declare_exception(name, parent)\
-class JSONBUS_EXPORT name:public parent {\
+#define jsonbus_declare_exception(ename, eparent)\
+class JSONBUS_EXPORT ename:public eparent {\
 public:\
-    inline name(const QString &msg):parent(msg) {}\
+    inline ename(const QString &msg):eparent(msg) {}\
+	\
+	inline void raise() const {\
+		throw *this;\
+	}\
+	\
+	inline ename *clone() const {\
+		return new ename(*this);\
+	}\
 };
 
 namespace JSONBus {
@@ -52,7 +61,7 @@ namespace JSONBus {
  * This class can manage exceptions.
  * @brief JSONBus : Exceptions.
  */
-class JSONBUS_EXPORT Exception : public QObject {
+class JSONBUS_EXPORT Exception : public QtConcurrent::Exception {
 public:
 	/**
 	 * @brief Exception constructor.
@@ -68,7 +77,7 @@ public:
 	/**
 	 * @brief Exception destructor.
 	 */
-	inline ~Exception() {}
+	inline virtual ~Exception() throw() { }
 
 	/**
 	 * @brief Get the exeption message.
@@ -82,8 +91,16 @@ public:
 	 * @brief Get the exeption message.
 	 * @return QString message.
 	 */
-	inline const QString getMessage() const {
-		return m_message;
+	inline const char *what() const throw() {
+		return m_message.toAscii().data();
+	}  
+	
+	inline void raise() const {
+		throw *this;
+	}
+	
+	inline Exception *clone() const {
+		return new Exception(*this);
 	}
 private:
 	QString m_message;
