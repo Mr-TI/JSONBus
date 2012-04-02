@@ -25,9 +25,9 @@ int main(int argc, char **argv) {
 		service.launch();
 #endif
 	} catch (Exception e) {
-		outErr << "Exception: " << e.message() << "\n" << endl;
+		qCritical() << "Exception: " << e.message() << "\n";
 	} catch (...) {
-		outErr << "### WARNING ! WARNING ! WARNING ! ### Exception not managed !\n" << endl;
+		qCritical() << "### WARNING ! WARNING ! WARNING ! ### Exception not managed !\n";
 	}
 	return 0;
 }

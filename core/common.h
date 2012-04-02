@@ -52,11 +52,6 @@
 #endif
 #define JSONBUS_DEFAULT_PLUGIN_DIR_PATH JSONBUS_DEFAULT_BASEDIR "/plugins"
 
-#define outLog cout
-#define outErr cerr
-#define outCri cerr
-#define outSysErr cerr <<
-
 using namespace std;
 
 namespace JSONBus {

@@ -40,6 +40,7 @@ endif(NOT WIN32)
 # ### SUBDIRECTORIES ###
 add_subdirectory(container)
 add_subdirectory(core)
+add_subdirectory(qjson)
 add_subdirectory(master)
 add_subdirectory(router)
 add_subdirectory(services)

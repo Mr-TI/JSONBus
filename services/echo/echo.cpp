@@ -9,28 +9,28 @@
 jsonbus_declare_plugin(Echo)
 
 Echo::Echo() {
-	outErr << "Creating echo service..." << endl;
+	qDebug() << "Creating echo service...";
 }
 
 Echo::~Echo() {
-	outErr << "Destroying echo service..." << endl;
+	qDebug() << "Destroying echo service...";
 }
 
 void Echo::onInit(Settings &settings) {
-	outErr << "Initializing echo service..." << endl;
+	qDebug() << "Initializing echo service...";
 };
 
 void Echo::onLoad() {
-	outErr << "Loading echo service..." << endl;
+	qDebug() << "Loading echo service...";
 	Plugin::onLoad();
 };
 
 void Echo::onUnload() {
-	outErr << "Unloading echo service..." << endl;
+	qDebug() << "Unloading echo service...";
 	Plugin::onUnload();
 };
 
 void Echo::onRequest(QVariant request) {
-	outErr << "Request" << endl;
+	qDebug() << "Request";
 }
 

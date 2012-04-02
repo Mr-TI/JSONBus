@@ -6,17 +6,11 @@
 using namespace JSONBus;
 
 int main(int argc, char **argv) {
-	try {
-		Router router(argc, argv);
-		if (router.getCliArguments().isEnabled("help")) {
-			router.getCliArguments().displayUseInstructions();
-			return 0;
-		}
-		router.launch();
-	} catch (Exception e) {
-		outErr << "Exception: " << e.message() << "\n" << endl;
-	} catch (...) {
-		outErr << "### WARNING ! WARNING ! WARNING ! ### Exception not managed !\n" << endl;
+	Router router(argc, argv);
+	if (router.getCliArguments().isEnabled("help")) {
+		router.getCliArguments().displayUseInstructions();
+		return 0;
 	}
+	router.launch();
 	return 0;
 }

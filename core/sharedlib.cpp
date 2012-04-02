@@ -23,7 +23,7 @@ void SharedLib::load(int flags) {
 #ifdef WIN32
 	handle = LoadLibrary(path.c_str());
 	if (!handle) {
-		lastError = "LoadLibrary() >> " + getMessageError(GetLastError());
+		lastError = "LoadLibrary(): " + getMessageError(GetLastError());
 		throw LoadSharedLibException(tr("Fail to load the dynamic library : " + lastError);
 	}
 #else
@@ -31,7 +31,7 @@ void SharedLib::load(int flags) {
 	handle = dlopen(path.toAscii(), flags);
 	if (!handle) {
 		dl_error = dlerror();
-		lastError = "dlopen() >> " + QString(dl_error);
+		lastError = "dlopen(): " + QString(dl_error);
 		throw LoadSharedLibException(tr("Fail to load the dynamic library : ") + lastError);
 	}
 #endif
@@ -47,14 +47,14 @@ void *SharedLib::getSymbol(const char *symbol) {
 #ifdef WIN32
 	ptr = GetProcAddress(handle, symbol);
 	if (ptr == NULL)  {
-		lastError = "GetProcAddress(\"" + QString(symbol) + "\") >> " + getMessageError(GetLastError());
+		lastError = "GetProcAddress(): " + getMessageError(GetLastError());
 		throw SymbolSharedLibException(tr("Fail to get the symbol : ") + lastError);
 	}
 #else
 	char *dl_error;
 	ptr = dlsym(handle, symbol);
 	if ((dl_error = dlerror()) != NULL)  {
-		lastError = "dlsym() >> " + QString(dl_error);
+		lastError = "dlsym(): " + QString(dl_error);
 		throw SymbolSharedLibException(tr("Fail to load the plugin : ") + lastError);
 	}
 #endif
