@@ -42,39 +42,39 @@ typedef jsonparser::Parser::token_type token_type;
 
 %}
 
-space					[\t\n\r ]
+space                   [\t\n\r ]
 
-kw_null					null
-kw_true					true
-kw_false				false
-kw_nan					nan
-kw_infinity				infinity
+kw_null                 null
+kw_true                 true
+kw_false                false
+kw_nan                  nan
+kw_infinity             infinity
 
-number					-?[[:digit:]]+(\.[[:digit:]]+)?
-num_exp					e
+number                  -?[[:digit:]]+(\.[[:digit:]]+)?
+num_exp                 e
 
-coma					,
-semicolon				:
-dblcote					\"
-square_bracket_open		\{
-square_bracket_close	\}
-curly_bracket_open		\[
-curly_bracket_close		\]
+coma                    ,
+semicolon               :
+dblcote                 \"
+square_bracket_open     \{
+square_bracket_close    \}
+curly_bracket_open      \[
+curly_bracket_close     \]
 
-value_unicode			[[:digit:]]{4}
+value_unicode           [[:digit:]]{4}
 
-escape_unicode			u
-escape_backslash		\\
-escape_dblcote			\"
-escape_slash			\/
-escape_backspace		b
-escape_formfeed			f
-escape_newline			n
-escape_car_ret			r
-escape_horiz_tab		t
-escape_prefix			\\
+escape_unicode          u
+escape_backslash        \\
+escape_dblcote          \"
+escape_slash            \/
+escape_backspace        b
+escape_formfeed         f
+escape_newline          n
+escape_car_ret          r
+escape_horiz_tab        t
+escape_prefix           \\
 
-%s __STATE__
+%s NUMBER STRING
 
 %option noyywrap yylineno c++
 %option prefix="jsonparser"
@@ -83,22 +83,27 @@ escape_prefix			\\
 
 %%
 
-<<EOF>>							{BEGIN INITIAL; RETURN_TOKEN(TEND);}
+<<EOF>>                                   {BEGIN INITIAL; RETURN_TOKEN(TEND);}
 
-<INITIAL>{kw_null}				{BEGIN __STATE__; RETURN_TOKEN(TNULL);}
-<INITIAL>{kw_true}				{BEGIN __STATE__; RETURN_TOKEN(TTRUE);}
-<INITIAL>{kw_false}				{BEGIN __STATE__; RETURN_TOKEN(TFALSE);}
-<INITIAL>{kw_nan}				{BEGIN __STATE__; RETURN_TOKEN(TNAN);}
-<INITIAL>{kw_infinity}			{BEGIN __STATE__; RETURN_TOKEN(TINFINITY);}
-<INITIAL>{number}/e				{BEGIN NUMBER; RETURN_TOKEN(TNUMBER);}
-<INITIAL>{number}				{BEGIN NUMBER;}
-<INITIAL>{square_bracket_open}	{BEGIN __STATE__; RETURN_TOKEN(TTBLBEGIN);}
-<INITIAL>{square_bracket_close}	{BEGIN __STATE__; RETURN_TOKEN(TTBLEND);}
-<INITIAL>{curly_bracket_open}	{BEGIN __STATE__; RETURN_TOKEN(TOBJBEGIN);}
-<INITIAL>{curly_bracket_close}	{BEGIN __STATE__; RETURN_TOKEN(TOBJEND);}
-<INITIAL>{coma}					{BEGIN __STATE__; RETURN_TOKEN();}
-<INITIAL>{semicolon}			{BEGIN __STATE__; RETURN_TOKEN();}
-<INITIAL>{dblcote}				{BEGIN __STATE__; RETURN_TOKEN();}
-<INITIAL>{value_unicode}		{BEGIN __STATE__; RETURN_TOKEN();}
+<NUMBER>
+
+<INITIAL>{kw_null}                        {BEGIN INITIAL; RETURN_TOKEN(TNULL);}
+<INITIAL>{kw_true}                        {BEGIN INITIAL; RETURN_TOKEN(TTRUE);}
+<INITIAL>{kw_false}                       {BEGIN INITIAL; RETURN_TOKEN(TFALSE);}
+<INITIAL>{kw_nan}                         {BEGIN INITIAL; RETURN_TOKEN(TNAN);}
+<INITIAL>{kw_infinity}                    {BEGIN INITIAL; RETURN_TOKEN(TINFINITY);}
+
+<INITIAL>{number}/e                       {BEGIN NUMBER; RETURN_TOKEN(TNUMBER);}
+<INITIAL>{number}                         {BEGIN NUMBER; RETURN_TOKEN(TVARIANT);}
+
+<INITIAL>{square_bracket_open}            {BEGIN INITIAL; RETURN_TOKEN(TTBLBEGIN);}
+<INITIAL>{square_bracket_close}           {BEGIN INITIAL; RETURN_TOKEN(TTBLEND);}
+<INITIAL>{curly_bracket_open}             {BEGIN INITIAL; RETURN_TOKEN(TOBJBEGIN);}
+<INITIAL>{curly_bracket_close}            {BEGIN INITIAL; RETURN_TOKEN(TOBJEND);}
+<INITIAL>{coma}                           {BEGIN INITIAL; RETURN_TOKEN();}
+<INITIAL>{semicolon}                      {BEGIN INITIAL; RETURN_TOKEN();}
+<INITIAL>{dblcote}                        {BEGIN STRING; RETURN_TOKEN();}
+
+<STRING_ESCAPE_UNICODE>{value_unicode}    {BEGIN STRING; }
 
 %%

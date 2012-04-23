@@ -39,20 +39,25 @@ using namespace std;
 %}
 
 %union {
-  QVariant *field;
+  QString *str;
+  QVariant *value;
 }
 
-%token			TEND 0			"[End of File]"
+%token				TEND 0			"[End of File]"
 
-%token			TA				""
-%token <field>	TB				""
+%token				TOBJBEGIN		"an object begin '{'"
+%token				TOBJEND			"an object end '}'"
+%token				TFIELDSEP		"an object field separator ':'"
+%token				TELEMENTSEP		"an object/table element separator ','"
+%token <str>		TSTRING			"a string"
+%token <variant>	TVARIANT		"a variant"
 
-%token			TERR			"[Error]"
+%token				TERROR			"Error"
 
 %start ROOT
 
-%type <field>		ROOT
-%type <field>		FA FB
+%type <value>		ROOT
+%type <value>		STRING
 
 %language "C++"
 %define namespace "tkmailparser"
