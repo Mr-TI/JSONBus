@@ -54,7 +54,7 @@ number					-?[[:digit:]]+(\.[[:digit:]]+)?
 num_exp					e
 
 coma					,
-semicollons				:
+semicolon				:
 dblcote					\"
 square_bracket_open		\{
 square_bracket_close	\}
@@ -85,6 +85,20 @@ escape_prefix			\\
 
 <<EOF>>							{BEGIN INITIAL; RETURN_TOKEN(TEND);}
 
-<INITIAL>{folder_pref}			{BEGIN __STATE__; RETURN_TOKEN(TPFO);}
+<INITIAL>{kw_null}				{BEGIN __STATE__; RETURN_TOKEN(TNULL);}
+<INITIAL>{kw_true}				{BEGIN __STATE__; RETURN_TOKEN(TTRUE);}
+<INITIAL>{kw_false}				{BEGIN __STATE__; RETURN_TOKEN(TFALSE);}
+<INITIAL>{kw_nan}				{BEGIN __STATE__; RETURN_TOKEN(TNAN);}
+<INITIAL>{kw_infinity}			{BEGIN __STATE__; RETURN_TOKEN(TINFINITY);}
+<INITIAL>{number}/e				{BEGIN NUMBER; RETURN_TOKEN(TNUMBER);}
+<INITIAL>{number}				{BEGIN NUMBER;}
+<INITIAL>{square_bracket_open}	{BEGIN __STATE__; RETURN_TOKEN(TTBLBEGIN);}
+<INITIAL>{square_bracket_close}	{BEGIN __STATE__; RETURN_TOKEN(TTBLEND);}
+<INITIAL>{curly_bracket_open}	{BEGIN __STATE__; RETURN_TOKEN(TOBJBEGIN);}
+<INITIAL>{curly_bracket_close}	{BEGIN __STATE__; RETURN_TOKEN(TOBJEND);}
+<INITIAL>{coma}					{BEGIN __STATE__; RETURN_TOKEN();}
+<INITIAL>{semicolon}			{BEGIN __STATE__; RETURN_TOKEN();}
+<INITIAL>{dblcote}				{BEGIN __STATE__; RETURN_TOKEN();}
+<INITIAL>{value_unicode}		{BEGIN __STATE__; RETURN_TOKEN();}
 
 %%
