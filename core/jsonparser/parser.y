@@ -39,25 +39,28 @@ using namespace std;
 %}
 
 %union {
-  QString *str;
-  QVariant *value;
+  string_t *str;
+  variant_t *variant;
+  table_t *table;
+  object_t *object;
 }
 
-%token				TEND 0			"[End of File]"
+%token              TEND 0          "end of file"
 
-%token				TOBJBEGIN		"an object begin '{'"
-%token				TOBJEND			"an object end '}'"
-%token				TFIELDSEP		"an object field separator ':'"
-%token				TELEMENTSEP		"an object/table element separator ','"
-%token <str>		TSTRING			"a string"
-%token <variant>	TVARIANT		"a variant"
+%token              TOBJBEGIN       "object begin '{'"
+%token              TOBJEND         "object end '}'"
+%token              TFIELDSEP       "object field separator ':'"
+%token              TELEMENTSEP     "object/table element separator ','"
+%token <str>        TSTRING         "string"
+%token <variant>	TVARIANT        "variant"
 
-%token				TERROR			"Error"
+%token              TSYNERRESC      "invalid escaped character"
+%token              TSYNERRESC      "invalid unicode character"
 
 %start ROOT
 
-%type <value>		ROOT
-%type <value>		STRING
+%type <variant>      ROOT VARIANT OBJECT TABLE VALUE
+%type <object>       FIELD_LIST
 
 %language "C++"
 %define namespace "tkmailparser"
@@ -68,7 +71,39 @@ using namespace std;
 
 %%
 
-ROOT : FA TEND							{driver.result = $$ = $1;}
-	;
+ROOT : VARIANT                          {driver.result = $$ = $1;}
+    ;
+
+VARIANT : OBJECT                        {$$ = $1;}
+    | TABLE                             {$$ = $1;}
+    | VALUE                             {$$ = $1;}
+    ;
+
+OBJECT : TOBJBEGIN FIELD_LIST TOBJEND
+    ;
+
+FIELD_LIST : FIELD_LIST TELEMENTSEP 
+        TSTRING TFIELDSEP VALUE         {}
+    | TSTRING TFIELDSEP VALUE           {}
+    ;
+
+TABLE : TTBLBEGIN ELEMENT_LIST TTBLEND  {}
+    ;
+
+ELEMENT_LIST : ELEMENT_LIST 
+               TELEMENTSEP VALUE        {}
+    | VALUE
+    ;
+
+VALUE : TSTRING                         {$$ = r::string2variant($1);}
+    | TVARIANT                          {$$ = $1;}
+    ;
+
+
+
+
+
+
+
 
 %%

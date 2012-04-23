@@ -33,9 +33,39 @@ using namespace std;
 #include <parser.hh>
 #include <string>
 #include <scanner.h>
-#define CAPTURE_TEXT() yylval->field = new string(yytext)
+
+#define VARIANT_TXT2(_type_)\
+	yylval->variant = new variant_t(yytext);\
+	yylval->variant->convert(variant_t::_type_)
+
+#define VARIANT_FROM(_value_)\
+	yylval->variant = new variant_t(_value_);\
+	yylval->variant->convert(variant_t::_type_)
+	
+#define VARIANT_INFINITY()\
+	yylval->variant = new variant_t(variant_t::Real);\
+	yylval->variant->setValue(yytext[0] == '-'?\
+	-std::numeric_limits<double>::infinity():\
+	std::numeric_limits<double>::infinity())
+	
+#define VARIANT_NAN()\
+	yylval->variant = new variant_t(variant_t::Real);\
+	yylval->variant->setValue(std::numeric_limits<double>::quiet_NaN())
+
+#define STRING_BEGIN()\
+	yylval->str = new string_t()
+
+#define STRING_APPEND(_val_)\
+	yylval->str->append(_val_);
+
+#define STRING_APPEND_UNICODE()\
+	yylval->str->append(QChar(string_t(yytext).toInt(0, 16)));
+
+#define STRING_CLEAR()\
+	delete yylval->str;
+
 // #define RETURN_TOKEN(label) cout << #label << "|"; return token::label
-#define RETURN_TOKEN(label) return token::label
+#define RETURN_TOKEN(_label_) return token::_label_
 typedef jsonparser::Parser::token token;
 typedef jsonparser::Parser::token_type token_type;
 #define yyterminate() RETURN_TOKEN(TEND)
@@ -48,10 +78,11 @@ kw_null                 null
 kw_true                 true
 kw_false                false
 kw_nan                  nan
-kw_infinity             infinity
+kw_infinity             [\-\+]?infinity
 
-number                  -?[[:digit:]]+(\.[[:digit:]]+)?
-num_exp                 e
+number_real             \-?[[:digit:]]+\.[[:digit:]]+(e[\-\+]?[[:digit:]]+)
+number_long             \-[[:digit:]]+(e[\-\+]?[[:digit:]]+)
+number_ulong            [[:digit:]]+(e[\-\+]?[[:digit:]]+)
 
 coma                    ,
 semicolon               :
@@ -85,16 +116,33 @@ escape_prefix           \\
 
 <<EOF>>                                   {BEGIN INITIAL; RETURN_TOKEN(TEND);}
 
-<NUMBER>
+<STRING>{dblcote}                         {BEGIN INITIAL; RETURN_TOKEN(TSTRING);}
+<STRING>{escape_prefix}                   {BEGIN STRING_ESCAPE;}
+<STRING>.                                 {BEGIN STRING; STRING_APPEND(yytext[0]);}
 
-<INITIAL>{kw_null}                        {BEGIN INITIAL; RETURN_TOKEN(TNULL);}
-<INITIAL>{kw_true}                        {BEGIN INITIAL; RETURN_TOKEN(TTRUE);}
-<INITIAL>{kw_false}                       {BEGIN INITIAL; RETURN_TOKEN(TFALSE);}
-<INITIAL>{kw_nan}                         {BEGIN INITIAL; RETURN_TOKEN(TNAN);}
-<INITIAL>{kw_infinity}                    {BEGIN INITIAL; RETURN_TOKEN(TINFINITY);}
+<STRING_ESCAPE>{escape_unicode}           {BEGIN STRING_ESCAPE_UNICODE; }
+<STRING_ESCAPE>{escape_backslash}         {BEGIN STRING; STRING_APPEND('\\');}
+<STRING_ESCAPE>{escape_dblcote}           {BEGIN STRING; STRING_APPEND('\"');}
+<STRING_ESCAPE>{escape_slash}             {BEGIN STRING; STRING_APPEND('/');}
+<STRING_ESCAPE>{escape_backspace}         {BEGIN STRING; STRING_APPEND('\b');}
+<STRING_ESCAPE>{escape_formfeed}          {BEGIN STRING; STRING_APPEND('\f');}
+<STRING_ESCAPE>{escape_newline}           {BEGIN STRING; STRING_APPEND('\n');}
+<STRING_ESCAPE>{escape_car_ret}           {BEGIN STRING; STRING_APPEND('\r');}
+<STRING_ESCAPE>{escape_horiz_tab}         {BEGIN STRING; STRING_APPEND('\t');}
+<STRING_ESCAPE>.                          {BEGIN INITIAL; STRING_CLEAR(); RETURN_TOKEN(TSYNERRESC);}
 
-<INITIAL>{number}/e                       {BEGIN NUMBER; RETURN_TOKEN(TNUMBER);}
-<INITIAL>{number}                         {BEGIN NUMBER; RETURN_TOKEN(TVARIANT);}
+<STRING_ESCAPE_UNICODE>{value_unicode}    {BEGIN STRING; STRING_APPEND_UNICODE();}
+<STRING_ESCAPE_UNICODE>.                  {BEGIN INITIAL; STRING_CLEAR(); RETURN_TOKEN(TSYNERRUNI);}
+
+<INITIAL>{kw_null}                        {BEGIN INITIAL; VARIANT_FROM(NULL); RETURN_TOKEN(TVARIANT);}
+<INITIAL>{kw_true}                        {BEGIN INITIAL; VARIANT_FROM(true); RETURN_TOKEN(TVARIANT);}
+<INITIAL>{kw_false}                       {BEGIN INITIAL; VARIANT_FROM(false); RETURN_TOKEN(TVARIANT);}
+<INITIAL>{kw_nan}                         {BEGIN INITIAL; VARIANT_NAN(); RETURN_TOKEN(TVARIANT);}
+<INITIAL>{kw_infinity}                    {BEGIN INITIAL; VARIANT_INFINITY(); RETURN_TOKEN(TVARIANT);}
+
+<INITIAL>{number_real}                    {BEGIN INITIAL; VARIANT_TXT2(Real) RETURN_TOKEN(TVARIANT);}
+<INITIAL>{number_long}                    {BEGIN INITIAL; VARIANT_TXT2(LongLong) RETURN_TOKEN(TVARIANT);}
+<INITIAL>{number_ulong}                   {BEGIN INITIAL; VARIANT_TXT2(ULonglong) RETURN_TOKEN(TVARIANT);}
 
 <INITIAL>{square_bracket_open}            {BEGIN INITIAL; RETURN_TOKEN(TTBLBEGIN);}
 <INITIAL>{square_bracket_close}           {BEGIN INITIAL; RETURN_TOKEN(TTBLEND);}
@@ -102,8 +150,6 @@ escape_prefix           \\
 <INITIAL>{curly_bracket_close}            {BEGIN INITIAL; RETURN_TOKEN(TOBJEND);}
 <INITIAL>{coma}                           {BEGIN INITIAL; RETURN_TOKEN();}
 <INITIAL>{semicolon}                      {BEGIN INITIAL; RETURN_TOKEN();}
-<INITIAL>{dblcote}                        {BEGIN STRING; RETURN_TOKEN();}
-
-<STRING_ESCAPE_UNICODE>{value_unicode}    {BEGIN STRING; }
+<INITIAL>{dblcote}                        {BEGIN STRING; STRING_BEGIN();}
 
 %%

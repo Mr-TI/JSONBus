@@ -14,13 +14,15 @@ using namespace std;
 int main(int argc, char **argv) {
 // 	QCoreApplication app(argc, argv);
 	
-	QTextStream sin(fopen("/tmp/test", "r"));
+	QVariant val("-infinity");
 	
-	qlonglong test;
-	do {
-		sin >> test;
-		qDebug() << test;
-	} while (1);
+	qreal r = val.toReal();
+
+// 	qreal r = -1502145000000000000;
+// 	
+// 	QVariant v(r);
+// 	
+// 	QString s = v.toString();
 	
 	return 0;
 }

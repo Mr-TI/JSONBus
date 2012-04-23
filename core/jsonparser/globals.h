@@ -29,15 +29,19 @@
 #define GLOBALS_H
 
 #include <QVariant>
+#include <QString>
+#include <QMap>
+#include <QList>
 
 
 namespace jsonparser {
 
 #ifndef JSONPARSER_DRIVER_H_TYPES
 #define JSONPARSER_DRIVER_H_TYPES
-typedef std::string field_t;
-typedef std::vector<field_t *> row_t;
-typedef std::vector<row_t *> table_t;
+typedef QVariant variant_t;
+typedef QString string_t;
+typedef QMap<variant_t> object_t;
+typedef QList<variant_t> table_t;
 #endif // JSONPARSER_DRIVER_H_TYPES
 
 class Driver;
