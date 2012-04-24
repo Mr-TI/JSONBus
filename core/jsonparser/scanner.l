@@ -89,7 +89,7 @@ square_bracket_close    \]
 curly_bracket_open      \{
 curly_bracket_close     \}
 
-value_unicode           [[:digit:]]{4}
+value_unicode           [0-9a-f]{4}
 
 escape_unicode          u
 escape_backslash        \\
@@ -108,6 +108,7 @@ escape_prefix           \\
 %option prefix="jsonparser"
 %option batch
 %option align
+%option case-insensitive
 
 %%
 
@@ -144,7 +145,7 @@ escape_prefix           \\
 <INITIAL>{curly_bracket_open}             {BEGIN INITIAL; RETURN_TOKEN(TOBJBEGIN);}
 <INITIAL>{curly_bracket_close}            {BEGIN INITIAL; RETURN_TOKEN(TOBJEND);}
 <INITIAL>{coma}                           {BEGIN INITIAL; RETURN_TOKEN(TELEMENTSEP);}
-<INITIAL>{semicolon}                      {BEGIN INITIAL; RETURN_TOKEN(TFIELDSEP);}
+<INITIAL>{semicolon}                      {BEGIN INITIAL; RETURN_TOKEN(TMEMBERSEP);}
 <INITIAL>{dblcote}                        {BEGIN STRING; STRING_BEGIN();}
 <INITIAL>{space}                          {}
 

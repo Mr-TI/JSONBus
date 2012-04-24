@@ -40,12 +40,13 @@ class Driver {
 public:
 	Driver();
 	~Driver();
-	QVariant *parse(std::istream* inStream);
-	inline QVariant &getResult() {return *result;}
+	QVariant &parse(std::istream* inStream);
+	inline QVariant &getResult() {return result;}
 private:
+	QString lastError;
 	Scanner &scanner;
 	Parser &parser;
-	QVariant *result;
+	QVariant result;
 	std::map<std::string, bool> folders;
 	friend class Parser;
 	friend class Scanner;

@@ -30,8 +30,8 @@
  * @file exception.h
  * @author Emeric VERSCHUUR <contact@openihs.org>, (C) 2012
  */
-#ifndef UNICOMCTRL_EXCEPTION_H
-#define UNICOMCTRL_EXCEPTION_H
+#ifndef JSONBUS_EXCEPTION_H
+#define JSONBUS_EXCEPTION_H
 
 #ifndef JSONBUS_EXPORT
 #define JSONBUS_EXPORT

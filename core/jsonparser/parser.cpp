@@ -25,14 +25,17 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <globals.h>
+#include "globals.h"
 #include <parser.hh>
+#include "driver.h"
+#include <sstream>
 
 namespace jsonparser {
 
 void Parser::error(const Parser::location_type& l, const std::string& m) {
-    std::cerr << m << std::endl;
-    std::cerr << l << std::endl;
+	std::stringstream sout;
+	sout << m << " (location: " << l << ")";
+	driver.lastError = QString::fromStdString(sout.str());
 }
 
 }

@@ -51,7 +51,7 @@ using namespace std;
 %token              TOBJEND         "object end '}'"
 %token              TARRBEGIN       "array begin '['"
 %token              TARREND         "array end ']'"
-%token              TFIELDSEP       "object field separator ':'"
+%token              TMEMBERSEP       "object field separator ':'"
 %token              TELEMENTSEP     "object/array element separator ','"
 %token <str>        TSTRING         "string"
 %token <node>       TVARIANT        "variant"
@@ -61,8 +61,8 @@ using namespace std;
 
 %start ROOT
 
-%type <object>      MAP
-%type <array>       LIST
+%type <object>      MEMBERS
+%type <array>       ELEMENTS
 %type <node>        ROOT VARIANT
 
 %language "C++"
@@ -70,27 +70,32 @@ using namespace std;
 %define parser_class_name "Parser"
 %parse-param {Driver &driver}
 
+%destructor { delete $$; } TSTRING TVARIANT
+%destructor { delete $$; } MEMBERS
+%destructor { delete $$; } ELEMENTS
+%destructor { delete $$; } ROOT VARIANT
+
 %error-verbose
 
 %%
 
-ROOT : VARIANT                          {driver.result = $$ = $1;}
+ROOT : VARIANT                          {$$ = $1; driver.result.setValue(*$1);}
     ;
 
-VARIANT : TOBJBEGIN MAP TOBJEND         {$$ = r::map2variant($2);}
-    | TARRBEGIN LIST TARREND            {$$ = r::list2variant($2);}
+VARIANT : TOBJBEGIN MEMBERS TOBJEND     {$$ = r::map2variant($2);}
+    | TARRBEGIN ELEMENTS TARREND        {$$ = r::list2variant($2);}
     | TOBJBEGIN TOBJEND                 {$$ = r::map2variant(new object_t());}
     | TARRBEGIN TARREND                 {$$ = r::list2variant(new array_t());}
     | TSTRING                           {$$ = r::string2variant($1);}
     | TVARIANT                          {$$ = $1;}
     ;
 
-MAP : MAP TELEMENTSEP
-        TSTRING TFIELDSEP VARIANT       {$$ = r::mapAppendVariant($1, $3, $5);}
-    | TSTRING TFIELDSEP VARIANT         {$$ = r::mapAppendVariant(NULL, $1, $3);}
+MEMBERS : MEMBERS TELEMENTSEP
+        TSTRING TMEMBERSEP VARIANT       {$$ = r::mapAppendVariant($1, $3, $5);}
+    | TSTRING TMEMBERSEP VARIANT         {$$ = r::mapAppendVariant(NULL, $1, $3);}
     ;
 
-LIST : LIST TELEMENTSEP VARIANT         {$$ = r::listAppendVariant($1, $3);}
+ELEMENTS : ELEMENTS TELEMENTSEP VARIANT {$$ = r::listAppendVariant($1, $3);}
     | VARIANT                           {$$ = r::listAppendVariant(NULL, $1);}
     ;
 

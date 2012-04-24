@@ -29,6 +29,7 @@
 #include <parser.hh>
 #include "scanner.h"
 #include "driver.h"
+#include "exception.h"
 #include <iostream>
 #include <sstream>
 
@@ -46,10 +47,10 @@ Driver::~Driver() {
 	delete &scanner;
 }
 
-variant_t *Driver::parse(std::istream *inStream) {
+variant_t &Driver::parse(std::istream *inStream) {
 	scanner.switch_streams(inStream, &cerr);
 	if (parser.parse() != 0) {
-		return NULL;
+		throw Exception(lastError);
 	}
 	return result;
 }
