@@ -25,12 +25,12 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef JSONPARSER_TEXTSTREAMBUF_H
-#define JSONPARSER_TEXTSTREAMBUF_H
+#ifndef JSONPARSER_IODEVICEBUF_H
+#define JSONPARSER_IODEVICEBUF_H
 
 #include <iostream>
 #include <fstream>
-#include <QTextStream>
+#include <QIODevice>
 
 /**
  * @namespace
@@ -39,16 +39,16 @@ namespace jsonparser {
 
 class IODeviceBuf : public std::streambuf {
 public:
-	IODeviceBuf(QTextStream& textStream);
+	IODeviceBuf(QIODevice &device);
 	virtual ~IODeviceBuf();
 	virtual int underflow();
 	virtual int uflow();
 private:
 	void next();
-	QTextStream &m_textStreamBuf;
+	QIODevice &m_device;
 	int m_result;
 };
 
 }
 
-#endif // JSONPARSER_TEXTSTREAMBUF_H
+#endif // JSONPARSER_IODEVICEBUF_H

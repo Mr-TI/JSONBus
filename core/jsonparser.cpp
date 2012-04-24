@@ -25,9 +25,13 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <common.h>
+#include "common.h"
 #include "jsonparser.h"
 #include "jsonparser/driver.h"
+#include "jsonparser/textstreambuf.h"
+#include "jsonparser/exception.h"
+#include "jsonparser/iodevicebuf.h"
+#include <sstream>
 
 namespace JSONBus {
 
@@ -40,16 +44,59 @@ JSONParser::~JSONParser() {
 	delete static_cast<jsonparser::Driver*>(m_handle);
 }
 
+QVariant JSONParser::parse() {
+	QVariant result;
+	try {
+		result = static_cast<jsonparser::Driver*>(m_handle)->parse();
+	} catch(jsonparser::Exception e) {
+		throw JSONParserException(e.message());
+	}
+	return result;
+}
+
 QVariant JSONParser::parse(const QByteArray &data) {
 	QVariant result;
-// 		throw JSONParserException(tr("Unable to parse data: %1").arg(static_cast<QJson::Parser*>(m_handle)->errorString()));
+	try {
+		stringstream in(stringstream::in | stringstream::out);
+		in << data.data();
+		result = static_cast<jsonparser::Driver*>(m_handle)->parse(&in);
+	} catch(jsonparser::Exception e) {
+		throw JSONParserException(e.message());
+	}
+	return result;
+}
+
+QVariant JSONParser::parse(std::istream &stream) {
+	QVariant result;
+	try {
+		result = static_cast<jsonparser::Driver*>(m_handle)->parse(&stream);
+	} catch(jsonparser::Exception e) {
+		throw JSONParserException(e.message());
+	}
+	return result;
+}
+
+QVariant JSONParser::parse(QTextStream &stream) {
+	QVariant result;
+	try {
+		jsonparser::TextStreamBuf buf(stream);
+		istream in(&buf);
+		result = static_cast<jsonparser::Driver*>(m_handle)->parse(&in);
+	} catch(jsonparser::Exception e) {
+		throw JSONParserException(e.message());
+	}
 	return result;
 }
 
 QVariant JSONParser::parse(QIODevice &input) {
 	QVariant result;
-	
-// 		throw JSONParserException(tr("Unable to parse data: %1").arg(static_cast<QJson::Parser*>(m_handle)->errorString()));
+	try {
+		jsonparser::IODeviceBuf buf(input);
+		istream in(&buf);
+		result = static_cast<jsonparser::Driver*>(m_handle)->parse(&in);
+	} catch(jsonparser::Exception e) {
+		throw JSONParserException(e.message());
+	}
 	return result;
 }
 

@@ -48,7 +48,9 @@ Driver::~Driver() {
 }
 
 variant_t &Driver::parse(std::istream *inStream) {
-	scanner.switch_streams(inStream, &cerr);
+	if (inStream) {
+		scanner.yyrestart(inStream);
+	}
 	if (parser.parse() != 0) {
 		throw Exception(lastError);
 	}

@@ -79,7 +79,7 @@ using namespace std;
 
 %%
 
-ROOT : VARIANT                          {$$ = $1; driver.result.setValue(*$1);}
+ROOT : VARIANT                          {$$ = $1; driver.result.setValue(*$1); YYACCEPT;}
     ;
 
 VARIANT : TOBJBEGIN MEMBERS TOBJEND     {$$ = r::map2variant($2);}

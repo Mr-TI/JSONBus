@@ -40,7 +40,7 @@ class Driver {
 public:
 	Driver();
 	~Driver();
-	QVariant &parse(std::istream* inStream);
+	QVariant &parse(std::istream* inStream=NULL);
 	inline QVariant &getResult() {return result;}
 private:
 	QString lastError;

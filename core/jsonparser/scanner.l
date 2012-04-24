@@ -63,8 +63,23 @@ using namespace std;
 #define STRING_CLEAR()\
 	delete yylval->str;
 
+#undef yywrap
+#define yywrap() 1
+
+#define YY_INPUT(buf,result,max_size)   \
+{                                       \
+	char c;                             \
+	(*yyin) >> c;                       \
+	if(yyin->eof())                     \
+		result = YY_NULL;               \
+	else {                              \
+		buf[0] = c;                     \
+		result = 1;                     \
+	}                                   \
+}
+
 // #define RETURN_TOKEN(label) cout << #label << "|"; return token::label
-#define RETURN_TOKEN(_label_) return token::_label_
+#define RETURN_TOKEN(_label_) cout << #_label_ << endl; return token::_label_
 typedef jsonparser::Parser::token token;
 typedef jsonparser::Parser::token_type token_type;
 #define yyterminate() RETURN_TOKEN(TEND)
@@ -104,11 +119,13 @@ escape_prefix           \\
 
 %s STRING STRING_ESCAPE STRING_ESCAPE_UNICODE
 
-%option noyywrap yylineno c++
+%option noyywrap never-interactive yylineno c++
 %option prefix="jsonparser"
-%option batch
-%option align
+/* %option batch */
+/* %option align */
 %option case-insensitive
+
+%option nounput debug
 
 %%
 

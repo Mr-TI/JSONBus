@@ -104,7 +104,6 @@ private:
 	CliArguments m_cliArguments;
 	SharedLib *m_pluginFile;
 	Plugin *m_plugin;
-	QFile m_input;
 	QSocketNotifier m_inputNotifier;
 	JSONParser jsonParser;
 };

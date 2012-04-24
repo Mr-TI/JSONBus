@@ -27,29 +27,21 @@
 
 #include <common.h>
 #include <jsonserializer.h>
-#include <qjson/serializer.h>
+#include <jsonserializer/serializer.h>
 
 namespace JSONBus {
 
 JSONSerializer::JSONSerializer(QObject *parent)
 		: QObject(parent) {
-	m_handle = new QJson::Serializer();
+	m_handle = new jsonserializer::Serializer();
 }
 
 JSONSerializer::~JSONSerializer() {
-	delete static_cast<QJson::Serializer*>(m_handle);
+	delete static_cast<jsonserializer::Serializer*>(m_handle);
 }
 
 QByteArray JSONSerializer::serialize(const QVariant &variant) {
-	return static_cast<QJson::Serializer*>(m_handle)->serialize(variant);
-}
-
-void JSONSerializer::serialize(const QVariant &variant, QIODevice &output) {
-	bool ok;
-	static_cast<QJson::Serializer*>(m_handle)->serialize(variant, &output, &ok);
-	if (!ok) {
-		throw JSONSerializerException(tr("Unable to serialize data"));
-	}
+	return static_cast<jsonserializer::Serializer*>(m_handle)->serialize(variant);
 }
 
 }

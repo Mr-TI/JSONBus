@@ -25,12 +25,12 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "textstreambuf.h"
+#include "iodevicebuf.h"
 
 namespace jsonparser {
 
-IODeviceBuf::IODeviceBuf(QTextStream &textStream)
-        : m_textStreamBuf(textStream),
+IODeviceBuf::IODeviceBuf(QIODevice &device)
+        : m_device(device),
         m_result(-1) {
 }
 
@@ -41,6 +41,7 @@ int IODeviceBuf::underflow() {
 	if (m_result == -1) {
 		next();
 	}
+	
 	return m_result;
 }
 
@@ -54,13 +55,13 @@ int IODeviceBuf::uflow() {
 }
 
 void IODeviceBuf::next() {
-	if (m_textStreamBuf.atEnd()) {
+	if (m_device.atEnd()) {
 		m_result = EOF;
 		return;
 	}
-	QChar c;
-	m_textStreamBuf >> c;
-	m_result = c.toAscii();
+	char c;
+	m_device.getChar(&c);
+	m_result = c;
 }
 
 

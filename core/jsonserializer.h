@@ -70,14 +70,6 @@ public:
 	 * @return QByteArray object
 	 */
 	QByteArray serialize(const QVariant &variant);
-	
-	/**
-	 * @brief Serialize a JSON data from a input device
-	 * @param variant object to serialize
-	 * @param output Device to output the JSON string
-	 * @throw JSONSerializerException on error
-	 */
-	void serialize(const QVariant &variant, QIODevice &output);
 private:
 	void *m_handle;
 };

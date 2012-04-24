@@ -66,6 +66,13 @@ public:
 	
 	/**
 	 * @brief Parse a JSON data from a byte array
+	 * @return QVariant object
+	 * @throw JSONParserException on parsing error
+	 */
+	QVariant parse();
+	
+	/**
+	 * @brief Parse a JSON data from a byte array
 	 * @param data data to parse
 	 * @return QVariant object
 	 * @throw JSONParserException on parsing error
@@ -74,11 +81,28 @@ public:
 	
 	/**
 	 * @brief Parse a JSON data from a input device
+	 * @param stream STD input stream to get data from
+	 * @return QVariant object
+	 * @throw JSONParserException on parsing error
+	 */
+	QVariant parse(std::istream &stream);
+	
+	/**
+	 * @brief Parse a JSON data from a input device
+	 * @param stream Text stream to get data from
+	 * @return QVariant object
+	 * @throw JSONParserException on parsing error
+	 */
+	QVariant parse(QTextStream &stream);
+	
+	/**
+	 * @brief Parse a JSON data from a input device
 	 * @param input Device to get data from
 	 * @return QVariant object
 	 * @throw JSONParserException on parsing error
 	 */
 	QVariant parse(QIODevice& input);
+	
 private:
 	void *m_handle;
 };

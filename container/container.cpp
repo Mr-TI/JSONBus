@@ -15,7 +15,7 @@
 
 Container::Container(int &argc, char **argv)
 	: QCoreApplication(argc, argv),
-	m_pluginFile(NULL), m_plugin(NULL), m_input(), 
+	m_pluginFile(NULL), m_plugin(NULL), 
 	m_inputNotifier(STDIN_FILENO, QSocketNotifier::Read, this) {
 	m_cliArguments.define("service-root",	'd', tr("Plugin root directory (excluding namaspace directory)"), "/usr/lib/jsonbus/services/");
 	m_cliArguments.define("service-ns",		'N', tr("Plugin namespace"), "");
@@ -77,7 +77,6 @@ void Container::launch() {
 	}
 	
 	m_plugin->onLoad();
-	m_input.open(0, QIODevice::Unbuffered | QIODevice::ReadOnly);
 	
 	connect(m_plugin, SIGNAL(resultAvailable(QVariant)), this, SLOT(onResultAvailable(QVariant)));
 	connect(&m_inputNotifier, SIGNAL(activated(int)), this, SLOT(onDataAbailable(int)));
@@ -89,7 +88,7 @@ void Container::launch() {
 
 void Container::onDataAbailable(int socket) {
 	qDebug() << "Data available";
-	jsonParser.parse(m_input);
+	jsonParser.parse();
 }
 
 void Container::onResultAvailable(QVariant result) {
