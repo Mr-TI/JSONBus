@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2012, Emeric Verschuur <contact@openihs.org>
+    Copyright (c) 2012, Emeric Verschuur <emericv@openihs.org>
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -13,10 +13,10 @@
         names of its contributors may be used to endorse or promote products
         derived from this software without specific prior written permission.
 
-    THIS SOFTWARE IS PROVIDED BY Emeric Verschuur ''AS IS'' AND ANY
+    THIS SOFTWARE IS PROVIDED BY Emeric Verschuur <emericv@openihs.org> ''AS IS'' AND ANY
     EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
     WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-    DISCLAIMED. IN NO EVENT SHALL Emeric Verschuur BE LIABLE FOR ANY
+    DISCLAIMED. IN NO EVENT SHALL Emeric Verschuur <emericv@openihs.org> BE LIABLE FOR ANY
     DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
     (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
@@ -25,32 +25,43 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <common.h>
-#include "jsonparser.h"
-#include "jsonparser/driver.h"
+#include "textstreambuf.h"
 
-namespace JSONBus {
+namespace jsonparser {
 
-JSONParser::JSONParser(QObject* parent)
-	: QObject (parent) {
-	m_handle = new jsonparser::Driver();
+IODeviceBuf::IODeviceBuf(QTextStream &textStream)
+        : m_textStreamBuf(textStream),
+        m_result(-1) {
 }
 
-JSONParser::~JSONParser() {
-	delete static_cast<jsonparser::Driver*>(m_handle);
+IODeviceBuf::~IODeviceBuf() {
 }
 
-QVariant JSONParser::parse(const QByteArray &data) {
-	QVariant result;
-// 		throw JSONParserException(tr("Unable to parse data: %1").arg(static_cast<QJson::Parser*>(m_handle)->errorString()));
+int IODeviceBuf::underflow() {
+	if (m_result == -1) {
+		next();
+	}
+	return m_result;
+}
+
+int IODeviceBuf::uflow() {
+	if (m_result == -1) {
+		next();
+	}
+	int result = m_result;
+	next();
 	return result;
 }
 
-QVariant JSONParser::parse(QIODevice &input) {
-	QVariant result;
-	
-// 		throw JSONParserException(tr("Unable to parse data: %1").arg(static_cast<QJson::Parser*>(m_handle)->errorString()));
-	return result;
+void IODeviceBuf::next() {
+	if (m_textStreamBuf.atEnd()) {
+		m_result = EOF;
+		return;
+	}
+	QChar c;
+	m_textStreamBuf >> c;
+	m_result = c.toAscii();
 }
+
 
 }

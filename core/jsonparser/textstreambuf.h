@@ -25,30 +25,30 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef MULTIFILE_ISTREAMBUF_H
-#define MULTIFILE_ISTREAMBUF_H
+#ifndef JSONPARSER_TEXTSTREAMBUF_H
+#define JSONPARSER_TEXTSTREAMBUF_H
 
 #include <iostream>
 #include <fstream>
-#include <list>
+#include <QTextStream>
 
 /**
  * @namespace
  */
-namespace std {
+namespace jsonparser {
 
-class multifile_istreambuf : public streambuf {
+class TextStreamBuf : public std::streambuf {
 public:
-	multifile_istreambuf(const list<string> &fileList);
-	virtual ~multifile_istreambuf();
+	TextStreamBuf(QTextStream& textStream);
+	virtual ~TextStreamBuf();
 	virtual int underflow();
 	virtual int uflow();
 private:
-	list<string> m_fileList;
-	filebuf m_streambuf;
-	list<string>::const_iterator m_current;
+	void next();
+	QTextStream &m_textStreamBuf;
+	int m_result;
 };
 
 }
 
-#endif // MULTIFILE_ISTREAMBUF_H
+#endif // JSONPARSER_TEXTSTREAMBUF_H

@@ -25,42 +25,42 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "multifile_istreambuf.h"
+#include "textstreambuf.h"
 
-namespace std {
+namespace jsonparser {
 
-multifile_istreambuf::multifile_istreambuf(const list<string> &fileList)
-        : m_fileList(fileList),
-        m_current(m_fileList.begin()) {
+TextStreamBuf::TextStreamBuf(QTextStream &textStream)
+        : m_textStreamBuf(textStream),
+        m_result(-1) {
 }
 
-multifile_istreambuf::~multifile_istreambuf() {
+TextStreamBuf::~TextStreamBuf() {
 }
 
-int multifile_istreambuf::underflow() {
-	int result = m_streambuf.sgetc();
-	while ( result == EOF && m_current != m_fileList.end() ) {
-		m_streambuf.close();
-		m_streambuf.open( m_current->c_str(), ios::in );
-		if ( !m_streambuf.is_open() )
-			throw string("Fail to open the file ").append(m_current->c_str());
-		m_current++;
-		result = m_streambuf.sgetc();
+int TextStreamBuf::underflow() {
+	if (m_result == -1) {
+		next();
 	}
+	return m_result;
+}
+
+int TextStreamBuf::uflow() {
+	if (m_result == -1) {
+		next();
+	}
+	int result = m_result;
+	next();
 	return result;
 }
 
-int multifile_istreambuf::uflow() {
-	int result = m_streambuf.sbumpc();
-	while ( result == EOF && m_current != m_fileList.end() ) {
-		m_streambuf.close();
-		m_streambuf.open( m_current->c_str(), ios::in );
-		if ( !m_streambuf.is_open() )
-			throw string("Fail to open the file ").append(m_current->c_str());
-		m_current++;
-		result = m_streambuf.sbumpc();
+void TextStreamBuf::next() {
+	if (m_textStreamBuf.atEnd()) {
+		m_result = EOF;
+		return;
 	}
-	return result;
+	QChar c;
+	m_textStreamBuf >> c;
+	m_result = c.toAscii();
 }
 
 

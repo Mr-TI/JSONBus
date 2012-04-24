@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2012, Emeric Verschuur <contact@openihs.org>
+    Copyright (c) 2012, Emeric Verschuur <emericv@openihs.org>
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -13,10 +13,10 @@
         names of its contributors may be used to endorse or promote products
         derived from this software without specific prior written permission.
 
-    THIS SOFTWARE IS PROVIDED BY Emeric Verschuur ''AS IS'' AND ANY
+    THIS SOFTWARE IS PROVIDED BY Emeric Verschuur <emericv@openihs.org> ''AS IS'' AND ANY
     EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
     WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-    DISCLAIMED. IN NO EVENT SHALL Emeric Verschuur BE LIABLE FOR ANY
+    DISCLAIMED. IN NO EVENT SHALL Emeric Verschuur <emericv@openihs.org> BE LIABLE FOR ANY
     DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
     (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
@@ -25,32 +25,30 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <common.h>
-#include "jsonparser.h"
-#include "jsonparser/driver.h"
+#ifndef JSONPARSER_TEXTSTREAMBUF_H
+#define JSONPARSER_TEXTSTREAMBUF_H
 
-namespace JSONBus {
+#include <iostream>
+#include <fstream>
+#include <QTextStream>
 
-JSONParser::JSONParser(QObject* parent)
-	: QObject (parent) {
-	m_handle = new jsonparser::Driver();
-}
+/**
+ * @namespace
+ */
+namespace jsonparser {
 
-JSONParser::~JSONParser() {
-	delete static_cast<jsonparser::Driver*>(m_handle);
-}
-
-QVariant JSONParser::parse(const QByteArray &data) {
-	QVariant result;
-// 		throw JSONParserException(tr("Unable to parse data: %1").arg(static_cast<QJson::Parser*>(m_handle)->errorString()));
-	return result;
-}
-
-QVariant JSONParser::parse(QIODevice &input) {
-	QVariant result;
-	
-// 		throw JSONParserException(tr("Unable to parse data: %1").arg(static_cast<QJson::Parser*>(m_handle)->errorString()));
-	return result;
-}
+class IODeviceBuf : public std::streambuf {
+public:
+	IODeviceBuf(QTextStream& textStream);
+	virtual ~IODeviceBuf();
+	virtual int underflow();
+	virtual int uflow();
+private:
+	void next();
+	QTextStream &m_textStreamBuf;
+	int m_result;
+};
 
 }
+
+#endif // JSONPARSER_TEXTSTREAMBUF_H
