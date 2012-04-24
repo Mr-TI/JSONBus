@@ -40,8 +40,8 @@ using namespace std;
 
 %union {
   string_t *str;
-  variant_t *variant;
-  table_t *table;
+  variant_t *node;
+  array_t *array;
   object_t *object;
 }
 
@@ -49,21 +49,24 @@ using namespace std;
 
 %token              TOBJBEGIN       "object begin '{'"
 %token              TOBJEND         "object end '}'"
+%token              TARRBEGIN       "array begin '['"
+%token              TARREND         "array end ']'"
 %token              TFIELDSEP       "object field separator ':'"
-%token              TELEMENTSEP     "object/table element separator ','"
+%token              TELEMENTSEP     "object/array element separator ','"
 %token <str>        TSTRING         "string"
-%token <variant>	TVARIANT        "variant"
+%token <node>       TVARIANT        "variant"
 
 %token              TSYNERRESC      "invalid escaped character"
-%token              TSYNERRESC      "invalid unicode character"
+%token              TSYNERRUNI      "invalid unicode character"
 
 %start ROOT
 
-%type <variant>      ROOT VARIANT OBJECT TABLE VALUE
-%type <object>       FIELD_LIST
+%type <object>      MAP
+%type <array>       LIST
+%type <node>        ROOT VARIANT
 
 %language "C++"
-%define namespace "tkmailparser"
+%define namespace "jsonparser"
 %define parser_class_name "Parser"
 %parse-param {Driver &driver}
 
@@ -74,36 +77,21 @@ using namespace std;
 ROOT : VARIANT                          {driver.result = $$ = $1;}
     ;
 
-VARIANT : OBJECT                        {$$ = $1;}
-    | TABLE                             {$$ = $1;}
-    | VALUE                             {$$ = $1;}
-    ;
-
-OBJECT : TOBJBEGIN FIELD_LIST TOBJEND
-    ;
-
-FIELD_LIST : FIELD_LIST TELEMENTSEP 
-        TSTRING TFIELDSEP VALUE         {}
-    | TSTRING TFIELDSEP VALUE           {}
-    ;
-
-TABLE : TTBLBEGIN ELEMENT_LIST TTBLEND  {}
-    ;
-
-ELEMENT_LIST : ELEMENT_LIST 
-               TELEMENTSEP VALUE        {}
-    | VALUE
-    ;
-
-VALUE : TSTRING                         {$$ = r::string2variant($1);}
+VARIANT : TOBJBEGIN MAP TOBJEND         {$$ = r::map2variant($2);}
+    | TARRBEGIN LIST TARREND            {$$ = r::list2variant($2);}
+    | TOBJBEGIN TOBJEND                 {$$ = r::map2variant(new object_t());}
+    | TARRBEGIN TARREND                 {$$ = r::list2variant(new array_t());}
+    | TSTRING                           {$$ = r::string2variant($1);}
     | TVARIANT                          {$$ = $1;}
     ;
 
+MAP : MAP TELEMENTSEP
+        TSTRING TFIELDSEP VARIANT       {$$ = r::mapAppendVariant($1, $3, $5);}
+    | TSTRING TFIELDSEP VARIANT         {$$ = r::mapAppendVariant(NULL, $1, $3);}
+    ;
 
-
-
-
-
-
+LIST : LIST TELEMENTSEP VARIANT         {$$ = r::listAppendVariant($1, $3);}
+    | VARIANT                           {$$ = r::listAppendVariant(NULL, $1);}
+    ;
 
 %%

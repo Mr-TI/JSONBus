@@ -33,15 +33,14 @@
 #include <QMap>
 #include <QList>
 
-
 namespace jsonparser {
 
 #ifndef JSONPARSER_DRIVER_H_TYPES
 #define JSONPARSER_DRIVER_H_TYPES
 typedef QVariant variant_t;
 typedef QString string_t;
-typedef QMap<variant_t> object_t;
-typedef QList<variant_t> table_t;
+typedef QMap<string_t, variant_t> object_t;
+typedef QList<variant_t> array_t;
 #endif // JSONPARSER_DRIVER_H_TYPES
 
 class Driver;

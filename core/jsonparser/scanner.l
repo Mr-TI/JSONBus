@@ -35,22 +35,21 @@ using namespace std;
 #include <scanner.h>
 
 #define VARIANT_TXT2(_type_)\
-	yylval->variant = new variant_t(yytext);\
-	yylval->variant->convert(variant_t::_type_)
+	yylval->node = new variant_t(yytext);\
+	yylval->node->convert(variant_t::_type_)
 
 #define VARIANT_FROM(_value_)\
-	yylval->variant = new variant_t(_value_);\
-	yylval->variant->convert(variant_t::_type_)
+	yylval->node = new variant_t(_value_)
 	
 #define VARIANT_INFINITY()\
-	yylval->variant = new variant_t(variant_t::Real);\
-	yylval->variant->setValue(yytext[0] == '-'?\
+	yylval->node = new variant_t(variant_t::Double);\
+	yylval->node->setValue(yytext[0] == '-'?\
 	-std::numeric_limits<double>::infinity():\
 	std::numeric_limits<double>::infinity())
 	
 #define VARIANT_NAN()\
-	yylval->variant = new variant_t(variant_t::Real);\
-	yylval->variant->setValue(std::numeric_limits<double>::quiet_NaN())
+	yylval->node = new variant_t(variant_t::Double);\
+	yylval->node->setValue(std::numeric_limits<double>::quiet_NaN())
 
 #define STRING_BEGIN()\
 	yylval->str = new string_t()
@@ -80,17 +79,15 @@ kw_false                false
 kw_nan                  nan
 kw_infinity             [\-\+]?infinity
 
-number_real             \-?[[:digit:]]+\.[[:digit:]]+(e[\-\+]?[[:digit:]]+)
-number_long             \-[[:digit:]]+(e[\-\+]?[[:digit:]]+)
-number_ulong            [[:digit:]]+(e[\-\+]?[[:digit:]]+)
+number                  \-?[[:digit:]]+(\.[[:digit:]]+)?(e[\-\+]?[[:digit:]]+)?
 
 coma                    ,
 semicolon               :
 dblcote                 \"
-square_bracket_open     \{
-square_bracket_close    \}
-curly_bracket_open      \[
-curly_bracket_close     \]
+square_bracket_open     \[
+square_bracket_close    \]
+curly_bracket_open      \{
+curly_bracket_close     \}
 
 value_unicode           [[:digit:]]{4}
 
@@ -105,7 +102,7 @@ escape_car_ret          r
 escape_horiz_tab        t
 escape_prefix           \\
 
-%s NUMBER STRING
+%s STRING STRING_ESCAPE STRING_ESCAPE_UNICODE
 
 %option noyywrap yylineno c++
 %option prefix="jsonparser"
@@ -134,22 +131,21 @@ escape_prefix           \\
 <STRING_ESCAPE_UNICODE>{value_unicode}    {BEGIN STRING; STRING_APPEND_UNICODE();}
 <STRING_ESCAPE_UNICODE>.                  {BEGIN INITIAL; STRING_CLEAR(); RETURN_TOKEN(TSYNERRUNI);}
 
-<INITIAL>{kw_null}                        {BEGIN INITIAL; VARIANT_FROM(NULL); RETURN_TOKEN(TVARIANT);}
+<INITIAL>{kw_null}                        {BEGIN INITIAL; VARIANT_FROM((const char *)NULL); RETURN_TOKEN(TVARIANT);}
 <INITIAL>{kw_true}                        {BEGIN INITIAL; VARIANT_FROM(true); RETURN_TOKEN(TVARIANT);}
 <INITIAL>{kw_false}                       {BEGIN INITIAL; VARIANT_FROM(false); RETURN_TOKEN(TVARIANT);}
 <INITIAL>{kw_nan}                         {BEGIN INITIAL; VARIANT_NAN(); RETURN_TOKEN(TVARIANT);}
 <INITIAL>{kw_infinity}                    {BEGIN INITIAL; VARIANT_INFINITY(); RETURN_TOKEN(TVARIANT);}
 
-<INITIAL>{number_real}                    {BEGIN INITIAL; VARIANT_TXT2(Real) RETURN_TOKEN(TVARIANT);}
-<INITIAL>{number_long}                    {BEGIN INITIAL; VARIANT_TXT2(LongLong) RETURN_TOKEN(TVARIANT);}
-<INITIAL>{number_ulong}                   {BEGIN INITIAL; VARIANT_TXT2(ULonglong) RETURN_TOKEN(TVARIANT);}
+<INITIAL>{number}                         {BEGIN INITIAL; VARIANT_TXT2(Double); RETURN_TOKEN(TVARIANT);}
 
-<INITIAL>{square_bracket_open}            {BEGIN INITIAL; RETURN_TOKEN(TTBLBEGIN);}
-<INITIAL>{square_bracket_close}           {BEGIN INITIAL; RETURN_TOKEN(TTBLEND);}
+<INITIAL>{square_bracket_open}            {BEGIN INITIAL; RETURN_TOKEN(TARRBEGIN);}
+<INITIAL>{square_bracket_close}           {BEGIN INITIAL; RETURN_TOKEN(TARREND);}
 <INITIAL>{curly_bracket_open}             {BEGIN INITIAL; RETURN_TOKEN(TOBJBEGIN);}
 <INITIAL>{curly_bracket_close}            {BEGIN INITIAL; RETURN_TOKEN(TOBJEND);}
-<INITIAL>{coma}                           {BEGIN INITIAL; RETURN_TOKEN();}
-<INITIAL>{semicolon}                      {BEGIN INITIAL; RETURN_TOKEN();}
+<INITIAL>{coma}                           {BEGIN INITIAL; RETURN_TOKEN(TELEMENTSEP);}
+<INITIAL>{semicolon}                      {BEGIN INITIAL; RETURN_TOKEN(TFIELDSEP);}
 <INITIAL>{dblcote}                        {BEGIN STRING; STRING_BEGIN();}
+<INITIAL>{space}                          {}
 
 %%

@@ -28,7 +28,7 @@
 #include <globals.h>
 #include <parser.hh>
 
-namespace tkmailparser {
+namespace jsonparser {
 
 void Parser::error(const Parser::location_type& l, const std::string& m) {
     std::cerr << m << std::endl;

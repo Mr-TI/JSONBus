@@ -32,28 +32,20 @@
 
 namespace jsonparser {
 
-#ifndef JSONPARSER_DRIVER_H_TYPES
-#define JSONPARSER_DRIVER_H_TYPES
-typedef QVariant field_t;
-#endif // JSONPARSER_DRIVER_H_TYPES
-
 class Parser;
 class Scanner;
 class r;
 
 class Driver {
 public:
-	Driver(bool verbose=false);
+	Driver();
 	~Driver();
-	table_t *parse(std::istream* inStream);
-	inline void setVerbose(bool value) {verbose = value;}
-	inline table_t &getResult() {return *result;}
-	void clearResult();
+	QVariant *parse(std::istream* inStream);
+	inline QVariant &getResult() {return *result;}
 private:
 	Scanner &scanner;
 	Parser &parser;
-	table_t *result;
-	bool verbose;
+	QVariant *result;
 	std::map<std::string, bool> folders;
 	friend class Parser;
 	friend class Scanner;

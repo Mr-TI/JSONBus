@@ -36,42 +36,22 @@ using namespace std;
 
 namespace jsonparser {
 
-Driver::Driver(bool verbose)
+Driver::Driver()
 		: scanner(*new Scanner()),
-		parser(*new Parser(*this)),
-		result(NULL),
-		verbose(verbose) {
+		parser(*new Parser(*this)){
 }
 
 Driver::~Driver() {
-	if (result)
-		clearResult();
 	delete &parser;
 	delete &scanner;
 }
 
-table_t *Driver::parse(std::istream *inStream) {
-	if (result)
-		clearResult();
+variant_t *Driver::parse(std::istream *inStream) {
 	scanner.switch_streams(inStream, &cerr);
 	if (parser.parse() != 0) {
 		return NULL;
 	}
 	return result;
-}
-
-void Driver::clearResult() {
-	if (result == NULL)
-		return;
-	for (auto itRow = result->begin(); itRow != result->end(); itRow++) {
-		for (auto itField = (*itRow)->begin(); itField != (*itRow)->end(); itField++) {
-			delete *itField;
-		}
-		delete *itRow;
-	}
-	delete result;
-	folders.clear();
-	result = NULL;
 }
 
 
