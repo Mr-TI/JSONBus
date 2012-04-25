@@ -26,7 +26,7 @@
 */
 
 /**
- * @brief JSONBus : Exception management.
+ * @brief JSONParser : Exception management.
  * @file exception.h
  * @author Emeric VERSCHUUR <contact@openihs.org>, (C) 2012
  */
@@ -36,6 +36,20 @@
 #include <QString>
 #include <QObject>
 #include <QtCore>
+
+#define jsonparser_declare_exception(ename, eparent)\
+class ename:public eparent {\
+public:\
+    inline ename(const QString &msg):eparent(msg) {}\
+	\
+	inline void raise() const {\
+		throw *this;\
+	}\
+	\
+	inline ename *clone() const {\
+		return new ename(*this);\
+	}\
+};
 
 namespace jsonparser {
 
@@ -87,6 +101,9 @@ public:
 private:
 	QString m_message;
 };
+
+jsonparser_declare_exception(ErrorException, Exception);
+jsonparser_declare_exception(EOFException, Exception);
 
 }
 

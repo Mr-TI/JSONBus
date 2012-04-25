@@ -41,11 +41,20 @@
 #endif
 
 #include <QString>
+#include <QTextStream>
 #include <QVariant>
+
+namespace jsonparser {
+class Driver;
+class IODeviceBuf;
+class TextStreamBuf;
+}
 
 namespace JSONBus {
 
 jsonbus_declare_exception(JSONParserException, Exception);
+jsonbus_declare_exception(JSONParserEOFException, JSONParserException);
+jsonbus_declare_exception(JSONParserErrorException, JSONParserException);
 
 /**
  * @brief JSON Parser management.
@@ -58,6 +67,27 @@ public:
 	 * @param parent Parent object
 	 */
 	JSONParser(QObject* parent = 0);
+	
+	/**
+	 * @brief JSONParser constructor.
+	 * @param stream STD input stream to get data from
+	 * @param parent Parent object
+	 */
+	JSONParser(std::istream &stream, QObject* parent = 0);
+	
+	/**
+	 * @brief JSONParser constructor.
+	 * @param stream Text stream to get data from
+	 * @param parent Parent object
+	 */
+	JSONParser(QTextStream &stream, QObject* parent = 0);
+	
+	/**
+	 * @brief JSONParser constructor.
+	 * @param input Device to get data from
+	 * @param parent Parent object
+	 */
+	JSONParser(QIODevice &input, QObject* parent = 0);
 	
 	/**
 	 * @brief JSONParser destructor.
@@ -104,7 +134,13 @@ public:
 	QVariant parse(QIODevice& input);
 	
 private:
-	void *m_handle;
+	void setupIODeviceBuf(QIODevice &device);
+	void setupTextStreamBuf(QTextStream &device);
+	void cleanup();
+	jsonparser::Driver *m_driver;
+	std::istream *m_inputStream;
+	jsonparser::IODeviceBuf *m_devBuf;
+	jsonparser::TextStreamBuf *m_tsBuf;
 };
 
 }

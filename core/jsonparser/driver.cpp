@@ -37,8 +37,8 @@ using namespace std;
 
 namespace jsonparser {
 
-Driver::Driver()
-		: scanner(*new Scanner()),
+Driver::Driver(std::istream* inStream)
+		: scanner(*new Scanner(inStream)),
 		parser(*new Parser(*this)){
 }
 
@@ -48,6 +48,7 @@ Driver::~Driver() {
 }
 
 variant_t &Driver::parse(std::istream *inStream) {
+	eof = false;
 	if (inStream) {
 		scanner.yyrestart(inStream);
 	}

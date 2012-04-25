@@ -38,15 +38,16 @@ class r;
 
 class Driver {
 public:
-	Driver();
+	Driver(std::istream* inStream = NULL);
 	~Driver();
-	QVariant &parse(std::istream* inStream=NULL);
+	QVariant &parse(std::istream* inStream = NULL);
 	inline QVariant &getResult() {return result;}
 private:
 	QString lastError;
 	Scanner &scanner;
 	Parser &parser;
 	QVariant result;
+	bool eof;
 	std::map<std::string, bool> folders;
 	friend class Parser;
 	friend class Scanner;

@@ -37,6 +37,7 @@
 #include <QCoreApplication>
 #include <QSocketNotifier>
 #include <QFile>
+#include <fstream>
 
 #include <jsonbus/core/exception.h>
 #include <jsonbus/core/cliarguments.h>
@@ -97,15 +98,16 @@ public:
 	bool notify(QObject *rec, QEvent *ev);
 	
 private slots:
-	void onDataAbailable(int socket);
+	void onDataAbailable();
 	void onResultAvailable(QVariant result);
 	
 private:
 	CliArguments m_cliArguments;
 	SharedLib *m_pluginFile;
 	Plugin *m_plugin;
+	QFile m_input;
 	QSocketNotifier m_inputNotifier;
-	JSONParser jsonParser;
+	JSONParser m_jsonParser;
 };
 
 #endif //JSONBUS_CONTAINER_H

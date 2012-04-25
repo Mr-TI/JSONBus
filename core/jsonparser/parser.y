@@ -51,7 +51,7 @@ using namespace std;
 %token              TOBJEND         "object end '}'"
 %token              TARRBEGIN       "array begin '['"
 %token              TARREND         "array end ']'"
-%token              TMEMBERSEP       "object field separator ':'"
+%token              TMEMBERSEP      "object field separator ':'"
 %token              TELEMENTSEP     "object/array element separator ','"
 %token <str>        TSTRING         "string"
 %token <node>       TVARIANT        "variant"
@@ -80,6 +80,7 @@ using namespace std;
 %%
 
 ROOT : VARIANT                          {$$ = $1; driver.result.setValue(*$1); YYACCEPT;}
+    | TEND                              {$$ = NULL; driver.eof = true; YYACCEPT;}
     ;
 
 VARIANT : TOBJBEGIN MEMBERS TOBJEND     {$$ = r::map2variant($2);}

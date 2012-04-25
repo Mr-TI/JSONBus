@@ -33,23 +33,73 @@
 #include "jsonparser/iodevicebuf.h"
 #include <sstream>
 
+using namespace jsonparser;
+
 namespace JSONBus {
 
 JSONParser::JSONParser(QObject* parent)
-	: QObject (parent) {
-	m_handle = new jsonparser::Driver();
+	: QObject (parent), m_driver(NULL), m_inputStream(NULL), m_devBuf(NULL), m_tsBuf(NULL) {
+	m_driver = new Driver();
+}
+
+JSONParser::JSONParser(std::istream &stream, QObject* parent)
+	: QObject (parent), m_driver(NULL), m_inputStream(NULL), m_devBuf(NULL), m_tsBuf(NULL) {
+	m_driver = new Driver(&stream);
+}
+
+JSONParser::JSONParser(QTextStream &stream, QObject* parent)
+	: QObject (parent), m_driver(NULL), m_inputStream(NULL), m_devBuf(NULL), m_tsBuf(NULL) {
+	setupTextStreamBuf(stream);
+	m_driver = new Driver(m_inputStream);
+}
+
+JSONParser::JSONParser(QIODevice &input, QObject* parent)
+	: QObject (parent), m_driver(NULL), m_inputStream(NULL), m_devBuf(NULL), m_tsBuf(NULL) {
+	setupIODeviceBuf(input);
+	m_driver = new Driver(m_inputStream);
 }
 
 JSONParser::~JSONParser() {
-	delete static_cast<jsonparser::Driver*>(m_handle);
+	delete m_driver;
+	cleanup();
+}
+
+void JSONParser::cleanup() {
+	if (m_inputStream) {
+		delete m_inputStream;
+		m_inputStream = NULL;
+	}
+	if (m_devBuf) {
+		delete m_devBuf;
+		m_devBuf = NULL;
+	}
+	if (m_tsBuf) {
+		delete m_tsBuf;
+		m_tsBuf = NULL;
+	}
+}
+
+
+void JSONParser::setupIODeviceBuf(QIODevice& device) {
+	cleanup();
+	m_devBuf = new IODeviceBuf(device);
+	m_inputStream = new istream(m_devBuf);
+}
+
+void JSONParser::setupTextStreamBuf(QTextStream& stream) {
+	cleanup();
+	m_tsBuf = new TextStreamBuf(stream);
+	m_inputStream = new istream(m_devBuf);
 }
 
 QVariant JSONParser::parse() {
 	QVariant result;
 	try {
-		result = static_cast<jsonparser::Driver*>(m_handle)->parse();
-	} catch(jsonparser::Exception e) {
-		throw JSONParserException(e.message());
+		result = m_driver->parse();
+	} catch(jsonparser::ErrorException e) {
+		throw JSONParserErrorException(e.message());
+	} catch(jsonparser::EOFException e) {
+		throw JSONParserEOFException(e.message());
 	}
 	return result;
 }
@@ -59,9 +109,11 @@ QVariant JSONParser::parse(const QByteArray &data) {
 	try {
 		stringstream in(stringstream::in | stringstream::out);
 		in << data.data();
-		result = static_cast<jsonparser::Driver*>(m_handle)->parse(&in);
-	} catch(jsonparser::Exception e) {
-		throw JSONParserException(e.message());
+		result = m_driver->parse(&in);
+	} catch(jsonparser::ErrorException e) {
+		throw JSONParserErrorException(e.message());
+	} catch(jsonparser::EOFException e) {
+		throw JSONParserEOFException(e.message());
 	}
 	return result;
 }
@@ -69,9 +121,11 @@ QVariant JSONParser::parse(const QByteArray &data) {
 QVariant JSONParser::parse(std::istream &stream) {
 	QVariant result;
 	try {
-		result = static_cast<jsonparser::Driver*>(m_handle)->parse(&stream);
-	} catch(jsonparser::Exception e) {
-		throw JSONParserException(e.message());
+		result = m_driver->parse(&stream);
+	} catch(jsonparser::ErrorException e) {
+		throw JSONParserErrorException(e.message());
+	} catch(jsonparser::EOFException e) {
+		throw JSONParserEOFException(e.message());
 	}
 	return result;
 }
@@ -79,11 +133,12 @@ QVariant JSONParser::parse(std::istream &stream) {
 QVariant JSONParser::parse(QTextStream &stream) {
 	QVariant result;
 	try {
-		jsonparser::TextStreamBuf buf(stream);
-		istream in(&buf);
-		result = static_cast<jsonparser::Driver*>(m_handle)->parse(&in);
-	} catch(jsonparser::Exception e) {
-		throw JSONParserException(e.message());
+		setupTextStreamBuf(stream);
+		result = m_driver->parse(m_inputStream);
+	} catch(jsonparser::ErrorException e) {
+		throw JSONParserErrorException(e.message());
+	} catch(jsonparser::EOFException e) {
+		throw JSONParserEOFException(e.message());
 	}
 	return result;
 }
@@ -91,11 +146,12 @@ QVariant JSONParser::parse(QTextStream &stream) {
 QVariant JSONParser::parse(QIODevice &input) {
 	QVariant result;
 	try {
-		jsonparser::IODeviceBuf buf(input);
-		istream in(&buf);
-		result = static_cast<jsonparser::Driver*>(m_handle)->parse(&in);
-	} catch(jsonparser::Exception e) {
-		throw JSONParserException(e.message());
+		setupIODeviceBuf(input);
+		result = m_driver->parse(m_inputStream);
+	} catch(jsonparser::ErrorException e) {
+		throw JSONParserErrorException(e.message());
+	} catch(jsonparser::EOFException e) {
+		throw JSONParserEOFException(e.message());
 	}
 	return result;
 }
