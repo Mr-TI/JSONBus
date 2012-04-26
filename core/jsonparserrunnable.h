@@ -26,86 +26,31 @@
 */
 
 /**
- * @brief JSONBus : Exception management.
- * @file exception.h
+ * @brief JSONBus : JSON runnable parser management.
+ * @file jsonparserrunnable.h
  * @author Emeric VERSCHUUR <contact@openihs.org>, (C) 2012
  */
-#ifndef JSONBUS_EXCEPTION_H
-#define JSONBUS_EXCEPTION_H
 
-#ifndef JSONBUS_EXPORT
-#define JSONBUS_EXPORT
-#endif
 
-#include <QString>
-#include <QObject>
-#include <QtCore>
+#ifndef JSONBUS_JSONPARSERRUNNABLE_H
+#define JSONBUS_JSONPARSERRUNNABLE_H
 
-#define jsonbus_declare_exception(ename, eparent)\
-class JSONBUS_EXPORT ename:public eparent {\
-public:\
-    inline ename(const QString &msg = ""):eparent(msg) {}\
-	\
-	inline void raise() const {\
-		throw *this;\
-	}\
-	\
-	inline ename *clone() const {\
-		return new ename(*this);\
-	}\
-};
+#include <QRunnable>
+#include <jsonbus/core/jsonparser.h>
 
 namespace JSONBus {
 
-/**
- * This class can manage exceptions.
- * @brief JSONBus : Exceptions.
- */
-class JSONBUS_EXPORT Exception : public QtConcurrent::Exception {
+class JSONParserRunnable : public JSONBus::JSONParser, public QRunnable {
+	Q_OBJECT
 public:
-	/**
-	 * @brief Exception constructor.
-	 * @param message exeption message.
-	 */
-	inline Exception(const QString &message = ""): m_message(message) {}
-	/**
-	 * @brief Exception constructor.
-	 * @param message exeption message.
-	 */
-	inline Exception(const Exception &exception): m_message(exception.m_message) {}
-
-	/**
-	 * @brief Exception destructor.
-	 */
-	inline virtual ~Exception() throw() { }
-
-	/**
-	 * @brief Get the exeption message.
-	 * @return QString message.
-	 */
-	inline const QString message() const {
-		return m_message;
-	}
-
-	/**
-	 * @brief Get the exeption message.
-	 * @return QString message.
-	 */
-	inline const char *what() const throw() {
-		return m_message.toAscii().data();
-	}  
-	
-	inline void raise() const {
-		throw *this;
-	}
-	
-	inline Exception *clone() const {
-		return new Exception(*this);
-	}
-private:
-	QString m_message;
+    JSONParserRunnable(std::istream& stream, QObject* parent = 0);
+    JSONParserRunnable(QTextStream& stream, QObject* parent = 0);
+    JSONParserRunnable(QIODevice& input, QObject* parent = 0);
+    virtual void run();
+signals:
+	void dataAvailable(QVariant data);
 };
 
 }
 
-#endif
+#endif // JSONBUS_JSONPARSERRUNNABLE_H

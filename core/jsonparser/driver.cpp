@@ -29,9 +29,16 @@
 #include <parser.hh>
 #include "scanner.h"
 #include "driver.h"
-#include "exception.h"
 #include <iostream>
 #include <sstream>
+
+#ifdef USE_JSONBUS_EXCEPTION
+#include <jsonbus/core/jsonparser.h>
+#define ErrorException JSONBus::ErrorJSONParserException 
+#define EOFException JSONBus::EOFJSONParserException
+#else
+#include "exception.h"
+#endif
 
 using namespace std;
 
@@ -47,15 +54,19 @@ Driver::~Driver() {
 	delete &scanner;
 }
 
-variant_t &Driver::parse(std::istream *inStream) {
-	eof = false;
+QVariant Driver::parse(istream* inStream) {
+	variant_t ret;
+	result = &ret;
 	if (inStream) {
 		scanner.yyrestart(inStream);
 	}
 	if (parser.parse() != 0) {
-		throw Exception(lastError);
+		throw ErrorException(lastError);
 	}
-	return result;
+	if (!result) {
+		throw EOFException();
+	}
+	return *result;
 }
 
 

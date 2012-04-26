@@ -28,6 +28,7 @@
 # ### FILES ###
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+add_definitions(-DUSE_JSONBUS_EXCEPTION)
 file(GLOB project_HDRS *.h)
 file(GLOB project_SRCS *.cpp)
 

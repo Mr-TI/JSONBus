@@ -4,6 +4,7 @@
 #include <jsonbus/core/common.h>
 #include <jsonbus/core/settings.h>
 #include "container.h"
+#include <jsonbus/core/jsonparserrunnable.h>
 
 #ifdef WIN32
 #	define JSONBUS_SERVICEFILE_PREFIX ""
@@ -15,9 +16,7 @@
 
 Container::Container(int &argc, char **argv)
 	: QCoreApplication(argc, argv),
-	m_pluginFile(NULL), m_plugin(NULL), m_input("/tmp/fifo"),
-	m_inputNotifier(STDIN_FILENO, QSocketNotifier::Read, this),
-	m_jsonParser(m_input) {
+	m_pluginFile(NULL), m_plugin(NULL) {
 	m_cliArguments.define("service-root",	'd', tr("Plugin root directory (excluding namaspace directory)"), "/usr/lib/jsonbus/services/");
 	m_cliArguments.define("service-ns",		'N', tr("Plugin namespace"), "");
 	m_cliArguments.define("service-name",	'n', tr("Plugin name"), "");
@@ -26,7 +25,6 @@ Container::Container(int &argc, char **argv)
 	m_cliArguments.define("setup",			's', tr("Setup the service"));
 	m_cliArguments.define("help",			'h', tr("Display this help"));
 	m_cliArguments.parse(arguments());
-	m_input.open(QIODevice::ReadOnly);
 }
 
 Container::~Container() {
@@ -80,18 +78,17 @@ void Container::launch() {
 	
 	m_plugin->onLoad();
 	
+	JSONParserRunnable *jsonParser = new JSONParserRunnable(cin);
 	connect(m_plugin, SIGNAL(resultAvailable(QVariant)), this, SLOT(onResultAvailable(QVariant)));
-	connect(&m_inputNotifier, SIGNAL(activated(int)), this, SLOT(onDataAbailable()));
-	connect(&m_input, SIGNAL(readyRead()), this, SLOT(onDataAbailable()));
+	connect(jsonParser, SIGNAL(dataAvailable(QVariant)), this, SLOT(onDataAvailable(QVariant)));
 	
-	m_inputNotifier.setEnabled(true);
+	QThreadPool::globalInstance()->start(jsonParser);
 	
 	exec();
 }
 
-void Container::onDataAbailable() {
-	qDebug() << "Data available";
-	m_jsonParser.parse();
+void Container::onDataAvailable(QVariant data) {
+	qDebug() << "Data available: " << data;
 }
 
 void Container::onResultAvailable(QVariant result) {

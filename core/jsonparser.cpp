@@ -93,67 +93,27 @@ void JSONParser::setupTextStreamBuf(QTextStream& stream) {
 }
 
 QVariant JSONParser::parse() {
-	QVariant result;
-	try {
-		result = m_driver->parse();
-	} catch(jsonparser::ErrorException e) {
-		throw JSONParserErrorException(e.message());
-	} catch(jsonparser::EOFException e) {
-		throw JSONParserEOFException(e.message());
-	}
-	return result;
+	return m_driver->parse();
 }
 
 QVariant JSONParser::parse(const QByteArray &data) {
-	QVariant result;
-	try {
-		stringstream in(stringstream::in | stringstream::out);
-		in << data.data();
-		result = m_driver->parse(&in);
-	} catch(jsonparser::ErrorException e) {
-		throw JSONParserErrorException(e.message());
-	} catch(jsonparser::EOFException e) {
-		throw JSONParserEOFException(e.message());
-	}
-	return result;
+	stringstream in(stringstream::in | stringstream::out);
+	in << data.data();
+	return m_driver->parse(&in);
 }
 
 QVariant JSONParser::parse(std::istream &stream) {
-	QVariant result;
-	try {
-		result = m_driver->parse(&stream);
-	} catch(jsonparser::ErrorException e) {
-		throw JSONParserErrorException(e.message());
-	} catch(jsonparser::EOFException e) {
-		throw JSONParserEOFException(e.message());
-	}
-	return result;
+	return m_driver->parse(&stream);
 }
 
 QVariant JSONParser::parse(QTextStream &stream) {
-	QVariant result;
-	try {
-		setupTextStreamBuf(stream);
-		result = m_driver->parse(m_inputStream);
-	} catch(jsonparser::ErrorException e) {
-		throw JSONParserErrorException(e.message());
-	} catch(jsonparser::EOFException e) {
-		throw JSONParserEOFException(e.message());
-	}
-	return result;
+	setupTextStreamBuf(stream);
+	return m_driver->parse(m_inputStream);
 }
 
 QVariant JSONParser::parse(QIODevice &input) {
-	QVariant result;
-	try {
-		setupIODeviceBuf(input);
-		result = m_driver->parse(m_inputStream);
-	} catch(jsonparser::ErrorException e) {
-		throw JSONParserErrorException(e.message());
-	} catch(jsonparser::EOFException e) {
-		throw JSONParserEOFException(e.message());
-	}
-	return result;
+	setupIODeviceBuf(input);
+	return m_driver->parse(m_inputStream);
 }
 
 }

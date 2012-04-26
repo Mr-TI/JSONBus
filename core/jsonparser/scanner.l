@@ -119,10 +119,11 @@ escape_prefix           \\
 
 %s STRING STRING_ESCAPE STRING_ESCAPE_UNICODE
 
-%option noyywrap never-interactive yylineno c++
+%option noyywrap yylineno c++
+/* %option never-interactive */
 %option prefix="jsonparser"
 /* %option batch */
-/* %option align */
+%option align
 %option case-insensitive
 
 %option nounput debug

@@ -40,7 +40,7 @@
 #define jsonparser_declare_exception(ename, eparent)\
 class ename:public eparent {\
 public:\
-    inline ename(const QString &msg):eparent(msg) {}\
+    inline ename(const QString &msg = ""):eparent(msg) {}\
 	\
 	inline void raise() const {\
 		throw *this;\
@@ -63,7 +63,7 @@ public:
 	 * @brief Exception constructor.
 	 * @param message exeption message.
 	 */
-	inline Exception(const QString &message): m_message(message) {}
+	inline Exception(const QString &message = ""): m_message(message) {}
 	/**
 	 * @brief Exception constructor.
 	 * @param message exeption message.

@@ -44,6 +44,7 @@ typedef QList<variant_t> array_t;
 #endif // JSONPARSER_DRIVER_H_TYPES
 
 class Driver;
+
 }
 
 #endif // GLOBALS_H

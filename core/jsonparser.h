@@ -53,8 +53,8 @@ class TextStreamBuf;
 namespace JSONBus {
 
 jsonbus_declare_exception(JSONParserException, Exception);
-jsonbus_declare_exception(JSONParserEOFException, JSONParserException);
-jsonbus_declare_exception(JSONParserErrorException, JSONParserException);
+jsonbus_declare_exception(EOFJSONParserException, JSONParserException);
+jsonbus_declare_exception(ErrorJSONParserException, JSONParserException);
 
 /**
  * @brief JSON Parser management.

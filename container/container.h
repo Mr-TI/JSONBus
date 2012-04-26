@@ -43,7 +43,6 @@
 #include <jsonbus/core/cliarguments.h>
 #include <jsonbus/core/sharedlib.h>
 #include <jsonbus/core/plugin.h>
-#include <jsonbus/core/jsonparser.h>
 
 using namespace JSONBus;
 
@@ -98,16 +97,13 @@ public:
 	bool notify(QObject *rec, QEvent *ev);
 	
 private slots:
-	void onDataAbailable();
+	void onDataAvailable(QVariant data);
 	void onResultAvailable(QVariant result);
 	
 private:
 	CliArguments m_cliArguments;
 	SharedLib *m_pluginFile;
 	Plugin *m_plugin;
-	QFile m_input;
-	QSocketNotifier m_inputNotifier;
-	JSONParser m_jsonParser;
 };
 
 #endif //JSONBUS_CONTAINER_H

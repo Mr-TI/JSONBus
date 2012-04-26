@@ -79,8 +79,8 @@ using namespace std;
 
 %%
 
-ROOT : VARIANT                          {$$ = $1; driver.result.setValue(*$1); YYACCEPT;}
-    | TEND                              {$$ = NULL; driver.eof = true; YYACCEPT;}
+ROOT : VARIANT                          {$$ = $1; driver.result->setValue(*$1); YYACCEPT;}
+    | TEND                              {$$ = NULL; driver.result = NULL; YYACCEPT;}
     ;
 
 VARIANT : TOBJBEGIN MEMBERS TOBJEND     {$$ = r::map2variant($2);}
