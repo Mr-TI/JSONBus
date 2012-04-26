@@ -8,6 +8,7 @@
 using namespace JSONBus;
 
 void onQuit(int signum) {
+	fclose(stdin);
 	qApp->quit();
 }
 
