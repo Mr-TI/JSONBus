@@ -54,5 +54,10 @@ void JSONParserRunnable::run() {
 	}
 }
 
+void JSONParserRunnable::terminate() {
+	disable();
+}
+
+
 }
 

@@ -105,7 +105,6 @@ private:
 	CliArguments m_cliArguments;
 	SharedLib *m_pluginFile;
 	Plugin *m_plugin;
-	JSONParserRunnable *m_jsonParserTask;
 };
 
 #endif //JSONBUS_CONTAINER_H

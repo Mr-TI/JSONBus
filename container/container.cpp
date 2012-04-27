@@ -16,7 +16,7 @@
 
 Container::Container(int &argc, char **argv)
 	: QCoreApplication(argc, argv),
-	m_pluginFile(NULL), m_plugin(NULL), m_jsonParserTask(NULL) {
+	m_pluginFile(NULL), m_plugin(NULL) {
 	m_cliArguments.define("service-root",	'd', tr("Plugin root directory (excluding namaspace directory)"), "/usr/lib/jsonbus/services/");
 	m_cliArguments.define("service-ns",		'N', tr("Plugin namespace"), "");
 	m_cliArguments.define("service-name",	'n', tr("Plugin name"), "");
@@ -28,7 +28,6 @@ Container::Container(int &argc, char **argv)
 }
 
 Container::~Container() {
-	m_jsonParserTask->disable();
 	if (m_plugin && m_plugin->isLoaded()) {
 		m_plugin->onUnload();
 	}
@@ -79,11 +78,14 @@ void Container::launch() {
 	
 	m_plugin->onLoad();
 	
-	m_jsonParserTask = new JSONParserRunnable(cin);
+	fstream fin;
+	fin.open("/tmp/fifo", fstream::in);
+	JSONParserRunnable *jsonParser = new JSONParserRunnable(fin);
+	connect(this, SIGNAL(destroyed(QObject*)), jsonParser, SLOT(terminate()));
 	connect(m_plugin, SIGNAL(resultAvailable(QVariant)), this, SLOT(onResultAvailable(QVariant)));
-	connect(m_jsonParserTask, SIGNAL(dataAvailable(QVariant)), this, SLOT(onDataAvailable(QVariant)));
+	connect(jsonParser, SIGNAL(dataAvailable(QVariant)), this, SLOT(onDataAvailable(QVariant)));
 	
-	QThreadPool::globalInstance()->start(m_jsonParserTask);
+	QThreadPool::globalInstance()->start(jsonParser);
 	
 	exec();
 }

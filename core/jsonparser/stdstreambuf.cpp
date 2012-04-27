@@ -47,7 +47,9 @@ int StdStreamBuf::getNextChar() {
 }
 
 bool StdStreamBuf::wouldBlock() {
-	return m_stream.rdbuf()->in_avail() == 0;
+	int n = m_stream.rdbuf()->in_avail();
+	return n == 0;
+// 	return m_stream.rdbuf()->in_avail() == 0;
 }
 
 }

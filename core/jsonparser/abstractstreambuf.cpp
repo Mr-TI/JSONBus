@@ -60,6 +60,7 @@ void AbstractStreamBuf::next() {
 		}
 		if (wouldBlock()) {
 			usleep(10000);
+			continue;
 		}
 		m_result = getNextChar();
 		break;

@@ -49,6 +49,8 @@ public:
     virtual void run();
 signals:
 	void dataAvailable(QVariant data);
+public slots:
+	void terminate();
 };
 
 }

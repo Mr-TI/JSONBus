@@ -10,7 +10,6 @@ using namespace JSONBus;
 
 void onQuit(int signum) {
 	qApp->quit();
-	QThreadPool::globalInstance()->waitForDone();
 }
 
 int main(int argc, char **argv) {
