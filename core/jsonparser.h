@@ -46,8 +46,7 @@
 
 namespace jsonparser {
 class Driver;
-class IODeviceBuf;
-class TextStreamBuf;
+class AbstractStreamBuf;
 }
 
 namespace JSONBus {
@@ -133,14 +132,16 @@ public:
 	 */
 	QVariant parse(QIODevice& input);
 	
+	void disable();
+	
 private:
-	void setupIODeviceBuf(QIODevice &device);
-	void setupTextStreamBuf(QTextStream &device);
+	void setupBuf(QIODevice &device);
+	void setupBuf(QTextStream &stream);
+	void setupBuf(std::istream &stream);
 	void cleanup();
 	jsonparser::Driver *m_driver;
 	std::istream *m_inputStream;
-	jsonparser::IODeviceBuf *m_devBuf;
-	jsonparser::TextStreamBuf *m_tsBuf;
+	jsonparser::AbstractStreamBuf *m_buffer;
 };
 
 }

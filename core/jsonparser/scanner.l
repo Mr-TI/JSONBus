@@ -29,6 +29,8 @@
 #include <iostream>
 using namespace std;
 
+#define YY_READ_BUF_SIZE 1
+
 #include <globals.h>
 #include <parser.hh>
 #include <string>
@@ -65,18 +67,6 @@ using namespace std;
 
 #undef yywrap
 #define yywrap() 1
-
-#define YY_INPUT(buf,result,max_size)   \
-{                                       \
-	char c;                             \
-	(*yyin) >> c;                       \
-	if(yyin->eof())                     \
-		result = YY_NULL;               \
-	else {                              \
-		buf[0] = c;                     \
-		result = 1;                     \
-	}                                   \
-}
 
 // #define RETURN_TOKEN(label) cout << #label << "|"; return token::label
 #define RETURN_TOKEN(_label_) cout << #_label_ << endl; return token::_label_
@@ -120,9 +110,8 @@ escape_prefix           \\
 %s STRING STRING_ESCAPE STRING_ESCAPE_UNICODE
 
 %option noyywrap yylineno c++
-/* %option never-interactive */
+/* %option batch never-interactive */
 %option prefix="jsonparser"
-/* %option batch */
 %option align
 %option case-insensitive
 

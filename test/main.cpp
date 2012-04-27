@@ -17,11 +17,11 @@ using namespace jsonparser;
 using namespace std;
 
 int main(int argc, char **argv) {
-	Driver driver;
-	QVariant v = driver.parse(&cin);
-	qDebug() << v;
-	v = driver.parse();
-	qDebug() << v;
+// 	Driver driver;
+// 	QVariant v = driver.parse(&cin);
+// 	qDebug() << v;
+// 	v = driver.parse();
+// 	qDebug() << v;
 	
 // 	ifstream in;
 // 	in.open("/home/versche1/src/cpp/jsonbus/jsontest", ios::in);

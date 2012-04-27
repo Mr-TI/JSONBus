@@ -28,8 +28,7 @@
 #ifndef JSONPARSER_TEXTSTREAMBUF_H
 #define JSONPARSER_TEXTSTREAMBUF_H
 
-#include <iostream>
-#include <fstream>
+#include "abstractstreambuf.h"
 #include <QTextStream>
 
 /**
@@ -37,16 +36,15 @@
  */
 namespace jsonparser {
 
-class TextStreamBuf : public std::streambuf {
+class TextStreamBuf : public AbstractStreamBuf {
 public:
 	TextStreamBuf(QTextStream& textStream);
 	virtual ~TextStreamBuf();
-	virtual int underflow();
-	virtual int uflow();
+protected:
+	virtual bool wouldBlock();
+	virtual int getNextChar();
 private:
-	void next();
 	QTextStream &m_textStreamBuf;
-	int m_result;
 };
 
 }

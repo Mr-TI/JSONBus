@@ -43,6 +43,7 @@
 #include <jsonbus/core/cliarguments.h>
 #include <jsonbus/core/sharedlib.h>
 #include <jsonbus/core/plugin.h>
+#include <jsonbus/core/jsonparserrunnable.h>
 
 using namespace JSONBus;
 
@@ -104,6 +105,7 @@ private:
 	CliArguments m_cliArguments;
 	SharedLib *m_pluginFile;
 	Plugin *m_plugin;
+	JSONParserRunnable *m_jsonParserTask;
 };
 
 #endif //JSONBUS_CONTAINER_H

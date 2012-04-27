@@ -31,6 +31,7 @@
 #include "jsonparser/textstreambuf.h"
 #include "jsonparser/exception.h"
 #include "jsonparser/iodevicebuf.h"
+#include "jsonparser/stdstreambuf.h"
 #include <sstream>
 
 using namespace jsonparser;
@@ -38,24 +39,25 @@ using namespace jsonparser;
 namespace JSONBus {
 
 JSONParser::JSONParser(QObject* parent)
-	: QObject (parent), m_driver(NULL), m_inputStream(NULL), m_devBuf(NULL), m_tsBuf(NULL) {
+	: QObject (parent), m_driver(NULL), m_inputStream(NULL), m_buffer(NULL) {
 	m_driver = new Driver();
 }
 
 JSONParser::JSONParser(std::istream &stream, QObject* parent)
-	: QObject (parent), m_driver(NULL), m_inputStream(NULL), m_devBuf(NULL), m_tsBuf(NULL) {
-	m_driver = new Driver(&stream);
+	: QObject (parent), m_driver(NULL), m_inputStream(NULL), m_buffer(NULL) {
+	setupBuf(stream);
+	m_driver = new Driver(m_inputStream);
 }
 
 JSONParser::JSONParser(QTextStream &stream, QObject* parent)
-	: QObject (parent), m_driver(NULL), m_inputStream(NULL), m_devBuf(NULL), m_tsBuf(NULL) {
-	setupTextStreamBuf(stream);
+	: QObject (parent), m_driver(NULL), m_inputStream(NULL), m_buffer(NULL) {
+	setupBuf(stream);
 	m_driver = new Driver(m_inputStream);
 }
 
 JSONParser::JSONParser(QIODevice &input, QObject* parent)
-	: QObject (parent), m_driver(NULL), m_inputStream(NULL), m_devBuf(NULL), m_tsBuf(NULL) {
-	setupIODeviceBuf(input);
+	: QObject (parent), m_driver(NULL), m_inputStream(NULL), m_buffer(NULL) {
+	setupBuf(input);
 	m_driver = new Driver(m_inputStream);
 }
 
@@ -69,27 +71,32 @@ void JSONParser::cleanup() {
 		delete m_inputStream;
 		m_inputStream = NULL;
 	}
-	if (m_devBuf) {
-		delete m_devBuf;
-		m_devBuf = NULL;
-	}
-	if (m_tsBuf) {
-		delete m_tsBuf;
-		m_tsBuf = NULL;
+	if (m_buffer) {
+		delete m_buffer;
+		m_buffer = NULL;
 	}
 }
 
-
-void JSONParser::setupIODeviceBuf(QIODevice& device) {
+void JSONParser::setupBuf(istream& stream) {
 	cleanup();
-	m_devBuf = new IODeviceBuf(device);
-	m_inputStream = new istream(m_devBuf);
+	m_buffer = new StdStreamBuf(stream);
+	m_inputStream = new istream(m_buffer);
 }
 
-void JSONParser::setupTextStreamBuf(QTextStream& stream) {
+void JSONParser::setupBuf(QIODevice& device) {
 	cleanup();
-	m_tsBuf = new TextStreamBuf(stream);
-	m_inputStream = new istream(m_devBuf);
+	m_buffer = new IODeviceBuf(device);
+	m_inputStream = new istream(m_buffer);
+}
+
+void JSONParser::setupBuf(QTextStream& stream) {
+	cleanup();
+	m_buffer = new TextStreamBuf(stream);
+	m_inputStream = new istream(m_buffer);
+}
+
+void JSONParser::disable() {
+	m_buffer->disable();
 }
 
 QVariant JSONParser::parse() {
@@ -103,16 +110,17 @@ QVariant JSONParser::parse(const QByteArray &data) {
 }
 
 QVariant JSONParser::parse(std::istream &stream) {
-	return m_driver->parse(&stream);
+	setupBuf(stream);
+	return m_driver->parse(m_inputStream);
 }
 
 QVariant JSONParser::parse(QTextStream &stream) {
-	setupTextStreamBuf(stream);
+	setupBuf(stream);
 	return m_driver->parse(m_inputStream);
 }
 
 QVariant JSONParser::parse(QIODevice &input) {
-	setupIODeviceBuf(input);
+	setupBuf(input);
 	return m_driver->parse(m_inputStream);
 }
 

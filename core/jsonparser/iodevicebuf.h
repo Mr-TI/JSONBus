@@ -31,22 +31,22 @@
 #include <iostream>
 #include <fstream>
 #include <QIODevice>
+#include "abstractstreambuf.h"
 
 /**
  * @namespace
  */
 namespace jsonparser {
 
-class IODeviceBuf : public std::streambuf {
+class IODeviceBuf : public AbstractStreamBuf {
 public:
 	IODeviceBuf(QIODevice &device);
 	virtual ~IODeviceBuf();
-	virtual int underflow();
-	virtual int uflow();
+protected:
+	virtual bool wouldBlock();
+	virtual int getNextChar();
 private:
-	void next();
 	QIODevice &m_device;
-	int m_result;
 };
 
 }

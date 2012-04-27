@@ -25,29 +25,29 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "iodevicebuf.h"
+#include "stdstreambuf.h"
 
 namespace jsonparser {
 
-IODeviceBuf::IODeviceBuf(QIODevice &device)
-        : m_device(device) {
+StdStreamBuf::StdStreamBuf(std::istream& stream)
+        : m_stream(stream) {
 }
 
-IODeviceBuf::~IODeviceBuf() {
+StdStreamBuf::~StdStreamBuf() {
 }
 
-int IODeviceBuf::getNextChar() {
-	if (m_device.atEnd()) {
+int StdStreamBuf::getNextChar() {
+	if (m_stream.eof()) {
 		return EOF;
 	} else {
 		char c;
-		m_device.getChar(&c);
+		m_stream >> c;
 		return c;
 	}
 }
 
-bool IODeviceBuf::wouldBlock() {
-	return m_device.bytesAvailable() == 0;
+bool StdStreamBuf::wouldBlock() {
+	return m_stream.rdbuf()->in_avail() == 0;
 }
 
 }

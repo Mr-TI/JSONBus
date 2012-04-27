@@ -30,38 +30,23 @@
 namespace jsonparser {
 
 TextStreamBuf::TextStreamBuf(QTextStream &textStream)
-        : m_textStreamBuf(textStream),
-        m_result(-1) {
+        : m_textStreamBuf(textStream) {
 }
 
 TextStreamBuf::~TextStreamBuf() {
 }
 
-int TextStreamBuf::underflow() {
-	if (m_result == -1) {
-		next();
-	}
-	return m_result;
-}
-
-int TextStreamBuf::uflow() {
-	if (m_result == -1) {
-		next();
-	}
-	int result = m_result;
-	next();
-	return result;
-}
-
-void TextStreamBuf::next() {
+int TextStreamBuf::getNextChar() {
 	if (m_textStreamBuf.atEnd()) {
-		m_result = EOF;
-		return;
+		return EOF;
 	}
 	QChar c;
 	m_textStreamBuf >> c;
-	m_result = c.toAscii();
+	return c.toAscii();
 }
 
+bool TextStreamBuf::wouldBlock() {
+	return m_textStreamBuf.device()->bytesAvailable() == 0;
+}
 
 }

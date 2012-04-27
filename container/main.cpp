@@ -4,11 +4,12 @@
 #include "container.h"
 
 #include <signal.h>
+#include <fcntl.h>
 
 using namespace JSONBus;
 
 void onQuit(int signum) {
-	fclose(stdin);
+	QThreadPool::globalInstance()->waitForDone();
 	qApp->quit();
 }
 
