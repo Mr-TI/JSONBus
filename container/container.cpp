@@ -28,6 +28,7 @@ Container::Container(int &argc, char **argv)
 }
 
 Container::~Container() {
+	m_jsonParserTask->disable();
 	if (m_plugin && m_plugin->isLoaded()) {
 		m_plugin->onUnload();
 	}
