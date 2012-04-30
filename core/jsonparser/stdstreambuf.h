@@ -42,11 +42,12 @@ class StdStreamBuf : public AbstractStreamBuf {
 public:
 	StdStreamBuf(std::istream &stream);
 	virtual ~StdStreamBuf();
-protected:
-	virtual bool wouldBlock();
-	virtual int getNextChar();
+	virtual int underflow();
+	virtual int uflow();
+	inline virtual int in_avail() { return m_streambuf.in_avail(); };
 private:
-	std::istream &m_stream;
+	std::streambuf &m_streambuf;
+	bool m_eof;
 };
 
 }

@@ -97,6 +97,9 @@ public:
 	
 	bool notify(QObject *rec, QEvent *ev);
 	
+signals:
+	void terminate();
+	
 private slots:
 	void onDataAvailable(QVariant data);
 	void onResultAvailable(QVariant result);

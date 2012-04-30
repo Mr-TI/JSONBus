@@ -28,6 +28,8 @@ Container::Container(int &argc, char **argv)
 }
 
 Container::~Container() {
+	emit terminate();
+	QThreadPool::globalInstance()->waitForDone();
 	if (m_plugin && m_plugin->isLoaded()) {
 		m_plugin->onUnload();
 	}
@@ -78,10 +80,10 @@ void Container::launch() {
 	
 	m_plugin->onLoad();
 	
-	fstream fin;
-	fin.open("/tmp/fifo", fstream::in);
-	JSONParserRunnable *jsonParser = new JSONParserRunnable(fin);
-	connect(this, SIGNAL(destroyed(QObject*)), jsonParser, SLOT(terminate()));
+	fstream inputStream;
+	inputStream.open("/tmp/jsonbus", fstream::in);
+	JSONParserRunnable *jsonParser = new JSONParserRunnable(inputStream);
+	connect(this, SIGNAL(terminate()), jsonParser, SLOT(terminate()));
 	connect(m_plugin, SIGNAL(resultAvailable(QVariant)), this, SLOT(onResultAvailable(QVariant)));
 	connect(jsonParser, SIGNAL(dataAvailable(QVariant)), this, SLOT(onDataAvailable(QVariant)));
 	

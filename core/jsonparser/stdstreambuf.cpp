@@ -30,26 +30,35 @@
 namespace jsonparser {
 
 StdStreamBuf::StdStreamBuf(std::istream& stream)
-        : m_stream(stream) {
+		: m_streambuf(*stream.rdbuf()) {
 }
 
 StdStreamBuf::~StdStreamBuf() {
 }
 
-int StdStreamBuf::getNextChar() {
-	if (m_stream.eof()) {
-		return EOF;
-	} else {
-		char c;
-		m_stream >> c;
-		return c;
+int StdStreamBuf::underflow() {
+	std::clog << "underflow()" << std::endl;
+	if (m_disable) return EOF;
+	int n;
+	while (!(n = m_streambuf.in_avail())) {
+		std::clog << "waiting 5s..." << std::endl;
+		usleep(5000000);
+		if (m_disable) return EOF;
 	}
+	return m_streambuf.sgetc();
 }
 
-bool StdStreamBuf::wouldBlock() {
-	int n = m_stream.rdbuf()->in_avail();
-	return n == 0;
-// 	return m_stream.rdbuf()->in_avail() == 0;
+int StdStreamBuf::uflow() {
+	std::clog << "uflow()" << std::endl;
+		if (m_disable) return EOF;
+	int n;
+	while (!(n = m_streambuf.in_avail())) {
+		std::clog << "waiting 5s..." << std::endl;
+		usleep(5000000);
+		if (m_disable) return EOF;
+	}
+	return m_streambuf.sbumpc();
 }
+
 
 }

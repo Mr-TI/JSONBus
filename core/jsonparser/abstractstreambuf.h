@@ -40,15 +40,8 @@ class AbstractStreamBuf : public std::streambuf {
 public:
 	AbstractStreamBuf();
 	virtual ~AbstractStreamBuf();
-	virtual int underflow();
-	virtual int uflow();
 	void disable() { m_disable = true; };
 protected:
-	virtual bool wouldBlock() = 0;
-	virtual int getNextChar() = 0;
-private:
-	void next();
-	int m_result;
 	bool m_disable;
 };
 

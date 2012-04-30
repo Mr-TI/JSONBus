@@ -9,14 +9,29 @@
 #include <QCoreApplication>
 #include <QMap>
 #include <QFile>
-#include <fstream>
+#include <iostream>
 #include <qjson/parser.h>
+#include <jsonbus/core/jsonparser/stdstreambuf.h>
 
 using namespace JSONBus;
 using namespace jsonparser;
 using namespace std;
 
 int main(int argc, char **argv) {
+	
+	fstream fifoStream;
+	fifoStream.open("/tmp/jsonbus", fstream::in);
+	StdStreamBuf buf(fifoStream);
+	istream inputStream(&buf);
+	char c = EOF;
+	
+	for (int i=0; i<10; i++) {
+		inputStream >> c;
+		if (c == EOF)
+			break;
+		cout << "c:" << c << "(" << (int)c << ")" << endl;
+	}
+	
 // 	Driver driver;
 // 	QVariant v = driver.parse(&cin);
 // 	qDebug() << v;
