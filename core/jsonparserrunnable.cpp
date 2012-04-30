@@ -55,7 +55,7 @@ void JSONParserRunnable::run() {
 			ret = parse();
 			emit dataAvailable(ret);
 		}
-	} catch (JSONParserException e) {
+	} catch (JSONParserException &e) {
 		if (m_stop) {
 			cerr << ">>> JSONParserRunnable task shutting down" << endl;
 		} else {

@@ -78,7 +78,7 @@ public:
 	/**
 	 * @brief Function called on plugin load
 	 */
-	inline virtual void onLoad () {m_loaded = true;};
+	inline virtual void onLoad (Settings &settings) {m_loaded = true;};
 	
 	/**
 	 * @brief Function called on plugin unload

@@ -42,6 +42,9 @@ using namespace std;
 
 #define VARIANT_FROM(_value_)\
 	yylval->node = new variant_t(_value_)
+
+#define VARIANT_INVALID()\
+	yylval->node = new variant_t()
 	
 #define VARIANT_INFINITY()\
 	yylval->node = new variant_t(variant_t::Double);\
@@ -78,6 +81,7 @@ typedef jsonparser::Parser::token_type token_type;
 space                   [\t\n\r ]
 
 kw_null                 null
+kw_undefined            undefined
 kw_true                 true
 kw_false                false
 kw_nan                  nan
@@ -138,7 +142,8 @@ escape_prefix           \\
 <STRING_ESCAPE_UNICODE>{value_unicode}    {BEGIN STRING; STRING_APPEND_UNICODE();}
 <STRING_ESCAPE_UNICODE>.                  {BEGIN INITIAL; STRING_CLEAR(); RETURN_TOKEN(TSYNERRUNI);}
 
-<INITIAL>{kw_null}                        {BEGIN INITIAL; VARIANT_FROM((const char *)NULL); RETURN_TOKEN(TVARIANT);}
+<INITIAL>{kw_null}                        {BEGIN INITIAL; VARIANT_INVALID(); RETURN_TOKEN(TVARIANT);}
+<INITIAL>{kw_undefined}                   {BEGIN INITIAL; VARIANT_INVALID(); RETURN_TOKEN(TVARIANT);}
 <INITIAL>{kw_true}                        {BEGIN INITIAL; VARIANT_FROM(true); RETURN_TOKEN(TVARIANT);}
 <INITIAL>{kw_false}                       {BEGIN INITIAL; VARIANT_FROM(false); RETURN_TOKEN(TVARIANT);}
 <INITIAL>{kw_nan}                         {BEGIN INITIAL; VARIANT_NAN(); RETURN_TOKEN(TVARIANT);}

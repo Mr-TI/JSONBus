@@ -9,31 +9,37 @@
 jsonbus_declare_plugin(Echo)
 
 Echo::Echo() {
-	qDebug() << "Creating echo service...";
+// 	qDebug() << "Creating echo service...";
 }
 
 Echo::~Echo() {
-	qDebug() << "Destroying echo service...";
+// 	qDebug() << "Destroying echo service...";
 }
 
 void Echo::onInit(Settings &settings) {
-	qDebug() << "Initializing echo service...";
+// 	qDebug() << "Initializing echo service...";
+	settings.define("fieldName", "The field name", QVariant("name"));
+	settings.define("helloMsg", "Hello message", QVariant("Hello"));
 };
 
-void Echo::onLoad() {
-	qDebug() << "Loading echo service...";
-	Plugin::onLoad();
+void Echo::onLoad(Settings &settings) {
+	Plugin::onLoad(settings);
+// 	qDebug() << "Loading echo service...";
+	m_fieldName = settings.value("fieldName", "name").toString();
+	m_helloMsg = settings.value("helloMsg", "Hello").toString();
 };
 
 void Echo::onUnload() {
-	qDebug() << "Unloading echo service...";
+// 	qDebug() << "Unloading echo service...";
 	Plugin::onUnload();
 };
 
 void Echo::onRequest(QVariant request) {
-	qDebug() << "Request: " << request;
+// 	qDebug() << "Request: " << request;
 	QVariant result;
-	result.setValue("Hello " + request.toMap()["name"].toString());
+	QVariantMap m;
+	m["reply"].setValue(m_helloMsg + " " + request.toMap()[m_fieldName].toString());
+	result.setValue(m);
 	emit resultAvailable(result);
 }
 

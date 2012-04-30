@@ -26,11 +26,7 @@
 */
 
 #include "descriptorbuf.h"
-#ifdef USE_SYS_POLL
-#include <sys/poll.h>
-#else
 #include <sys/select.h>
-#endif
 
 namespace jsonparser {
 
@@ -50,18 +46,11 @@ int DescriptorBuf::getNextChar() {
 }
 
 bool DescriptorBuf::waitReadyToRead(int timeout) {
-#ifdef USE_SYS_POLL
-	pollfd ufds = {m_fd, POLLIN, 0};
-	return poll(&ufds, 1, timeout / 1000) != 0 ? true : false;
-#else
 	fd_set fdset;
 	timeval tv = {timeout / 1000000, timeout % 1000000};
 	FD_ZERO(&fdset);
 	FD_SET(m_fd, &fdset);
-// 	return select(m_fd + 1, &fdset, NULL, NULL, &tv) == 1 ? true : false;
-	int ret = select(m_fd + 1, &fdset, NULL, NULL, &tv);
-	return ret == 1 ? true : false;
-#endif
+	return select(m_fd + 1, &fdset, NULL, NULL, &tv) == 1 ? true : false;
 }
 
 }

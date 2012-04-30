@@ -62,7 +62,7 @@ public:
 	/**
 	 * @brief Function called on plugin load
 	 */
-	virtual void onLoad ();
+	virtual void onLoad (Settings &settings);
 	
 	/**
 	 * @brief Function called on plugin unload
@@ -74,6 +74,8 @@ public:
 	 */
 	virtual void onRequest(QVariant request);
 private:
+	QString m_fieldName;
+	QString m_helloMsg;
 };
 
 #endif // JSONBUS_PLUGIN_ECHO_H

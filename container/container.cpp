@@ -6,6 +6,7 @@
 #include "container.h"
 #include <jsonbus/core/jsonparserrunnable.h>
 #include <fcntl.h>
+#include <jsonbus/core/jsonserializer.h>
 
 #ifdef WIN32
 #	define JSONBUS_SERVICEFILE_PREFIX ""
@@ -79,7 +80,7 @@ void Container::launch() {
 		return;
 	}
 	
-	m_plugin->onLoad();
+	m_plugin->onLoad(settings);
 	
 	JSONParserRunnable *jsonParser = new JSONParserRunnable(STDIN_FILENO);
 	connect(this, SIGNAL(terminated()), jsonParser, SLOT(terminate()));
@@ -97,7 +98,8 @@ void Container::onDataAvailable(QVariant data) {
 }
 
 void Container::onResultAvailable(QVariant result) {
-	qDebug() << "Result available: " << result;
+	JSONSerializer serialiser;
+	cout << serialiser.serialize(result).data() << endl;
 }
 
 bool Container::notify(QObject *rec, QEvent *ev) {
