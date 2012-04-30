@@ -69,6 +69,13 @@ public:
 	
 	/**
 	 * @brief JSONParser constructor.
+	 * @param fd File descriptor
+	 * @param parent Parent object
+	 */
+	JSONParser(int fd, QObject* parent = 0);
+	
+	/**
+	 * @brief JSONParser constructor.
 	 * @param stream STD input stream to get data from
 	 * @param parent Parent object
 	 */
@@ -110,6 +117,14 @@ public:
 	
 	/**
 	 * @brief Parse a JSON data from a input device
+	 * @param stream File descriptor
+	 * @return QVariant object
+	 * @throw JSONParserException on parsing error
+	 */
+	QVariant parse(int df);
+	
+	/**
+	 * @brief Parse a JSON data from a input device
 	 * @param stream STD input stream to get data from
 	 * @return QVariant object
 	 * @throw JSONParserException on parsing error
@@ -136,8 +151,9 @@ public:
 	
 private:
 	void setupBuf(QIODevice &device);
-	void setupBuf(QTextStream &stream);
+	void setupBuf(QTextStream& stream);
 	void setupBuf(std::istream &stream);
+	void setupBuf(int fd);
 	void cleanup();
 	jsonparser::Driver *m_driver;
 	std::istream *m_inputStream;

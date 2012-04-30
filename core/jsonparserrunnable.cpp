@@ -27,18 +27,24 @@
 
 
 #include "jsonparserrunnable.h"
+#include <typeinfo>
+#include "common.h"
 
 namespace JSONBus {
 
-JSONParserRunnable::JSONParserRunnable(std::istream& stream, QObject* parent): JSONParser(stream, parent) {
+JSONParserRunnable::JSONParserRunnable(int fd, QObject* parent): JSONParser(fd, parent), m_stop(false) {
 
 }
 
-JSONParserRunnable::JSONParserRunnable(QTextStream& stream, QObject* parent): JSONParser(stream, parent) {
+JSONParserRunnable::JSONParserRunnable(std::istream& stream, QObject* parent): JSONParser(stream, parent), m_stop(false) {
 
 }
 
-JSONParserRunnable::JSONParserRunnable(QIODevice& input, QObject* parent): JSONParser(input, parent) {
+JSONParserRunnable::JSONParserRunnable(QTextStream& stream, QObject* parent): JSONParser(stream, parent), m_stop(false) {
+
+}
+
+JSONParserRunnable::JSONParserRunnable(QIODevice& input, QObject* parent): JSONParser(input, parent), m_stop(false) {
 
 }
 
@@ -49,12 +55,19 @@ void JSONParserRunnable::run() {
 			ret = parse();
 			emit dataAvailable(ret);
 		}
-	} catch (EOFJSONParserException e) {
-		qDebug() << "EOFJSONParserException";
+	} catch (JSONParserException e) {
+		if (m_stop) {
+			cerr << ">>> JSONParserRunnable task shutting down" << endl;
+		} else {
+			cerr << ">>> JSONParserRunnable task terminated after throwing an instance of '" << demangle(typeid(e).name()) << "'" << endl;
+			cerr << ">>>   what(): " << e.message() << endl;
+		}
 	}
+	emit terminated();
 }
 
 void JSONParserRunnable::terminate() {
+	m_stop = true;
 	disable();
 }
 

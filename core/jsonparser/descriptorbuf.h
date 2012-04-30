@@ -25,33 +25,31 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "textstreambuf.h"
+#ifndef JSONPARSER_DESCRIPTORBUF_H
+#define JSONPARSER_DESCRIPTORBUF_H
 
+#include "abstractstreambuf.h"
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+/**
+ * @namespace
+ */
 namespace jsonparser {
 
-TextStreamBuf::TextStreamBuf(QTextStream &textStream)
-        : m_textStreamBuf(textStream) {
-}
-
-TextStreamBuf::~TextStreamBuf() {
-}
-
-int TextStreamBuf::getNextChar() {
-	if (m_textStreamBuf.atEnd()) {
-		return EOF;
-	}
-	QChar c;
-	m_textStreamBuf >> c;
-	return c.toAscii();
-}
-
-bool TextStreamBuf::waitReadyToRead(int timeout) {
-	if (m_textStreamBuf.device()->bytesAvailable() == 0) {
-		usleep(timeout);
-		return false;
-	} else {
-		return true;
-	}
-}
+class DescriptorBuf : public AbstractStreamBuf {
+public:
+	DescriptorBuf(int fd);
+	virtual ~DescriptorBuf();
+protected:
+	virtual bool waitReadyToRead(int timeout);
+	virtual int getNextChar();
+private:
+	int m_fd;
+	
+};
 
 }
+
+#endif // JSONPARSER_DESCRIPTORBUF_H

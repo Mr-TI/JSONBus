@@ -43,14 +43,46 @@ namespace JSONBus {
 class JSONParserRunnable : public JSONBus::JSONParser, public QRunnable {
 	Q_OBJECT
 public:
-    JSONParserRunnable(std::istream& stream, QObject* parent = 0);
-    JSONParserRunnable(QTextStream& stream, QObject* parent = 0);
-    JSONParserRunnable(QIODevice& input, QObject* parent = 0);
-    virtual void run();
+	
+	/**
+	 * @brief JSONParserRunnable constructor.
+	 * @param fd File descriptor
+	 * @param parent Parent object
+	 */
+	JSONParserRunnable(int fd, QObject* parent = 0);
+	
+	/**
+	 * @brief JSONParser constructor.
+	 * @param stream STD input stream to get data from
+	 * @param parent Parent object
+	 */
+	JSONParserRunnable(std::istream& stream, QObject* parent = 0);
+	
+	/**
+	 * @brief JSONParser constructor.
+	 * @param stream Text stream to get data from
+	 * @param parent Parent object
+	 */
+	JSONParserRunnable(QTextStream& stream, QObject* parent = 0);
+	
+	/**
+	 * @brief JSONParser constructor.
+	 * @param input Device to get data from
+	 * @param parent Parent object
+	 */
+	JSONParserRunnable(QIODevice& input, QObject* parent = 0);
+	
+	/**
+	 * @brief Task main
+	 */
+	virtual void run();
 signals:
 	void dataAvailable(QVariant data);
+	void terminated();
 public slots:
 	void terminate();
+private:
+	bool m_stop;
 };
 
 }

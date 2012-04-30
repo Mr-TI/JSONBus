@@ -25,40 +25,43 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "stdstreambuf.h"
+#include "descriptorbuf.h"
+#ifdef USE_SYS_POLL
+#include <sys/poll.h>
+#else
+#include <sys/select.h>
+#endif
 
 namespace jsonparser {
 
-StdStreamBuf::StdStreamBuf(std::istream& stream)
-		: m_streambuf(*stream.rdbuf()) {
+DescriptorBuf::DescriptorBuf(int fd)
+		: m_fd(fd) {
 }
 
-StdStreamBuf::~StdStreamBuf() {
+DescriptorBuf::~DescriptorBuf() {
 }
 
-int StdStreamBuf::underflow() {
-	std::clog << "underflow()" << std::endl;
-	if (m_disable) return EOF;
-	int n;
-	while (!(n = m_streambuf.in_avail())) {
-		std::clog << "waiting 5s..." << std::endl;
-		usleep(5000000);
-		if (m_disable) return EOF;
-	}
-	return m_streambuf.sgetc();
+int DescriptorBuf::getNextChar() {
+	char c;
+	if (read(m_fd, &c, 1) == 1)
+		return c;
+	else
+		return EOF;
 }
 
-int StdStreamBuf::uflow() {
-	std::clog << "uflow()" << std::endl;
-		if (m_disable) return EOF;
-	int n;
-	while (!(n = m_streambuf.in_avail())) {
-		std::clog << "waiting 5s..." << std::endl;
-		usleep(5000000);
-		if (m_disable) return EOF;
-	}
-	return m_streambuf.sbumpc();
+bool DescriptorBuf::waitReadyToRead(int timeout) {
+#ifdef USE_SYS_POLL
+	pollfd ufds = {m_fd, POLLIN, 0};
+	return poll(&ufds, 1, timeout / 1000) != 0 ? true : false;
+#else
+	fd_set fdset;
+	timeval tv = {timeout / 1000000, timeout % 1000000};
+	FD_ZERO(&fdset);
+	FD_SET(m_fd, &fdset);
+// 	return select(m_fd + 1, &fdset, NULL, NULL, &tv) == 1 ? true : false;
+	int ret = select(m_fd + 1, &fdset, NULL, NULL, &tv);
+	return ret == 1 ? true : false;
+#endif
 }
-
 
 }

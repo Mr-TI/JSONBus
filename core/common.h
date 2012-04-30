@@ -40,6 +40,7 @@
 
 #include <iostream>
 #include <QString>
+#include <cxxabi.h>
 
 #ifdef WIN32
 #define JSONBUS_DEFAULT_LISTEN_ADDRESSES ":3693"
@@ -97,6 +98,14 @@ inline JSONBUS_EXPORT QString getMessageError(DWORD no) {
 	return buf;
 }
 #endif
+
+inline QString demangle(const char *name) {
+	int status;
+	char *ret = abi::__cxa_demangle(name, 0, 0, &status);
+	QString result(ret);
+	delete ret;
+	return result;
+}
 
 }
 

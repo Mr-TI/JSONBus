@@ -32,6 +32,7 @@
 #include "jsonparser/exception.h"
 #include "jsonparser/iodevicebuf.h"
 #include "jsonparser/stdstreambuf.h"
+#include "jsonparser/descriptorbuf.h"
 #include <sstream>
 
 using namespace jsonparser;
@@ -46,6 +47,12 @@ JSONParser::JSONParser(QObject* parent)
 JSONParser::JSONParser(std::istream &stream, QObject* parent)
 	: QObject (parent), m_driver(NULL), m_inputStream(NULL), m_buffer(NULL) {
 	setupBuf(stream);
+	m_driver = new Driver(m_inputStream);
+}
+
+JSONParser::JSONParser(int fd, QObject* parent)
+	: QObject (parent), m_driver(NULL), m_inputStream(NULL), m_buffer(NULL) {
+	setupBuf(fd);
 	m_driver = new Driver(m_inputStream);
 }
 
@@ -75,6 +82,12 @@ void JSONParser::cleanup() {
 		delete m_buffer;
 		m_buffer = NULL;
 	}
+}
+
+void JSONParser::setupBuf(int fd) {
+	cleanup();
+	m_buffer = new DescriptorBuf(fd);
+	m_inputStream = new istream(m_buffer);
 }
 
 void JSONParser::setupBuf(istream& stream) {
@@ -107,6 +120,11 @@ QVariant JSONParser::parse(const QByteArray &data) {
 	stringstream in(stringstream::in | stringstream::out);
 	in << data.data();
 	return m_driver->parse(&in);
+}
+
+QVariant JSONParser::parse(int fd) {
+	setupBuf(fd);
+	return m_driver->parse(m_inputStream);
 }
 
 QVariant JSONParser::parse(std::istream &stream) {

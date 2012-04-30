@@ -30,10 +30,27 @@
 namespace jsonparser {
 
 AbstractStreamBuf::AbstractStreamBuf()
-        : m_disable(false) {
+        : m_disable(false), m_initialized(false) {
 }
 
 AbstractStreamBuf::~AbstractStreamBuf() {
+}
+
+int AbstractStreamBuf::underflow() {
+	if (m_disable) return EOF;
+	if (!m_initialized) return uflow();
+	return m_curChar;
+}
+
+int AbstractStreamBuf::uflow() {
+	if (m_disable || m_curChar == EOF) return EOF;
+	int prevChar = m_curChar;
+	while (!waitReadyToRead()) {
+		if (m_disable) return EOF;
+	}
+	m_initialized = true;
+	m_curChar = getNextChar();
+	return prevChar;
 }
 
 

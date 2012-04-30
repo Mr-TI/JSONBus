@@ -38,11 +38,49 @@ namespace jsonparser {
 
 class AbstractStreamBuf : public std::streambuf {
 public:
+	/**
+	 * @brief AbstractStreamBuf constructor
+	 */
 	AbstractStreamBuf();
+	
+	/**
+	 * @brief AbstractStreamBuf destructor
+	 */
 	virtual ~AbstractStreamBuf();
+	
+	/**
+	 * @brief Disable the buffer
+	 */
 	void disable() { m_disable = true; };
+	
+	/**
+	 * @brief underflow
+	 * @return a charracter or EOF
+	 */
+	virtual int underflow();
+	
+	/**
+	 * @brief uflow
+	 * @return a charracter or EOF
+	 */
+	virtual int uflow();
+protected:
+	/**
+	 * @brief Wait for read
+	 * @param timeout Timeout in µs
+	 * @return true if the buffer is ready, otherwise false
+	 */
+	virtual bool waitReadyToRead(int timeout=1000) = 0;
+	
+	/**
+	 * @brief Get the next character from the buffer.
+	 * @return a charracter or EOF
+	 */
+	virtual int getNextChar() = 0;
 protected:
 	bool m_disable;
+	int m_curChar;
+	bool m_initialized;
 };
 
 }

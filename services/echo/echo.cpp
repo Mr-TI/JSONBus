@@ -31,6 +31,9 @@ void Echo::onUnload() {
 };
 
 void Echo::onRequest(QVariant request) {
-	qDebug() << "Request";
+	qDebug() << "Request: " << request;
+	QVariant result;
+	result.setValue("Hello " + request.toMap()["name"].toString());
+	emit resultAvailable(result);
 }
 

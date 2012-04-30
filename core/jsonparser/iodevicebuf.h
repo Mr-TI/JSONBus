@@ -43,7 +43,7 @@ public:
 	IODeviceBuf(QIODevice &device);
 	virtual ~IODeviceBuf();
 protected:
-	virtual bool wouldBlock();
+	virtual bool waitReadyToRead(int timeout);
 	virtual int getNextChar();
 private:
 	QIODevice &m_device;

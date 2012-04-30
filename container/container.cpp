@@ -5,6 +5,7 @@
 #include <jsonbus/core/settings.h>
 #include "container.h"
 #include <jsonbus/core/jsonparserrunnable.h>
+#include <fcntl.h>
 
 #ifdef WIN32
 #	define JSONBUS_SERVICEFILE_PREFIX ""
@@ -28,7 +29,7 @@ Container::Container(int &argc, char **argv)
 }
 
 Container::~Container() {
-	emit terminate();
+	emit terminated();
 	QThreadPool::globalInstance()->waitForDone();
 	if (m_plugin && m_plugin->isLoaded()) {
 		m_plugin->onUnload();
@@ -80,10 +81,9 @@ void Container::launch() {
 	
 	m_plugin->onLoad();
 	
-	fstream inputStream;
-	inputStream.open("/tmp/jsonbus", fstream::in);
-	JSONParserRunnable *jsonParser = new JSONParserRunnable(inputStream);
-	connect(this, SIGNAL(terminate()), jsonParser, SLOT(terminate()));
+	JSONParserRunnable *jsonParser = new JSONParserRunnable(STDIN_FILENO);
+	connect(this, SIGNAL(terminated()), jsonParser, SLOT(terminate()));
+	connect(jsonParser, SIGNAL(terminated()), this, SLOT(quit()));
 	connect(m_plugin, SIGNAL(resultAvailable(QVariant)), this, SLOT(onResultAvailable(QVariant)));
 	connect(jsonParser, SIGNAL(dataAvailable(QVariant)), this, SLOT(onDataAvailable(QVariant)));
 	
@@ -93,18 +93,19 @@ void Container::launch() {
 }
 
 void Container::onDataAvailable(QVariant data) {
-	qDebug() << "Data available: " << data;
+	m_plugin->onRequest(data);
 }
 
 void Container::onResultAvailable(QVariant result) {
-	qDebug() << "Result available";
+	qDebug() << "Result available: " << result;
 }
 
 bool Container::notify(QObject *rec, QEvent *ev) {
 	try {
 		return QCoreApplication::notify(rec, ev);
 	} catch (Exception &e) {
-		qCritical() << ">>> " << typeid(e).name() << ": " << e.message();
+		cerr << ">>> Container terminated after throwing an instance of '" << demangle(typeid(e).name()) << "'" << endl;
+		cerr << ">>>   what(): " << e.message() << endl;
 	} catch (...) {
 		qCritical() << ">>> Exception not managed !";
 	}

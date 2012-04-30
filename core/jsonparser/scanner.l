@@ -68,8 +68,7 @@ using namespace std;
 #undef yywrap
 #define yywrap() 1
 
-// #define RETURN_TOKEN(label) cout << #label << "|"; return token::label
-#define RETURN_TOKEN(_label_) cout << #_label_ << endl; return token::_label_
+#define RETURN_TOKEN(_label_) /*cout << #_label_ << endl;*/ return token::_label_
 typedef jsonparser::Parser::token token;
 typedef jsonparser::Parser::token_type token_type;
 #define yyterminate() RETURN_TOKEN(TEND)

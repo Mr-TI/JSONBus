@@ -40,14 +40,21 @@ namespace jsonparser {
 
 class StdStreamBuf : public AbstractStreamBuf {
 public:
-	StdStreamBuf(std::istream &stream);
-	virtual ~StdStreamBuf();
-	virtual int underflow();
-	virtual int uflow();
-	inline virtual int in_avail() { return m_streambuf.in_avail(); };
+	inline StdStreamBuf(std::istream &stream): m_streambuf(*stream.rdbuf()) {};
+	inline virtual ~StdStreamBuf() {};
+protected:
+	inline virtual bool waitReadyToRead(int timeout) { 
+		if (!m_streambuf.in_avail()) {
+			usleep(timeout);
+			return false;
+		} else {
+			return true;
+		}
+	};
+	inline virtual int getNextChar() { return m_streambuf.sbumpc(); };
+	
 private:
 	std::streambuf &m_streambuf;
-	bool m_eof;
 };
 
 }

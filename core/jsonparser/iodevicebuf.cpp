@@ -46,8 +46,13 @@ int IODeviceBuf::getNextChar() {
 	}
 }
 
-bool IODeviceBuf::wouldBlock() {
-	return m_device.bytesAvailable() == 0;
+bool IODeviceBuf::waitReadyToRead(int timeout) {
+	if (m_device.bytesAvailable() == 0) {
+		usleep(timeout);
+		return false;
+	} else {
+		return true;
+	}
 }
 
 }

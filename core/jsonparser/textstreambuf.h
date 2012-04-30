@@ -41,7 +41,7 @@ public:
 	TextStreamBuf(QTextStream& textStream);
 	virtual ~TextStreamBuf();
 protected:
-	virtual bool wouldBlock();
+	virtual bool waitReadyToRead(int timeout);
 	virtual int getNextChar();
 private:
 	QTextStream &m_textStreamBuf;
