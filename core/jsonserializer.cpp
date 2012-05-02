@@ -27,7 +27,6 @@
 
 #include <common.h>
 #include <jsonserializer.h>
-#include <jsonserializer/serializer.h>
 
 #define JSON_NULL "null"
 #define JSON_TRUE "true"
@@ -111,7 +110,7 @@ void JSONSerializer::serialize(const QVariant &variant) {
 		|| (variant.type() == QVariant::ByteArray)) { // Case of JSON string
 		m_stream << sanitizeString(variant.toString());
 	} else if ((variant.type() == QVariant::Double) || variant.canConvert<double>()) {
-		m_stream << QString::number(variant.toDouble());
+		m_stream << QString::number(variant.toDouble()).replace("inf", "infinity");
 	} else if ((variant.type() == QVariant::String) || variant.canConvert<QString>()) {
 		m_stream << variant.toString();
 	} else {
