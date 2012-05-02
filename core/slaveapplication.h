@@ -26,68 +26,75 @@
 */
 
 /**
- * @brief JSONBus : JSONBus abstract core application management.
+ * @brief JSONBus : JSONBus slave application management.
  * @file container.h
  * @author Emeric VERSCHUUR <contact@openihs.org>, (C) 2012
  */
 
-#ifndef JSONBUS_CONTAINER_H
-#define JSONBUS_CONTAINER_H
+#ifndef JSONBUS_SLAVEAPPLICATION_H
+#define JSONBUS_SLAVEAPPLICATION_H
 
 #include <QCoreApplication>
 #include <jsonbus/core/exception.h>
 #include <jsonbus/core/cliarguments.h>
-#include <jsonbus/core/sharedlib.h>
-#include <jsonbus/core/plugin.h>
 #include <jsonbus/core/jsonparserrunnable.h>
-#include <jsonbus/core/jsonserializer.h>
+#include "settings.h"
+#include <signal.h>
+#include <fcntl.h>
 
-namespace JSONBus {
-class JSONSerializer;
+#define jsonbus_declare_slave_application(_class_name_) \
+int main(int argc, char **argv) { \
+	_class_name_ app(argc, argv); \
+	app.setup(); \
+	CliArguments &args = CliArguments::getInstance(); \
+	if (args.isEnabled("help")) { \
+		args.displayUseInstructions(); \
+		return 0; \
+	} \
+	signal(SIGINT, SlaveApplication::onQuit); \
+	signal(SIGTERM, SlaveApplication::onQuit); \
+	app.launch(); \
+	return 0; \
 }
 
 using namespace JSONBus;
 
-jsonbus_declare_exception(AbstractCoreApplicationException, Exception);
+jsonbus_declare_exception(SlaveApplicationException, Exception);
 
 /**
  * @brief JSONBus container management.
  */
-class AbstractCoreApplication : public QCoreApplication {
+class SlaveApplication : public QCoreApplication {
 	Q_OBJECT
 public:
 	/**
 	 * @brief Service constructor.
 	 */
-	AbstractCoreApplication(int &argc, char **argv);
+	SlaveApplication(int &argc, char **argv);
 
 	/**
 	 * @brief Service destructor.
 	 */
-	~AbstractCoreApplication();
-	
-	virtual void setupCliArguments(CliArguments &args);
+	~SlaveApplication();
 
 	/**
-	 * @brief Load the container
+	 * @brief Setup this application
 	 * @throw Exception on error
 	 */
-	void launch();
+	void setup();
 
 	/**
-	 * @brief Get the cli argument object
-	 * @return CliArguments reference
+	 * @brief Launch this application
+	 * @throw Exception on error
 	 */
-	inline CliArguments &getCliArguments() {
-		return m_cliArguments;
-	}
+	virtual void launch();
 	
 	/**
 	 * @brief Get the container instance
-	 * @return AbstractCoreApplication reference
+	 * @return SlaveApplication reference
 	 */
-	inline static AbstractCoreApplication &getInstance () {
-		return *(static_cast<AbstractCoreApplication*>(instance()));
+	inline static SlaveApplication &getInstance () {
+		return *(static_cast<SlaveApplication*>(instance()));
 	}
 
 	/**
@@ -98,20 +105,28 @@ public:
 		getInstance().launch();
 	}
 	
+	/**
+	 * @brief bool QCoreApplication::notify(QObject *rec, QEvent *ev) redefinition
+	 */
 	bool notify(QObject *rec, QEvent *ev);
 	
-signals:
-	void terminated();
+	static void onQuit(int signum);
+	
+protected:
+	/**
+	 * @brief Called at the end of the global application setup
+	 */
+	virtual void onSetup() = 0;
+	
+protected slots:
+	/**
+	 * @brief Inpout data treatment
+	 * @param data
+	 */
+	virtual void onDataAvailable(QVariant data) = 0;
 	
 private slots:
-	void onDataAvailable(QVariant data);
-	void onResultAvailable(QVariant result);
-	
-private:
-	CliArguments m_cliArguments;
-	SharedLib *m_pluginFile;
-	Plugin *m_plugin;
-	JSONSerializer m_jsonSerialiser;
+	void onAboutToQuit();
 };
 
-#endif //JSONBUS_CONTAINER_H
+#endif //JSONBUS_SLAVEAPPLICATION_H

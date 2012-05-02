@@ -55,11 +55,6 @@ jsonbus_declare_exception(CliArgumentsException, Exception);
  */
 class JSONBUS_EXPORT CliArguments : public QObject {
 public:
-	/**
-	 * @brief CliArguments constructor.
-	 * @param path Dynamic library path.
-	 */
-	CliArguments();
 
 	/**
 	 * @brief CliArguments destructor.
@@ -103,7 +98,16 @@ public:
 	 * @brief Print use instruction
 	 */
 	void displayUseInstructions();
+	
+	inline static CliArguments &getInstance() { return instance; };
 private:
+	/**
+	 * @brief CliArguments constructor.
+	 * @param path Dynamic library path.
+	 */
+	CliArguments();
+	
+	static CliArguments instance;
 
 	class JSONBUS_EXPORT Element {
 	public:
@@ -119,7 +123,6 @@ private:
 
 	QMap<QString, Element> m_arguments;
 	QMap<char, QString> m_shortTagToName;
-	QString m_execName;
 };
 
 }

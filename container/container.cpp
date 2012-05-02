@@ -16,22 +16,28 @@
 #	define JSONBUS_SERVICEFILE_SUFFIX ".so"
 #endif
 
+// jsonbus_declare_slave_application(Container)
+
+int main(int argc, char **argv) {
+	Container app(argc, argv);
+	app.setup();
+	CliArguments &args = CliArguments::getInstance();
+	if (args.isEnabled("help")) {
+		args.displayUseInstructions();
+		return 0;
+	}
+	signal(SIGINT, SlaveApplication::onQuit);
+	signal(SIGTERM, SlaveApplication::onQuit);
+	app.launch();
+	return 0;
+}
+
 Container::Container(int &argc, char **argv)
-	: QCoreApplication(argc, argv),
+	: SlaveApplication(argc, argv),
 	m_pluginFile(NULL), m_plugin(NULL) {
-	m_cliArguments.define("service-root",	'd', tr("Plugin root directory (excluding namaspace directory)"), "/usr/lib/jsonbus/services/");
-	m_cliArguments.define("service-ns",		'N', tr("Plugin namespace"), "");
-	m_cliArguments.define("service-name",	'n', tr("Plugin name"), "");
-	m_cliArguments.define("service-path",	'f', tr("Plugin path"), "");
-	m_cliArguments.define("config",			'c', tr("Set a custom config path"), "");
-	m_cliArguments.define("setup",			's', tr("Setup the service"));
-	m_cliArguments.define("help",			'h', tr("Display this help"));
-	m_cliArguments.parse(arguments());
 }
 
 Container::~Container() {
-	emit terminated();
-	QThreadPool::globalInstance()->waitForDone();
 	if (m_plugin && m_plugin->isLoaded()) {
 		m_plugin->onUnload();
 	}
@@ -39,11 +45,20 @@ Container::~Container() {
 	delete m_pluginFile;
 }
 
+void Container::onSetup() {
+	CliArguments &args = CliArguments::getInstance();
+	args.define("service-root",	'd', tr("Plugin root directory (excluding namaspace directory)"), "/usr/lib/jsonbus/services/");
+	args.define("service-ns",		'N', tr("Plugin namespace"), "");
+	args.define("service-name",	'n', tr("Plugin name"), "");
+	args.define("service-path",	'f', tr("Plugin path"), "");
+}
+
 void Container::launch() {
-	QString serviceRoot = m_cliArguments.getValue("service-root").toString();
-	QString serviceName = m_cliArguments.getValue("service-name").toString();
-	QString serviceNs = m_cliArguments.getValue("service-ns").toString();
-	QString servicePath = m_cliArguments.getValue("service-path").toString();
+	CliArguments &args = CliArguments::getInstance();
+	QString serviceRoot = args.getValue("service-root").toString();
+	QString serviceName = args.getValue("service-name").toString();
+	QString serviceNs = args.getValue("service-ns").toString();
+	QString servicePath = args.getValue("service-path").toString();
 	
 	if (serviceNs.isEmpty()) {
 		throw ContainerException("Undefinied service namespace");
@@ -65,7 +80,7 @@ void Container::launch() {
 #ifdef WIN32
 	Settings settings("OpenIHS.org", "JSONBus::" + serviceNs + "." + serviceName, QSettings::NativeFormat);
 #else
-	QString confPath = m_cliArguments.getValue("config").toString();
+	QString confPath = args.getValue("config").toString();
 	if (confPath.isEmpty()) {
 		confPath = "/etc/jsonbus/services/" + serviceNs + "/" + serviceName + ".conf";
 	}
@@ -75,22 +90,14 @@ void Container::launch() {
 	m_plugin = (*(Plugin*(*)())(m_pluginFile->getSymbol("getSingleton")))();
 	
 	m_plugin->onInit(settings);
-	if (m_cliArguments.isEnabled("setup")) {
+	if (args.isEnabled("edit-settings")) {
 		settings.setup();
 		return;
 	}
 	
 	m_plugin->onLoad(settings);
 	
-	JSONParserRunnable *jsonParser = new JSONParserRunnable(STDIN_FILENO);
-	connect(this, SIGNAL(terminated()), jsonParser, SLOT(terminate()));
-	connect(jsonParser, SIGNAL(terminated()), this, SLOT(quit()));
-	connect(m_plugin, SIGNAL(resultAvailable(QVariant)), this, SLOT(onResultAvailable(QVariant)));
-	connect(jsonParser, SIGNAL(dataAvailable(QVariant)), this, SLOT(onDataAvailable(QVariant)));
-	
-	QThreadPool::globalInstance()->start(jsonParser);
-	
-	exec();
+	SlaveApplication::launch();
 }
 
 void Container::onDataAvailable(QVariant data) {
@@ -100,17 +107,4 @@ void Container::onDataAvailable(QVariant data) {
 void Container::onResultAvailable(QVariant result) {
 	m_jsonSerialiser.serialize(result);
 	cout << endl;
-}
-
-bool Container::notify(QObject *rec, QEvent *ev) {
-	try {
-		return QCoreApplication::notify(rec, ev);
-	} catch (Exception &e) {
-		cerr << ">>> Container terminated after throwing an instance of '" << demangle(typeid(e).name()) << "'" << endl;
-		cerr << ">>>   what(): " << e.message() << endl;
-	} catch (...) {
-		qCritical() << ">>> Exception not managed !";
-	}
-	quit();
-	return false;
 }

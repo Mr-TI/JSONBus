@@ -35,15 +35,12 @@
 #define JSONBUS_ROUTER_H
 
 #include <QCoreApplication>
-class CliArguments;
-#include <jsonbus/core/exception.h>
-
-namespace JSONBus {
+#include <jsonbus/core/slaveapplication.h>
 
 /**
  * @brief JSONBus router management.
  */
-class Router : public QCoreApplication {
+class Router : public SlaveApplication {
 public:
 	/**
 	 * @brief Service constructor.
@@ -56,38 +53,23 @@ public:
 	~Router();
 
 	/**
-	 * @brief Load the router
+	 * @brief Launch this application
 	 * @throw Exception on error
 	 */
-	void launch();
-
-	/**
-	 * @brief Get the cli argument object
-	 * @return CliArguments reference
-	 */
-	inline CliArguments &getCliArguments() {
-		return m_cliArguments;
-	}
+	virtual void launch();
 	
+protected:
 	/**
-	 * @brief Get the router instance
-	 * @return Router reference
+	 * @brief Called at the end of the global application setup
 	 */
-	inline static Router &getInstance () {
-		return *(static_cast<Router*>(instance()));
-	}
-
+	virtual void onSetup();
+	
+protected slots:
 	/**
-	 * @brief Load the router
-	 * @throw Exception on error
+	 * @brief Inpout data treatment
+	 * @param data
 	 */
-	inline static void launchInstance() {
-		getInstance().launch();
-	}
-private:
-	CliArguments m_cliArguments;
+	virtual void onDataAvailable(QVariant data);
 };
-
-}
 
 #endif

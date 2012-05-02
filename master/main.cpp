@@ -1,6 +1,5 @@
 
 #include <jsonbus/core/common.h>
-#include <jsonbus/core/cliarguments.h>
 #include <master.h>
 
 using namespace JSONBus;
@@ -8,12 +7,13 @@ using namespace JSONBus;
 int main(int argc, char **argv) {
 	try {
 		Master service(argc, argv);
-		if (service.getCliArguments().isEnabled("help")) {
-			service.getCliArguments().displayUseInstructions();
+		CliArguments &args = CliArguments::getInstance();
+		if (args.isEnabled("help")) {
+			args.displayUseInstructions();
 			return 0;
 		}
 #ifdef WIN32
-		if (service.getCliArguments().isEnabled("win32-cli")) {
+		if (args.isEnabled("win32-cli")) {
 			SERVICE_TABLE_ENTRY Table[] = {{"JSONBus Service", Master::launchInstance}, {NULL, NULL}};
 			if (!StartServiceCtrlDispatcher(Table)) {
 				clog << getMessageError(GetLastError());

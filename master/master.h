@@ -35,7 +35,7 @@
 #define JSONBUS_MASTER_H
 
 #include <QCoreApplication>
-class CliArguments;
+#include <jsonbus/core/cliarguments.h>
 #include <jsonbus/core/exception.h>
 
 namespace JSONBus {
@@ -62,14 +62,6 @@ public:
 	 * @throw Exception on error
 	 */
 	void launch();
-
-	/**
-	 * @brief Get the cli argument object
-	 * @return CliArguments reference
-	 */
-	inline CliArguments &getCliArguments() {
-		return m_cliArguments;
-	}
 	
 	/**
 	 * @brief Get the service instance
@@ -86,8 +78,6 @@ public:
 	inline static void launchInstance() {
 		getInstance().launch();
 	}
-private:
-	CliArguments m_cliArguments;
 };
 
 }

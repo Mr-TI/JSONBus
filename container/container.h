@@ -34,13 +34,10 @@
 #ifndef JSONBUS_CONTAINER_H
 #define JSONBUS_CONTAINER_H
 
-#include <QCoreApplication>
-#include <jsonbus/core/exception.h>
-#include <jsonbus/core/cliarguments.h>
 #include <jsonbus/core/sharedlib.h>
 #include <jsonbus/core/plugin.h>
-#include <jsonbus/core/jsonparserrunnable.h>
 #include <jsonbus/core/jsonserializer.h>
+#include <jsonbus/core/slaveapplication.h>
 
 namespace JSONBus {
 class JSONSerializer;
@@ -53,7 +50,7 @@ jsonbus_declare_exception(ContainerException, Exception);
 /**
  * @brief JSONBus container management.
  */
-class Container : public QCoreApplication {
+class Container : public SlaveApplication {
 	Q_OBJECT
 public:
 	/**
@@ -67,46 +64,31 @@ public:
 	~Container();
 
 	/**
-	 * @brief Load the container
+	 * @brief Launch this application
 	 * @throw Exception on error
 	 */
-	void launch();
-
+	virtual void launch();
+	
+protected:
 	/**
-	 * @brief Get the cli argument object
-	 * @return CliArguments reference
+	 * @brief Called at the end of the global application setup
 	 */
-	inline CliArguments &getCliArguments() {
-		return m_cliArguments;
-	}
+	virtual void onSetup();
+	
+protected slots:
+	/**
+	 * @brief Inpout data treatment
+	 * @param data
+	 */
+	virtual void onDataAvailable(QVariant data);
 	
 	/**
-	 * @brief Get the container instance
-	 * @return Container reference
+	 * @brief Result data treatment
+	 * @param data
 	 */
-	inline static Container &getInstance () {
-		return *(static_cast<Container*>(instance()));
-	}
-
-	/**
-	 * @brief Load the container
-	 * @throw Exception on error
-	 */
-	inline static void launchInstance() {
-		getInstance().launch();
-	}
-	
-	bool notify(QObject *rec, QEvent *ev);
-	
-signals:
-	void terminated();
-	
-private slots:
-	void onDataAvailable(QVariant data);
 	void onResultAvailable(QVariant result);
 	
 private:
-	CliArguments m_cliArguments;
 	SharedLib *m_pluginFile;
 	Plugin *m_plugin;
 	JSONSerializer m_jsonSerialiser;

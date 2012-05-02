@@ -33,10 +33,11 @@
 
 namespace JSONBus {
 
+CliArguments CliArguments::instance;
+
 typedef QPair<QString, QString> LineElement;
 
 CliArguments::CliArguments()
-	:m_execName(QCoreApplication::argv()[0])
 {
 }
 
@@ -132,6 +133,7 @@ void CliArguments::displayUseInstructions() {
 	QList<LineElement> list;
 	QString argName;
 	QVariant argValue;
+	QString execName = QString(QCoreApplication::argv()[0]);
 	int maxlen = 0;
 	for (auto it = m_arguments.begin(); it != m_arguments.end(); it++) {
 		argName = "";
@@ -143,7 +145,7 @@ void CliArguments::displayUseInstructions() {
 		maxlen = qMax(maxlen, argName.length());
 		list.append(LineElement(argName, it.value().description + (argValue.type() == QVariant::String ? " (" + tr("value: ") + argValue.toString() + ")" : "")));
 	}
-	cout << tr("Use: ") << m_execName << tr(" <options>") << endl << endl << tr("Option list:") << endl;
+	cout << tr("Use: ") << execName << tr(" <options>") << endl << endl << tr("Option list:") << endl;
 	foreach(LineElement pair, list) {
 		cout << pair.first << QString(maxlen - pair.first.length() + 4, ' ') << pair.second << endl;
 	}
