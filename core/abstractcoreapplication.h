@@ -26,7 +26,7 @@
 */
 
 /**
- * @brief JSONBus : JSONBus container management.
+ * @brief JSONBus : JSONBus abstract core application management.
  * @file container.h
  * @author Emeric VERSCHUUR <contact@openihs.org>, (C) 2012
  */
@@ -48,23 +48,25 @@ class JSONSerializer;
 
 using namespace JSONBus;
 
-jsonbus_declare_exception(ContainerException, Exception);
+jsonbus_declare_exception(AbstractCoreApplicationException, Exception);
 
 /**
  * @brief JSONBus container management.
  */
-class Container : public QCoreApplication {
+class AbstractCoreApplication : public QCoreApplication {
 	Q_OBJECT
 public:
 	/**
 	 * @brief Service constructor.
 	 */
-	Container(int &argc, char **argv);
+	AbstractCoreApplication(int &argc, char **argv);
 
 	/**
 	 * @brief Service destructor.
 	 */
-	~Container();
+	~AbstractCoreApplication();
+	
+	virtual void setupCliArguments(CliArguments &args);
 
 	/**
 	 * @brief Load the container
@@ -82,10 +84,10 @@ public:
 	
 	/**
 	 * @brief Get the container instance
-	 * @return Container reference
+	 * @return AbstractCoreApplication reference
 	 */
-	inline static Container &getInstance () {
-		return *(static_cast<Container*>(instance()));
+	inline static AbstractCoreApplication &getInstance () {
+		return *(static_cast<AbstractCoreApplication*>(instance()));
 	}
 
 	/**
