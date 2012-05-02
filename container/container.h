@@ -44,6 +44,11 @@
 #include <jsonbus/core/sharedlib.h>
 #include <jsonbus/core/plugin.h>
 #include <jsonbus/core/jsonparserrunnable.h>
+#include <jsonbus/core/jsonserializer.h>
+
+namespace JSONBus {
+class JSONSerializer;
+}
 
 using namespace JSONBus;
 
@@ -108,6 +113,7 @@ private:
 	CliArguments m_cliArguments;
 	SharedLib *m_pluginFile;
 	Plugin *m_plugin;
+	JSONSerializer m_jsonSerialiser;
 };
 
 #endif //JSONBUS_CONTAINER_H

@@ -52,12 +52,83 @@ jsonbus_declare_exception(JSONSerializerException, Exception);
  */
 class JSONBUS_EXPORT JSONSerializer: public QObject {
 public:
+	/**
+	 * @brief Abstract ouput stream
+	 */
+	class Stream {
+	public:
+		/**
+		 * @brief Abstract ouput stream constructor
+		 */
+		inline Stream () {};
+		
+		/**
+		 * @brief Abstract ouput stream destructor
+		 */
+		inline virtual ~Stream () {};
+		
+		/**
+		 * @brief Abstract output stream operator
+		 * @param data Data to write
+		 */
+		virtual Stream& operator << (const QString &data) = 0;
+		
+		/**
+		 * @brief Clone the output stream object
+		 * @return a pointer to the coned StdStream object.
+		 */
+		virtual Stream* clone() const = 0;
+	};
+	
+	/**
+	 * @brief Std ouput stream
+	 */
+	class StdStream :public Stream {
+	public:
+		/**
+		 * @brief Std ouput stream constructor from an std::ostream
+		 * @param stream std::ostream reference
+		 */
+		inline StdStream (std::ostream &stream) :m_stream(stream) {};
+		
+		/**
+		 * @brief Std ouput stream destructor
+		 */
+		inline virtual ~StdStream () {};
+		
+		/**
+		 * @brief Std output stream operator
+		 */
+		inline virtual Stream& operator << (const QString &data) { m_stream << data.toUtf8().data(); return *this; };
+		
+		/**
+		 * @brief Clone the output stream object
+		 * @return a pointer to the coned StdStream object.
+		 */
+		inline virtual Stream* clone() const { return new StdStream(m_stream); };
+	private:
+		std::ostream &m_stream;
+	};
 	
 	/**
 	 * @brief JSONSerializer constructor.
 	 * @param parent Parent object
 	 */
 	JSONSerializer(QObject* parent = 0);
+	
+	/**
+	 * @brief JSONSerializer constructor.
+	 * @param stream A reference to the std output stream
+	 * @param parent Parent object
+	 */
+	JSONSerializer(std::ostream &stream, QObject* parent = 0);
+	
+	/**
+	 * @brief JSONSerializer constructor.
+	 * @param stream A reference to the output stream
+	 * @param parent Parent object
+	 */
+	JSONSerializer(const Stream &stream, QObject* parent = 0);
 	
 	/**
 	 * @brief JSONSerializer destructor.
@@ -67,11 +138,10 @@ public:
 	/**
 	 * @brief Serialize an object in JSON format
 	 * @param variant object to serialize
-	 * @return QByteArray object
 	 */
-	QByteArray serialize(const QVariant &variant);
+	void serialize(const QVariant &variant);
 private:
-	void *m_handle;
+	Stream &m_stream;
 };
 
 }

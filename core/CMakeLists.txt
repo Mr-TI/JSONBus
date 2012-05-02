@@ -38,8 +38,7 @@ QT4_WRAP_UI(project_UIS_H)
 QT4_WRAP_CPP(project_MOC_SRCS plugin.h jsonparserrunnable.h)
 
 add_subdirectory(jsonparser)
-add_subdirectory(jsonserializer)
 
 # ### TARGET ###
 add_library(jsonbus SHARED ${project_SRCS} ${project_HDRS} ${project_MOC_SRCS})
-target_link_libraries(jsonbus ${QT_LIBRARIES} jsonparser jsonserializer)
+target_link_libraries(jsonbus ${QT_LIBRARIES} jsonparser)

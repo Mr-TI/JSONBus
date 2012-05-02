@@ -58,6 +58,7 @@ using namespace std;
 
 %token              TSYNERRESC      "invalid escaped character"
 %token              TSYNERRUNI      "invalid unicode character"
+%token              TSYNERR         "unknow character"
 
 %start ROOT
 

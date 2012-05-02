@@ -98,8 +98,8 @@ void Container::onDataAvailable(QVariant data) {
 }
 
 void Container::onResultAvailable(QVariant result) {
-	JSONSerializer serialiser;
-	cout << serialiser.serialize(result).data() << endl;
+	m_jsonSerialiser.serialize(result);
+	cout << endl;
 }
 
 bool Container::notify(QObject *rec, QEvent *ev) {
