@@ -97,6 +97,7 @@ void Container::launch() {
 	
 	m_plugin->onLoad(settings);
 	
+	connect(m_plugin, SIGNAL(resultAvailable(QVariant)), this, SLOT(onResultAvailable(QVariant)));
 	SlaveApplication::launch();
 }
 
