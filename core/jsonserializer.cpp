@@ -73,7 +73,7 @@ JSONSerializer::~JSONSerializer() {
 
 void JSONSerializer::serialize(const QVariant &variant) {
 	if (!variant.isValid()) { // Case of JSON null/undefined
-		// TODO:find a way to defferenciate null/undefined
+		// TODO:find a way to differenciate null/undefined
 		m_stream << JSON_NULL;
 	} else if (variant.type() == QVariant::Bool) { // Case of JSON boolean
 		m_stream << (variant.toBool() ? JSON_TRUE: JSON_FALSE);
