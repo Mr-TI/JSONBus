@@ -18,11 +18,7 @@ void Router::onDataAvailable(QVariant data) {
 	
 }
 
-void Router::onSetup() {
-	
-}
-
-void Router::launch() {
+void Router::onRunLevelSetup() {
 	CliArguments &args = CliArguments::getInstance();
 #ifdef WIN32
 	Settings settings("OpenIHS.org", "JSONBus", QSettings::NativeFormat);
@@ -31,10 +27,10 @@ void Router::launch() {
 #endif
 	settings.define("router/listen",		tr("Addresses where the router will listen on"),	JSONBUS_DEFAULT_LISTEN_ADDRESSES);
 	settings.define("router/plugindir",		tr("Plugin dir paths"), 							JSONBUS_DEFAULT_PLUGIN_DIR_PATH);
-	if (args.isEnabled("setup")) {
+	if (args.isEnabled("edit-settings")) {
 		settings.setup();
-		return;
+		throw ExitApplicationException();
 	}
 	
-	SlaveApplication::launch();
+	SlaveApplication::onRunLevelSetup();
 }

@@ -51,18 +51,9 @@ public:
 	 * @brief Service destructor.
 	 */
 	~Router();
-
-	/**
-	 * @brief Launch this application
-	 * @throw Exception on error
-	 */
-	virtual void launch();
 	
 protected:
-	/**
-	 * @brief Called at the end of the global application setup
-	 */
-	virtual void onSetup();
+	virtual void onRunLevelSetup();
 	
 protected slots:
 	/**

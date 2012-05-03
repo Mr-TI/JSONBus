@@ -14,15 +14,15 @@ int main(int argc, char **argv) {
 		}
 #ifdef WIN32
 		if (args.isEnabled("win32-cli")) {
-			SERVICE_TABLE_ENTRY Table[] = {{"JSONBus Service", Master::launchInstance}, {NULL, NULL}};
+			SERVICE_TABLE_ENTRY Table[] = {{"JSONBus Service", Master::runInstance}, {NULL, NULL}};
 			if (!StartServiceCtrlDispatcher(Table)) {
 				clog << getMessageError(GetLastError());
 			}
 		} else {
-			service.launch();
+			service.run();
 		}
 #else
-		service.launch();
+		service.run();
 #endif
 	} catch (Exception e) {
 		qCritical() << "Exception: " << e.message() << "\n";

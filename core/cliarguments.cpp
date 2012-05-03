@@ -47,7 +47,7 @@ CliArguments::~CliArguments() {
 const QVariant &CliArguments::getValue(const QString &name) const {
 	auto it = m_arguments.find(name);
 	if (it == m_arguments.end()) {
-		throw CliArgumentsException(tr("The parameter %1 is not definied").arg(name));
+		throw CliArgumentsException(tr("The parameter %1 is not defined").arg(name));
 	}
 	return it.value().value;
 }
@@ -55,7 +55,7 @@ const QVariant &CliArguments::getValue(const QString &name) const {
 bool CliArguments::isEnabled(const QString &name) const {
 	auto it = m_arguments.find(name);
 	if (it == m_arguments.end()) {
-		throw CliArgumentsException(tr("The parameter %1 is not definied").arg(name));
+		throw CliArgumentsException(tr("The parameter %1 is not defined").arg(name));
 	}
 	if (it.value().value.type() != QVariant::Bool) {
 		throw CliArgumentsException(tr("The parameter %1 is not an boolean value").arg(name));
@@ -65,7 +65,7 @@ bool CliArguments::isEnabled(const QString &name) const {
 
 void CliArguments::define(const QString& name, char shortTag, const QString& description, const QVariant& value) {
 	if (m_arguments.find(name) != m_arguments.end()) {
-		throw CliArgumentsException(tr("The argument %1 is already definied").arg(name));
+		throw CliArgumentsException(tr("The argument %1 is already defined").arg(name));
 	}
 	m_arguments.insert(name, Element(name, shortTag, description, value));
 	if (shortTag) {

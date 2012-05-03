@@ -23,7 +23,7 @@ Master::Master(int &argc, char **argv)
 Master::~Master() {
 }
 
-void Master::launch() {
+void Master::run() {
 	CliArguments &args = CliArguments::getInstance();
 #ifdef WIN32
 	Settings settings("OpenIHS.org", "JSONBus", QSettings::NativeFormat);

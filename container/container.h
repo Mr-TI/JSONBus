@@ -39,13 +39,9 @@
 #include <jsonbus/core/jsonserializer.h>
 #include <jsonbus/core/slaveapplication.h>
 
-namespace JSONBus {
-class JSONSerializer;
-}
-
 using namespace JSONBus;
 
-jsonbus_declare_exception(ContainerException, Exception);
+jsonbus_declare_exception(ContainerException, ApplicationException);
 
 /**
  * @brief JSONBus container management.
@@ -62,18 +58,11 @@ public:
 	 * @brief Service destructor.
 	 */
 	~Container();
-
-	/**
-	 * @brief Launch this application
-	 * @throw Exception on error
-	 */
-	virtual void launch();
 	
 protected:
-	/**
-	 * @brief Called at the end of the global application setup
-	 */
-	virtual void onSetup();
+	virtual void onRunLevelDefineArgs();
+	virtual void onRunLevelParseArgs();
+	virtual void onRunLevelSetup();
 	
 protected slots:
 	/**
@@ -92,6 +81,10 @@ private:
 	SharedLib *m_pluginFile;
 	Plugin *m_plugin;
 	JSONSerializer m_jsonSerialiser;
+	QString m_serviceRoot;
+	QString m_serviceName;
+	QString m_serviceNs;
+	QString m_servicePath;
 };
 
 #endif //JSONBUS_CONTAINER_H

@@ -61,7 +61,7 @@ public:
 	 * @brief Load the service
 	 * @throw Exception on error
 	 */
-	void launch();
+	void run();
 	
 	/**
 	 * @brief Get the service instance
@@ -76,7 +76,7 @@ public:
 	 * @throw Exception on error
 	 */
 	inline static void launchInstance() {
-		getInstance().launch();
+		getInstance().run();
 	}
 };
 

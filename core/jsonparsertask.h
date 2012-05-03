@@ -25,52 +25,66 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+/**
+ * @brief JSONBus : JSON task parser management.
+ * @file jsonparsertask.h
+ * @author Emeric VERSCHUUR <contact@openihs.org>, (C) 2012
+ */
 
-#include "jsonparserrunnable.h"
-#include <typeinfo>
-#include "common.h"
+
+#ifndef JSONBUS_JSONPARSERTASK_H
+#define JSONBUS_JSONPARSERTASK_H
+
+#include <QRunnable>
+#include <jsonbus/core/jsonparser.h>
 
 namespace JSONBus {
 
-JSONParserRunnable::JSONParserRunnable(int fd, QObject* parent): JSONParser(fd, parent), m_stop(false) {
+class JSONParserTask : public JSONBus::JSONParser, public QRunnable {
+	Q_OBJECT
+public:
+	
+	/**
+	 * @brief JSONParserTask constructor.
+	 * @param fd File descriptor
+	 * @param parent Parent object
+	 */
+	JSONParserTask(int fd, QObject* parent = 0);
+	
+	/**
+	 * @brief JSONParser constructor.
+	 * @param stream STD input stream to get data from
+	 * @param parent Parent object
+	 */
+	JSONParserTask(std::istream& stream, QObject* parent = 0);
+	
+	/**
+	 * @brief JSONParser constructor.
+	 * @param stream Text stream to get data from
+	 * @param parent Parent object
+	 */
+	JSONParserTask(QTextStream& stream, QObject* parent = 0);
+	
+	/**
+	 * @brief JSONParser constructor.
+	 * @param input Device to get data from
+	 * @param parent Parent object
+	 */
+	JSONParserTask(QIODevice& input, QObject* parent = 0);
+	
+	/**
+	 * @brief Task main
+	 */
+	virtual void run();
+signals:
+	void dataAvailable(QVariant data);
+	void terminated();
+public slots:
+	void terminate();
+private:
+	bool m_stop;
+};
 
 }
 
-JSONParserRunnable::JSONParserRunnable(std::istream& stream, QObject* parent): JSONParser(stream, parent), m_stop(false) {
-
-}
-
-JSONParserRunnable::JSONParserRunnable(QTextStream& stream, QObject* parent): JSONParser(stream, parent), m_stop(false) {
-
-}
-
-JSONParserRunnable::JSONParserRunnable(QIODevice& input, QObject* parent): JSONParser(input, parent), m_stop(false) {
-
-}
-
-void JSONParserRunnable::run() {
-	QVariant ret;
-	try {
-		while (1) {
-			ret = parse();
-			emit dataAvailable(ret);
-		}
-	} catch (JSONParserException &e) {
-		if (m_stop) {
-			cerr << ">>> JSONParserRunnable task shutting down" << endl;
-		} else {
-			cerr << ">>> JSONParserRunnable task terminated after throwing an instance of '" << demangle(typeid(e).name()) << "'" << endl;
-			cerr << ">>>   what(): " << e.message() << endl;
-		}
-	}
-	emit terminated();
-}
-
-void JSONParserRunnable::terminate() {
-	m_stop = true;
-	disable();
-}
-
-
-}
-
+#endif // JSONBUS_JSONPARSERTASK_H

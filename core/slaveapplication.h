@@ -37,29 +37,20 @@
 #include <QCoreApplication>
 #include <jsonbus/core/exception.h>
 #include <jsonbus/core/cliarguments.h>
-#include <jsonbus/core/jsonparserrunnable.h>
 #include "settings.h"
 #include <signal.h>
 #include <fcntl.h>
 
 #define jsonbus_declare_slave_application(_class_name_) \
 int main(int argc, char **argv) { \
-	_class_name_ app(argc, argv); \
-	app.setup(); \
-	CliArguments &args = CliArguments::getInstance(); \
-	if (args.isEnabled("help")) { \
-		args.displayUseInstructions(); \
-		return 0; \
-	} \
-	signal(SIGINT, SlaveApplication::onQuit); \
-	signal(SIGTERM, SlaveApplication::onQuit); \
-	app.launch(); \
+	_class_name_(argc, argv).run(); \
 	return 0; \
 }
 
 using namespace JSONBus;
 
-jsonbus_declare_exception(SlaveApplicationException, Exception);
+jsonbus_declare_exception(ApplicationException, Exception);
+jsonbus_declare_exception(ExitApplicationException, Exception);
 
 /**
  * @brief JSONBus container management.
@@ -78,16 +69,10 @@ public:
 	~SlaveApplication();
 
 	/**
-	 * @brief Setup this application
+	 * @brief Run this application
 	 * @throw Exception on error
 	 */
-	void setup();
-
-	/**
-	 * @brief Launch this application
-	 * @throw Exception on error
-	 */
-	virtual void launch();
+	void run();
 	
 	/**
 	 * @brief Get the container instance
@@ -101,8 +86,8 @@ public:
 	 * @brief Load the container
 	 * @throw Exception on error
 	 */
-	inline static void launchInstance() {
-		getInstance().launch();
+	inline static void runInstance() {
+		getInstance().run();
 	}
 	
 	/**
@@ -113,10 +98,9 @@ public:
 	static void onQuit(int signum);
 	
 protected:
-	/**
-	 * @brief Called at the end of the global application setup
-	 */
-	virtual void onSetup() = 0;
+	virtual void onRunLevelDefineArgs();
+	virtual void onRunLevelParseArgs();
+	virtual void onRunLevelSetup();
 	
 protected slots:
 	/**
