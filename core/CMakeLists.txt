@@ -35,7 +35,7 @@ file(GLOB project_SRCS *.cpp)
 find_package(Qt4 REQUIRED)
 include(${QT_USE_FILE})
 QT4_WRAP_UI(project_UIS_H)
-QT4_WRAP_CPP(project_MOC_SRCS plugin.h jsonparsertask.h slaveapplication.h)
+QT4_WRAP_CPP(project_MOC_SRCS plugin.h jsonparsertask.h application.h slaveapplication.h)
 
 add_subdirectory(jsonparser)
 

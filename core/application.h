@@ -26,47 +26,104 @@
 */
 
 /**
- * @brief JSONBus : JSONBus slave application management.
+ * @brief JSONBus : JSONBus  application management.
  * @file container.h
  * @author Emeric VERSCHUUR <contact@openihs.org>, (C) 2012
  */
 
-#ifndef JSONBUS_SLAVEAPPLICATION_H
-#define JSONBUS_SLAVEAPPLICATION_H
+#ifndef JSONBUS_APPLICATION_H
+#define JSONBUS_APPLICATION_H
 
 #include <QCoreApplication>
-#include <jsonbus/core/application.h>
+#include <jsonbus/core/exception.h>
+#include <jsonbus/core/cliarguments.h>
 #include "settings.h"
+#include <signal.h>
+#include <fcntl.h>
+
+#define jsonbus_declare_application(_class_name_) \
+int main(int argc, char **argv) { \
+	_class_name_(argc, argv).run(); \
+	return 0; \
+}
+
+#ifdef WIN32
+#define jsonbus_declare_service(_class_name_) \
+int main(int argc, char **argv) { \
+	_class_name_ service(argc, argv); \
+	if (args.isEnabled("win32-cli")) { \
+		SERVICE_TABLE_ENTRY Table[] = {{"JSONBus Service", Master::runInstance}, {NULL, NULL}}; \
+		if (!StartServiceCtrlDispatcher(Table)) { \
+			clog << getMessageError(GetLastError()); \
+		} \
+	} else { \
+		service.run(); \
+	} \
+	return 0; \
+}
+#else
+#define jsonbus_declare_service(_class_name_) jsonbus_declare_application(_class_name_)
+#endif
 
 namespace JSONBus {
+
+jsonbus_declare_exception(ApplicationException, Exception);
+jsonbus_declare_exception(ExitApplicationException, Exception);
 
 /**
  * @brief JSONBus container management.
  */
-class SlaveApplication : public Application {
+class Application : public QCoreApplication {
 	Q_OBJECT
 public:
 	/**
 	 * @brief Service constructor.
 	 */
-	SlaveApplication(int &argc, char **argv);
+	Application(int &argc, char **argv);
 
 	/**
 	 * @brief Service destructor.
 	 */
-	~SlaveApplication();
+	~Application();
+
+	/**
+	 * @brief Run this application
+	 * @throw Exception on error
+	 */
+	void run();
+	
+	/**
+	 * @brief Get the container instance
+	 * @return Application reference
+	 */
+	inline static Application &getInstance () {
+		return *(static_cast<Application*>(instance()));
+	}
+
+	/**
+	 * @brief Load the container
+	 * @throw Exception on error
+	 */
+	inline static void runInstance() {
+		getInstance().run();
+	}
+	
+	/**
+	 * @brief bool QCoreApplication::notify(QObject *rec, QEvent *ev) redefinition
+	 */
+	bool notify(QObject *rec, QEvent *ev);
+	
+	static void onQuit(int signum);
 	
 protected:
+	virtual void onRunLevelDefineArgs();
+	virtual void onRunLevelParseArgs();
 	virtual void onRunLevelSetup();
 	
-protected slots:
-	/**
-	 * @brief Inpout data treatment
-	 * @param data
-	 */
-	virtual void onDataAvailable(QVariant data) = 0;
+private slots:
+	void onAboutToQuit();
 };
 
 }
 
-#endif //JSONBUS_SLAVEAPPLICATION_H
+#endif //JSONBUS_APPLICATION_H

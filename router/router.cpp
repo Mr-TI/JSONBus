@@ -5,7 +5,7 @@
 #include <jsonbus/core/settings.h>
 #include <router.h>
 
-jsonbus_declare_slave_application(Router)
+jsonbus_declare_application(Router)
 
 Router::Router(int &argc, char **argv)
 	: SlaveApplication(argc, argv) {
@@ -13,6 +13,16 @@ Router::Router(int &argc, char **argv)
 
 Router::~Router() {
 }
+
+void Router::onRunLevelDefineArgs()
+{
+	Application::onRunLevelDefineArgs();
+	
+	CliArguments &args = CliArguments::getInstance();
+	
+	args.define("config",			'c', tr("Set a custom config path"), "");
+}
+
 
 void Router::onDataAvailable(QVariant data) {
 	
@@ -26,11 +36,16 @@ void Router::onRunLevelSetup() {
 	Settings settings(args.getValue("config").toString(), QSettings::NativeFormat);
 #endif
 	settings.define("router/listen",		tr("Addresses where the router will listen on"),	JSONBUS_DEFAULT_LISTEN_ADDRESSES);
-	settings.define("router/plugindir",		tr("Plugin dir paths"), 							JSONBUS_DEFAULT_PLUGIN_DIR_PATH);
 	if (args.isEnabled("edit-settings")) {
 		settings.setup();
 		throw ExitApplicationException();
 	}
 	
 	SlaveApplication::onRunLevelSetup();
+	
+// 	QVariantMap data;
+// 	data["type"] = "event";
+// 	data["uid"] = "";
+// 	data["body"] = "";
+// 	m_jsonSerialiser.serialize();
 }

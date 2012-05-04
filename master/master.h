@@ -34,18 +34,16 @@
 #ifndef JSONBUS_MASTER_H
 #define JSONBUS_MASTER_H
 
-#include <QCoreApplication>
-#include <jsonbus/core/cliarguments.h>
-#include <jsonbus/core/exception.h>
+#include <jsonbus/core/application.h>
 
-namespace JSONBus {
+using namespace JSONBus;
 
 jsonbus_declare_exception(MasterException, Exception);
 
 /**
  * @brief Dynamic library management.
  */
-class Master : public QCoreApplication {
+class Master : public Application {
 public:
 	/**
 	 * @brief Service constructor.
@@ -56,30 +54,10 @@ public:
 	 * @brief Service destructor.
 	 */
 	~Master();
-
-	/**
-	 * @brief Load the service
-	 * @throw Exception on error
-	 */
-	void run();
 	
-	/**
-	 * @brief Get the service instance
-	 * @return Master reference
-	 */
-	inline static Master &getInstance () {
-		return *(static_cast<Master*>(instance()));
-	}
-
-	/**
-	 * @brief Load the service
-	 * @throw Exception on error
-	 */
-	inline static void launchInstance() {
-		getInstance().run();
-	}
+protected:
+	virtual void onRunLevelDefineArgs();
+	virtual void onRunLevelSetup();
 };
-
-}
 
 #endif

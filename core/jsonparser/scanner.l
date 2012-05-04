@@ -159,6 +159,6 @@ escape_prefix           \\
 <INITIAL>{semicolon}                      {BEGIN INITIAL; RETURN_TOKEN(TMEMBERSEP);}
 <INITIAL>{dblcote}                        {BEGIN STRING; STRING_BEGIN();}
 <INITIAL>{space}                          {}
-<INITIAL>.                                {cout << ">>>" << yytext << "<<<" << endl;RETURN_TOKEN(TSYNERR);}
+<INITIAL>.                                {RETURN_TOKEN(TSYNERR);}
 
 %%

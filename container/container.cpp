@@ -16,7 +16,7 @@
 #	define JSONBUS_SERVICEFILE_SUFFIX ".so"
 #endif
 
-jsonbus_declare_slave_application(Container)
+jsonbus_declare_application(Container)
 
 Container::Container(int &argc, char **argv)
 	: SlaveApplication(argc, argv),
@@ -35,6 +35,8 @@ void Container::onRunLevelDefineArgs() {
 	SlaveApplication::onRunLevelDefineArgs();
 	
 	CliArguments &args = CliArguments::getInstance();
+	
+	args.define("config",		'c', tr("Set a custom config path"), "");
 	
 	args.define("service-root",	'd', tr("Plugin root directory (excluding namaspace directory)"), "/usr/lib/jsonbus/services/");
 	args.define("service-ns",	'N', tr("Plugin namespace"), "");

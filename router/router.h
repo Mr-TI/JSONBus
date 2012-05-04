@@ -34,8 +34,10 @@
 #ifndef JSONBUS_ROUTER_H
 #define JSONBUS_ROUTER_H
 
-#include <QCoreApplication>
 #include <jsonbus/core/slaveapplication.h>
+#include <core/jsonserializer.h>
+
+using namespace JSONBus;
 
 /**
  * @brief JSONBus router management.
@@ -53,6 +55,7 @@ public:
 	~Router();
 	
 protected:
+	virtual void onRunLevelDefineArgs();
 	virtual void onRunLevelSetup();
 	
 protected slots:
@@ -61,6 +64,9 @@ protected slots:
 	 * @param data
 	 */
 	virtual void onDataAvailable(QVariant data);
+	
+private:
+	JSONSerializer m_jsonSerialiser;
 };
 
 #endif
