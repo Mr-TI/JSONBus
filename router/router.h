@@ -35,7 +35,7 @@
 #define JSONBUS_ROUTER_H
 
 #include <jsonbus/core/slaveapplication.h>
-#include <core/jsonserializer.h>
+#include <jsonbus/core/jsonserializer.h>
 
 using namespace JSONBus;
 
