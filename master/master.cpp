@@ -5,7 +5,7 @@
 #include <jsonbus/core/settings.h>
 #include "master.h"
 
-jsonbus_declare_service(Master)
+jsonbus_declare_master_service(Master)
 
 Master::Master(int &argc, char **argv)
 	: Application(argc, argv) {

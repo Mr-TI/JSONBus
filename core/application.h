@@ -26,7 +26,7 @@
 */
 
 /**
- * @brief JSONBus : JSONBus  application management.
+ * @brief JSONBus : JSONBus application management.
  * @file container.h
  * @author Emeric VERSCHUUR <contact@openihs.org>, (C) 2012
  */
@@ -48,7 +48,7 @@ int main(int argc, char **argv) { \
 }
 
 #ifdef WIN32
-#define jsonbus_declare_service(_class_name_) \
+#define jsonbus_declare_master_service(_class_name_) \
 int main(int argc, char **argv) { \
 	_class_name_ service(argc, argv); \
 	if (args.isEnabled("win32-cli")) { \
@@ -62,7 +62,7 @@ int main(int argc, char **argv) { \
 	return 0; \
 }
 #else
-#define jsonbus_declare_service(_class_name_) jsonbus_declare_application(_class_name_)
+#define jsonbus_declare_master_service(_class_name_) jsonbus_declare_application(_class_name_)
 #endif
 
 namespace JSONBus {

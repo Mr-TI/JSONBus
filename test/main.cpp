@@ -10,14 +10,11 @@
 #include <QMap>
 #include <QFile>
 #include <iostream>
-#include <qjson/parser.h>
 #include <jsonbus/core/jsonparser/stdstreambuf.h>
 
 using namespace JSONBus;
 using namespace jsonparser;
 using namespace std;
-
-
 
 int main(int argc, char **argv) {
 	
