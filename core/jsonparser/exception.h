@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2012, Emeric Verschuur <contact@openihs.org>
+    Copyright (c) 2012, Emeric Verschuur <emericv@openihs.org>
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@
 /**
  * @brief JSONParser : Exception management.
  * @file exception.h
- * @author Emeric VERSCHUUR <contact@openihs.org>, (C) 2012
+ * @author Emeric VERSCHUUR <emericv@openihs.org>, (C) 2012
  */
 #ifndef JSONPARSER_EXCEPTION_H
 #define JSONPARSER_EXCEPTION_H

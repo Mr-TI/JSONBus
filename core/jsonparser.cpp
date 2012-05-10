@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2012, Emeric Verschuur <contact@openihs.org>
+    Copyright (c) 2012, Emeric Verschuur <emericv@openihs.org>
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without

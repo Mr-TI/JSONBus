@@ -1,5 +1,5 @@
 /*
-    Copyright (c) 2012, Emeric Verschuur <contact@openihs.org>
+    Copyright (c) 2012, Emeric Verschuur <emericv@openihs.org>
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@
 /**
  * @brief JSONBus : Settings management.
  * @file settings.h
- * @author Emeric VERSCHUUR <contact@openihs.org>, (C) 2012
+ * @author Emeric VERSCHUUR <emericv@openihs.org>, (C) 2012
  */
 
 #ifndef JSONBUS_SETTINGS_H
