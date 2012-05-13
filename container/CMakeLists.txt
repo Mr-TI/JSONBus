@@ -34,8 +34,8 @@ file(GLOB project_SRCS *.cpp)
 # ### QT4 ###
 find_package(Qt4 REQUIRED)
 include(${QT_USE_FILE})
-QT4_WRAP_UI(project_UIS_H)
-QT4_WRAP_CPP(project_MOC_SRCS container.h)
+qt4_wrap_ui(project_UIS_H)
+qt4_wrap_cpp(project_MOC_SRCS container.h)
 
 # ### TARGET ###
 add_executable(jsonbus_container ${project_SRCS} ${project_MOC_SRCS} ${project_HDRS})
