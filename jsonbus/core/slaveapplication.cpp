@@ -1,4 +1,5 @@
 
+#include <unistd.h>
 #include <typeinfo>
 #include <QStringList>
 #include <jsonbus/core/common.h>
