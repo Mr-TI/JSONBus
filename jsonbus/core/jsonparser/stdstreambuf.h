@@ -28,6 +28,7 @@
 #ifndef JSONPARSER_STDSTREAMBUF_H
 #define JSONPARSER_STDSTREAMBUF_H
 
+#include <unistd.h>
 #include <iostream>
 #include <fstream>
 #include <QIODevice>
