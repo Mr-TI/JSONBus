@@ -25,38 +25,34 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef JSONPARSER_STDSTREAMBUF_H
-#define JSONPARSER_STDSTREAMBUF_H
+#include <unistd.h>
+#include "textstreambuf.h"
 
-#include <iostream>
-#include <fstream>
-#include <QIODevice>
-#include "abstractstreambuf.h"
-
-/**
- * @namespace
- */
 namespace jsonparser {
 
-class StdStreamBuf : public AbstractStreamBuf {
-public:
-	inline StdStreamBuf(std::istream &stream): m_streambuf(*stream.rdbuf()) {};
-	inline virtual ~StdStreamBuf() {};
-protected:
-	inline virtual bool waitReadyToRead(int timeout) { 
-		if (!m_streambuf.in_avail()) {
-			usleep(timeout);
-			return false;
-		} else {
-			return true;
-		}
-	};
-	inline virtual int getNextChar() { return m_streambuf.sbumpc(); };
-	
-private:
-	std::streambuf &m_streambuf;
-};
-
+TextStreamBuf::TextStreamBuf(QTextStream &textStream)
+        : m_textStreamBuf(textStream) {
 }
 
-#endif // JSONPARSER_STDSTREAMBUF_H
+TextStreamBuf::~TextStreamBuf() {
+}
+
+int TextStreamBuf::getNextChar() {
+	if (m_textStreamBuf.atEnd()) {
+		return EOF;
+	}
+	QChar c;
+	m_textStreamBuf >> c;
+	return c.toAscii();
+}
+
+bool TextStreamBuf::waitReadyToRead(int timeout) {
+	if (m_textStreamBuf.device()->bytesAvailable() == 0) {
+		usleep(timeout);
+		return false;
+	} else {
+		return true;
+	}
+}
+
+}

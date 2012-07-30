@@ -25,34 +25,39 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "iodevicebuf.h"
+#ifndef JSONPARSER_STDSTREAMBUF_H
+#define JSONPARSER_STDSTREAMBUF_H
 
+#include <unistd.h>
+#include <iostream>
+#include <fstream>
+#include <QIODevice>
+#include "abstractstreambuf.h"
+
+/**
+ * @namespace
+ */
 namespace jsonparser {
 
-IODeviceBuf::IODeviceBuf(QIODevice &device)
-        : m_device(device) {
-}
-
-IODeviceBuf::~IODeviceBuf() {
-}
-
-int IODeviceBuf::getNextChar() {
-	if (m_device.atEnd()) {
-		return EOF;
-	} else {
-		char c;
-		m_device.getChar(&c);
-		return c;
-	}
-}
-
-bool IODeviceBuf::waitReadyToRead(int timeout) {
-	if (m_device.bytesAvailable() == 0) {
-		usleep(timeout);
-		return false;
-	} else {
-		return true;
-	}
-}
+class StdStreamBuf : public AbstractStreamBuf {
+public:
+	inline StdStreamBuf(std::istream &stream): m_streambuf(*stream.rdbuf()) {};
+	inline virtual ~StdStreamBuf() {};
+protected:
+	inline virtual bool waitReadyToRead(int timeout) { 
+		if (!m_streambuf.in_avail()) {
+			usleep(timeout);
+			return false;
+		} else {
+			return true;
+		}
+	};
+	inline virtual int getNextChar() { return m_streambuf.sbumpc(); };
+	
+private:
+	std::streambuf &m_streambuf;
+};
 
 }
+
+#endif // JSONPARSER_STDSTREAMBUF_H
