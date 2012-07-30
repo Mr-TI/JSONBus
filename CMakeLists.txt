@@ -29,7 +29,7 @@
 project(jsonbus)
 cmake_minimum_required(VERSION 2.8.0)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 if(NOT WIN32)
 set(CMAKE_CXX_FLAGS "-Wall -std=gnu++0x -fPIC")
@@ -38,9 +38,5 @@ set(CMAKE_CXX_FLAGS_DEBUG  "-g3")
 endif(NOT WIN32)
 
 # ### SUBDIRECTORIES ###
-add_subdirectory(container)
-add_subdirectory(core)
-add_subdirectory(master)
-add_subdirectory(router)
-add_subdirectory(services)
+add_subdirectory(jsonbus)
 add_subdirectory(test)
