@@ -16,6 +16,7 @@
 
 #include <common.h>
 #include <settings.h>
+#include "logger.h"
 
 namespace JSONBus {
 
@@ -33,12 +34,12 @@ void Settings::define(const QString& name, const QString& description, const QVa
 }
 
 void Settings::setup() {
-	cout << tr("Configuration setup") << endl;
+	logInfo() << tr("Configuration setup");
 	QString newVal;
-	string buff;
+	std::string buff;
 	for (auto it = m_parameters.begin(); it != m_parameters.end(); it++) {
-		cout << it.value().description  << " [" << value(it.key()).toString() << "]: ";
-		getline (cin, buff);
+		logInfo() << it.value().description  << " [" << value(it.key()).toString() << "]: ";
+		getline (std::cin, buff);
 		newVal = QString::fromStdString(buff);
 		if (!newVal.isEmpty()) {
 			setValue(it.key(), newVal);

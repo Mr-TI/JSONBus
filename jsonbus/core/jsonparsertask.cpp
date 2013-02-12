@@ -18,6 +18,7 @@
 #include "jsonparsertask.h"
 #include <typeinfo>
 #include "common.h"
+#include "logger.h"
 
 namespace JSONBus {
 
@@ -48,11 +49,11 @@ void JSONParserTask::run() {
 		}
 	} catch (JSONParserException &e) {
 		if (m_stop) {
-			cerr << demangle(typeid(*this).name()) << " leaving main loop normally" << endl;
+			logFine() << demangle(typeid(*this).name()) << " leaving main loop normally";
 		} else {
-			cerr << demangle(typeid(*this).name()) << " leaving main loop after throwing an instance of '" << demangle(typeid(e).name()) << "'" << endl;
+			logCrit() << demangle(typeid(*this).name()) << " leaving main loop after throwing an instance of '" << demangle(typeid(e).name()) << "'";
 			if (!e.message().isEmpty())
-				cerr << "  what(): " << e.message() << endl;
+				logCrit() << "  what(): " << e.message();
 		}
 	}
 	emit terminated();

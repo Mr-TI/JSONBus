@@ -27,6 +27,8 @@
 #define JSON_ARRAY_BEGIN "["
 #define JSON_ARRAY_END "]"
 
+using namespace std;
+
 namespace JSONBus {
 
 static QString sanitizeString( QString str )

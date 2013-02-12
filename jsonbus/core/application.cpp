@@ -19,6 +19,7 @@
 #include <jsonbus/core/common.h>
 #include <jsonbus/core/jsonparsertask.h>
 #include "application.h"
+#include "logger.h"
 
 namespace JSONBus {
 
@@ -62,15 +63,15 @@ void Application::run() {
 		onRunLevelParseArgs();
 		onRunLevelSetup();
 		connect(this, SIGNAL(aboutToQuit()), this, SLOT(onAboutToQuit()), Qt::DirectConnection);
-		cerr << demangle(typeid(*this).name()) << " entring in event loop..." << endl;
+		logFine() << demangle(typeid(*this).name()) << " entring in event loop...";
 		exec();
-		cerr << demangle(typeid(*this).name()) << " leaving event loop..." << endl;
+		logFine() << demangle(typeid(*this).name()) << " leaving event loop...";
 	} catch (ExitApplicationException &e) {
 		
 	} catch (Exception &e) {
-		cerr << demangle(typeid(*this).name()) << " aborting start process after throwing an instance of '" << demangle(typeid(e).name()) << "'" << endl;
+		logCrit() << demangle(typeid(*this).name()) << " aborting start process after throwing an instance of '" << demangle(typeid(e).name()) << "'";
 		if (!e.message().isEmpty())
-			cerr << "  what(): " << e.message() << endl;
+			logCrit() << "  what(): " << e.message();
 	}
 }
 
@@ -78,9 +79,9 @@ bool Application::notify(QObject *rec, QEvent *ev) {
 	try {
 		return QCoreApplication::notify(rec, ev);
 	} catch (Exception &e) {
-		cerr << demangle(typeid(*this).name()) << " leaving event loop after throwing an instance of '" << demangle(typeid(e).name()) << "'" << endl;
+		logFine() << demangle(typeid(*this).name()) << " leaving event loop after throwing an instance of '" << demangle(typeid(e).name()) << "'" << endl;
 		if (!e.message().isEmpty())
-			cerr << "  what(): " << e.message() << endl;
+			logFine() << "  what(): " << e.message() << endl;
 	}
 	quit();
 	return false;

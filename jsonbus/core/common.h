@@ -44,8 +44,6 @@
 #endif
 #define JSONBUS_DEFAULT_PLUGIN_DIR_PATH JSONBUS_DEFAULT_BASEDIR "/plugins"
 
-using namespace std;
-
 namespace JSONBus {
 
 /**
@@ -54,7 +52,7 @@ namespace JSONBus {
  * @param data QString object
  * @return the stream reference
  */
-inline JSONBUS_EXPORT ostream &operator << (ostream &stream, const QString &data) {
+inline JSONBUS_EXPORT std::ostream &operator << (std::ostream &stream, const QString &data) {
 	return (stream << data.toUtf8().data());
 }
 
@@ -64,8 +62,8 @@ inline JSONBUS_EXPORT ostream &operator << (ostream &stream, const QString &data
  * @param data QString object
  * @return the stream reference
  */
-inline JSONBUS_EXPORT istream &operator >> (QString &data, istream &stream) {
-	string buff;
+inline JSONBUS_EXPORT std::istream &operator >> (QString &data, std::istream &stream) {
+	std::string buff;
 	stream >> buff;
 	data = QString::fromUtf8(buff.c_str());
 	return stream;

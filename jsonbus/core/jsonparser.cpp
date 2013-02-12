@@ -25,6 +25,7 @@
 #include <sstream>
 
 using namespace jsonparser;
+using namespace std;
 
 namespace JSONBus {
 

@@ -14,9 +14,9 @@
  *   limitations under the License.
  */
 
-#include <domodom/core/logger.h>
+#include <jsonbus/core/logger.h>
 
-using namespace DomoDOM;
+using namespace JSONBus;
 
 const char *Logger::LEVEL_HDRS[][8] = {
 	{

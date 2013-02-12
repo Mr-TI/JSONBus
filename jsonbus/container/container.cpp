@@ -127,5 +127,5 @@ void Container::onDataAvailable(QVariant data) {
 
 void Container::onResultAvailable(QVariant result) {
 	m_jsonSerialiser.serialize(result);
-	cout << endl;
+	std::cout << std::endl;
 }

@@ -16,6 +16,7 @@
 
 #include <cliarguments.h>
 #include <common.h>
+#include "logger.h"
 #include <QStringList>
 #include <QRegExp>
 #include <QCoreApplication>
@@ -134,9 +135,9 @@ void CliArguments::displayUseInstructions() {
 		maxlen = qMax(maxlen, argName.length());
 		list.append(LineElement(argName, it.value().description + (argValue.type() == QVariant::String ? " (" + tr("value: ") + argValue.toString() + ")" : "")));
 	}
-	cout << tr("Use: ") << execName << tr(" <options>") << endl << endl << tr("Option list:") << endl;
+	logInfo() << tr("Use: ") << execName << tr(" <options>") << endl << endl << tr("Option list:");
 	foreach(LineElement pair, list) {
-		cout << pair.first << QString(maxlen - pair.first.length() + 4, ' ') << pair.second << endl;
+		logInfo() << pair.first << QString(maxlen - pair.first.length() + 4, ' ') << pair.second;
 	}
 }
 

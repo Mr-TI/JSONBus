@@ -20,6 +20,7 @@
 #include <QMap>
 #include <QString>
 #include <QTextStream>
+#include <qglobal.h>
 #include <jsonbus/core/exception.h>
 #include <jsonbus/core/common.h>
 
@@ -317,7 +318,7 @@ inline Logger::Logger(const Logger &other)
 
 inline Logger::~Logger() {
 	m_stream << levelFoot;
-	printf("%s\n", m_buffer.toLocal8Bit().data());
+	std::cerr << m_buffer.toLocal8Bit().data() << std::endl;
 }
 
 inline Logger &Logger::operator<<(QChar t) {
@@ -428,7 +429,7 @@ inline Logger &Logger::operator<<(const Loggable & t) {
 }
 
 inline Logger &Logger::operator<<(QTextStreamFunction f) {
-	if (f == endl) {
+	if (f == (QTextStreamFunction)endl) {
 		appendln();
 	} else {
 		m_stream << f;
