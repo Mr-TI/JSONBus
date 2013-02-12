@@ -94,7 +94,7 @@ inline QString demangle(const char *name) {
 	int status;
 	char *ret = abi::__cxa_demangle(name, 0, 0, &status);
 	QString result(ret);
-	delete ret;
+	free(ret);
 	return result;
 }
 
