@@ -292,6 +292,14 @@ public:
 	 * @param level Level
 	 */
 	static void setLevel(Level level);
+	
+	/**
+	 * @brief Qt object dump
+	 * 
+	 * @return The human readable representation of the object
+	 */
+	template <typename T>
+	static QString dump(const T& object);
 
 };
 
@@ -451,6 +459,13 @@ inline Logger &Logger::operator<<(Exception &e) {
 
 inline Logger::Level Logger::level() {
 	return globalLevel;
+}
+
+template <typename T>
+inline QString Logger::dump(const T& object) {
+	QString buff;
+	QDebug(&buff) << object;
+	return buff;
 }
 
 inline void Logger::setLevel(Level level) {

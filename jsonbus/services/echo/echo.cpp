@@ -49,7 +49,7 @@ void Echo::onUnload() {
 };
 
 void Echo::onRequest(QVariant request) {
-	logFiner() << "Request: " << request.toString();
+	logFiner() << "Request: " << Logger::dump<QVariant>(request);
 	QVariant result;
 	QVariantMap m;
 	m["reply"].setValue(m_helloMsg + " " + request.toMap()[m_fieldName].toString());

@@ -27,11 +27,12 @@
 
 #include <jsonbus/core/exception.h>
 #include <jsonbus/core/settings.h>
+#include <jsonbus/core/sharedptr.h>
 
 #define jsonbus_declare_plugin(class_name) \
 extern "C" {\
-	JSONBus::Plugin *getSingleton () {\
-		return new class_name();\
+	JSONBus::PluginPtr getSingleton () {\
+		return PluginPtr(new class_name());\
 	}\
 }
 
@@ -48,8 +49,12 @@ jsonbus_declare_exception(PluginException, Exception);
 /**
  * @brief Plugin management.
  */
-class JSONBUS_EXPORT Plugin: public QObject {
+class JSONBUS_EXPORT Plugin: public QObject, public QSharedData {
 	Q_OBJECT
+private:
+	Plugin(const Plugin &other);
+	bool m_loaded;
+	
 public:
 	/**
 	 * @brief Plugin constructor.
@@ -89,10 +94,10 @@ public:
 signals:
 	void resultAvailable(QVariant result);
 	
-private:
-	
-	bool m_loaded;
 };
+
+/// @brief Plugin shared pointer type
+typedef SharedPtr<Plugin> PluginPtr;
 
 }
 

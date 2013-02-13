@@ -34,16 +34,13 @@
 jsonbus_declare_application(Container)
 
 Container::Container(int &argc, char **argv)
-	: SlaveApplication(argc, argv),
-	m_pluginFile(NULL), m_plugin(NULL) {
+	: SlaveApplication(argc, argv) {
 }
 
 Container::~Container() {
 	if (m_plugin && m_plugin->isLoaded()) {
 		m_plugin->onUnload();
 	}
-	delete m_plugin;
-	delete m_pluginFile;
 }
 
 void Container::onRunLevelDefineArgs() {
@@ -105,7 +102,7 @@ void Container::onRunLevelSetup()
 #endif
 	
 	// Get the plugin instance
-	m_plugin = (*(Plugin*(*)())(m_pluginFile->getSymbol("getSingleton")))();
+	m_plugin = (*(PluginPtr(*)())(m_pluginFile->getSymbol("getSingleton")))();
 	
 	// Plugin initialization
 	m_plugin->onInit(settings);
@@ -118,7 +115,7 @@ void Container::onRunLevelSetup()
 	
 	// Plugin load
 	m_plugin->onLoad(settings);
-	connect(m_plugin, SIGNAL(resultAvailable(QVariant)), this, SLOT(onResultAvailable(QVariant)));
+	connect(m_plugin.data(), SIGNAL(resultAvailable(QVariant)), this, SLOT(onResultAvailable(QVariant)));
 }
 
 void Container::onDataAvailable(QVariant data) {

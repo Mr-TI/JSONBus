@@ -25,26 +25,46 @@
 #include <QMap>
 #include <QFile>
 #include <iostream>
+#include <atomic>
 #include <jsonbus/core/jsonparser/stdstreambuf.h>
 
 using namespace JSONBus;
 using namespace jsonparser;
 using namespace std;
 
+class SharedData {
+public:
+	atomic_uint_fast16_t ref;
+	SharedData();
+	SharedData(const SharedData& other);
+private:
+    SharedData &operator=(const SharedData &);
+};
+
+template <typename T> class SharedPtr {
+	SharedPtr();
+	SharedPtr(const SharedPtr<T> &other);
+    template<class X>
+	SharedPtr(const SharedPtr<X> &other);
+	
+};
+
 int main(int argc, char **argv) {
 	
-	fstream fifoStream;
-	fifoStream.open("/tmp/jsonbus", fstream::in);
-	StdStreamBuf buf(fifoStream);
-	istream inputStream(&buf);
-	char c = EOF;
 	
-	for (int i=0; i<10; i++) {
-		inputStream >> c;
-		if (c == EOF)
-			break;
-		cout << "c:" << c << "(" << (int)c << ")" << endl;
-	}
+	
+// 	fstream fifoStream;
+// 	fifoStream.open("/tmp/jsonbus", fstream::in);
+// 	StdStreamBuf buf(fifoStream);
+// 	istream inputStream(&buf);
+// 	char c = EOF;
+// 	
+// 	for (int i=0; i<10; i++) {
+// 		inputStream >> c;
+// 		if (c == EOF)
+// 			break;
+// 		cout << "c:" << c << "(" << (int)c << ")" << endl;
+// 	}
 	
 // 	Driver driver;
 // 	QVariant v = driver.parse(&cin);

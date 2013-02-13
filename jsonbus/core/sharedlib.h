@@ -26,6 +26,7 @@
 #define JSONBUS_SHAREDLIB_H
 
 #include <jsonbus/core/exception.h>
+#include <jsonbus/core/sharedptr.h>
 
 #ifndef JSONBUS_EXPORT
 #define JSONBUS_EXPORT
@@ -46,7 +47,8 @@ jsonbus_declare_exception(SymbolSharedLibException, SharedLibException);
 /**
  * @brief Dynamic library management.
  */
-class JSONBUS_EXPORT SharedLib: public QObject {
+class JSONBUS_EXPORT SharedLib: public QObject, public QSharedData {
+	SharedLib(const SharedLib &other);
 public:
 	/**
 	 * @brief SharedLib constructor.
@@ -110,6 +112,9 @@ private:
 	QString path;
 	handle_t handle;
 };
+
+/// @brief Plugin shared pointer type
+typedef SharedPtr<SharedLib> SharedLibPtr;
 
 }
 

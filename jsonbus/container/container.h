@@ -71,8 +71,8 @@ protected slots:
 	void onResultAvailable(QVariant result);
 	
 private:
-	SharedLib *m_pluginFile;
-	Plugin *m_plugin;
+	SharedLibPtr m_pluginFile;
+	PluginPtr m_plugin;
 	JSONSerializer m_jsonSerialiser;
 	QString m_serviceRoot;
 	QString m_serviceName;
