@@ -34,11 +34,11 @@ void Settings::define(const QString& name, const QString& description, const QVa
 }
 
 void Settings::setup() {
-	logInfo() << tr("Configuration setup");
+	std::cerr << tr("Configuration setup") << std::endl;
 	QString newVal;
 	std::string buff;
 	for (auto it = m_parameters.begin(); it != m_parameters.end(); it++) {
-		logInfo() << it.value().description  << " [" << value(it.key()).toString() << "]: ";
+		std::cerr << it.value().description  << " [" << value(it.key()).toString() << "]: ";
 		getline (std::cin, buff);
 		newVal = QString::fromStdString(buff);
 		if (!newVal.isEmpty()) {

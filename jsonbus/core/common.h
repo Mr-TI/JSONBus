@@ -25,9 +25,7 @@
 #ifndef JSONBUS_COMMON_H
 #define JSONBUS_COMMON_H
 
-#ifndef JSONBUS_EXPORT
-#define JSONBUS_EXPORT
-#endif
+#include <jsonbus/core/global.h>
 
 #include <iostream>
 #include <QString>

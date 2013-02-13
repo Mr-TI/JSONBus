@@ -107,11 +107,25 @@ public:
 	static void onQuit(int signum);
 	
 protected:
+	/**
+	 * @brief Method called during the argument define run level.
+	 */
 	virtual void onRunLevelDefineArgs();
+	
+	/**
+	 * @brief Method called during the argument parsing run level.
+	 */
 	virtual void onRunLevelParseArgs();
+	
+	/**
+	 * @brief Method called during the setup run level.
+	 */
 	virtual void onRunLevelSetup();
 	
 private slots:
+	/**
+	 * @brief Called when the application is quitting
+	 */
 	void onAboutToQuit();
 };
 
