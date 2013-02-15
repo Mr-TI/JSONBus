@@ -60,7 +60,7 @@ public:
 	QString message;
 	
 	/// @brief backtrace address fonction table
-	void backtrace[JSONBUS_EXCEPTION_BACKTRACE_SIZE];
+	void *backtrace[JSONBUS_EXCEPTION_BACKTRACE_SIZE];
 	
 	/// @brief backtrace address fonction table size
 	int backtraceSize;
@@ -80,7 +80,7 @@ public:
 
 typedef SharedPtr<ExceptionData> ExceptionDataPtr;
 
-ExceptionData::ExceptionData(const QString &message): message(message), 
+inline ExceptionData::ExceptionData(const QString &message): message(message), 
 	backtraceSize(::backtrace(backtrace, JSONBUS_EXCEPTION_BACKTRACE_SIZE)) {}
 inline ExceptionData::~ExceptionData() {}
 
@@ -139,7 +139,7 @@ jsonbus_declare_exception(InvalidClassException, PointerException);
 
 inline Exception::Exception(const QString& message): d(new ExceptionData(message)) {}
 inline Exception::Exception(const Exception& exception): d(exception.d) {}
-inline Exception::~Exception() {}
+inline Exception::~Exception() throw() {}
 inline Exception* Exception::clone() const {
 	return new Exception(*this);
 }
@@ -148,9 +148,6 @@ inline const QString Exception::message() const {
 }
 inline void Exception::raise() {
 	throw *this;
-}
-inline const char* Exception::what() const {
-	return d->message.toLocal8Bit().constData();
 }
 
 }

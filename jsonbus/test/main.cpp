@@ -15,10 +15,6 @@
  */
 
 #include <jsonbus/core/common.h>
-#include <jsonbus/core/exception.h>
-#include <jsonbus/core/jsonparser/driver.h>
-#include <jsonbus/core/jsonparser/exception.h>
-#include <jsonbus/core/jsonparser/iodevicebuf.h>
 
 #include <QStringList>
 #include <QCoreApplication>
@@ -27,7 +23,7 @@
 #include <iostream>
 #include <jsonbus/core/jsonparser/stdstreambuf.h>
 #include <jsonbus/core/sharedptr.h>
-#include <jsonbus/core/shareddata.h>
+#include <jsonbus/core/logger.h>
 
 using namespace JSONBus;
 using namespace jsonparser;
@@ -59,15 +55,24 @@ void test2(SharedPtr<C> c) {
 
 int main(int argc, char **argv) {
 	
-	SharedPtr<A> a1 = new B(1);
-	SharedPtr<A> a2 = new C(1);
-	
-	test1(a1);
-	a1 = a2;
-	
-	printf("test=%s\n", (a1 == null? "True":"False"));
-	
-	test2(a1);
+// 	try {
+		SharedPtr<A> a1 = new B(1);
+		SharedPtr<A> a2 = new C(1);
+		
+		test1(a1);
+		a1 = a2;
+		
+		printf("test=%s\n", (a1 == null? "True":"False"));
+		
+		test1(a2);
+		
+		SharedPtr<B> b;
+		
+		b->i = 0;
+		
+// 	} catch (Exception &e) {
+// 		logCrit() << e;
+// 	}
 	
 // 	fstream fifoStream;
 // 	fifoStream.open("/tmp/jsonbus", fstream::in);

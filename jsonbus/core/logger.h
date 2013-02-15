@@ -451,9 +451,8 @@ inline Logger &Logger::operator<<(QTextStreamManipulator m) {
 }
 
 inline Logger &Logger::operator<<(Exception &e) {
-	m_stream << "Instance of '" << demangle(typeid(e).name()) << "'";
-	if (!e.message().isEmpty())
-		m_stream << levelHdrs[m_level] << "  what(): " << e.message();
+	m_stream << "Throwing an instance of '" << demangle(typeid(e).name()) << "'";
+	m_stream << levelHdrs[m_level] << "  what(): " << e.message() << QString(e.what()).replace('\n', levelHdrs[m_level]);
 	return *this;
 }
 

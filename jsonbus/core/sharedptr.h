@@ -18,7 +18,6 @@
 #define JSONBUS_POINTER_H
 
 #include <jsonbus/core/shareddata.h>
-#include "exception.h"
 
 namespace JSONBus {
 
@@ -168,6 +167,9 @@ public:
 /// @brief Null pointer
 const SharedPtr<SharedData> null;
 
+extern void __raise_InvalidClassException();
+extern void __raise_NullPointerException();
+
 template <typename T>
 inline SharedPtr<T>::SharedPtr(): m_data(NULL) {}
 template <typename T>
@@ -194,8 +196,8 @@ template <typename T>
 template <typename X>
 inline SharedPtr<T>::SharedPtr(const SharedPtr< X >& other): m_data((T*)(other.data())) {
 	if (m_data != NULL) {
-		if (typeid(*other.data()) != typeid(T)) {
-			throw InvalidClassException();
+		if (dynamic_cast<const T*>(other.data()) == NULL) {
+			__raise_InvalidClassException();
 		}
 		m_data->ref++;
 	}
@@ -225,9 +227,9 @@ SharedPtr<T>& SharedPtr<T>::operator=(const T *data) {
 		if (m_data->ref.fetch_sub(1) == 1) {
 			delete m_data;
 		}
-		m_data = const_cast<T *>(data);
-		if (typeid(*data) != typeid(T)) {
-			throw InvalidClassException();
+		m_data = const_cast<T*>(data);
+		if (dynamic_cast<const T*>(data) == NULL) {
+			__raise_InvalidClassException();
 		}
 	}
 	return *this;
@@ -261,21 +263,21 @@ inline bool SharedPtr<T>::operator!=(const T *data) {
 template <typename T>
 inline T &SharedPtr<T>::operator*() const {
 	if (m_data == NULL) {
-		throw NullPointerException();
+		__raise_NullPointerException();
 	}
 	return *m_data;
 }
 template <typename T>
 inline T *SharedPtr<T>::operator->() {
 	if (m_data == NULL) {
-		throw NullPointerException();
+		__raise_NullPointerException();
 	}
 	return m_data;
 }
 template <typename T>
 inline T *SharedPtr<T>::operator->() const {
 	if (m_data == NULL) {
-		throw NullPointerException();
+		__raise_NullPointerException();
 	}
 	return m_data;
 }
