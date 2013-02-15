@@ -28,74 +28,130 @@
 #define JSONBUS_EXPORT
 #endif
 
+#define JSONBUS_EXCEPTION_BACKTRACE_SIZE 32
+
 #include <QString>
 #include <QObject>
 #include <QtCore>
+#include <execinfo.h>
 
-#define jsonbus_declare_exception(ename, eparent)\
+#define jsonbus_declare_exception(ename, eparent) \
 class JSONBUS_EXPORT ename:public eparent {\
 public:\
     inline ename(const QString &msg = ""):eparent(msg) {}\
 	\
-	inline void raise() const {\
+	inline virtual void raise() const {\
 		throw *this;\
 	}\
 	\
-	inline ename *clone() const {\
+	inline virtual ename *clone() const {\
 		return new ename(*this);\
 	}\
 };
 
+#include "sharedptr.h"
+
 namespace JSONBus {
+
+class JSONBUS_EXPORT ExceptionData: public SharedData {
+	ExceptionData(const SharedData&);
+public:
+	/// @brief Message
+	QString message;
+	
+	/// @brief backtrace address fonction table
+	void backtrace[JSONBUS_EXCEPTION_BACKTRACE_SIZE];
+	
+	/// @brief backtrace address fonction table size
+	int backtraceSize;
+	
+	/**
+	 * @brief ExceptionData contructor from a message
+	 * 
+	 * @param message Message
+	 */
+	ExceptionData(const QString &message);
+	
+	/**
+	 * @brief ExceptionData destructor
+	 */
+	virtual ~ExceptionData();
+};
+
+typedef SharedPtr<ExceptionData> ExceptionDataPtr;
+
+ExceptionData::ExceptionData(const QString &message): message(message), 
+	backtraceSize(::backtrace(backtrace, JSONBUS_EXCEPTION_BACKTRACE_SIZE)) {}
+inline ExceptionData::~ExceptionData() {}
 
 /**
  * This class can manage exceptions.
  * @brief JSONBus : Exceptions.
  */
 class JSONBUS_EXPORT Exception : public QtConcurrent::Exception {
+	ExceptionDataPtr d;
 public:
 	/**
 	 * @brief Exception constructor.
 	 * @param message exeption message.
 	 */
-	inline Exception(const QString &message = ""): m_message(message) {}
+	Exception(const QString &message = "");
+	
 	/**
 	 * @brief Exception constructor.
 	 * @param message exeption message.
 	 */
-	inline Exception(const Exception &exception): m_message(exception.m_message) {}
+	Exception(const Exception &exception);
 
 	/**
 	 * @brief Exception destructor.
 	 */
-	inline virtual ~Exception() throw() { }
+	virtual ~Exception() throw();
 
 	/**
 	 * @brief Get the exeption message.
 	 * @return QString message.
 	 */
-	inline const QString message() const {
-		return m_message;
-	}
+	const QString message() const;
 
 	/**
 	 * @brief Get the exeption message.
 	 * @return QString message.
 	 */
-	inline const char *what() const throw() {
-		return m_message.toAscii().data();
-	}  
+	const char *what() const throw();  
 	
-	inline void raise() const {
-		throw *this;
-	}
+	/**
+	 * @brief Rethrow this exception
+	 */
+	void raise();
 	
-	inline Exception *clone() const {
-		return new Exception(*this);
-	}
-private:
-	QString m_message;
+	/**
+	 * @brief Clone this exception
+	 * 
+	 * @return an address to the new exception
+	 */
+	Exception *clone() const;
 };
+
+jsonbus_declare_exception(PointerException, Exception);
+jsonbus_declare_exception(NullPointerException, PointerException);
+jsonbus_declare_exception(InvalidClassException, PointerException);
+
+inline Exception::Exception(const QString& message): d(new ExceptionData(message)) {}
+inline Exception::Exception(const Exception& exception): d(exception.d) {}
+inline Exception::~Exception() {}
+inline Exception* Exception::clone() const {
+	return new Exception(*this);
+}
+inline const QString Exception::message() const {
+	return d->message;
+}
+inline void Exception::raise() {
+	throw *this;
+}
+inline const char* Exception::what() const {
+	return d->message.toLocal8Bit().constData();
+}
 
 }
 

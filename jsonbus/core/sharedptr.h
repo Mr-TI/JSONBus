@@ -17,14 +17,10 @@
 #ifndef JSONBUS_POINTER_H
 #define JSONBUS_POINTER_H
 
-#include <jsonbus/core/exception.h>
 #include <jsonbus/core/shareddata.h>
+#include "exception.h"
 
 namespace JSONBus {
-
-jsonbus_declare_exception(PointerException, JSONBus::Exception);
-jsonbus_declare_exception(NullPointerException, PointerException);
-jsonbus_declare_exception(InvalidClassException, PointerException);
 
 /**
  * @brief JSONBus : Shared pointer
@@ -42,9 +38,9 @@ public:
 	SharedPtr();
 	
 	/**
-	 * @brief Shared pointer constructor from a data pointer
+	 * @brief Shared pointer constructor from a data address
 	 * 
-	 * @param data pointer to a data
+	 * @param data address to a data
 	 */
 	SharedPtr(T *data);
 	
@@ -71,29 +67,100 @@ public:
 	/**
 	 * @brief Get the internal pointer to the data
 	 * 
-	 * @return the internal data pointer
+	 * @return the internal data address
 	 */
 	T *data();
 	
 	/**
 	 * @brief Get the internal pointer to the data
 	 * 
-	 * @return the internal data pointer
+	 * @return the internal data address
 	 */
 	const T *data() const;
+	
+	/**
+	 * @brief Update the internal pointer to a given data
+	 * 
+	 * @param data data address
+	 * @return a reference to the pointer
+	 */
 	SharedPtr<T> &operator= (const T *data);
+	
+	/**
+	 * @brief Affectation operator
+	 * 
+	 * @param other pointer
+	 * @return a reference to the pointer
+	 */
 	SharedPtr<T> &operator= (const SharedPtr<T>& other);
+	
+	/**
+	 * @brief Affectation operator
+	 * 
+	 * @param other pointer
+	 * @return a reference to the pointer
+	 */
 	template<class X>
 	SharedPtr<T> &operator= (const SharedPtr<X>& other);
+	
+	/**
+	 * @brief Dereference pointer operator
+	 * 
+	 * @return a reference to the pointed data
+	 */
 	T &operator*() const;
+	
+	/**
+	 * @brief Dereference pointer operator
+	 * 
+	 * @return a reference to the pointed data
+	 */
 	T *operator->();
+	
+	
 	T *operator->() const;
+	
+	/**
+	 * @brief Equality test operator between this pointer and a data address
+	 * 
+	 * @return true if the internal pointer and the given data address are equal, otherwise false
+	 */
 	bool operator== (const T *data);
+	
+	/**
+	 * @brief Equality test operator between this pointer and a an other given pointer
+	 * 
+	 * @return true if this pointer and an other given pointer have the same data address, otherwise false
+	 */
 	bool operator== (const SharedPtr<T>& other);
+	
+	/**
+	 * @brief Equality test operator between this pointer and a an other given pointer
+	 * 
+	 * @return true if this pointer and an other given pointer have the same data address, otherwise false
+	 */
 	template<class X>
 	bool operator== (const SharedPtr<X>& other);
+	
+	/**
+	 * @brief Difference test operator between this pointer and a data address
+	 * 
+	 * @return true if the internal pointer and the given data address are different, otherwise false
+	 */
 	bool operator!= (const T *data);
+	
+	/**
+	 * @brief Difference test operator between this pointer and a an other given pointer
+	 * 
+	 * @return true if this pointer and an other given pointer don't have the same data address, otherwise false
+	 */
 	bool operator!= (const SharedPtr<T>& other);
+	
+	/**
+	 * @brief Difference test operator between this pointer and a an other given pointer
+	 * 
+	 * @return true if this pointer and an other given pointer don't have the same data address, otherwise false
+	 */
 	template<class X>
 	bool operator!= (const SharedPtr<X>& other);
 };
@@ -127,9 +194,9 @@ template <typename T>
 template <typename X>
 inline SharedPtr<T>::SharedPtr(const SharedPtr< X >& other): m_data((T*)(other.data())) {
 	if (m_data != NULL) {
-// 		if (typeid(*m_data) != typeid(T)) {
-// 			throw InvalidClassException();
-// 		}
+		if (typeid(*other.data()) != typeid(T)) {
+			throw InvalidClassException();
+		}
 		m_data->ref++;
 	}
 }
@@ -148,7 +215,7 @@ inline SharedPtr<T>& SharedPtr<T>::operator=(const SharedPtr<T>& other) {
 template <typename T>
 template <typename X>
 inline SharedPtr<T>& SharedPtr<T>::operator=(const SharedPtr<X>& other) {
-	return operator=(static_cast<T*>(other.m_data));
+	return operator=(reinterpret_cast<T*>(other.m_data));
 }
 template <typename T>
 SharedPtr<T>& SharedPtr<T>::operator=(const T *data) {
@@ -158,10 +225,10 @@ SharedPtr<T>& SharedPtr<T>::operator=(const T *data) {
 		if (m_data->ref.fetch_sub(1) == 1) {
 			delete m_data;
 		}
-		m_data = (T *)data;
-// 		if (typeid(*m_data) != typeid(T)) {
-// 			throw InvalidClassException();
-// 		}
+		m_data = const_cast<T *>(data);
+		if (typeid(*data) != typeid(T)) {
+			throw InvalidClassException();
+		}
 	}
 	return *this;
 }
