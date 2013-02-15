@@ -27,7 +27,7 @@
 #include <iostream>
 #include <jsonbus/core/jsonparser/stdstreambuf.h>
 #include <jsonbus/core/sharedptr.h>
-#include <jsonbus/shareddata.h>
+#include <jsonbus/core/shareddata.h>
 
 using namespace JSONBus;
 using namespace jsonparser;
@@ -38,25 +38,36 @@ class A: public SharedData {};
 class B: public A {
 public:
 	inline B(int i): i(i) {}
-	inline ~B() {printf("destroy\n");}
+	inline ~B() {printf("destroy B\n");}
 	int i;
 };
 
-void test(SharedPtr<B> b) {
+class C: public A {
+public:
+	inline C(int i): i(i) {}
+	inline ~C() {printf("destroy C\n");}
+	int i;
+};
+
+void test1(SharedPtr<B> b) {
 	printf("b=%d\n", b->i);
+}
+
+void test2(SharedPtr<C> c) {
+	printf("c=%d\n", c->i);
 }
 
 int main(int argc, char **argv) {
 	
-	SharedPtr<A> a = new B(1);
-	test(a);
+	SharedPtr<A> a1 = new B(1);
+	SharedPtr<A> a2 = new C(1);
 	
-	SharedPtr<B> b;
+	test1(a1);
+	a1 = a2;
 	
-	printf("test=%s\n", (b == null? "True":"False"));
+	printf("test=%s\n", (a1 == null? "True":"False"));
 	
-	b->i = 5;
-	test(b);
+	test2(a1);
 	
 // 	fstream fifoStream;
 // 	fifoStream.open("/tmp/jsonbus", fstream::in);
