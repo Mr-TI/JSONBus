@@ -47,7 +47,7 @@ jsonbus_declare_exception(SymbolSharedLibException, SharedLibException);
 /**
  * @brief Dynamic library management.
  */
-class JSONBUS_EXPORT SharedLib: public QObject, public QSharedData {
+class JSONBUS_EXPORT SharedLib: public QObject, public SharedData {
 	SharedLib(const SharedLib &other);
 public:
 	/**

@@ -38,7 +38,7 @@ Container::Container(int &argc, char **argv)
 }
 
 Container::~Container() {
-	if (m_plugin && m_plugin->isLoaded()) {
+	if (m_plugin != null && m_plugin->isLoaded()) {
 		m_plugin->onUnload();
 	}
 }

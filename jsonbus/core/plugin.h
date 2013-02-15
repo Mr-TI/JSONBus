@@ -49,7 +49,7 @@ jsonbus_declare_exception(PluginException, Exception);
 /**
  * @brief Plugin management.
  */
-class JSONBUS_EXPORT Plugin: public QObject, public QSharedData {
+class JSONBUS_EXPORT Plugin: public QObject, public SharedData {
 	Q_OBJECT
 private:
 	Plugin(const Plugin &other);
