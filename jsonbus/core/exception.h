@@ -53,6 +53,8 @@ public:\
 
 namespace JSONBus {
 
+class Logger;
+
 class JSONBUS_EXPORT ExceptionData: public SharedData {
 	ExceptionData(const SharedData&);
 public:
@@ -90,6 +92,7 @@ inline ExceptionData::~ExceptionData() {}
  */
 class JSONBUS_EXPORT Exception : public QtConcurrent::Exception {
 	ExceptionDataPtr d;
+	friend class Logger;
 public:
 	/**
 	 * @brief Exception constructor.
@@ -118,7 +121,7 @@ public:
 	 * @brief Get the exeption message.
 	 * @return QString message.
 	 */
-	const char *what() const throw();  
+	virtual const char *what() const throw();
 	
 	/**
 	 * @brief Rethrow this exception
@@ -130,7 +133,7 @@ public:
 	 * 
 	 * @return an address to the new exception
 	 */
-	Exception *clone() const;
+	virtual Exception *clone() const;
 };
 
 jsonbus_declare_exception(PointerException, Exception);

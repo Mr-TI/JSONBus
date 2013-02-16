@@ -64,21 +64,21 @@ public:
 	~SharedPtr();
 	
 	/**
-	 * @brief Get the internal pointer to the data
+	 * @brief Get the internal data address
 	 * 
 	 * @return the internal data address
 	 */
 	T *data();
 	
 	/**
-	 * @brief Get the internal pointer to the data
+	 * @brief Get the internal data address
 	 * 
 	 * @return the internal data address
 	 */
 	const T *data() const;
 	
 	/**
-	 * @brief Update the internal pointer to a given data
+	 * @brief Update the internal pointer to a given data address
 	 * 
 	 * @param data data address
 	 * @return a reference to the pointer
@@ -122,16 +122,16 @@ public:
 	/**
 	 * @brief Equality test operator between this pointer and a data address
 	 * 
-	 * @return true if the internal pointer and the given data address are equal, otherwise false
+	 * @return true if the internal pointer and a given data address are equal, otherwise false
 	 */
-	bool operator== (const T *data);
+	bool operator== (const void *data) const;
 	
 	/**
 	 * @brief Equality test operator between this pointer and a an other given pointer
 	 * 
 	 * @return true if this pointer and an other given pointer have the same data address, otherwise false
 	 */
-	bool operator== (const SharedPtr<T>& other);
+	bool operator== (const SharedPtr<T>& other) const;
 	
 	/**
 	 * @brief Equality test operator between this pointer and a an other given pointer
@@ -139,21 +139,21 @@ public:
 	 * @return true if this pointer and an other given pointer have the same data address, otherwise false
 	 */
 	template<class X>
-	bool operator== (const SharedPtr<X>& other);
+	bool operator== (const SharedPtr<X>& other) const;
 	
 	/**
 	 * @brief Difference test operator between this pointer and a data address
 	 * 
-	 * @return true if the internal pointer and the given data address are different, otherwise false
+	 * @return true if the internal pointer and a given data address are different, otherwise false
 	 */
-	bool operator!= (const T *data);
+	bool operator!= (const void *data) const;
 	
 	/**
 	 * @brief Difference test operator between this pointer and a an other given pointer
 	 * 
 	 * @return true if this pointer and an other given pointer don't have the same data address, otherwise false
 	 */
-	bool operator!= (const SharedPtr<T>& other);
+	bool operator!= (const SharedPtr<T>& other) const;
 	
 	/**
 	 * @brief Difference test operator between this pointer and a an other given pointer
@@ -161,7 +161,7 @@ public:
 	 * @return true if this pointer and an other given pointer don't have the same data address, otherwise false
 	 */
 	template<class X>
-	bool operator!= (const SharedPtr<X>& other);
+	bool operator!= (const SharedPtr<X>& other) const;
 };
 
 /// @brief Null pointer
@@ -171,10 +171,10 @@ extern void __raise_InvalidClassException();
 extern void __raise_NullPointerException();
 
 template <typename T>
-inline SharedPtr<T>::SharedPtr(): m_data(NULL) {}
+inline SharedPtr<T>::SharedPtr(): m_data(nullptr) {}
 template <typename T>
 inline SharedPtr<T>::~SharedPtr() {
-	if (m_data != NULL) {
+	if (m_data != nullptr) {
 		if (m_data->ref.fetch_sub(1) == 1) {
 			delete m_data;
 		}
@@ -182,21 +182,21 @@ inline SharedPtr<T>::~SharedPtr() {
 }
 template <typename T>
 inline SharedPtr<T>::SharedPtr(T* data): m_data(data) {
-	if (m_data != NULL) {
+	if (m_data != nullptr) {
 		m_data->ref++;
 	}
 }
 template <typename T>
 inline SharedPtr<T>::SharedPtr(const SharedPtr< T >& other): m_data(other.m_data) {
-	if (m_data != NULL) {
+	if (m_data != nullptr) {
 		m_data->ref++;
 	}
 }
 template <typename T>
 template <typename X>
 inline SharedPtr<T>::SharedPtr(const SharedPtr< X >& other): m_data((T*)(other.data())) {
-	if (m_data != NULL) {
-		if (dynamic_cast<const T*>(other.data()) == NULL) {
+	if (m_data != nullptr) {
+		if (dynamic_cast<const T*>(other.data()) == nullptr) {
 			__raise_InvalidClassException();
 		}
 		m_data->ref++;
@@ -223,60 +223,60 @@ template <typename T>
 SharedPtr<T>& SharedPtr<T>::operator=(const T *data) {
 	if (m_data == data) {
 		return *this;
-	} else if (m_data != NULL) {
+	} else if (m_data != nullptr) {
 		if (m_data->ref.fetch_sub(1) == 1) {
 			delete m_data;
 		}
 		m_data = const_cast<T*>(data);
-		if (dynamic_cast<const T*>(data) == NULL) {
+		if (dynamic_cast<const T*>(data) == nullptr) {
 			__raise_InvalidClassException();
 		}
 	}
 	return *this;
 }
 template <typename T>
-inline bool SharedPtr<T>::operator==(const SharedPtr<T>& other) {
+inline bool SharedPtr<T>::operator==(const SharedPtr<T>& other) const {
 	return m_data == other.m_data;
 }
 template <typename T>
 template <typename X>
-inline bool SharedPtr<T>::operator==(const SharedPtr<X>& other) {
+inline bool SharedPtr<T>::operator==(const SharedPtr<X>& other) const {
 	return m_data == other.data();
 }
 template <typename T>
-inline bool SharedPtr<T>::operator==(const T *data) {
+inline bool SharedPtr<T>::operator==(const void *data) const {
 	return m_data == data;
 }
 template <typename T>
-inline bool SharedPtr<T>::operator!=(const SharedPtr<T>& other) {
+inline bool SharedPtr<T>::operator!=(const SharedPtr<T>& other) const {
 	return m_data != other.m_data;
 }
 template <typename T>
 template <typename X>
-inline bool SharedPtr<T>::operator!=(const SharedPtr<X>& other) {
+inline bool SharedPtr<T>::operator!=(const SharedPtr<X>& other) const {
 	return m_data != other.data();
 }
 template <typename T>
-inline bool SharedPtr<T>::operator!=(const T *data) {
+inline bool SharedPtr<T>::operator!=(const void *data) const {
 	return m_data != data;
 }
 template <typename T>
 inline T &SharedPtr<T>::operator*() const {
-	if (m_data == NULL) {
+	if (m_data == nullptr) {
 		__raise_NullPointerException();
 	}
 	return *m_data;
 }
 template <typename T>
 inline T *SharedPtr<T>::operator->() {
-	if (m_data == NULL) {
+	if (m_data == nullptr) {
 		__raise_NullPointerException();
 	}
 	return m_data;
 }
 template <typename T>
 inline T *SharedPtr<T>::operator->() const {
-	if (m_data == NULL) {
+	if (m_data == nullptr) {
 		__raise_NullPointerException();
 	}
 	return m_data;

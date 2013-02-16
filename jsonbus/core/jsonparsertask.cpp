@@ -49,9 +49,9 @@ void JSONParserTask::run() {
 		}
 	} catch (JSONParserException &e) {
 		if (m_stop) {
-			logFine() << demangle(typeid(*this).name()) << " leaving main loop normally";
+			logFine() << __demangle(typeid(*this).name()) << " leaving main loop normally";
 		} else {
-			logCrit() << demangle(typeid(*this).name()) << " leaving main loop after throwing an instance of '" << demangle(typeid(e).name()) << "'";
+			logCrit() << __demangle(typeid(*this).name()) << " leaving main loop after throwing an instance of '" << __demangle(typeid(e).name()) << "'";
 			if (!e.message().isEmpty())
 				logCrit() << "  what(): " << e.message();
 		}

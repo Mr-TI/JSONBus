@@ -14,19 +14,10 @@
  *   limitations under the License.
  */
 
-#include <jsonbus/core/common.h>
-
-#include <QStringList>
-#include <QCoreApplication>
-#include <QMap>
-#include <QFile>
-#include <iostream>
-#include <jsonbus/core/jsonparser/stdstreambuf.h>
 #include <jsonbus/core/sharedptr.h>
 #include <jsonbus/core/logger.h>
 
 using namespace JSONBus;
-using namespace jsonparser;
 using namespace std;
 
 class A: public SharedData {};
@@ -34,92 +25,53 @@ class A: public SharedData {};
 class B: public A {
 public:
 	inline B(int i): i(i) {}
-	inline ~B() {printf("destroy B\n");}
+	inline ~B() {logFiner() << "destroy B";}
 	int i;
 };
 
 class C: public A {
 public:
 	inline C(int i): i(i) {}
-	inline ~C() {printf("destroy C\n");}
+	inline ~C() {logFiner() << "destroy C";}
 	int i;
 };
 
 void test1(SharedPtr<B> b) {
-	printf("b=%d\n", b->i);
+	logInfo() << "b: " << b->i;
 }
 
 void test2(SharedPtr<C> c) {
-	printf("c=%d\n", c->i);
+	logInfo() << "c: " << c->i;
 }
 
 int main(int argc, char **argv) {
 	
-// 	try {
+	try {
 		SharedPtr<A> a1 = new B(1);
-		SharedPtr<A> a2 = new C(1);
+		SharedPtr<C> c = new C(1);
+		SharedPtr<A> a2 = c;
 		
 		test1(a1);
 		a1 = a2;
 		
-		printf("test=%s\n", (a1 == null? "True":"False"));
+		logInfo() << "a1 == nullptr : " << (a1 == nullptr? "True":"False");
+		logInfo() << "null == nullptr : " << (null == nullptr? "True":"False");
 		
-		test1(a2);
+		logFine() << "a2 : " << a2;
+		logFine() << "c : " << c;
+		logInfo() << "a2 == c : " << (a2 == c? "True":"False");
+		test2(a2);
 		
 		SharedPtr<B> b;
 		
+		logFine() << null;
+		logFine() << b;
+		
 		b->i = 0;
 		
-// 	} catch (Exception &e) {
-// 		logCrit() << e;
-// 	}
-	
-// 	fstream fifoStream;
-// 	fifoStream.open("/tmp/jsonbus", fstream::in);
-// 	StdStreamBuf buf(fifoStream);
-// 	istream inputStream(&buf);
-// 	char c = EOF;
-// 	
-// 	for (int i=0; i<10; i++) {
-// 		inputStream >> c;
-// 		if (c == EOF)
-// 			break;
-// 		cout << "c:" << c << "(" << (int)c << ")" << endl;
-// 	}
-	
-// 	Driver driver;
-// 	QVariant v = driver.parse(&cin);
-// 	qDebug() << v;
-// 	v = driver.parse();
-// 	qDebug() << v;
-	
-// 	ifstream in;
-// 	in.open("/home/versche1/src/cpp/jsonbus/jsontest", ios::in);
-	
-// 	QFile file("jsontest");
-// 	file.open(QIODevice::ReadOnly);
-	
-// 	IODeviceBuf buf(file);
-// 	istream in(&buf);
-// 	QVariant v = driver.parse(&in);
-	
-// 	for (int i = 0; i < 10000; i++) {
-// 		QFile file("jsontest");
-// 		file.open(QIODevice::ReadOnly);
-// 		bool ok;
-// 		QJson::Parser parser;
-// 		QVariant v = parser.parse (&file, &ok);
-// 		IODeviceBuf buf(file);
-// 		istream in(&buf);
-// 		Driver driver;
-// 		ifstream in;
-// 		in.open("jsontest", ios::in);
-// 		QVariant v = driver.parse(&in);
-// 	}
-	
-// 	qDebug() << v;
-	
-// 	cout << "servlet-name: " << v.toMap()["web-app"].toMap()["servlet"].toList()[0].toMap()["servlet-name"].toString() << endl;
+	} catch (Exception &e) {
+		logCrit() << "terminate called after throwing an " << e;
+	}
 	
 	return 0;
 }

@@ -25,8 +25,22 @@
 #ifndef JSONBUS_GLOBALS_H
 #define JSONBUS_GLOBALS_H
 
+#include <bits/wordsize.h>
+
 #ifndef JSONBUS_EXPORT
 #define JSONBUS_EXPORT
+#endif
+
+#if ( __WORDSIZE == 64 )
+#	define JSONBUS_UINT8_HEXA_FMT "%02X"
+#	define JSONBUS_UINT16_HEXA_FMT "%04X"
+#	define JSONBUS_UINT32_HEXA_FMT "%08X"
+#	define JSONBUS_UINT64_HEXA_FMT "%016lX"
+#else
+#	define JSONBUS_UINT8_HEXA_FMT "%02X"
+#	define JSONBUS_UINT16_HEXA_FMT "%04X"
+#	define JSONBUS_UINT32_HEXA_FMT "%08X"
+#	define JSONBUS_UINT64_HEXA_FMT "%016llX"
 #endif
 
 #endif

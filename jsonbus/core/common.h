@@ -30,6 +30,7 @@
 #include <iostream>
 #include <QString>
 #include <cxxabi.h>
+#include <stdio.h>
 
 #ifdef WIN32
 #define JSONBUS_DEFAULT_LISTEN_ADDRESSES ":3693"
@@ -86,13 +87,47 @@ inline JSONBUS_EXPORT QString getMessageError(DWORD no) {
 }
 #endif
 
-inline QString demangle(const char *name) {
+inline QString __demangle(const char *name) {
 	int status;
 	char *ret = abi::__cxa_demangle(name, 0, 0, &status);
 	QString result(ret);
 	free(ret);
 	return result;
 }
+
+inline QString toHexString(uint8_t value) {
+	char buff[5];
+	snprintf(buff, 5, JSONBUS_UINT8_HEXA_FMT, value);
+	return QString(buff);
+}
+
+inline QString toHexString(uint16_t value) {
+	char buff[7];
+	snprintf(buff, 7, JSONBUS_UINT16_HEXA_FMT, value);
+	return QString(buff);
+}
+
+inline QString toHexString(uint32_t value) {
+	char buff[11];
+	snprintf(buff, 11, JSONBUS_UINT32_HEXA_FMT, value);
+	return QString(buff);
+}
+
+inline QString toHexString(uint64_t value) {
+	char buff[19];
+	snprintf(buff, 19, JSONBUS_UINT64_HEXA_FMT, value);
+	return QString(buff);
+}
+
+#if ( __WORDSIZE == 64 )
+inline QString toHexString(const void *ptr) {
+	return toHexString(uint64_t(ptr));
+}
+#else
+inline QString toHexString(const void *ptr) {
+	return toHexString(uint32_t(ptr));
+}
+#endif
 
 }
 

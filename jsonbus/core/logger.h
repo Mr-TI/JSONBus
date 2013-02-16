@@ -261,23 +261,31 @@ public:
 	/**
 	 * @brief Write a QTextStreamFunction value to the logger
 	 * 
-	 * @param t QTextStreamFunction value
+	 * @param f QTextStreamFunction value
 	 */
 	Logger &operator<<(QTextStreamFunction f);
 	
 	/**
 	 * @brief Write a QTextStreamManipulator value to the logger
 	 * 
-	 * @param t QTextStreamManipulator value
+	 * @param m QTextStreamManipulator value
 	 */
 	Logger &operator<<(QTextStreamManipulator m);
 	
 	/**
 	 * @brief Write a Exception object to the logger
 	 * 
-	 * @param t Exception object
+	 * @param e Exception object
 	 */
 	Logger &operator<<(Exception &e);
+	
+	/**
+	 * @brief Write a shared pointer object to the logger
+	 * 
+	 * @param p SharedPtr object
+	 */
+	template<typename T>
+	Logger &operator<<(const SharedPtr<T> &p);
 	
 	/**
 	 * @brief Get the global logger level
@@ -450,9 +458,18 @@ inline Logger &Logger::operator<<(QTextStreamManipulator m) {
 	return *this;
 }
 
-inline Logger &Logger::operator<<(Exception &e) {
-	m_stream << "Throwing an instance of '" << demangle(typeid(e).name()) << "'";
-	m_stream << levelHdrs[m_level] << "  what(): " << e.message() << QString(e.what()).replace('\n', levelHdrs[m_level]);
+template<typename T>
+Logger &Logger::operator<<(const SharedPtr<T> &p) {
+	m_stream << __demangle(typeid(p).name());
+	if (p == nullptr) {
+		m_stream << ", type: " << __demangle(typeid(T).name()) << ", address: null";
+	} else {
+		m_stream << ", type: " << __demangle(typeid(T).name()) << ", address: 0x" << 
+		toHexString(p.data());
+		if (typeid(T) != typeid(*p)) {
+			m_stream << ", real data type: " << __demangle(typeid(*p).name());
+		}
+	}
 	return *this;
 }
 

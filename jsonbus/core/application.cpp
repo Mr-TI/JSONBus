@@ -63,15 +63,13 @@ void Application::run() {
 		onRunLevelParseArgs();
 		onRunLevelSetup();
 		connect(this, SIGNAL(aboutToQuit()), this, SLOT(onAboutToQuit()), Qt::DirectConnection);
-		logFine() << demangle(typeid(*this).name()) << " entring in event loop...";
+		logFine() << __demangle(typeid(*this).name()) << " entring in event loop...";
 		exec();
-		logFine() << demangle(typeid(*this).name()) << " leaving event loop...";
+		logFine() << __demangle(typeid(*this).name()) << " leaving event loop...";
 	} catch (ExitApplicationException &e) {
 		
 	} catch (Exception &e) {
-		logCrit() << demangle(typeid(*this).name()) << " aborting start process after throwing an instance of '" << demangle(typeid(e).name()) << "'";
-		if (!e.message().isEmpty())
-			logCrit() << "  what(): " << e.message();
+		logCrit() << __demangle(typeid(*this).name()) << " aborting start process after throwing an " << e;
 	}
 }
 
@@ -79,9 +77,7 @@ bool Application::notify(QObject *rec, QEvent *ev) {
 	try {
 		return QCoreApplication::notify(rec, ev);
 	} catch (Exception &e) {
-		logFine() << demangle(typeid(*this).name()) << " leaving event loop after throwing an instance of '" << demangle(typeid(e).name()) << "'" << endl;
-		if (!e.message().isEmpty())
-			logFine() << "  what(): " << e.message() << endl;
+		logFine() << __demangle(typeid(*this).name()) << " leaving event loop after throwing an " << e;
 	}
 	quit();
 	return false;

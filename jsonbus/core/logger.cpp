@@ -15,6 +15,7 @@
  */
 
 #include <jsonbus/core/logger.h>
+#include <stdio.h>
 
 using namespace JSONBus;
 
@@ -62,6 +63,21 @@ Logger &Logger::operator<<(const QByteArray & t) {
 			snprintf(buff, 3, "%02X", (uint8_t)*it);
 			*this << ' ' << buff;
 		}
+	}
+	return *this;
+}
+
+Logger &Logger::operator<<(Exception &e) {
+	m_stream << "instance of '" << __demangle(typeid(e).name()) << "'";
+	QString out(e.what());
+	m_stream << levelHdrs[m_level] << "  what(): " << e.message();
+	char **symTbl = backtrace_symbols(e.d->backtrace, e.d->backtraceSize);
+	if (symTbl != NULL) {
+		for (int i = 0; i < e.d->backtraceSize; i++) {
+			m_stream << levelHdrs[m_level] << '\t';
+			m_stream << symTbl[i];
+		}
+		free(symTbl);
 	}
 	return *this;
 }

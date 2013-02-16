@@ -27,10 +27,14 @@ void __raise_NullPointerException() {
 }
 
 const char* Exception::what() const throw() {
-	QString output = d->message + '\n';
+	QString output = d->message;
 	char **symTbl = backtrace_symbols(d->backtrace, d->backtraceSize);
+	if (symTbl == NULL) {
+		return output.toAscii().constData();
+	}
 	for (int i = 0; i < d->backtraceSize; i++) {
-		output += QString(symTbl[i]) + '\n';
+		output.append('\n');
+		output.append(symTbl[i]);
 	}
 	free(symTbl);
 	return output.toLocal8Bit().constData();
