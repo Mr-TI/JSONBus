@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
 // 		b->i = 0; // throw NullPointerException
 		
 	} catch (Exception &e) {
-		logCrit() << "terminate called after throwing an " << e;
+		logCrit() << "terminate called after throwing an instance of " << e;
 	}
 	
 	return 0;

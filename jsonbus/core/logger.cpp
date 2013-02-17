@@ -68,7 +68,7 @@ Logger &Logger::operator<<(const QByteArray & t) {
 }
 
 Logger &Logger::operator<<(Exception &e) {
-	m_stream << "instance of '" << __demangle(typeid(e).name()) << "'";
+	m_stream << __demangle(typeid(e).name());
 	QString out(e.what());
 	m_stream << levelHdrs[m_level] << "  what(): " << e.message();
 	char **symTbl = backtrace_symbols(e.d->backtrace, e.d->backtraceSize);
