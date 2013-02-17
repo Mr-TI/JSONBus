@@ -164,8 +164,11 @@ public:
 	bool operator!= (const SharedPtr<X>& other) const;
 };
 
+/// @brief Generic pointer type
+typedef SharedPtr<SharedData> GenericPtr;
+
 /// @brief Null pointer
-const SharedPtr<SharedData> null;
+const GenericPtr null;
 
 extern void __raise_InvalidClassException();
 extern void __raise_NullPointerException();

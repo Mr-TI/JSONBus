@@ -54,11 +54,11 @@ int main(int argc, char **argv) {
 		test1(a1);
 		a1 = a2;
 		
-		logInfo() << "a1 == nullptr : " << (a1 == nullptr? "True":"False");
+		logInfo() << "  a1 == nullptr : " << (a1 == nullptr? "True":"False");
 		logInfo() << "null == nullptr : " << (null == nullptr? "True":"False");
 		
 		logFine() << "a2 : " << a2;
-		logFine() << "c : " << c;
+		logFine() << "c  : " << c;
 		logInfo() << "a2 == c : " << (a2 == c? "True":"False");
 		
 		SharedPtr<B> b;

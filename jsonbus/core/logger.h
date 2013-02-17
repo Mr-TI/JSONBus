@@ -462,12 +462,12 @@ template<typename T>
 Logger &Logger::operator<<(const SharedPtr<T> &p) {
 	m_stream << __demangle(typeid(p).name());
 	if (p == nullptr) {
-		m_stream << ", type: " << __demangle(typeid(T).name()) << ", address: null";
+		m_stream << " [null]";
 	} else {
-		m_stream << ", type: " << __demangle(typeid(T).name()) << ", address: 0x" << 
-		toHexString(p.data());
+		m_stream << " [0x" << 
+		toHexString(p.data()) << ']';
 		if (typeid(T) != typeid(*p)) {
-			m_stream << ", real data type: " << __demangle(typeid(*p).name());
+			m_stream << " (real data type: " << __demangle(typeid(*p).name()) << ')';
 		}
 	}
 	return *this;
