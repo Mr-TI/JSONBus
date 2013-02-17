@@ -60,13 +60,13 @@ int main(int argc, char **argv) {
 		logFine() << "a2 : " << a2;
 		logFine() << "c : " << c;
 		logInfo() << "a2 == c : " << (a2 == c? "True":"False");
-		test2(a2);
 		
 		SharedPtr<B> b;
 		
 		logFine() << null;
 		logFine() << b;
 		
+		test1(a2);
 		b->i = 0;
 		
 	} catch (Exception &e) {
