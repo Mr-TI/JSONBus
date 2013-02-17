@@ -186,12 +186,18 @@ inline SharedPtr<T>::~SharedPtr() {
 template <typename T>
 inline SharedPtr<T>::SharedPtr(T* data): m_data(data) {
 	if (m_data != nullptr) {
+		if (data != nullptr && dynamic_cast<const T*>(data) == nullptr) {
+			__raise_InvalidClassException();
+		}
 		m_data->ref++;
 	}
 }
 template <typename T>
 inline SharedPtr<T>::SharedPtr(const SharedPtr< T >& other): m_data(other.m_data) {
 	if (m_data != nullptr) {
+		if (other.data() != nullptr && dynamic_cast<const T*>(other.data()) == nullptr) {
+			__raise_InvalidClassException();
+		}
 		m_data->ref++;
 	}
 }
@@ -199,7 +205,7 @@ template <typename T>
 template <typename X>
 inline SharedPtr<T>::SharedPtr(const SharedPtr< X >& other): m_data((T*)(other.data())) {
 	if (m_data != nullptr) {
-		if (dynamic_cast<const T*>(other.data()) == nullptr) {
+		if (other.data() != nullptr && dynamic_cast<const T*>(other.data()) == nullptr) {
 			__raise_InvalidClassException();
 		}
 		m_data->ref++;
@@ -220,7 +226,18 @@ inline SharedPtr<T>& SharedPtr<T>::operator=(const SharedPtr<T>& other) {
 template <typename T>
 template <typename X>
 inline SharedPtr<T>& SharedPtr<T>::operator=(const SharedPtr<X>& other) {
-	return operator=(reinterpret_cast<T*>(other.m_data));
+	if (m_data == (T*)(other.data())) {
+		return *this;
+	} else if (m_data != nullptr) {
+		if (m_data->ref.fetch_sub(1) == 1) {
+			delete m_data;
+		}
+	}
+	m_data = (T*)(other.data());
+	if (other.data() != nullptr && dynamic_cast<const T*>(other.data()) == nullptr) {
+		__raise_InvalidClassException();
+	}
+	return *this;
 }
 template <typename T>
 SharedPtr<T>& SharedPtr<T>::operator=(const T *data) {
@@ -230,10 +247,10 @@ SharedPtr<T>& SharedPtr<T>::operator=(const T *data) {
 		if (m_data->ref.fetch_sub(1) == 1) {
 			delete m_data;
 		}
-		m_data = const_cast<T*>(data);
-		if (dynamic_cast<const T*>(data) == nullptr) {
-			__raise_InvalidClassException();
-		}
+	}
+	m_data = const_cast<T*>(data);
+	if (data != nullptr && dynamic_cast<const T*>(data) == nullptr) {
+		__raise_InvalidClassException();
 	}
 	return *this;
 }

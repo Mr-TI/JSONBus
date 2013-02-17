@@ -36,38 +36,35 @@ public:
 	int i;
 };
 
-void test1(SharedPtr<B> b) {
+void dump(SharedPtr<B> b) {
 	logInfo() << "b: " << b->i;
-}
-
-void test2(SharedPtr<C> c) {
-	logInfo() << "c: " << c->i;
 }
 
 int main(int argc, char **argv) {
 	
 	try {
-		SharedPtr<A> a1 = new B(1);
-		SharedPtr<C> c = new C(1);
-		SharedPtr<A> a2 = c;
+		SharedPtr<C> c = null;
+		SharedPtr<B> b = new B(2);
+		SharedPtr<A> ab = b, ac = new C(1);
 		
-		test1(a1);
-		a1 = a2;
+// 		c = ab; // throw InvalidClassException
+		c = ac;
 		
-		logInfo() << "(  a1 == nullptr) is " << (a1 == nullptr);
+		dump(ab);
+		ab = b = nullptr;
+		
+		logInfo() << "(  ab == nullptr) is " << (ab == nullptr);
 		logInfo() << "(null == nullptr) is " << (null == nullptr);
 		
-		logFine() << "a2 => " << a2;
-		logFine() << "c  => " << c;
-		logInfo() << "(a2 == c) is " << (a2 == c);
+		logFine() << "ac => " << ac;
+		logFine() << " c => " << c;
+		logInfo() << "(ac == c) is " << (ac == c);
 		
-		SharedPtr<B> b;
 		
 		logFine() << null;
 		logFine() << b;
 		
-		test1(a2);
-		b->i = 0;
+// 		b->i = 0; // throw NullPointerException
 		
 	} catch (Exception &e) {
 		logCrit() << "terminate called after throwing an " << e;
