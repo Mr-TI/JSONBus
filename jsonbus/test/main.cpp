@@ -36,6 +36,10 @@ public:
 	int i;
 };
 
+SharedPtr<B> newB() {
+	return new B(2);
+}
+
 void dump(SharedPtr<B> b) {
 	logInfo() << "b: " << b->i;
 }
@@ -44,7 +48,7 @@ int main(int argc, char **argv) {
 	
 	try {
 		SharedPtr<C> c = null;
-		SharedPtr<B> b = new B(2);
+		SharedPtr<B> b = newB();
 		SharedPtr<A> ab = b, ac = new C(1);
 		
 // 		c = ab; // throw InvalidClassException

@@ -32,7 +32,7 @@
 #define jsonbus_declare_plugin(class_name) \
 extern "C" {\
 	JSONBus::PluginPtr getSingleton () {\
-		return PluginPtr(new class_name());\
+		return new class_name();\
 	}\
 }
 

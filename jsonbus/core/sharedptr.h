@@ -225,7 +225,7 @@ inline SharedPtr<T>& SharedPtr<T>::operator=(const SharedPtr<T>& other) {
 }
 template <typename T>
 template <typename X>
-inline SharedPtr<T>& SharedPtr<T>::operator=(const SharedPtr<X>& other) {
+SharedPtr<T>& SharedPtr<T>::operator=(const SharedPtr<X>& other) {
 	if (m_data == (T*)(other.data())) {
 		return *this;
 	} else if (m_data != nullptr) {
@@ -233,9 +233,12 @@ inline SharedPtr<T>& SharedPtr<T>::operator=(const SharedPtr<X>& other) {
 			delete m_data;
 		}
 	}
-	m_data = (T*)(other.data());
 	if (other.data() != nullptr && dynamic_cast<const T*>(other.data()) == nullptr) {
 		__raise_InvalidClassException();
+	}
+	m_data = (T*)(other.data());
+	if (m_data != nullptr) {
+		m_data->ref++;
 	}
 	return *this;
 }
@@ -248,9 +251,12 @@ SharedPtr<T>& SharedPtr<T>::operator=(const T *data) {
 			delete m_data;
 		}
 	}
-	m_data = const_cast<T*>(data);
 	if (data != nullptr && dynamic_cast<const T*>(data) == nullptr) {
 		__raise_InvalidClassException();
+	}
+	m_data = const_cast<T*>(data);
+	if (m_data != nullptr) {
+		m_data->ref++;
 	}
 	return *this;
 }
