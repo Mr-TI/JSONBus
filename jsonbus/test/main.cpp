@@ -50,12 +50,26 @@ int main(int argc, char **argv) {
 		SharedPtr<C> c = null;
 		SharedPtr<B> b = newB();
 		SharedPtr<A> ab = b, ac = new C(1);
+		SharedPtr<A> f, g, h;
+		f = g = h = b;
 		
 // 		c = ab; // throw InvalidClassException
 		c = ac;
 		
 		dump(ab);
+		logFine() << h;
 		ab = b = nullptr;
+		logInfo() << "ab = b = nullptr";
+		logFine() << h;
+		logInfo() << "f = null";
+		f = null;
+		logFine() << h;
+		logInfo() << "g = null";
+		g = 0;
+		logFine() << h;
+		logInfo() << "h = null";
+		h = nullptr;
+		logFine() << h;
 		
 		logInfo() << "(  ab == nullptr) is " << (ab == nullptr);
 		logInfo() << "(null == nullptr) is " << (null == nullptr);
@@ -73,6 +87,7 @@ int main(int argc, char **argv) {
 	} catch (Exception &e) {
 		logCrit() << "terminate called after throwing an instance of " << e;
 	}
+	logInfo() << "DONE!";
 	
 	return 0;
 }
