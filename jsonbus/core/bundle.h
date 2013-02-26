@@ -28,13 +28,16 @@
 #include <jsonbus/core/exception.h>
 #include <jsonbus/core/settings.h>
 #include <jsonbus/core/sharedptr.h>
+#include <jsonbus/core/bundlecontext.h>
 
-#define jsonbus_declare_plugin(class_name) \
-extern "C" {\
-	JSONBus::BundlePtr getSingleton () {\
-		return new class_name();\
-	}\
-}
+#define MANIFEST_BUNDLE_NAME(name) \
+extern "C" QString __manifest_BundleName = name
+
+#define MANIFEST_BUNDLE_SYMBOLIC_NAME(name) \
+extern "C" QString __manifest_BundleSymbolicName = name
+
+#define MANIFEST_BUNDLE_VERSION(version) \
+extern "C" QString __manifest_BundleVersion = version
 
 #ifndef JSONBUS_EXPORT
 #define JSONBUS_EXPORT
@@ -48,20 +51,36 @@ jsonbus_declare_exception(BundleException, Exception);
 
 /**
  * @brief Bundle management.
+ * 
+ * @author <a href="mailto:emericv@openihs.org">Emeric Verschuur</a>
+ * @date 2013
+ * @copyright Apache License, Version 2.0
  */
 class JSONBUS_EXPORT Bundle: public SharedData {
 public:
+	
+	/// @brief Bundle state
 	enum State {
+		/// @brief Uninstalled
 		UNINSTALLED,
+		/// @brief Installed
 		INSTALLED,
+		/// @brief Starting
 		STARTING,
+		/// @brief Active (started)
 		ACTIVE,
+		/// @brief Stopping
 		STOPPING
 	};
 	
 private:
 	Bundle(const Bundle &other);
+	
+	/// @brief Bundle state
 	State m_state;
+	
+	/// @brief Bundle context
+	BundleContext m_context;
 	
 public:
 	
@@ -76,19 +95,14 @@ public:
 	~Bundle();
 	
 	/**
-	 * @brief Function called on plugin init
-	 */
-	virtual void initialize(BundleContext &context) = 0;
-	
-	/**
 	 * @brief Function called on plugin load
 	 */
-	virtual void start(BundleContext &context) = 0;
+	virtual void start() throw(BundleException) = 0;
 	
 	/**
 	 * @brief Function called on plugin unload
 	 */
-	virtual void stop() = 0;
+	virtual void stop() throw(BundleException) = 0;
 	
 	/**
 	 * @brief Return the bundle state
@@ -100,7 +114,7 @@ public:
 /// @brief Bundle shared pointer type
 typedef SharedPtr<Bundle> BundlePtr;
 
-inline Bundle::Bundle() {}
+inline Bundle::Bundle(): m_state(UNINSTALLED), m_context(*this) {}
 inline Bundle::State Bundle::state() {
 	return m_state;
 }

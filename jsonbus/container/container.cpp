@@ -37,11 +37,7 @@ Container::Container(int &argc, char **argv)
 	: SlaveApplication(argc, argv) {
 }
 
-Container::~Container() {
-	if (m_plugin != null && m_plugin->isLoaded()) {
-		m_plugin->onUnload();
-	}
-}
+Container::~Container() {}
 
 void Container::onRunLevelDefineArgs() {
 	SlaveApplication::onRunLevelDefineArgs();
@@ -50,10 +46,8 @@ void Container::onRunLevelDefineArgs() {
 	
 	args.define("config",		'c', tr("Set a custom config path"), "");
 	
-	args.define("service-root",	'd', tr("Plugin root directory (excluding namaspace directory)"), "/usr/lib/jsonbus/services/");
-	args.define("service-ns",	'N', tr("Plugin namespace"), "");
-	args.define("service-name",	'n', tr("Plugin name"), "");
-	args.define("service-path",	'f', tr("Plugin path"), "");
+	args.define("bundle-info",	'n', tr("Get bundle info"));
+	args.define("bundle-path",	'b', tr("Bundle path"), "");
 }
 
 void Container::onRunLevelParseArgs() {
@@ -61,24 +55,11 @@ void Container::onRunLevelParseArgs() {
 	
 	CliArguments &args = CliArguments::getInstance();
 	
-	m_serviceRoot = args.getValue("service-root").toString();
-	m_serviceName = args.getValue("service-name").toString();
-	m_serviceNs = args.getValue("service-ns").toString();
-	m_servicePath = args.getValue("service-path").toString();
+	m_bundlePath = args.getValue("bundle-path").toString();
 	
 	// Checking arguments
-	if (m_serviceNs.isEmpty()) {
-		throw ContainerException("Undefinied service namespace");
-	}
-	if (m_serviceName.isEmpty()) {
-		throw ContainerException("Undefinied service name");
-	}
-	
-	if (m_servicePath.isEmpty()) {
-		if (m_serviceRoot.isEmpty()) {
-			throw ContainerException("Undefinied root service directory");
-		}
-		m_servicePath = m_serviceRoot + "/" + m_serviceNs + "/" JSONBUS_SERVICEFILE_PREFIX + m_serviceName + JSONBUS_SERVICEFILE_SUFFIX;
+	if (m_bundlePath.isEmpty()) {
+		throw ContainerException("Undefinied bundle path");
 	}
 }
 
@@ -87,39 +68,39 @@ void Container::onRunLevelSetup()
 	CliArguments &args = CliArguments::getInstance();
 	
 	// Load the library containing the plugin
-	m_pluginFile = new SharedLib(m_servicePath);
-	m_pluginFile->load();
+	m_libFile = new SharedLib(m_bundlePath);
+	m_libFile->load();
 	
 	// Settings settup
-#ifdef WIN32
-	Settings settings("OpenIHS.org", "JSONBus::" + serviceNs + "." + serviceName, QSettings::NativeFormat);
-#else
-	QString confPath = args.getValue("config").toString();
-	if (confPath.isEmpty()) {
-		confPath = "/etc/jsonbus/services/" + m_serviceNs + "/" + m_serviceName + ".conf";
-	}
-	Settings settings(confPath, QSettings::NativeFormat);
-#endif
+// #ifdef WIN32
+// 	Settings settings("OpenIHS.org", "JSONBus::" + serviceNs + "." + serviceName, QSettings::NativeFormat);
+// #else
+// 	QString confPath = args.getValue("config").toString();
+// 	if (confPath.isEmpty()) {
+// 		confPath = "/etc/jsonbus/services/" + m_serviceNs + "/" + m_serviceName + ".conf";
+// 	}
+// 	Settings settings(confPath, QSettings::NativeFormat);
+// #endif
 	
-	// Get the plugin instance
-	m_plugin = (*(PluginPtr(*)())(m_pluginFile->getSymbol("getSingleton")))();
-	
-	// Plugin initialization
-	m_plugin->onInit(settings);
-	if (args.isEnabled("edit-settings")) {
-		settings.setup();
-		throw ExitApplicationException();
-	}
-	
-	SlaveApplication::onRunLevelSetup();
-	
-	// Plugin load
-	m_plugin->onLoad(settings);
-	connect(m_plugin.data(), SIGNAL(resultAvailable(QVariant)), this, SLOT(onResultAvailable(QVariant)));
+// 	// Get the plugin instance
+// 	m_plugin = (*(PluginPtr(*)())(m_libFile->getSymbol("getSingleton")))();
+// 	
+// 	// Plugin initialization
+// 	m_plugin->onInit(settings);
+// 	if (args.isEnabled("edit-settings")) {
+// 		settings.setup();
+// 		throw ExitApplicationException();
+// 	}
+// 	
+// 	SlaveApplication::onRunLevelSetup();
+// 	
+// 	// Plugin load
+// 	m_plugin->onLoad(settings);
+// 	connect(m_plugin.data(), SIGNAL(resultAvailable(QVariant)), this, SLOT(onResultAvailable(QVariant)));
 }
 
 void Container::onDataAvailable(QVariant data) {
-	m_plugin->onRequest(data);
+// 	m_plugin->onRequest(data);
 }
 
 void Container::onResultAvailable(QVariant result) {

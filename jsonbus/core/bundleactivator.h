@@ -28,8 +28,9 @@
 #include <jsonbus/core/exception.h>
 #include <jsonbus/core/settings.h>
 #include <jsonbus/core/sharedptr.h>
+#include <jsonbus/core/bundlecontext.h>
 
-#define jsonbus_declare_plugin(class_name) \
+#define jsonbus_declare_bundle(class_name) \
 extern "C" {\
 	JSONBus::BundleActivatorPtr getSingleton () {\
 		return new class_name();\
@@ -48,20 +49,15 @@ jsonbus_declare_exception(BundleActivatorException, Exception);
 
 /**
  * @brief Bundle activator management.
+ * 
+ * @author <a href="mailto:emericv@openihs.org">Emeric Verschuur</a>
+ * @date 2013
+ * @copyright Apache License, Version 2.0
  */
 class JSONBUS_EXPORT BundleActivator: public SharedData {
-public:
-	enum State {
-		UNINSTALLED,
-		INSTALLED,
-		STARTING,
-		ACTIVE,
-		STOPPING
-	};
 	
 private:
 	BundleActivator(const BundleActivator &other);
-	State m_state;
 	
 public:
 	
@@ -76,24 +72,19 @@ public:
 	~BundleActivator();
 	
 	/**
-	 * @brief Function called on plugin init
+	 * @brief Function called on bundle initialization
 	 */
-	virtual void initialize(BundleActivatorContext &context) = 0;
+	virtual void initialize(BundleContext &context);
 	
 	/**
-	 * @brief Function called on plugin load
+	 * @brief Function called on bundle start
 	 */
-	virtual void start(BundleActivatorContext &context) = 0;
+	virtual void start(BundleContext &context) = 0;
 	
 	/**
-	 * @brief Function called on plugin unload
+	 * @brief Function called on bundle stop
 	 */
-	virtual void stop() = 0;
-	
-	/**
-	 * @brief Return the bundle state
-	 */
-	State state();
+	virtual void stop(BundleContext &context) = 0;
 	
 };
 
@@ -101,10 +92,8 @@ public:
 typedef SharedPtr<BundleActivator> BundleActivatorPtr;
 
 inline BundleActivator::BundleActivator() {}
-inline BundleActivator::State BundleActivator::state() {
-	return m_state;
-}
 inline BundleActivator::~BundleActivator() {}
+inline void BundleActivator::initialize(BundleContext& context) {}
 
 }
 
