@@ -15,7 +15,7 @@
  */
 
 #include "common.h"
-#include "plugin.h"
+#include "bundleactivator.h"
 
 namespace JSONBus {
 

@@ -15,15 +15,15 @@
  */
 
 /**
- * @brief JSONBus : Bundle management.
+ * @brief JSONBus : Bundle activator management.
  * 
  * @author <a href="mailto:emericv@openihs.org">Emeric Verschuur</a>
  * @date 2013
  * @copyright Apache License, Version 2.0
  */
 
-#ifndef JSONBUS_BUNDLE_H
-#define JSONBUS_BUNDLE_H
+#ifndef JSONBUS_BUNDLEACTIVATOR_H
+#define JSONBUS_BUNDLEACTIVATOR_H
 
 #include <jsonbus/core/exception.h>
 #include <jsonbus/core/settings.h>
@@ -31,7 +31,7 @@
 
 #define jsonbus_declare_plugin(class_name) \
 extern "C" {\
-	JSONBus::BundlePtr getSingleton () {\
+	JSONBus::BundleActivatorPtr getSingleton () {\
 		return new class_name();\
 	}\
 }
@@ -44,12 +44,12 @@ extern "C" {\
 
 namespace JSONBus {
 
-jsonbus_declare_exception(BundleException, Exception);
+jsonbus_declare_exception(BundleActivatorException, Exception);
 
 /**
- * @brief Bundle management.
+ * @brief Bundle activator management.
  */
-class JSONBUS_EXPORT Bundle: public SharedData {
+class JSONBUS_EXPORT BundleActivator: public SharedData {
 public:
 	enum State {
 		UNINSTALLED,
@@ -60,30 +60,30 @@ public:
 	};
 	
 private:
-	Bundle(const Bundle &other);
+	BundleActivator(const BundleActivator &other);
 	State m_state;
 	
 public:
 	
 	/**
-	 * @brief Bundle constructor.
+	 * @brief Bundle activator constructor.
 	 */
-	Bundle();
+	BundleActivator();
 
 	/**
-	 * @brief Bundle destructor.
+	 * @brief Bundle activator destructor.
 	 */
-	~Bundle();
+	~BundleActivator();
 	
 	/**
 	 * @brief Function called on plugin init
 	 */
-	virtual void initialize(BundleContext &context) = 0;
+	virtual void initialize(BundleActivatorContext &context) = 0;
 	
 	/**
 	 * @brief Function called on plugin load
 	 */
-	virtual void start(BundleContext &context) = 0;
+	virtual void start(BundleActivatorContext &context) = 0;
 	
 	/**
 	 * @brief Function called on plugin unload
@@ -97,14 +97,14 @@ public:
 	
 };
 
-/// @brief Bundle shared pointer type
-typedef SharedPtr<Bundle> BundlePtr;
+/// @brief Bundle activator shared pointer type
+typedef SharedPtr<BundleActivator> BundleActivatorPtr;
 
-inline Bundle::Bundle() {}
-inline Bundle::State Bundle::state() {
+inline BundleActivator::BundleActivator() {}
+inline BundleActivator::State BundleActivator::state() {
 	return m_state;
 }
-inline Bundle::~Bundle() {}
+inline BundleActivator::~BundleActivator() {}
 
 }
 
