@@ -66,15 +66,13 @@ public:
 	 * @param flags Flags.
 	 * @throw Exception on error.
 	 */
-	void load(int flags = DefaultFlags);
+	void load(int flags = DefaultFlags) throw(SharedLibException);
 
 	/**
 	 * @brief Test if the dynamic library is loaded.
 	 * @return true if it is loaded, otherwise false.
 	 */
-	inline bool isLoaded() {
-		return handle == 0 ? false : true;
-	}
+	bool isLoaded();
 
 	/**
 	 * @brief Get a symbol from this dynamic library.
@@ -82,21 +80,13 @@ public:
 	 * @return A pointer to the symbol.
 	 * @throw Exception on error.
 	 */
-	void *getSymbol(const char *symbol);
+	void *getSymbol(const char *symbol) throw(SharedLibException);
 
 	/**
 	 * @brief Unload the dynamic library.
 	 * @throw Exception on error.
 	 */
-	void unload();
-
-	/**
-	 * @brief Return the class name.
-	 * @return "jsonbus::SharedLib"
-	 */
-	inline virtual QString className() const {
-		return "jsonbus::SharedLib";
-	}
+	void unload() throw(SharedLibException);
 private:
 
 #ifdef WIN32
@@ -115,6 +105,10 @@ private:
 
 /// @brief Plugin shared pointer type
 typedef SharedPtr<SharedLib> SharedLibPtr;
+
+inline bool SharedLib::isLoaded() {
+	return handle == 0 ? false : true;
+}
 
 }
 

@@ -29,7 +29,7 @@ SharedLib::~SharedLib() {
 		unload();
 }
 
-void SharedLib::load(int flags) {
+void SharedLib::load(int flags) throw(SharedLibException) {
 	QString lastError;
 	if (handle != 0) {
 		lastError = "Dynamic library already loaded.";
@@ -52,7 +52,7 @@ void SharedLib::load(int flags) {
 #endif
 }
 
-void *SharedLib::getSymbol(const char *symbol) {
+void *SharedLib::getSymbol(const char *symbol) throw(SharedLibException) {
 	QString lastError;
 	if (handle == 0) {
 		lastError = "Dynamic library not loaded.";
@@ -76,7 +76,7 @@ void *SharedLib::getSymbol(const char *symbol) {
 	return ptr;
 }
 
-void SharedLib::unload() {
+void SharedLib::unload() throw(SharedLibException) {
 	QString lastError;
 	if (handle == 0) {
 		lastError = "Dynamic library not loaded.";

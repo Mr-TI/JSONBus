@@ -30,13 +30,6 @@
 #include <jsonbus/core/sharedptr.h>
 #include <jsonbus/core/bundlecontext.h>
 
-#define jsonbus_declare_bundle(class_name) \
-extern "C" {\
-	JSONBus::BundleActivatorPtr getSingleton () {\
-		return new class_name();\
-	}\
-}
-
 #ifndef JSONBUS_EXPORT
 #define JSONBUS_EXPORT
 #endif

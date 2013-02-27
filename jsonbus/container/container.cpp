@@ -44,10 +44,10 @@ void Container::onRunLevelDefineArgs() {
 	
 	CliArguments &args = CliArguments::getInstance();
 	
-	args.define("config",		'c', tr("Set a custom config path"), "");
+	args.define("config",		'c', tr("Set the config path"), "");
 	
-	args.define("bundle-info",	'n', tr("Get bundle info"));
-	args.define("bundle-path",	'b', tr("Bundle path"), "");
+	args.define("bundle-info",	'i', tr("Get bundle info"));
+	args.define("bundle-path",	'p', tr("Bundle path"), "");
 }
 
 void Container::onRunLevelParseArgs() {
@@ -55,35 +55,31 @@ void Container::onRunLevelParseArgs() {
 	
 	CliArguments &args = CliArguments::getInstance();
 	
-	m_bundlePath = args.getValue("bundle-path").toString();
+	QString bundlePath = args.getValue("bundle-path").toString();
 	
 	// Checking arguments
-	if (m_bundlePath.isEmpty()) {
+	if (bundlePath.isEmpty()) {
 		throw ContainerException("Undefinied bundle path");
 	}
+	
+	m_bundle = new Bundle(bundlePath);
 }
 
 void Container::onRunLevelSetup()
 {
-	CliArguments &args = CliArguments::getInstance();
-	
-	// Load the library containing the plugin
-	m_libFile = new SharedLib(m_bundlePath);
-	m_libFile->load();
-	
-	// Settings settup
+// 	CliArguments &args = CliArguments::getInstance();
+// 	
+// 	// Load the library containing the plugin
+// 	m_libFile = new SharedLib(m_bundlePath);
+// 	m_libFile->load();
+// 	
+// 	// Settings settup
 // #ifdef WIN32
-// 	Settings settings("OpenIHS.org", "JSONBus::" + serviceNs + "." + serviceName, QSettings::NativeFormat);
+// 	Settings settings("OpenIHS.org", "JSONBus::bundles", QSettings::NativeFormat);
 // #else
 // 	QString confPath = args.getValue("config").toString();
-// 	if (confPath.isEmpty()) {
-// 		confPath = "/etc/jsonbus/services/" + m_serviceNs + "/" + m_serviceName + ".conf";
-// 	}
 // 	Settings settings(confPath, QSettings::NativeFormat);
 // #endif
-	
-// 	// Get the plugin instance
-// 	m_plugin = (*(PluginPtr(*)())(m_libFile->getSymbol("getSingleton")))();
 // 	
 // 	// Plugin initialization
 // 	m_plugin->onInit(settings);

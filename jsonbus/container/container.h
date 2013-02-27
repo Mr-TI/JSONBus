@@ -28,6 +28,7 @@
 #include <jsonbus/core/jsonserializer.h>
 #include <jsonbus/core/slaveapplication.h>
 #include <jsonbus/core/bundle.h>
+#include <jsonbus/core/bundleactivator.h>
 
 using namespace JSONBus;
 
@@ -75,7 +76,6 @@ private:
 	SharedLibPtr m_libFile;
 	BundlePtr m_bundle;
 	JSONSerializer m_jsonSerialiser;
-	QString m_bundlePath;
 };
 
 #endif //JSONBUS_CONTAINER_H

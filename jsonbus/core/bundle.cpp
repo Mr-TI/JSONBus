@@ -15,8 +15,16 @@
  */
 
 #include "common.h"
-#include "plugin.h"
+#include "bundle.h"
 
 namespace JSONBus {
+
+Bundle::Bundle(const QString &path) throw(BundleException)
+: m_state(RESOLVED), m_context(*this), m_libFile(path) {
+	m_libFile.load();
+	try {
+		m_bundleActivator = (*(BundleActivatorPtr(*)())(m_libFile.getSymbol("__manifest_BundleActivator")))();
+	} catch (InvalidSharedLibException e) {}
+}
 
 }

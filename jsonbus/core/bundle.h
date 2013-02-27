@@ -26,9 +26,9 @@
 #define JSONBUS_BUNDLE_H
 
 #include <jsonbus/core/exception.h>
-#include <jsonbus/core/settings.h>
-#include <jsonbus/core/sharedptr.h>
 #include <jsonbus/core/bundlecontext.h>
+#include <jsonbus/core/sharedlib.h>
+#include <jsonbus/core/bundleactivator.h>
 
 #define MANIFEST_BUNDLE_NAME(name) \
 extern "C" QString __manifest_BundleName = name
@@ -38,6 +38,13 @@ extern "C" QString __manifest_BundleSymbolicName = name
 
 #define MANIFEST_BUNDLE_VERSION(version) \
 extern "C" QString __manifest_BundleVersion = version
+
+#define MANIFEST_BUNDLE_ACTIVATOR(class_name) \
+extern "C" {\
+	JSONBus::BundleActivatorPtr __manifest_BundleActivator () {\
+		return new class_name();\
+	}\
+}
 
 #ifndef JSONBUS_EXPORT
 #define JSONBUS_EXPORT
@@ -61,10 +68,8 @@ public:
 	
 	/// @brief Bundle state
 	enum State {
-		/// @brief Uninstalled
-		UNINSTALLED,
-		/// @brief Installed
-		INSTALLED,
+		/// @brief Resolved
+		RESOLVED,
 		/// @brief Starting
 		STARTING,
 		/// @brief Active (started)
@@ -82,12 +87,20 @@ private:
 	/// @brief Bundle context
 	BundleContext m_context;
 	
+	/// @brief Shared lib file
+	SharedLib m_libFile;
+	
+	QString m_manifestBundleName;
+	QString m_manifestBundleSymbolicName;
+	QString m_manifestBundleVersion;
+	BundleActivatorPtr m_bundleActivator;
+	
 public:
 	
 	/**
 	 * @brief Bundle constructor.
 	 */
-	Bundle();
+	Bundle(const QString &path) throw(BundleException);
 
 	/**
 	 * @brief Bundle destructor.
@@ -95,17 +108,17 @@ public:
 	~Bundle();
 	
 	/**
-	 * @brief Function called on plugin load
+	 * @brief Start the bundle
 	 */
-	virtual void start() throw(BundleException) = 0;
+	virtual void start() throw(BundleException);
 	
 	/**
-	 * @brief Function called on plugin unload
+	 * @brief Stop the bundle
 	 */
-	virtual void stop() throw(BundleException) = 0;
+	virtual void stop() throw(BundleException);
 	
 	/**
-	 * @brief Return the bundle state
+	 * @brief Get the bundle state
 	 */
 	State state();
 	
@@ -114,7 +127,6 @@ public:
 /// @brief Bundle shared pointer type
 typedef SharedPtr<Bundle> BundlePtr;
 
-inline Bundle::Bundle(): m_state(UNINSTALLED), m_context(*this) {}
 inline Bundle::State Bundle::state() {
 	return m_state;
 }
