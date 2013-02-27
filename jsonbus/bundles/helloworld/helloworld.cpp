@@ -19,11 +19,6 @@
 
 #include "helloworld.h"
 
-MANIFEST_BUNDLE_NAME("Hello World");
-MANIFEST_BUNDLE_SYMBOLIC_NAME("org.openihs.helloworld");
-MANIFEST_BUNDLE_VERSION("1.0.0");
-MANIFEST_BUNDLE_ACTIVATOR(HelloWorld);
-
 void HelloWorld::start(BundleContext& context) throw(BundleActivatorException) {
 	logInfo() << "HelloWorld bundle starting...";
 }

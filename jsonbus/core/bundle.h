@@ -30,41 +30,6 @@
 #include <jsonbus/core/sharedlib.h>
 #include <jsonbus/core/bundleactivator.h>
 
-#define MANIFEST_BUNDLE_NAME(name) \
-extern "C" {\
-	const char *__manifest_get_BundleName() {\
-		return name;\
-	}\
-}
-
-#define MANIFEST_BUNDLE_SYMBOLIC_NAME(name) \
-extern "C" {\
-	const char *__manifest_get_BundleSymbolicName() {\
-		return name;\
-	}\
-}
-
-#define MANIFEST_BUNDLE_VERSION(version) \
-extern "C" {\
-	const char *__manifest_get_BundleVersion() {\
-		return version;\
-	}\
-}
-
-#define MANIFEST_BUNDLE_ACTIVATOR(class_name) \
-extern "C" {\
-	JSONBus::BundleActivatorPtr __manifest_get_BundleActivator () {\
-		return new class_name();\
-	}\
-}
-
-#define MANIFEST_BUNDLE_ACTIVATOR(class_name) \
-extern "C" {\
-	JSONBus::BundleActivatorPtr __manifest_get_BundleActivator () {\
-		return new class_name();\
-	}\
-}
-
 #ifndef JSONBUS_EXPORT
 #define JSONBUS_EXPORT
 #endif

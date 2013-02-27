@@ -15,7 +15,7 @@
  */
 
 /**
- * @brief Sample JSONBus echo plugin.
+ * @brief Sample JSONBus HelloWorld bundle.
  * 
  * @author <a href="mailto:emericv@openihs.org">Emeric Verschuur</a>
  * @date 2013
@@ -26,7 +26,6 @@
 #define JSONBUS_BUNDLES_HELLOWORLD_H
 
 #include <jsonbus/core/exception.h>
-#include <jsonbus/core/bundle.h>
 #include <jsonbus/core/bundleactivator.h>
 
 using namespace JSONBus;

@@ -43,7 +43,7 @@ Bundle::Bundle(const QString &path) throw(BundleException)
 		throw BundleException("Invalid BundleName property! - " + e.message());
 	}
 	try {
-		m_bundleActivator = (*(BundleActivatorPtr(*)())(m_libFile.getSymbol("__manifest_get_BundleActivator")))();
+		m_bundleActivator = (*(BundleActivator *(*)())(m_libFile.getSymbol("__manifest_get_BundleActivator")))();
 	} catch (SymbolSharedLibException e) {}
 }
 

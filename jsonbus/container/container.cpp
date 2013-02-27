@@ -66,7 +66,7 @@ void Container::onRunLevelInit() {
 	m_bundle = new Bundle(bundlePath);
 	
 	if (args.isEnabled("bundle-info")) {
-		logInfo() << "Bindle information:" << m_bundle->manifest();
+		logInfo() << "Bundle information:" << m_bundle->manifest();
 		throw ExitApplicationException();
 	}
 	
