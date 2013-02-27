@@ -48,7 +48,10 @@ public:
 	~SlaveApplication();
 	
 protected:
-	virtual void onRunLevelSetup();
+	/**
+	 * @brief Method called during the start run level.
+	 */
+	virtual void onRunLevelStart();
 	
 protected slots:
 	/**

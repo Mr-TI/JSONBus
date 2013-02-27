@@ -34,14 +34,14 @@ void Application::onAboutToQuit() {
 	QThreadPool::globalInstance()->waitForDone();
 }
 
-void Application::onRunLevelDefineArgs() {
+void Application::onRunLevelSetup() {
 	CliArguments &args = CliArguments::getInstance();
 	
 	args.define("edit-settings",	's', tr("Interactive settings edition"));
 	args.define("help",				'h', tr("Display this help"));
 }
 
-void Application::onRunLevelParseArgs() {
+void Application::onRunLevelInit() {
 	CliArguments &args = CliArguments::getInstance();
 	
 	args.parse(arguments());
@@ -52,16 +52,16 @@ void Application::onRunLevelParseArgs() {
 	}
 }
 
-void Application::onRunLevelSetup() {
+void Application::onRunLevelStart() {
 	signal(SIGINT, onQuit);
 	signal(SIGTERM, onQuit);
 }
 
 void Application::run() {
 	try {
-		onRunLevelDefineArgs();
-		onRunLevelParseArgs();
 		onRunLevelSetup();
+		onRunLevelInit();
+		onRunLevelStart();
 		connect(this, SIGNAL(aboutToQuit()), this, SLOT(onAboutToQuit()), Qt::DirectConnection);
 		logFine() << __demangle(typeid(*this).name()) << " entring in event loop...";
 		exec();

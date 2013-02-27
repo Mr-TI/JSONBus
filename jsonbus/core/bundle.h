@@ -31,17 +31,36 @@
 #include <jsonbus/core/bundleactivator.h>
 
 #define MANIFEST_BUNDLE_NAME(name) \
-extern "C" QString __manifest_BundleName = name
+extern "C" {\
+	const char *__manifest_get_BundleName() {\
+		return name;\
+	}\
+}
 
 #define MANIFEST_BUNDLE_SYMBOLIC_NAME(name) \
-extern "C" QString __manifest_BundleSymbolicName = name
+extern "C" {\
+	const char *__manifest_get_BundleSymbolicName() {\
+		return name;\
+	}\
+}
 
 #define MANIFEST_BUNDLE_VERSION(version) \
-extern "C" QString __manifest_BundleVersion = version
+extern "C" {\
+	const char *__manifest_get_BundleVersion() {\
+		return version;\
+	}\
+}
 
 #define MANIFEST_BUNDLE_ACTIVATOR(class_name) \
 extern "C" {\
-	JSONBus::BundleActivatorPtr __manifest_BundleActivator () {\
+	JSONBus::BundleActivatorPtr __manifest_get_BundleActivator () {\
+		return new class_name();\
+	}\
+}
+
+#define MANIFEST_BUNDLE_ACTIVATOR(class_name) \
+extern "C" {\
+	JSONBus::BundleActivatorPtr __manifest_get_BundleActivator () {\
 		return new class_name();\
 	}\
 }
@@ -90,9 +109,7 @@ private:
 	/// @brief Shared lib file
 	SharedLib m_libFile;
 	
-	QString m_manifestBundleName;
-	QString m_manifestBundleSymbolicName;
-	QString m_manifestBundleVersion;
+	QMap<QString, QVariant> m_manifest;
 	BundleActivatorPtr m_bundleActivator;
 	
 public:
@@ -106,6 +123,11 @@ public:
 	 * @brief Bundle destructor.
 	 */
 	~Bundle();
+	
+	/**
+	 * @brief Get bundle manifest
+	 */
+	QMap<QString, QVariant> manifest();
 	
 	/**
 	 * @brief Start the bundle
@@ -130,7 +152,14 @@ typedef SharedPtr<Bundle> BundlePtr;
 inline Bundle::State Bundle::state() {
 	return m_state;
 }
-inline Bundle::~Bundle() {}
+inline Bundle::~Bundle() {
+	if (m_state == ACTIVE) {
+		stop();
+	}
+}
+inline QMap< QString, QVariant > Bundle::manifest() {
+	return m_manifest;
+}
 
 }
 

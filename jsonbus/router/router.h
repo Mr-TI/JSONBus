@@ -46,8 +46,8 @@ public:
 	~Router();
 	
 protected:
-	virtual void onRunLevelDefineArgs();
 	virtual void onRunLevelSetup();
+	virtual void onRunLevelInit();
 	
 protected slots:
 	/**

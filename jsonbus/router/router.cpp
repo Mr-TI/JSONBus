@@ -29,21 +29,21 @@ Router::Router(int &argc, char **argv)
 Router::~Router() {
 }
 
-void Router::onRunLevelDefineArgs()
+void Router::onDataAvailable(QVariant data) {
+	
+}
+
+void Router::onRunLevelSetup()
 {
-	Application::onRunLevelDefineArgs();
+	Application::onRunLevelSetup();
 	
 	CliArguments &args = CliArguments::getInstance();
 	
 	args.define("config",			'c', tr("Set a custom config path"), "");
 }
 
-
-void Router::onDataAvailable(QVariant data) {
-	
-}
-
-void Router::onRunLevelSetup() {
+void Router::onRunLevelInit() {
+	SlaveApplication::onRunLevelInit();
 	CliArguments &args = CliArguments::getInstance();
 #ifdef WIN32
 	Settings settings("OpenIHS.org", "JSONBus", QSettings::NativeFormat);
@@ -55,12 +55,4 @@ void Router::onRunLevelSetup() {
 		settings.setup();
 		throw ExitApplicationException();
 	}
-	
-	SlaveApplication::onRunLevelSetup();
-	
-// 	QVariantMap data;
-// 	data["type"] = "event";
-// 	data["uid"] = "";
-// 	data["body"] = "";
-// 	m_jsonSerialiser.serialize();
 }

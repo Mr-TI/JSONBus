@@ -29,8 +29,8 @@ Master::Master(int &argc, char **argv)
 Master::~Master() {
 }
 
-void Master::onRunLevelDefineArgs() {
-	Application::onRunLevelDefineArgs();
+void Master::onRunLevelSetup() {
+	Application::onRunLevelSetup();
 	
 	CliArguments &args = CliArguments::getInstance();
 	args.define("daemonize",	'd', tr("Launch this service in background"));
@@ -40,8 +40,8 @@ void Master::onRunLevelDefineArgs() {
 #endif
 }
 
-void Master::onRunLevelSetup() {
-	Application::onRunLevelSetup();
+void Master::onRunLevelInit() {
+	Application::onRunLevelInit();
 	
 	CliArguments &args = CliArguments::getInstance();
 #ifdef WIN32

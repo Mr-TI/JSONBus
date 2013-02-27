@@ -15,10 +15,4 @@
 #
 
 # ### SUBDIRECTORIES ###
-add_subdirectory(bundles)
-add_subdirectory(container)
-add_subdirectory(core)
-add_subdirectory(master)
-add_subdirectory(router)
-add_subdirectory(services)
-add_subdirectory(test)
+add_subdirectory(helloworld)

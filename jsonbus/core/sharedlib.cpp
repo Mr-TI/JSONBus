@@ -70,7 +70,7 @@ void *SharedLib::getSymbol(const char *symbol) throw(SharedLibException) {
 	ptr = dlsym(handle, symbol);
 	if ((dl_error = dlerror()) != NULL)  {
 		lastError = "dlsym(): " + QString(dl_error);
-		throw SymbolSharedLibException(tr("Fail to load the plugin : ") + lastError);
+		throw SymbolSharedLibException(tr("Fail to get the symbol : ") + lastError);
 	}
 #endif
 	return ptr;

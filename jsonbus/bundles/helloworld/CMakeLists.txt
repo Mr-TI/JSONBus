@@ -14,11 +14,17 @@
 #    limitations under the License.
 #
 
-# ### SUBDIRECTORIES ###
-add_subdirectory(bundles)
-add_subdirectory(container)
-add_subdirectory(core)
-add_subdirectory(master)
-add_subdirectory(router)
-add_subdirectory(services)
-add_subdirectory(test)
+# ### FILES ###
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+file(GLOB project_HDRS *.h)
+file(GLOB project_SRCS *.cpp)
+
+# ### QT4 ###
+find_package(Qt4 REQUIRED)
+include(${QT_USE_FILE})
+qt4_wrap_ui(project_UIS_H)
+qt4_wrap_cpp(project_MOC_SRCS)
+
+# ### TARGET ###
+add_library(helloworld SHARED ${project_SRCS} ${project_HDRS})

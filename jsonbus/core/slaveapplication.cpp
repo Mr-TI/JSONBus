@@ -30,8 +30,8 @@ SlaveApplication::SlaveApplication(int &argc, char **argv)
 SlaveApplication::~SlaveApplication() {
 }
 
-void SlaveApplication::onRunLevelSetup() {
-	Application::onRunLevelSetup();
+void SlaveApplication::onRunLevelStart() {
+	Application::onRunLevelStart();
 	
 	JSONParserTask *jsonParserTask = new JSONParserTask(STDIN_FILENO);
 	

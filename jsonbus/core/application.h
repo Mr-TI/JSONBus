@@ -87,17 +87,13 @@ public:
 	 * @brief Get the container instance
 	 * @return Application reference
 	 */
-	inline static Application &getInstance () {
-		return *(static_cast<Application*>(instance()));
-	}
+	static Application &getInstance ();
 
 	/**
 	 * @brief Load the container
 	 * @throw Exception on error
 	 */
-	inline static void runInstance() {
-		getInstance().run();
-	}
+	static void runInstance();
 	
 	/**
 	 * @brief bool QCoreApplication::notify(QObject *rec, QEvent *ev) redefinition
@@ -108,19 +104,19 @@ public:
 	
 protected:
 	/**
-	 * @brief Method called during the argument define run level.
-	 */
-	virtual void onRunLevelDefineArgs();
-	
-	/**
-	 * @brief Method called during the argument parsing run level.
-	 */
-	virtual void onRunLevelParseArgs();
-	
-	/**
 	 * @brief Method called during the setup run level.
 	 */
 	virtual void onRunLevelSetup();
+	
+	/**
+	 * @brief Method called during the init run level.
+	 */
+	virtual void onRunLevelInit();
+	
+	/**
+	 * @brief Method called during the start run level.
+	 */
+	virtual void onRunLevelStart();
 	
 private slots:
 	/**
@@ -128,6 +124,13 @@ private slots:
 	 */
 	void onAboutToQuit();
 };
+
+inline Application &Application::getInstance () {
+	return *(dynamic_cast<Application*>(instance()));
+}
+inline void Application::runInstance() {
+	getInstance().run();
+}
 
 }
 

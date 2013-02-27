@@ -65,19 +65,14 @@ public:
 	~BundleActivator();
 	
 	/**
-	 * @brief Function called on bundle initialization
-	 */
-	virtual void initialize(BundleContext &context);
-	
-	/**
 	 * @brief Function called on bundle start
 	 */
-	virtual void start(BundleContext &context) = 0;
+	virtual void start(BundleContext &context) throw(BundleActivatorException) = 0;
 	
 	/**
 	 * @brief Function called on bundle stop
 	 */
-	virtual void stop(BundleContext &context) = 0;
+	virtual void stop(BundleContext &context) throw(BundleActivatorException) = 0;
 	
 };
 
@@ -86,7 +81,6 @@ typedef SharedPtr<BundleActivator> BundleActivatorPtr;
 
 inline BundleActivator::BundleActivator() {}
 inline BundleActivator::~BundleActivator() {}
-inline void BundleActivator::initialize(BundleContext& context) {}
 
 }
 

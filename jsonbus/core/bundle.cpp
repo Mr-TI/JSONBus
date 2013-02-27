@@ -16,15 +16,51 @@
 
 #include "common.h"
 #include "bundle.h"
+#include "logger.h"
 
 namespace JSONBus {
 
 Bundle::Bundle(const QString &path) throw(BundleException)
 : m_state(RESOLVED), m_context(*this), m_libFile(path) {
-	m_libFile.load();
 	try {
-		m_bundleActivator = (*(BundleActivatorPtr(*)())(m_libFile.getSymbol("__manifest_BundleActivator")))();
-	} catch (InvalidSharedLibException e) {}
+		m_libFile.load();
+	} catch (LoadSharedLibException e) {
+		throw BundleException("Bundle file not found! - " + e.message());
+	}
+	try {
+		m_manifest["BundleName"] = (*(const char *(*)())(m_libFile.getSymbol("__manifest_get_BundleName")))();
+	} catch (SymbolSharedLibException e) {
+		throw BundleException("Invalid BundleName property! - " + e.message());
+	}
+	try {
+		m_manifest["BundleSymbolicName"] = (*(const char *(*)())(m_libFile.getSymbol("__manifest_get_BundleSymbolicName")))();
+	} catch (SymbolSharedLibException e) {
+		throw BundleException("Invalid BundleName property! - " + e.message());
+	}
+	try {
+		m_manifest["BundleVersion"] = (*(const char *(*)())(m_libFile.getSymbol("__manifest_get_BundleVersion")))();
+	} catch (SymbolSharedLibException e) {
+		throw BundleException("Invalid BundleName property! - " + e.message());
+	}
+	try {
+		m_bundleActivator = (*(BundleActivatorPtr(*)())(m_libFile.getSymbol("__manifest_get_BundleActivator")))();
+	} catch (SymbolSharedLibException e) {}
+}
+
+void Bundle::start() throw(BundleException) {
+	m_state = STARTING;
+	if (m_bundleActivator != null) {
+		m_bundleActivator->start(m_context);
+	}
+	m_state = ACTIVE;
+}
+
+void Bundle::stop() throw(BundleException) {
+	m_state = STOPPING;
+	if (m_bundleActivator != null) {
+		m_bundleActivator->stop(m_context);
+	}
+	m_state = RESOLVED;
 }
 
 }

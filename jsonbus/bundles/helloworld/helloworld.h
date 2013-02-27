@@ -15,40 +15,25 @@
  */
 
 /**
- * @brief JSONBus : JSONBus master service management.
+ * @brief Sample JSONBus echo plugin.
  * 
  * @author <a href="mailto:emericv@openihs.org">Emeric Verschuur</a>
  * @date 2013
  * @copyright Apache License, Version 2.0
  */
 
-#ifndef JSONBUS_MASTER_H
-#define JSONBUS_MASTER_H
+#ifndef JSONBUS_BUNDLES_HELLOWORLD_H
+#define JSONBUS_BUNDLES_HELLOWORLD_H
 
-#include <jsonbus/core/application.h>
+#include <jsonbus/core/exception.h>
+#include <jsonbus/core/bundle.h>
+#include <jsonbus/core/bundleactivator.h>
 
 using namespace JSONBus;
 
-jsonbus_declare_exception(MasterException, Exception);
-
-/**
- * @brief Dynamic library management.
- */
-class Master : public Application {
-public:
-	/**
-	 * @brief Service constructor.
-	 */
-	Master(int &argc, char **argv);
-
-	/**
-	 * @brief Service destructor.
-	 */
-	~Master();
-	
-protected:
-	virtual void onRunLevelSetup();
-	virtual void onRunLevelInit();
+class HelloWorld: public BundleActivator {
+	virtual void start(BundleContext& context) throw(BundleActivatorException);
+	virtual void stop(BundleContext& context) throw(BundleActivatorException);
 };
 
-#endif
+#endif // JSONBUS_BUNDLES_HELLOWORLD_H

@@ -288,6 +288,13 @@ public:
 	Logger &operator<<(const SharedPtr<T> &p);
 	
 	/**
+	 * @brief Write a HashMap object to the logger
+	 * 
+	 * @param p SharedPtr object
+	 */
+	Logger &operator<<(const QMap<QString, QVariant> &hash);
+	
+	/**
 	 * @brief Get the global logger level
 	 * 
 	 * @return Level
@@ -466,6 +473,18 @@ Logger &Logger::operator<<(const SharedPtr<T> &p) {
 	} else {
 		m_stream << " [0x" << 
 		toHexString(p.data()) << "]:" << __demangle(typeid(*p).name()) << "*{" << p.data()->ref << '}';
+	}
+	return *this;
+}
+
+inline Logger &Logger::operator<<(const QMap<QString, QVariant> &hash) {
+	unsigned int length = 0;
+	for (auto it=hash.begin(); it != hash.end(); it++) {
+		length = qMax<unsigned int>(length, it.key().length());
+	}
+	length++;
+	for (auto it=hash.begin(); it != hash.end(); it++) {
+		m_stream << levelHdrs[m_level] << "\t" << it.key().leftJustified(length, ' ') << ": " << it.value().toString();
 	}
 	return *this;
 }

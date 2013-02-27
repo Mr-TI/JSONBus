@@ -20,6 +20,7 @@
 #include <jsonbus/core/common.h>
 #include <jsonbus/core/settings.h>
 #include <jsonbus/core/jsonserializer.h>
+#include <jsonbus/core/logger.h>
 
 #include "container.h"
 
@@ -39,23 +40,23 @@ Container::Container(int &argc, char **argv)
 
 Container::~Container() {}
 
-void Container::onRunLevelDefineArgs() {
-	SlaveApplication::onRunLevelDefineArgs();
+void Container::onRunLevelSetup() {
+	SlaveApplication::onRunLevelSetup();
 	
 	CliArguments &args = CliArguments::getInstance();
 	
 	args.define("config",		'c', tr("Set the config path"), "");
 	
 	args.define("bundle-info",	'i', tr("Get bundle info"));
-	args.define("bundle-path",	'p', tr("Bundle path"), "");
+	args.define("bundle-file",	'f', tr("Bundle file path"), "");
 }
 
-void Container::onRunLevelParseArgs() {
-	SlaveApplication::onRunLevelParseArgs();
+void Container::onRunLevelInit() {
+	SlaveApplication::onRunLevelInit();
 	
 	CliArguments &args = CliArguments::getInstance();
 	
-	QString bundlePath = args.getValue("bundle-path").toString();
+	QString bundlePath = args.getValue("bundle-file").toString();
 	
 	// Checking arguments
 	if (bundlePath.isEmpty()) {
@@ -63,40 +64,25 @@ void Container::onRunLevelParseArgs() {
 	}
 	
 	m_bundle = new Bundle(bundlePath);
-}
-
-void Container::onRunLevelSetup()
-{
-// 	CliArguments &args = CliArguments::getInstance();
-// 	
-// 	// Load the library containing the plugin
-// 	m_libFile = new SharedLib(m_bundlePath);
-// 	m_libFile->load();
-// 	
-// 	// Settings settup
-// #ifdef WIN32
-// 	Settings settings("OpenIHS.org", "JSONBus::bundles", QSettings::NativeFormat);
-// #else
-// 	QString confPath = args.getValue("config").toString();
-// 	Settings settings(confPath, QSettings::NativeFormat);
-// #endif
-// 	
-// 	// Plugin initialization
-// 	m_plugin->onInit(settings);
+	
+	if (args.isEnabled("bundle-info")) {
+		logInfo() << "Bindle information:" << m_bundle->manifest();
+		throw ExitApplicationException();
+	}
+	
 // 	if (args.isEnabled("edit-settings")) {
 // 		settings.setup();
 // 		throw ExitApplicationException();
 // 	}
-// 	
-// 	SlaveApplication::onRunLevelSetup();
-// 	
-// 	// Plugin load
-// 	m_plugin->onLoad(settings);
-// 	connect(m_plugin.data(), SIGNAL(resultAvailable(QVariant)), this, SLOT(onResultAvailable(QVariant)));
+}
+
+void Container::onRunLevelStart() {
+	SlaveApplication::onRunLevelStart();
+	m_bundle->start();
 }
 
 void Container::onDataAvailable(QVariant data) {
-// 	m_plugin->onRequest(data);
+	
 }
 
 void Container::onResultAvailable(QVariant result) {
