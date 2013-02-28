@@ -70,15 +70,15 @@ void Container::onRunLevelInit() {
 		throw ExitApplicationException();
 	}
 	
-// 	if (args.isEnabled("edit-settings")) {
-// 		settings.setup();
-// 		throw ExitApplicationException();
-// 	}
+	if (args.isEnabled("edit-settings")) {
+		logWarn() << "No settings to edit...";
+		throw ExitApplicationException();
+	}
 }
 
 void Container::onRunLevelStart() {
-	SlaveApplication::onRunLevelStart();
 	m_bundle->start();
+	SlaveApplication::onRunLevelStart();
 }
 
 void Container::onDataAvailable(QVariant data) {
