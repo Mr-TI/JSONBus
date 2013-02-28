@@ -64,7 +64,7 @@ inline JSONBUS_EXPORT std::ostream &operator << (std::ostream &stream, const QSt
 inline JSONBUS_EXPORT std::istream &operator >> (QString &data, std::istream &stream) {
 	std::string buff;
 	stream >> buff;
-	data = QString::fromUtf8(buff.c_str());
+	data = QString::fromLocal8Bit(buff.c_str());
 	return stream;
 }
 
@@ -78,7 +78,7 @@ inline JSONBUS_EXPORT QString getMessageError(DWORD no) {
 	LPVOID lpMsgBuf;
 	QString buf;
 	if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(), 0, (LPTSTR) &lpMsgBuf, 0, NULL)) {
-		buf = string((char*)lpMsgBuf);
+		buf = QString::fromLocal8Bit((char*)lpMsgBuf);
 		LocalFree(lpMsgBuf);
 	} else {
 		buf = "error no " + TOSTDSTR(no);

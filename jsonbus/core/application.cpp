@@ -36,8 +36,6 @@ void Application::onAboutToQuit() {
 
 void Application::onRunLevelSetup() {
 	CliArguments &args = CliArguments::getInstance();
-	
-	args.define("edit-settings",	's', tr("Interactive settings edition"));
 	args.define("help",				'h', tr("Display this help"));
 }
 

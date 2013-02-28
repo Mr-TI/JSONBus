@@ -45,10 +45,11 @@ void Container::onRunLevelSetup() {
 	
 	CliArguments &args = CliArguments::getInstance();
 	
-	args.define("config",		'c', tr("Set the config path"), "");
+// 	args.define("config",		'c', tr("Set the config path"), "");
 	
 	args.define("bundle-info",	'i', tr("Get bundle info"));
 	args.define("bundle-file",	'f', tr("Bundle file path"), "");
+	args.define("bundle-start",	's', tr("Start the bundle"));
 }
 
 void Container::onRunLevelInit() {
@@ -69,15 +70,14 @@ void Container::onRunLevelInit() {
 		logInfo() << "Bundle information:" << m_bundle->manifest();
 		throw ExitApplicationException();
 	}
-	
-	if (args.isEnabled("edit-settings")) {
-		logWarn() << "No settings to edit...";
-		throw ExitApplicationException();
-	}
 }
 
 void Container::onRunLevelStart() {
-	m_bundle->start();
+	CliArguments &args = CliArguments::getInstance();
+	if (args.isEnabled("bundle-start")) {
+		m_bundle->start();
+	}
+	
 	SlaveApplication::onRunLevelStart();
 }
 

@@ -32,7 +32,7 @@ SharedLib::~SharedLib() {
 void SharedLib::load(int flags) throw(SharedLibException) {
 	QString lastError;
 	if (handle != 0) {
-		lastError = "Dynamic library already loaded.";
+		lastError = tr("Dynamic library already loaded.");
 		throw InvalidSharedLibException(tr("Fail to load the dynamic library : ") + lastError);
 	}
 #ifdef WIN32
@@ -46,7 +46,7 @@ void SharedLib::load(int flags) throw(SharedLibException) {
 	handle = dlopen(path.toAscii(), flags);
 	if (!handle) {
 		dl_error = dlerror();
-		lastError = "dlopen(): " + QString(dl_error);
+		lastError = "dlopen(): " + QString::fromLocal8Bit(dl_error);
 		throw LoadSharedLibException(tr("Fail to load the dynamic library : ") + lastError);
 	}
 #endif
@@ -55,7 +55,7 @@ void SharedLib::load(int flags) throw(SharedLibException) {
 void *SharedLib::getSymbol(const char *symbol) throw(SharedLibException) {
 	QString lastError;
 	if (handle == 0) {
-		lastError = "Dynamic library not loaded.";
+		lastError = tr("Dynamic library not loaded.");
 		throw InvalidSharedLibException(tr("Fail to get a symbol : ") + lastError);
 	}
 	void *ptr;
@@ -69,7 +69,7 @@ void *SharedLib::getSymbol(const char *symbol) throw(SharedLibException) {
 	char *dl_error;
 	ptr = dlsym(handle, symbol);
 	if ((dl_error = dlerror()) != NULL)  {
-		lastError = "dlsym(): " + QString(dl_error);
+		lastError = "dlsym(): " + QString::fromLocal8Bit(dl_error);
 		throw SymbolSharedLibException(tr("Fail to get the symbol : ") + lastError);
 	}
 #endif
@@ -79,7 +79,7 @@ void *SharedLib::getSymbol(const char *symbol) throw(SharedLibException) {
 void SharedLib::unload() throw(SharedLibException) {
 	QString lastError;
 	if (handle == 0) {
-		lastError = "Dynamic library not loaded.";
+		lastError = tr("Dynamic library not loaded.");
 		throw InvalidSharedLibException(tr("Fail to unload the plugin : ") + lastError);
 	}
 #ifdef WIN32

@@ -33,10 +33,11 @@ void Master::onRunLevelSetup() {
 	Application::onRunLevelSetup();
 	
 	CliArguments &args = CliArguments::getInstance();
-	args.define("daemonize",	'd', tr("Launch this service in background"));
-	args.define("config",		'c', tr("Set a custom config path"), "/etc/jsonbus/jsonbus.conf");
+	args.define("daemonize",		'd', tr("Launch this service in background"));
+	args.define("edit-settings",	's', tr("Interactive settings edition"));
+	args.define("config",			'c', tr("Set a custom config path"), "/etc/jsonbus/jsonbus.conf");
 #ifdef WIN32
-	args.define("win-cli",		'\0', tr("Switch to cli mode, don't launch a Windows service"));
+	args.define("win-cli",			'\0', tr("Switch to cli mode, don't launch a Windows service"));
 #endif
 }
 
