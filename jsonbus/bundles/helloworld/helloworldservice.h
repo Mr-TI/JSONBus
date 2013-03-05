@@ -14,18 +14,20 @@
  *   limitations under the License.
  */
 
-#include "bundlecontext.h"
-#include "logger.h"
-#include <qmetaobject.h>
+#ifndef HELLOWORLDSERVICE_H
+#define HELLOWORLDSERVICE_H
+#include <QObject>
 
-using namespace JSONBus;
+namespace org {
+namespace openihs {
 
-void BundleContext::registerService(QObject& service) {
-	const QMetaObject *metaobject = service.metaObject();
-	QString name = QString(metaobject->className()).replace("::",".");
-	logFiner() << "Register Service:\n\tName\t: " << name;
-	for (int i = metaobject->methodOffset(); i < metaobject->methodCount(); i++) {
-		logFiner() << "\tMethod\t: " << metaobject->method(i).signature();
-	}
-	metaobject->invokeMethod(&service, "sayHello", Q_ARG(QString, "Emeric"));
+class HelloWorldService: public QObject {
+	Q_OBJECT
+public slots:
+	virtual void sayHello(const QString &name) = 0;
+};
+
 }
+}
+
+#endif // HELLOWORLDSERVICE_H

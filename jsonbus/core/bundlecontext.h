@@ -24,6 +24,7 @@
  * @date 2013
  * @copyright Apache License, Version 2.0
  */
+#include <QObject>
 
 namespace JSONBus {
 
@@ -49,6 +50,11 @@ public:
 	 * @return a Bundle reference
 	 */
 	Bundle &bundle();
+	
+	/**
+	 * @brief Register a service
+	 */
+	void registerService(QObject &service);
 };
 
 inline BundleContext::BundleContext(Bundle& bundle): m_bundle(bundle) {}

@@ -24,7 +24,6 @@
 #define JSONBUS_CONTAINER_H
 
 #include <jsonbus/core/sharedlib.h>
-#include <jsonbus/core/plugin.h>
 #include <jsonbus/core/jsonserializer.h>
 #include <jsonbus/core/slaveapplication.h>
 #include <jsonbus/core/bundle.h>

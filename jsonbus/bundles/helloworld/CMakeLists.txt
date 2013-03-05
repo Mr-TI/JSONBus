@@ -24,7 +24,7 @@ file(GLOB project_SRCS *.cpp)
 find_package(Qt4 REQUIRED)
 include(${QT_USE_FILE})
 qt4_wrap_ui(project_UIS_H)
-qt4_wrap_cpp(project_MOC_SRCS)
+qt4_wrap_cpp(project_MOC_SRCS helloworldservice.h)
 
 # ### TARGET ###
-add_library(helloworld SHARED ${project_SRCS} ${project_HDRS})
+add_library(helloworld SHARED ${project_SRCS} ${project_HDRS} ${project_MOC_SRCS})
