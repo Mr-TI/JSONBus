@@ -17,14 +17,14 @@
 #ifndef HELLOWORLDSERVICEIMPL_H
 #define HELLOWORLDSERVICEIMPL_H
 
-#include <jsonbus/bundles/helloworld/helloworldservice.h>
+#include <jsonbus/service/hello/hello.h>
 
 using namespace org::openihs;
 
-class HelloWorldServiceImpl : public HelloWorldService {
+class HelloImpl : public Hello {
 
 public:
-	HelloWorldServiceImpl();
+	HelloImpl();
 	virtual void sayHello(const QString &name);
 };
 

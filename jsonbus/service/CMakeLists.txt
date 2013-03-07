@@ -14,18 +14,5 @@
 #    limitations under the License.
 #
 
-# ### FILES ###
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-file(GLOB project_HDRS *.h)
-file(GLOB project_SRCS *.cpp)
-
-# ### QT4 ###
-find_package(Qt4 REQUIRED)
-include(${QT_USE_FILE})
-qt4_wrap_ui(project_UIS_H)
-qt4_wrap_cpp(project_MOC_SRCS)
-
-# ### TARGET ###
-add_library(helloworld SHARED ${project_SRCS} ${project_HDRS} ${project_MOC_SRCS})
-target_link_libraries(helloworld hello)
+# ### SUBDIRECTORIES ###
+add_subdirectory(hello)

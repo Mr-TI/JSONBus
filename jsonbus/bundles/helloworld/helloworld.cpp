@@ -18,11 +18,11 @@
 #include <jsonbus/core/logger.h>
 
 #include "helloworld.h"
-#include "helloworldserviceimpl.h"
+#include "helloimpl.h"
 
 void HelloWorld::start(BundleContext& context) throw(BundleActivatorException) {
 	logInfo() << "HelloWorld bundle starting...";
-	HelloWorldServiceImpl helloSrv;
+	HelloImpl helloSrv;
 	context.registerService(helloSrv);
 }
 

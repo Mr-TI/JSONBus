@@ -14,13 +14,13 @@
  *   limitations under the License.
  */
 
-#include "helloworldserviceimpl.h"
+#include "helloimpl.h"
 #include <jsonbus/core/logger.h>
 
-HelloWorldServiceImpl::HelloWorldServiceImpl(): HelloWorldService() {
+HelloImpl::HelloImpl(): Hello() {
 
 }
 
-void HelloWorldServiceImpl::sayHello(const QString &name) {
+void HelloImpl::sayHello(const QString &name) {
 	JSONBus::logInfo() << "Hello " << name << "!";
 }

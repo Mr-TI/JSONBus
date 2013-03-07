@@ -21,10 +21,10 @@
 namespace org {
 namespace openihs {
 
-class HelloWorldService: public QObject {
+class Hello: public QObject {
 	Q_OBJECT
 public slots:
-	virtual void sayHello(const QString &name) = 0;
+	virtual void sayHello(const QString &name);
 };
 
 }
