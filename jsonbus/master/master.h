@@ -26,6 +26,7 @@
 #define JSONBUS_MASTER_H
 
 #include <jsonbus/core/application.h>
+#include <jsonbus/core/bundle.h>
 
 using namespace JSONBus;
 
@@ -35,6 +36,9 @@ jsonbus_declare_exception(MasterException, Exception);
  * @brief Dynamic library management.
  */
 class Master : public Application {
+private:
+	SettingsPtr m_settings;
+	QList<BundlePtr> m_bundles;
 public:
 	/**
 	 * @brief Service constructor.
@@ -47,8 +51,8 @@ public:
 	~Master();
 	
 protected:
-	virtual void onRunLevelSetup();
-	virtual void onRunLevelInit();
+	virtual void onInit();
+	virtual void onStart();
 };
 
 #endif

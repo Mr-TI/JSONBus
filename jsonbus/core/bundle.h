@@ -95,6 +95,13 @@ public:
 	QMap<QString, QVariant> manifest();
 	
 	/**
+	 * @brief Get a bundle property
+	 * 
+	 * @param name Property name
+	 */
+	QVariant property(const QString &name) const;
+	
+	/**
 	 * @brief Start the bundle
 	 */
 	virtual void start() throw(BundleException);
@@ -124,6 +131,9 @@ inline Bundle::~Bundle() {
 }
 inline QMap< QString, QVariant > Bundle::manifest() {
 	return m_manifest;
+}
+inline QVariant Bundle::property(const QString& name) const {
+	return m_manifest[name];
 }
 
 }

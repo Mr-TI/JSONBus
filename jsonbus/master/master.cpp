@@ -18,6 +18,7 @@
 #include <jsonbus/core/common.h>
 #include <jsonbus/core/cliarguments.h>
 #include <jsonbus/core/settings.h>
+#include <jsonbus/core/logger.h>
 #include "master.h"
 
 jsonbus_declare_master_service(Master)
@@ -29,9 +30,7 @@ Master::Master(int &argc, char **argv)
 Master::~Master() {
 }
 
-void Master::onRunLevelSetup() {
-	Application::onRunLevelSetup();
-	
+void Master::onInit() {
 	CliArguments &args = CliArguments::getInstance();
 	args.define("daemonize",		'd', tr("Launch this service in background"));
 	args.define("edit-settings",	's', tr("Interactive settings edition"));
@@ -41,21 +40,39 @@ void Master::onRunLevelSetup() {
 #endif
 }
 
-void Master::onRunLevelInit() {
-	Application::onRunLevelInit();
-	
+void Master::onStart() {
 	CliArguments &args = CliArguments::getInstance();
 #ifdef WIN32
-	Settings settings("OpenIHS.org", "JSONBus", QSettings::NativeFormat);
+	m_settings = new Settings("OpenIHS.org", "JSONBus", QSettings::NativeFormat);
 #else
-	Settings settings(args.getValue("config").toString(), QSettings::NativeFormat);
+	m_settings = new Settings(args.getValue("config").toString(), QSettings::NativeFormat);
 #endif
-	settings.define("master/pidfile",	tr("Path of the file where the service PID will be written in"),
+	m_settings->define("master/pidfile",	tr("Path of the file where the service PID will be written in"),
 					JSONBUS_DEFAULT_PIDFILE);
-	settings.define("master/plugindir",	tr("Plugin dir paths"), 
+	m_settings->define("master/bundle/rootpath",	tr("Bundle root directory path"), 
 					JSONBUS_DEFAULT_PLUGIN_DIR_PATH);
 	if (args.isEnabled("edit-settings")) {
-		settings.setup();
+		m_settings->setup();
 		throw ExitApplicationException();
 	}
+	QString path = m_settings->value("master/bundle/rootpath").toString();
+	QDirIterator it(path, QStringList("*.so"), QDir::Files, QDirIterator::Subdirectories);
+	logFiner() << "Search for bundles in the directory " << path;
+	while (it.hasNext()) {
+		QString file = it.next();
+		logFiner() << "Found file " << file;
+		try {
+			BundlePtr bundle = new Bundle(file);
+			m_bundles.append(bundle);
+			logFine() << "Found bundle " << bundle->property("BundleName") << " (" << bundle->property("BundleSymbolicName") << ')';
+			bundle->start();
+		} catch (Exception &e) {
+			logWarn() << "Invalid bundle file " << file;
+			logWarn() << e;
+		}
+	}
+	if (m_bundles.isEmpty()) {
+		throw ApplicationException("No valid bundle found in the directory " + path);
+	}
 }
+

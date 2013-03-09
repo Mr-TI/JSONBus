@@ -33,18 +33,13 @@ void Router::onDataAvailable(QVariant data) {
 	
 }
 
-void Router::onRunLevelSetup()
-{
-	Application::onRunLevelSetup();
-	
+void Router::onInit() {
 	CliArguments &args = CliArguments::getInstance();
-	
 	args.define("config",			'c', tr("Set a custom config path"), "");
 	args.define("edit-settings",	's', tr("Interactive settings edition"));
 }
 
-void Router::onRunLevelInit() {
-	SlaveApplication::onRunLevelInit();
+void Router::onStart() {
 	CliArguments &args = CliArguments::getInstance();
 #ifdef WIN32
 	Settings settings("OpenIHS.org", "JSONBus", QSettings::NativeFormat);

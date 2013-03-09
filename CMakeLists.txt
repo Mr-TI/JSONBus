@@ -43,5 +43,7 @@ else ()
     message(FATAL_ERROR "Your C++ compiler does not support C++11.")
 endif ()
 
+# add_definitions(-DJSONBUS_DISPLAY_BACKTRACE)
+
 # ### SUBDIRECTORIES ###
 add_subdirectory(jsonbus)

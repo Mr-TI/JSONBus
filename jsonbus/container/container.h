@@ -54,9 +54,8 @@ public:
 	~Container();
 	
 protected:
-	virtual void onRunLevelSetup();
-	virtual void onRunLevelInit();
-	virtual void onRunLevelStart();
+	virtual void onInit();
+	virtual void onStart();
 	
 protected slots:
 	/**

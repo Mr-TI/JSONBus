@@ -224,6 +224,13 @@ public:
 	Logger &operator<<(const QString & t);
 	
 	/**
+	 * @brief Write a QVariant value to the logger
+	 * 
+	 * @param t QVariant value
+	 */
+	Logger &operator<<(const QVariant & t);
+	
+	/**
 	 * @brief Write a QStringRef value to the logger
 	 * 
 	 * @param t QStringRef value
@@ -429,6 +436,11 @@ inline Logger &Logger::operator<<(const char* t) {
 
 inline Logger &Logger::operator<<(const QString & t) {
 	append(t);
+	return *this;
+}
+
+inline Logger& Logger::operator<<(const QVariant& t) {
+	append(t.toString());
 	return *this;
 }
 

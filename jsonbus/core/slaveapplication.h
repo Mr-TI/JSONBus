@@ -49,9 +49,9 @@ public:
 	
 protected:
 	/**
-	 * @brief Method called during the start run level.
+	 * @brief Method called during start process
 	 */
-	virtual void onRunLevelStart();
+	virtual void onStart();
 	
 protected slots:
 	/**

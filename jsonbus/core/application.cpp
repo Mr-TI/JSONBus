@@ -34,36 +34,23 @@ void Application::onAboutToQuit() {
 	QThreadPool::globalInstance()->waitForDone();
 }
 
-void Application::onRunLevelSetup() {
-	CliArguments &args = CliArguments::getInstance();
-	args.define("help",				'h', tr("Display this help"));
-}
-
-void Application::onRunLevelInit() {
-	CliArguments &args = CliArguments::getInstance();
-	
-	args.parse(arguments());
-		
-	if (args.isEnabled("help")) {
-		args.displayUseInstructions();
-		throw ExitApplicationException();
-	}
-}
-
-void Application::onRunLevelStart() {
-	signal(SIGINT, onQuit);
-	signal(SIGTERM, onQuit);
-}
-
 void Application::run() {
+	CliArguments &args = CliArguments::getInstance();
 	try {
-		onRunLevelSetup();
-		onRunLevelInit();
-		onRunLevelStart();
+		args.define("help", 'h', tr("Display this help"));
+		onInit();
+		args.parse(arguments());
+		if (args.isEnabled("help")) {
+			args.displayUseInstructions();
+			throw ExitApplicationException();
+		}
+		onStart();
+		signal(SIGINT, onQuit);
+		signal(SIGTERM, onQuit);
 		connect(this, SIGNAL(aboutToQuit()), this, SLOT(onAboutToQuit()), Qt::DirectConnection);
-		logFine() << __demangle(typeid(*this).name()) << " entring in event loop...";
+		logInfo() << __demangle(typeid(*this).name()) << " started.";
 		exec();
-		logFine() << __demangle(typeid(*this).name()) << " leaving event loop...";
+		logFiner() << __demangle(typeid(*this).name()) << " stopping...";
 	} catch (ExitApplicationException &e) {
 		
 	} catch (Exception &e) {
@@ -75,7 +62,7 @@ bool Application::notify(QObject *rec, QEvent *ev) {
 	try {
 		return QCoreApplication::notify(rec, ev);
 	} catch (Exception &e) {
-		logFine() << __demangle(typeid(*this).name()) << " leaving event loop after throwing an " << e;
+		logConf() << __demangle(typeid(*this).name()) << " leaving event loop after throwing an " << e;
 	}
 	quit();
 	return false;

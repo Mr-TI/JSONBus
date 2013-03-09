@@ -103,20 +103,16 @@ public:
 	static void onQuit(int signum);
 	
 protected:
-	/**
-	 * @brief Method called during the setup run level.
-	 */
-	virtual void onRunLevelSetup();
 	
 	/**
-	 * @brief Method called during the init run level.
+	 * @brief Method called during inititialization process
 	 */
-	virtual void onRunLevelInit();
+	virtual void onInit() = 0;
 	
 	/**
-	 * @brief Method called during the start run level.
+	 * @brief Method called during start process
 	 */
-	virtual void onRunLevelStart();
+	virtual void onStart() = 0;
 	
 private slots:
 	/**

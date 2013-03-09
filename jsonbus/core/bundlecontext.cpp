@@ -27,5 +27,4 @@ void BundleContext::registerService(QObject& service) {
 	for (int i = metaobject->methodOffset(); i < metaobject->methodCount(); i++) {
 		logFiner() << "\tMethod\t: " << metaobject->method(i).signature();
 	}
-	metaobject->invokeMethod(&service, "sayHello", Q_ARG(QString, "Emeric"));
 }

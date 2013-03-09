@@ -45,7 +45,7 @@ jsonbus_declare_exception(SettingsException, Exception);
 /**
  * @brief Settings management.
  */
-class JSONBUS_EXPORT Settings : public QSettings {
+class JSONBUS_EXPORT Settings : public QSettings, public SharedData {
 public:
 	
 	/**
@@ -104,6 +104,9 @@ private:
 
 	QMap<QString, Element> m_parameters;
 };
+
+/// @brief Settings shared pointer type
+typedef SharedPtr<Settings> SettingsPtr;
 
 }
 

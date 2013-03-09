@@ -18,16 +18,19 @@
 #define HELLOWORLDSERVICE_H
 #include <QObject>
 
-namespace org {
-namespace openihs {
+namespace org { namespace openihs {
+
 
 class Hello: public QObject {
 	Q_OBJECT
 public slots:
 	virtual void sayHello(const QString &name);
+	virtual void sayHello();
 };
 
-}
-}
+inline void Hello::sayHello(const QString& name) {}
+inline void Hello::sayHello() {}
+
+}}
 
 #endif // HELLOWORLDSERVICE_H

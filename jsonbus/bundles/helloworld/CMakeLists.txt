@@ -28,4 +28,4 @@ qt4_wrap_cpp(project_MOC_SRCS)
 
 # ### TARGET ###
 add_library(helloworld SHARED ${project_SRCS} ${project_HDRS} ${project_MOC_SRCS})
-target_link_libraries(helloworld hello)
+target_link_libraries(helloworld service_hello)

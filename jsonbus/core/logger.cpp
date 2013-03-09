@@ -71,6 +71,7 @@ Logger &Logger::operator<<(Exception &e) {
 	m_stream << __demangle(typeid(e).name());
 	QString out(e.what());
 	m_stream << levelHdrs[m_level] << "  what(): " << e.message();
+#ifdef JSONBUS_DISPLAY_BACKTRACE
 	char **symTbl = backtrace_symbols(e.d->backtrace, e.d->backtraceSize);
 	if (symTbl != NULL) {
 		for (int i = 0; i < e.d->backtraceSize; i++) {
@@ -79,5 +80,6 @@ Logger &Logger::operator<<(Exception &e) {
 		}
 		free(symTbl);
 	}
+#endif //JSONBUS_DISPLAY_BACKTRACE
 	return *this;
 }

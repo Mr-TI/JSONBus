@@ -30,9 +30,7 @@ SlaveApplication::SlaveApplication(int &argc, char **argv)
 SlaveApplication::~SlaveApplication() {
 }
 
-void SlaveApplication::onRunLevelStart() {
-	Application::onRunLevelStart();
-	
+void SlaveApplication::onStart() {
 	JSONParserTask *jsonParserTask = new JSONParserTask(STDIN_FILENO);
 	
 	connect(jsonParserTask, SIGNAL(terminated()), this, SLOT(quit()));

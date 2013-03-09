@@ -27,4 +27,4 @@ qt4_wrap_ui(project_UIS_H)
 qt4_wrap_cpp(project_MOC_SRCS hello.h)
 
 # ### TARGET ###
-add_library(hello SHARED ${project_SRCS} ${project_HDRS} ${project_MOC_SRCS})
+add_library(service_hello SHARED ${project_SRCS} ${project_HDRS} ${project_MOC_SRCS})

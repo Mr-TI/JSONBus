@@ -40,9 +40,7 @@ Container::Container(int &argc, char **argv)
 
 Container::~Container() {}
 
-void Container::onRunLevelSetup() {
-	SlaveApplication::onRunLevelSetup();
-	
+void Container::onInit() {
 	CliArguments &args = CliArguments::getInstance();
 	
 // 	args.define("config",		'c', tr("Set the config path"), "");
@@ -52,9 +50,7 @@ void Container::onRunLevelSetup() {
 	args.define("bundle-start",	's', tr("Start the bundle"));
 }
 
-void Container::onRunLevelInit() {
-	SlaveApplication::onRunLevelInit();
-	
+void Container::onStart() {
 	CliArguments &args = CliArguments::getInstance();
 	
 	QString bundlePath = args.getValue("bundle-file").toString();
@@ -70,15 +66,12 @@ void Container::onRunLevelInit() {
 		logInfo() << "Bundle information:" << m_bundle->manifest();
 		throw ExitApplicationException();
 	}
-}
-
-void Container::onRunLevelStart() {
-	CliArguments &args = CliArguments::getInstance();
+	
 	if (args.isEnabled("bundle-start")) {
 		m_bundle->start();
 	}
 	
-	SlaveApplication::onRunLevelStart();
+	SlaveApplication::onStart();
 }
 
 void Container::onDataAvailable(QVariant data) {
