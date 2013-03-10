@@ -38,7 +38,7 @@ jsonbus_declare_exception(MasterException, Exception);
 class Master : public Application {
 private:
 	SettingsPtr m_settings;
-	QList<BundlePtr> m_bundles;
+	QMap<QString, BundlePtr> m_bundles;
 public:
 	/**
 	 * @brief Service constructor.

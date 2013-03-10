@@ -49,26 +49,26 @@ void Master::onStart() {
 #endif
 	m_settings->define("master/pidfile",	tr("Path of the file where the service PID will be written in"),
 					JSONBUS_DEFAULT_PIDFILE);
-	m_settings->define("master/bundle/rootpath",	tr("Bundle root directory path"), 
+	m_settings->define("master/bundle-rootpath",	tr("Bundle root directory path"), 
 					JSONBUS_DEFAULT_PLUGIN_DIR_PATH);
+	m_settings->define("master/registry-service-name",	tr("Registry service name"), 
+					JSONBUS_DEFAULT_REGISTRY_SERVICE_NAME);
 	if (args.isEnabled("edit-settings")) {
 		m_settings->setup();
 		throw ExitApplicationException();
 	}
-	QString path = m_settings->value("master/bundle/rootpath").toString();
+	QString path = m_settings->value("master/bundle-rootpath").toString();
 	QDirIterator it(path, QStringList("*.so"), QDir::Files, QDirIterator::Subdirectories);
 	logFiner() << "Search for bundles in the directory " << path;
 	while (it.hasNext()) {
 		QString file = it.next();
-		logFiner() << "Found file " << file;
+		logFinest() << "Found file " << file;
 		try {
 			BundlePtr bundle = new Bundle(file);
-			m_bundles.append(bundle);
-			logFine() << "Found bundle " << bundle->property("BundleName") << " (" << bundle->property("BundleSymbolicName") << ')';
-			bundle->start();
+			m_bundles[bundle->property("Bundle-SymbolicName").toString()] = bundle;
+			logFine() << "Found bundle " << bundle->property("Bundle-Name") << " (" << bundle->property("Bundle-SymbolicName") << ')';
 		} catch (Exception &e) {
-			logWarn() << "Invalid bundle file " << file;
-			logWarn() << e;
+			logWarn() << "Invalid bundle file " << file << " (" << e.message() << ')';
 		}
 	}
 	if (m_bundles.isEmpty()) {

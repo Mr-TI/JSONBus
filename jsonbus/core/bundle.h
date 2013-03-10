@@ -29,6 +29,7 @@
 #include <jsonbus/core/bundlecontext.h>
 #include <jsonbus/core/sharedlib.h>
 #include <jsonbus/core/bundleactivator.h>
+#include <jsonbus/core/bundlemanifest.h>
 
 #ifndef JSONBUS_EXPORT
 #define JSONBUS_EXPORT
@@ -53,6 +54,8 @@ public:
 	/// @brief Bundle state
 	enum State {
 		/// @brief Resolved
+		UNINSTALLED,
+		/// @brief Resolved
 		RESOLVED,
 		/// @brief Starting
 		STARTING,
@@ -74,8 +77,13 @@ private:
 	/// @brief Shared lib file
 	SharedLib m_libFile;
 	
-	QMap<QString, QVariant> m_manifest;
+	QMutex m_mutex;
+	
+	BundleManifest m_manifest;
 	BundleActivatorPtr m_bundleActivator;
+	Qt::HANDLE m_owner;
+	
+	const char* toString(JSONBus::Bundle::State state);
 	
 public:
 	
@@ -92,7 +100,7 @@ public:
 	/**
 	 * @brief Get bundle manifest
 	 */
-	QMap<QString, QVariant> manifest();
+	BundleManifest manifest();
 	
 	/**
 	 * @brief Get a bundle property
@@ -100,6 +108,11 @@ public:
 	 * @param name Property name
 	 */
 	QVariant property(const QString &name) const;
+	
+	/**
+	 * @brief Install the bundle
+	 */
+	virtual void install() throw(BundleException);
 	
 	/**
 	 * @brief Start the bundle
@@ -110,6 +123,11 @@ public:
 	 * @brief Stop the bundle
 	 */
 	virtual void stop() throw(BundleException);
+	
+	/**
+	 * @brief Uninstall the bundle
+	 */
+	virtual void uninstall() throw(BundleException);
 	
 	/**
 	 * @brief Get the bundle state

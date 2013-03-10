@@ -20,47 +20,120 @@
 
 namespace JSONBus {
 
+const char* Bundle::toString(Bundle::State state) {
+	switch (state) {
+	case UNINSTALLED:
+		return "UNINSTALLED";
+	case RESOLVED:
+		return "RESOLVED";
+	case STARTING:
+		return "STARTING";
+	case ACTIVE:
+		return "ACTIVE";
+	case STOPPING:
+		return "STOPPING";
+	default:
+		return "";
+	}
+}
+
 Bundle::Bundle(const QString &path) throw(BundleException)
 : m_state(RESOLVED), m_context(*this), m_libFile(path) {
+	m_owner = QThread::currentThreadId();
 	try {
 		m_libFile.load();
 	} catch (LoadSharedLibException e) {
-		throw BundleException("Bundle file not found! - " + e.message());
+		throw BundleException("Unable to load the bundle file: " + e.message());
 	}
 	try {
-		m_manifest["BundleName"] = (*(const char *(*)())(m_libFile.getSymbol("__manifest_get_BundleName")))();
+		m_manifest["Bundle-Name"] = (*(const char *(*)())(m_libFile.getSymbol("__manifest_get_BundleName")))();
 	} catch (SymbolSharedLibException e) {
-		throw BundleException("Invalid BundleName property! - " + e.message());
+		throw BundleException("Invalid Bundle-Name property! - " + e.message());
 	}
 	try {
-		m_manifest["BundleSymbolicName"] = (*(const char *(*)())(m_libFile.getSymbol("__manifest_get_BundleSymbolicName")))();
+		m_manifest["Bundle-SymbolicName"] = (*(const char *(*)())(m_libFile.getSymbol("__manifest_get_BundleSymbolicName")))();
 	} catch (SymbolSharedLibException e) {
-		throw BundleException("Invalid BundleName property! - " + e.message());
+		throw BundleException("Invalid Bundle-SymbolicName property! - " + e.message());
 	}
 	try {
-		m_manifest["BundleVersion"] = (*(const char *(*)())(m_libFile.getSymbol("__manifest_get_BundleVersion")))();
+		m_manifest["Bundle-Version"] = (*(const char *(*)())(m_libFile.getSymbol("__manifest_get_BundleVersion")))();
 	} catch (SymbolSharedLibException e) {
-		throw BundleException("Invalid BundleName property! - " + e.message());
+		throw BundleException("Invalid Bundle-Version property! - " + e.message());
 	}
 	try {
-		m_bundleActivator = (*(BundleActivator *(*)())(m_libFile.getSymbol("__manifest_get_BundleActivator")))();
+		m_manifest["Require-Service"] = (*(const char *(*)())(m_libFile.getSymbol("__manifest_get_RequireService")))();
 	} catch (SymbolSharedLibException e) {}
+	m_libFile.unload();
+}
+
+void Bundle::install() {
+	if (QThread::currentThreadId() != m_owner) {
+		//TODO: Operation execution by the owner thread
+		throw UnsupportedOperationException("Bundle::install");
+	}
+	if (m_state == UNINSTALLED) {
+		try {
+			m_libFile.load();
+		} catch (LoadSharedLibException e) {
+			throw BundleException("Unable to load the bundle file: " + e.message());
+		}
+		try {
+			m_bundleActivator = (*(BundleActivator *(*)())(m_libFile.getSymbol("__manifest_get_BundleActivator")))();
+		} catch (SymbolSharedLibException e) {}
+		return;
+	}
+	throw IllegalOperationException("Try to install a bundle with state " + toString(m_state));
+}
+
+void Bundle::uninstall() {
+	if (QThread::currentThreadId() != m_owner) {
+		//TODO: Operation execution by the owner thread
+		throw UnsupportedOperationException("Bundle::uninstall");
+	}
+	if (m_state == ACTIVE) {
+		stop();
+	}
+	if (m_state == RESOLVED) {
+		m_bundleActivator = null;
+		m_libFile.unload();
+		m_state = UNINSTALLED;
+		return;
+	}
+	throw IllegalOperationException("Try to uninstall a bundle with state " + toString(m_state));
 }
 
 void Bundle::start() throw(BundleException) {
-	m_state = STARTING;
-	if (m_bundleActivator != null) {
-		m_bundleActivator->start(m_context);
+	if (QThread::currentThreadId() != m_owner) {
+		//TODO: Operation execution by the owner thread
+		throw UnsupportedOperationException("Bundle::install");
 	}
-	m_state = ACTIVE;
+	if (m_state == UNINSTALLED) {
+		install();
+	}
+	if (m_state == RESOLVED) {
+		m_state = STARTING;
+		if (m_bundleActivator != null) {
+			m_bundleActivator->start(m_context);
+		}
+		m_state = ACTIVE;
+	}
+	throw IllegalOperationException("Try to start a bundle with state " + toString(m_state));
 }
 
 void Bundle::stop() throw(BundleException) {
-	m_state = STOPPING;
-	if (m_bundleActivator != null) {
-		m_bundleActivator->stop(m_context);
+	if (QThread::currentThreadId() != m_owner) {
+		//TODO: Operation execution by the owner thread
+		throw UnsupportedOperationException("Bundle::install");
+		return;
 	}
-	m_state = RESOLVED;
+	if (m_state == ACTIVE) {
+		m_state = STOPPING;
+		if (m_bundleActivator != null) {
+			m_bundleActivator->stop(m_context);
+		}
+		m_state = RESOLVED;
+	}
+	throw IllegalOperationException("Try to stop a bundle with state " + toString(m_state));
 }
 
 }

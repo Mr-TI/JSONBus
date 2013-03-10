@@ -22,8 +22,10 @@
  * @copyright Apache License, Version 2.0
  */
 
-#ifndef JSONBUS_MANIFEST_H
-#define JSONBUS_MANIFEST_H
+#ifndef JSONBUS_BUNDLEMANIFEST_H
+#define JSONBUS_BUNDLEMANIFEST_H
+#include <QMap>
+#include <QVariant>
 
 #define MANIFEST_BUNDLE_NAME(name) \
 extern "C" {\
@@ -46,6 +48,13 @@ extern "C" {\
 	}\
 }
 
+#define MANIFEST_REQUIRE_SERVICE(service) \
+extern "C" {\
+	const char *__manifest_get_RequireService() {\
+		return version;\
+	}\
+}
+
 #define MANIFEST_BUNDLE_ACTIVATOR(class_name) \
 extern "C" {\
 	void *__manifest_get_BundleActivator () {\
@@ -53,4 +62,10 @@ extern "C" {\
 	}\
 }
 
-#endif
+namespace JSONBus {
+
+typedef QMap<QString, QVariant> BundleManifest;
+
+}
+
+#endif //JSONBUS_BUNDLEMANIFEST_H

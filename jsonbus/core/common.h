@@ -42,6 +42,7 @@
 #define JSONBUS_DEFAULT_PIDFILE "/var/run/jsonbusd.pid"
 #endif
 #define JSONBUS_DEFAULT_PLUGIN_DIR_PATH JSONBUS_DEFAULT_BASEDIR "/bundles"
+#define JSONBUS_DEFAULT_REGISTRY_SERVICE_NAME "org.openihs.registry.Registry"
 
 namespace JSONBus {
 
@@ -52,7 +53,7 @@ namespace JSONBus {
  * @return the stream reference
  */
 inline JSONBUS_EXPORT std::ostream &operator << (std::ostream &stream, const QString &data) {
-	return (stream << data.toUtf8().data());
+	return (stream << data.toLocal8Bit().data());
 }
 
 /**
@@ -130,5 +131,7 @@ inline QString toHexString(const void *ptr) {
 #endif
 
 }
+
+using namespace JSONBus;
 
 #endif
