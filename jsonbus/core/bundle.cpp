@@ -20,7 +20,7 @@
 
 namespace JSONBus {
 
-const char* Bundle::toString(Bundle::State state) {
+QString Bundle::toString(Bundle::State state) {
 	switch (state) {
 	case UNINSTALLED:
 		return "UNINSTALLED";
@@ -66,7 +66,7 @@ Bundle::Bundle(const QString &path) throw(BundleException)
 	m_libFile.unload();
 }
 
-void Bundle::install() {
+void Bundle::install() throw(BundleException) {
 	if (QThread::currentThreadId() != m_owner) {
 		//TODO: Operation execution by the owner thread
 		throw UnsupportedOperationException("Bundle::install");
@@ -85,7 +85,7 @@ void Bundle::install() {
 	throw IllegalOperationException("Try to install a bundle with state " + toString(m_state));
 }
 
-void Bundle::uninstall() {
+void Bundle::uninstall() throw(BundleException) {
 	if (QThread::currentThreadId() != m_owner) {
 		//TODO: Operation execution by the owner thread
 		throw UnsupportedOperationException("Bundle::uninstall");

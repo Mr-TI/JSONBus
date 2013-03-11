@@ -83,7 +83,7 @@ private:
 	BundleActivatorPtr m_bundleActivator;
 	Qt::HANDLE m_owner;
 	
-	const char* toString(JSONBus::Bundle::State state);
+	QString toString(JSONBus::Bundle::State state);
 	
 public:
 	

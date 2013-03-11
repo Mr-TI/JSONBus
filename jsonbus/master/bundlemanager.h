@@ -41,6 +41,8 @@ public:
 	void install(const QString &url);
 };
 
+inline BundleManager::BundleManager() {}
+
 inline BundleManager& BundleManager::global() {
 	return m_instance;
 }
