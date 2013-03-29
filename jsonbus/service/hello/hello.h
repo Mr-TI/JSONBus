@@ -17,9 +17,9 @@
 #ifndef HELLOWORLDSERVICE_H
 #define HELLOWORLDSERVICE_H
 #include <QObject>
+#include <QMetaType>
 
 namespace org { namespace openihs {
-
 
 class Hello: public QObject {
 	Q_OBJECT
@@ -32,5 +32,4 @@ inline void Hello::sayHello(const QString& name) {}
 inline void Hello::sayHello() {}
 
 }}
-
 #endif // HELLOWORLDSERVICE_H
