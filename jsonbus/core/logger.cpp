@@ -1,5 +1,5 @@
 /*
- *   Copyright 2012-2013 Emeric Verschuur <emericv@openihs.org>
+ *   Copyright 2012-2014 Emeric Verschuur <emericv@openihs.org>
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -24,9 +24,9 @@ const char *Logger::LEVEL_HDRS[][8] = {
 		NULL,
 		"\n \033[1;41m\033[1;37m[ !! ]\033[0m\033[1;31m ",
 		"\n \033[1;43m\033[1;37m[ ## ]\033[0m\033[1;33m ",
-		"\n \033[1;44m\033[1;37m[ ii ]\033[0m\033[1;34m ",
+		"\n \033[1;42m\033[1;37m[ ii ]\033[0m\033[1;32m ",
 		"\n \033[1;45m\033[1;37m[ ** ]\033[0m\033[1;35m ",
-		"\n \033[1;42m\033[1;37m[ ++ ]\033[0m\033[1;32m ",
+		"\n \033[1;44m\033[1;37m[ ++ ]\033[0m\033[1;34m ",
 		"\n \033[1;46m\033[1;37m[ == ]\033[0m\033[1;36m ",
 		"\n \033[1;47m\033[1;37m[ -- ]\033[0m\033[1;37m "
 	},

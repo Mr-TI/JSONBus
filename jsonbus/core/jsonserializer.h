@@ -1,5 +1,5 @@
 /*
- *   Copyright 2012-2013 Emeric Verschuur <emericv@openihs.org>
+ *   Copyright 2012-2014 Emeric Verschuur <emericv@openihs.org>
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  * @brief JSONBus : JSON serializer management.
  * 
  * @author <a href="mailto:emericv@openihs.org">Emeric Verschuur</a>
- * @date 2013
+ * @date 2014
  * @copyright Apache License, Version 2.0
  */
 

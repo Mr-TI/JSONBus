@@ -1,5 +1,5 @@
 /*
- *   Copyright 2013 Emeric Verschuur <emericv@openihs.org>
+ *   Copyright 2014 Emeric Verschuur <emericv@openihs.org>
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -56,8 +56,8 @@ using namespace std;
 %type <node>        ROOT VARIANT
 
 %language "C++"
-%define namespace "jsonparser"
-%define parser_class_name "Parser"
+%define api.namespace {jsonparser}
+%define parser_class_name {Parser}
 %parse-param {Driver &driver}
 
 %destructor { delete $$; } TSTRING TVARIANT

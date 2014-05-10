@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-#include "common.h"
+#include <jsonbus/core/common.h>
 #include "bundleactivator.h"
 
 namespace JSONBus {

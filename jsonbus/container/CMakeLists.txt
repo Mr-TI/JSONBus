@@ -1,5 +1,5 @@
 #
-#    Copyright 2012-2013 Emeric Verschuur <emericv@openihs.org>
+#    Copyright 2012-2014 Emeric Verschuur <emericv@openihs.org>
 # 
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -28,4 +28,4 @@ qt4_wrap_cpp(project_MOC_SRCS container.h)
 
 # ### TARGET ###
 add_executable(jsonbus_container ${project_SRCS} ${project_MOC_SRCS} ${project_HDRS})
-target_link_libraries(jsonbus_container ${QT_LIBRARIES} jsonbus)
+target_link_libraries(jsonbus_container ${QT_LIBRARIES} jsonbus jsonbusosgi)

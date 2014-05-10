@@ -1,5 +1,5 @@
 #
-#    Copyright 2012-2013 Emeric Verschuur <emericv@openihs.org>
+#    Copyright 2012-2014 Emeric Verschuur <emericv@openihs.org>
 # 
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 add_subdirectory(bundles)
 add_subdirectory(container)
 add_subdirectory(core)
+add_subdirectory(osgi)
 add_subdirectory(master)
 add_subdirectory(service)
 add_subdirectory(test)

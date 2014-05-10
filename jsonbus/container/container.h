@@ -1,5 +1,5 @@
 /*
- *   Copyright 2012-2013 Emeric Verschuur <emericv@openihs.org>
+ *   Copyright 2012-2014 Emeric Verschuur <emericv@openihs.org>
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@
 #include <jsonbus/core/sharedlib.h>
 #include <jsonbus/core/jsonserializer.h>
 #include <jsonbus/core/slaveapplication.h>
-#include <jsonbus/core/bundle.h>
-#include <jsonbus/core/bundleactivator.h>
+#include <jsonbus/osgi/bundle.h>
+#include <jsonbus/osgi/bundleactivator.h>
 
 using namespace JSONBus;
 
@@ -37,7 +37,7 @@ jsonbus_declare_exception(ContainerException, ApplicationException);
  * @brief JSONBus container management.
  * 
  * @author <a href="mailto:emericv@openihs.org">Emeric Verschuur</a>
- * @date 2013
+ * @date 2014
  * @copyright Apache License, Version 2.0
  */
 class Container : public SlaveApplication {

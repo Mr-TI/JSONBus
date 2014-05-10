@@ -15,7 +15,7 @@
  */
 
 #include "bundlecontext.h"
-#include "logger.h"
+#include <jsonbus/core/logger.h>
 #include <qmetaobject.h>
 
 using namespace JSONBus;

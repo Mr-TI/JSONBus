@@ -1,5 +1,5 @@
 /*
- *   Copyright 2013 Emeric Verschuur <emericv@openihs.org>
+ *   Copyright 2014 Emeric Verschuur <emericv@openihs.org>
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 #include <QMap>
 #include <QString>
 #include <jsonbus/core/common.h>
-#include <jsonbus/core/bundle.h>
+#include <jsonbus/osgi/bundle.h>
 
 class BundleManager {
 	QMap<QString, BundlePtr> m_bundles;

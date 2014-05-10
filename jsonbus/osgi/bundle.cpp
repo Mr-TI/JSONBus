@@ -14,9 +14,9 @@
  *   limitations under the License.
  */
 
-#include "common.h"
+#include <jsonbus/core/common.h>
+#include <jsonbus/core/logger.h>
 #include "bundle.h"
-#include "logger.h"
 
 namespace JSONBus {
 

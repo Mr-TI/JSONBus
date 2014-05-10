@@ -1,5 +1,5 @@
 /*
- *   Copyright 2013 Emeric Verschuur <emericv@openihs.org>
+ *   Copyright 2014 Emeric Verschuur <emericv@openihs.org>
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 #ifndef HELLOWORLDSERVICE_H
 #define HELLOWORLDSERVICE_H
 #include <QObject>
-#include <QMetaType>
 
 namespace org { namespace openihs {
+
 
 class Hello: public QObject {
 	Q_OBJECT
@@ -32,4 +32,5 @@ inline void Hello::sayHello(const QString& name) {}
 inline void Hello::sayHello() {}
 
 }}
+
 #endif // HELLOWORLDSERVICE_H
