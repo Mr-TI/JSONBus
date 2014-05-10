@@ -1,5 +1,5 @@
 /*
- *   Copyright 2012-2013 Emeric Verschuur <emericv@openihs.org>
+ *   Copyright 2012-2014 Emeric Verschuur <emericv@openihs.org>
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
  * @brief JSONBus : Bundle activator management.
  * 
  * @author <a href="mailto:emericv@openihs.org">Emeric Verschuur</a>
- * @date 2013
+ * @date 2014
  * @copyright Apache License, Version 2.0
  */
 
@@ -28,7 +28,7 @@
 #include <jsonbus/core/exception.h>
 #include <jsonbus/core/settings.h>
 #include <jsonbus/core/sharedptr.h>
-#include <jsonbus/core/bundlecontext.h>
+#include <jsonbus/osgi/bundlecontext.h>
 
 #ifndef JSONBUS_EXPORT
 #define JSONBUS_EXPORT
@@ -44,7 +44,7 @@ jsonbus_declare_exception(BundleActivatorException, Exception);
  * @brief Bundle activator management.
  * 
  * @author <a href="mailto:emericv@openihs.org">Emeric Verschuur</a>
- * @date 2013
+ * @date 2014
  * @copyright Apache License, Version 2.0
  */
 class JSONBUS_EXPORT BundleActivator: public SharedData {
