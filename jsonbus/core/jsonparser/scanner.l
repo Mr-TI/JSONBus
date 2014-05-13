@@ -102,7 +102,7 @@ escape_prefix           \\
 %s STRING STRING_ESCAPE STRING_ESCAPE_UNICODE
 
 %option noyywrap yylineno c++
-/* %option batch never-interactive */
+/*%option batch never-interactive*/
 %option prefix="jsonparser"
 %option align
 %option case-insensitive

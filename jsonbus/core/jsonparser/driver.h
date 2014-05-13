@@ -18,6 +18,7 @@
 #define JSONPARSER_DRIVER_H
 
 #include <QVariant>
+#include <jsonbus/core/abstractchannel.h>
 
 namespace jsonparser {
 
@@ -34,15 +35,14 @@ class r;
  */
 class Driver {
 public:
-	Driver(std::istream* inStream = NULL);
+	Driver(const JSONBus::ChannelPtr &channel);
 	~Driver();
-	QVariant parse(std::istream* inStream = 0);
+	QVariant parse();
 private:
 	QString lastError;
 	Scanner &scanner;
 	Parser &parser;
 	QVariant *result;
-	std::map<std::string, bool> folders;
 	friend class Parser;
 	friend class Scanner;
 	friend class r;

@@ -44,6 +44,7 @@ else ()
 endif ()
 
 add_definitions(-DJSONBUS_DISPLAY_BACKTRACE)
+set(JSONBUS_LIBRARY_TYPE SHARED)
 
 # ### SUBDIRECTORIES ###
 add_subdirectory(jsonbus)

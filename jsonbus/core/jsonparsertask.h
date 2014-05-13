@@ -40,28 +40,7 @@ public:
 	 * @param fd File descriptor
 	 * @param parent Parent object
 	 */
-	JSONParserTask(int fd, QObject* parent = 0);
-	
-	/**
-	 * @brief JSONParser constructor.
-	 * @param stream STD input stream to get data from
-	 * @param parent Parent object
-	 */
-	JSONParserTask(std::istream& stream, QObject* parent = 0);
-	
-	/**
-	 * @brief JSONParser constructor.
-	 * @param stream Text stream to get data from
-	 * @param parent Parent object
-	 */
-	JSONParserTask(QTextStream& stream, QObject* parent = 0);
-	
-	/**
-	 * @brief JSONParser constructor.
-	 * @param input Device to get data from
-	 * @param parent Parent object
-	 */
-	JSONParserTask(QIODevice& input, QObject* parent = 0);
+	JSONParserTask(const ChannelPtr &channel, QObject* parent = 0);
 	
 	/**
 	 * @brief Task main
@@ -71,7 +50,7 @@ signals:
 	void dataAvailable(QVariant data);
 	void terminated();
 public slots:
-	void terminate();
+	void cancel();
 private:
 	bool m_stop;
 };

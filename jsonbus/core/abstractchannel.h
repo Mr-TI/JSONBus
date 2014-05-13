@@ -19,65 +19,64 @@
 
 #include <iostream>
 #include <fstream>
+#include <jsonbus/core/shareddata.h>
+#include "sharedptr.h"
 
 /**
  * @namespace
  */
-namespace jsonparser {
+namespace JSONBus {
 
 /**
- * @brief Abstract stream buffer
+ * @brief Abstract channel
  * 
  * @author <a href="mailto:emericv@openihs.org">Emeric Verschuur</a>
  * @date 2014
  * @copyright Apache License, Version 2.0
  */
-class AbstractStreamBuf : public std::streambuf {
+class AbstractChannel: public SharedData {
 public:
 	/**
-	 * @brief AbstractStreamBuf constructor
+	 * @brief AbstractChannel constructor
 	 */
-	AbstractStreamBuf();
+	AbstractChannel();
 	
 	/**
-	 * @brief AbstractStreamBuf destructor
+	 * @brief AbstractChannel destructor
 	 */
-	virtual ~AbstractStreamBuf();
+	virtual ~AbstractChannel() = 0;
 	
 	/**
 	 * @brief Disable the buffer
 	 */
-	void disable() { m_disable = true; };
+	virtual void close() = 0;
 	
 	/**
 	 * @brief underflow
 	 * @return a charracter or EOF
 	 */
-	virtual int underflow();
+	virtual int read() = 0;
 	
 	/**
-	 * @brief uflow
+	 * @brief underflow
 	 * @return a charracter or EOF
 	 */
-	virtual int uflow();
-protected:
-	/**
-	 * @brief Wait for read
-	 * @param timeout Timeout in µs
-	 * @return true if the buffer is ready, otherwise false
-	 */
-	virtual bool waitReadyToRead(int timeout=1000) = 0;
+	virtual int read(char buffer, int maxlen) = 0;
 	
 	/**
-	 * @brief Get the next character from the buffer.
+	 * @brief underflow
 	 * @return a charracter or EOF
 	 */
-	virtual int getNextChar() = 0;
-protected:
-	bool m_disable;
-	int m_curChar;
-	bool m_initialized;
+	virtual void write(int val) = 0;
+	
+	/**
+	 * @brief underflow
+	 * @return a charracter or EOF
+	 */
+	virtual void write(char buffer, int len) = 0;
 };
+
+typedef SharedPtr<AbstractChannel> ChannelPtr;
 
 }
 

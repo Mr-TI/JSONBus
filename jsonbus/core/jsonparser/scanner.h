@@ -29,6 +29,7 @@
 #endif
 
 #include <parser.hh>
+#include <jsonbus/core/abstractchannel.h>
 
 /**
  * @namespace
@@ -44,13 +45,19 @@ namespace jsonparser {
  */
 class Scanner : public jsonparserFlexLexer {
 public:
-    Scanner(std::istream* arg_yyin = 0, std::ostream* arg_yyout = 0);
+    Scanner(const JSONBus::ChannelPtr &channel);
 
     virtual ~Scanner();
 
     virtual Parser::token_type yylex(Parser::semantic_type *yylval);
 
     void set_debug(bool b);
+
+protected:
+	virtual int LexerInput( char* buf, int max_size );
+	
+private:
+	JSONBus::ChannelPtr m_channel;
 };
 
 }

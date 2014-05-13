@@ -26,6 +26,7 @@
 #define JSONBUS_JSONPARSER_H
 
 #include <jsonbus/core/exception.h>
+#include <jsonbus/core/abstractchannel.h>
 
 #ifndef JSONBUS_EXPORT
 #define JSONBUS_EXPORT
@@ -37,7 +38,6 @@
 
 namespace jsonparser {
 class Driver;
-class AbstractStreamBuf;
 }
 
 namespace JSONBus {
@@ -60,31 +60,10 @@ public:
 	
 	/**
 	 * @brief JSONParser constructor.
-	 * @param fd File descriptor
+	 * @param channel Channel pointer
 	 * @param parent Parent object
 	 */
-	JSONParser(int fd, QObject* parent = 0);
-	
-	/**
-	 * @brief JSONParser constructor.
-	 * @param stream STD input stream to get data from
-	 * @param parent Parent object
-	 */
-	JSONParser(std::istream &stream, QObject* parent = 0);
-	
-	/**
-	 * @brief JSONParser constructor.
-	 * @param stream Text stream to get data from
-	 * @param parent Parent object
-	 */
-	JSONParser(QTextStream &stream, QObject* parent = 0);
-	
-	/**
-	 * @brief JSONParser constructor.
-	 * @param input Device to get data from
-	 * @param parent Parent object
-	 */
-	JSONParser(QIODevice &input, QObject* parent = 0);
+	JSONParser(const ChannelPtr &channel, QObject* parent = 0);
 	
 	/**
 	 * @brief JSONParser destructor.
@@ -98,57 +77,11 @@ public:
 	 */
 	QVariant parse();
 	
-	/**
-	 * @brief Parse a JSON data from a byte array
-	 * @param data data to parse
-	 * @return QVariant object
-	 * @throw JSONParserException on parsing error
-	 */
-	QVariant parse(const QByteArray& data);
-	
-	/**
-	 * @brief Parse a JSON data from a input device
-	 * @param stream File descriptor
-	 * @return QVariant object
-	 * @throw JSONParserException on parsing error
-	 */
-	QVariant parse(int df);
-	
-	/**
-	 * @brief Parse a JSON data from a input device
-	 * @param stream STD input stream to get data from
-	 * @return QVariant object
-	 * @throw JSONParserException on parsing error
-	 */
-	QVariant parse(std::istream &stream);
-	
-	/**
-	 * @brief Parse a JSON data from a input device
-	 * @param stream Text stream to get data from
-	 * @return QVariant object
-	 * @throw JSONParserException on parsing error
-	 */
-	QVariant parse(QTextStream &stream);
-	
-	/**
-	 * @brief Parse a JSON data from a input device
-	 * @param input Device to get data from
-	 * @return QVariant object
-	 * @throw JSONParserException on parsing error
-	 */
-	QVariant parse(QIODevice& input);
-	
-	void disable();
+	void cancel();
 	
 private:
-	void setupBuf(QIODevice &device);
-	void setupBuf(QTextStream& stream);
-	void setupBuf(std::istream &stream);
-	void setupBuf(int fd);
-	void cleanup();
+	ChannelPtr m_channel;
 	jsonparser::Driver *m_driver;
-	std::istream *m_inputStream;
-	jsonparser::AbstractStreamBuf *m_buffer;
 };
 
 }

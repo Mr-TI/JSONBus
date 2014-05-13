@@ -22,23 +22,8 @@
 
 namespace JSONBus {
 
-JSONParserTask::JSONParserTask(int fd, QObject* parent)
-: JSONParser(fd, parent), m_stop(false) {
-
-}
-
-JSONParserTask::JSONParserTask(std::istream& stream, QObject* parent)
-: JSONParser(stream, parent), m_stop(false) {
-
-}
-
-JSONParserTask::JSONParserTask(QTextStream& stream, QObject* parent)
-: JSONParser(stream, parent), m_stop(false) {
-
-}
-
-JSONParserTask::JSONParserTask(QIODevice& input, QObject* parent)
-: JSONParser(input, parent), m_stop(false) {
+JSONParserTask::JSONParserTask(const ChannelPtr& channel, QObject* parent)
+: JSONParser(channel, parent), m_stop(false) {
 
 }
 
@@ -59,9 +44,9 @@ void JSONParserTask::run() {
 	emit terminated();
 }
 
-void JSONParserTask::terminate() {
+void JSONParserTask::cancel() {
 	m_stop = true;
-	disable();
+	JSONParser::cancel();
 }
 
 

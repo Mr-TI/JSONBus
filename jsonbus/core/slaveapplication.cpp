@@ -31,7 +31,7 @@ SlaveApplication::~SlaveApplication() {
 }
 
 void SlaveApplication::onStart() {
-	JSONParserTask *jsonParserTask = new JSONParserTask(STDIN_FILENO);
+	JSONParserTask *jsonParserTask = new JSONParserTask(null /* STDIN_FILENO */);
 	
 	connect(jsonParserTask, SIGNAL(terminated()), this, SLOT(quit()));
 	connect(jsonParserTask, SIGNAL(dataAvailable(QVariant)), this, SLOT(onDataAvailable(QVariant)));

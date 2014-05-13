@@ -14,32 +14,14 @@
  *   limitations under the License.
  */
 
-#include "descriptorbuf.h"
-#include <sys/select.h>
+#include "abstractchannel.h"
 
-namespace jsonparser {
+namespace JSONBus {
 
-DescriptorBuf::DescriptorBuf(int fd)
-		: m_fd(fd) {
+AbstractChannel::AbstractChannel() {
 }
 
-DescriptorBuf::~DescriptorBuf() {
-}
-
-int DescriptorBuf::getNextChar() {
-	char c;
-	if (read(m_fd, &c, 1) == 1)
-		return c;
-	else
-		return EOF;
-}
-
-bool DescriptorBuf::waitReadyToRead(int timeout) {
-	fd_set fdset;
-	timeval tv = {timeout / 1000000, timeout % 1000000};
-	FD_ZERO(&fdset);
-	FD_SET(m_fd, &fdset);
-	return select(m_fd + 1, &fdset, NULL, NULL, &tv) == 1 ? true : false;
+AbstractChannel::~AbstractChannel() {
 }
 
 }
