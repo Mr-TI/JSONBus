@@ -14,54 +14,38 @@
  *   limitations under the License.
  */
 
-#include "sslchannel.h"
+#include "sslsocketchannel.h"
 #include "logger.h"
+#include "sslchannel.h"
 #include <sys/ioctl.h>
 #include <string.h>
 #include <unistd.h>
 #include <QString>
 
 #define THROW_IOEXP_ON_ERR(exp) \
-	if ((exp) < 1) throw IOException(QString() + __FILE__ + ":" + __LINE__ + ": " + getLastError())
+	if ((exp) < 1) throw IOException(QString() + __FILE__ + ":" + __LINE__ + ": " + SSLChannel::getLastError())
 
 #define THROW_IOEXP_ON_NULL(exp) \
-	if ((exp) == nullptr) throw IOException(QString() + __FILE__ + ":" + __LINE__ + ": " + getLastError())
+	if ((exp) == nullptr) throw IOException(QString() + __FILE__ + ":" + __LINE__ + ": " + SSLChannel::getLastError())
 
 namespace JSONBus {
 
-QString SSLChannel::getLastError() {
-	QString msg;
-	const char *txt;
-	unsigned long int err = ERR_get_error();
-	txt = ERR_func_error_string(err);
-	if (txt != nullptr) {
-		msg.append(txt);
-		msg.append(": ");
-	}
-	txt = ERR_reason_error_string(err);
-	if (txt != nullptr) {
-		msg.append(txt);
-	} else {
-		msg.append(strerror(errno));
-	}
-	return msg;
-}
-
-SSLChannel::SSLChannel(int fd, SSL_CTX *ctx) : IOChannel(fd), m_ssl(nullptr) {
+SSLSocketChannel::SSLSocketChannel(const QString &host, int port, SSL_CTX *ctx) : SocketChannel(host, port), m_ssl(NULL) {
 	THROW_IOEXP_ON_NULL(m_ssl = SSL_new(ctx));
-	THROW_IOEXP_ON_ERR(SSL_set_fd(m_ssl, fd));
+	THROW_IOEXP_ON_ERR(SSL_set_fd(m_ssl, m_fd));
+	THROW_IOEXP_ON_ERR(::SSL_connect(m_ssl));
 }
 
-SSLChannel::~SSLChannel() {
+SSLSocketChannel::~SSLSocketChannel() {
 }
 
-size_t SSLChannel::s_read(char *buffer, size_t maxlen) {
+size_t SSLSocketChannel::s_read(char *buffer, size_t maxlen) {
 	ssize_t n;
 	THROW_IOEXP_ON_ERR(n = SSL_read(m_ssl, buffer, maxlen));
 	return n;
 }
 
-void SSLChannel::s_write(const char *buffer, size_t len) {
+void SSLSocketChannel::s_write(const char *buffer, size_t len) {
 	ssize_t ret = 0;
 	while (len > 0) {
 		THROW_IOEXP_ON_ERR(ret = SSL_write(m_ssl, buffer, len));
@@ -70,26 +54,18 @@ void SSLChannel::s_write(const char *buffer, size_t len) {
 	}
 }
 
-void SSLChannel::close() {
+void SSLSocketChannel::close() {
 	THROW_IOEXP_ON_ERR(::SSL_shutdown(m_ssl));
 	IOChannel::close();
 }
 
-size_t SSLChannel::s_available() {
+size_t SSLSocketChannel::s_available() {
 	size_t result = SSL_pending(m_ssl);
 	if (result > 0) {
 		return result;
 	}
 	result = IOChannel::s_available();
 	return result;
-}
-
-void SSLChannel::accept() {
-	THROW_IOEXP_ON_ERR(::SSL_accept(m_ssl));
-}
-
-void SSLChannel::connect() {
-	THROW_IOEXP_ON_ERR(::SSL_connect(m_ssl));
 }
 
 }

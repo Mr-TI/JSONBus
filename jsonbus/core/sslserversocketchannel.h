@@ -14,12 +14,13 @@
  *   limitations under the License.
  */
 
-#ifndef JSONPARSER_IOCHANNEL_H
-#define JSONPARSER_IOCHANNEL_H
+#ifndef JSONPARSER_SSLSERVERSOCKETCHANNEL_H
+#define JSONPARSER_SSLSERVERSOCKETCHANNEL_H
 
-#include <sys/epoll.h>
-#include <jsonbus/core/shareddata.h>
+#include <jsonbus/core/exception.h>
+#include <jsonbus/core/serversocketchannel.h>
 #include <jsonbus/core/abstractchannel.h>
+#include <openssl/ssl.h>
 
 /**
  * @namespace
@@ -33,19 +34,17 @@ namespace JSONBus {
  * @date 2014
  * @copyright Apache License, Version 2.0
  */
-class IOChannel: public AbstractChannel {
+class SSLServerSocketChannel: public ServerSocketChannel {
 public:
 	/**
-	 * @brief AbstractChannel constructor
-	 * @param fd a valid file descriptor
-	 * @throw IOException on error
+	 * @brief Socket constructor
 	 */
-	IOChannel(int fd);
+	SSLServerSocketChannel(const QString &host, int port, SSL_CTX *ctx);
 	
 	/**
-	 * @brief AbstractChannel destructor
+	 * @brief Socket destructor
 	 */
-	virtual ~IOChannel();
+	virtual ~SSLServerSocketChannel();
 	
 	/**
 	 * @brief Close the channel
@@ -54,28 +53,27 @@ public:
 	virtual void close();
 	
 	/**
+	 * @brief Connect
+	 */
+	ChannelPtr accept();
+	
+	/**
 	 * @brief Get the inner file descriptor if supported
-	 * @return the inner file descriptor
+	 * @return the inner file descriptor or -1 if not supported
 	 */
 	virtual int getFd();
 	
 protected:
-	virtual size_t s_available();
-	virtual size_t s_read(char *buffer, size_t maxlen);
-	virtual void s_write(const char *buffer, size_t len);
-	bool s_waitForReadyRead(int timeout);
 	int m_fd;
-
+	
 private:
-	int m_epfd;
-	epoll_event m_event;
-	epoll_event m_events[1];
+    SSL_CTX* m_ctx;
 };
 
-inline int IOChannel::getFd() {
+inline int SSLServerSocketChannel::getFd() {
 	return m_fd;
 }
 
 }
 
-#endif // JSONPARSER_IOCHANNEL_H
+#endif // JSONPARSER_SSLSERVERSOCKETCHANNEL_H

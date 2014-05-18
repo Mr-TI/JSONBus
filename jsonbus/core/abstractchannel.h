@@ -17,11 +17,8 @@
 #ifndef JSONPARSER_ABSTRACTCHANNEL_H
 #define JSONPARSER_ABSTRACTCHANNEL_H
 
-#include <iostream>
-#include <fstream>
-#include <jsonbus/core/shareddata.h>
 #include <jsonbus/core/exception.h>
-#include <jsonbus/core/sharedptr.h>
+#include <jsonbus/core/selectablechannel.h>
 
 /**
  * @namespace
@@ -35,7 +32,7 @@ namespace JSONBus {
  * @date 2014
  * @copyright Apache License, Version 2.0
  */
-class AbstractChannel: public SharedData {
+class AbstractChannel: public SelectableChannel {
 public:
 	/**
 	 * @brief AbstractChannel constructor
@@ -100,12 +97,6 @@ public:
 	size_t available(bool noEmpty=false);
 	
 	/**
-	 * @brief Get the inner file descriptor if supported
-	 * @return the inner file descriptor or -1 if not supported
-	 */
-	virtual int getFd();
-	
-	/**
 	 * @brief Set deadline.
 	 * 
 	 * This is a way to perform a timeout over several read call.
@@ -144,10 +135,6 @@ inline void AbstractChannel::close() {
 
 inline void AbstractChannel::setDeadLine(qint64 msecs) {
 	m_deadline = msecs;
-}
-
-inline int AbstractChannel::getFd() {
-	return -1;
 }
 
 inline void AbstractChannel::flush() {
