@@ -62,7 +62,7 @@ public:
 	/**
 	 * @brief Exception destructor.
 	 */
-	inline virtual ~Exception() throw() { }
+	inline virtual ~Exception() { }
 
 	/**
 	 * @brief Get the exeption message.

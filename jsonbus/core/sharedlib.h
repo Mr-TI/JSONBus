@@ -66,7 +66,7 @@ public:
 	 * @param flags Flags.
 	 * @throw Exception on error.
 	 */
-	void load(int flags = DefaultFlags) throw(SharedLibException);
+	void load(int flags = DefaultFlags);
 
 	/**
 	 * @brief Test if the dynamic library is loaded.
@@ -80,13 +80,13 @@ public:
 	 * @return A pointer to the symbol.
 	 * @throw Exception on error.
 	 */
-	void *getSymbol(const char *symbol) throw(SharedLibException);
+	void *getSymbol(const char *symbol);
 
 	/**
 	 * @brief Unload the dynamic library.
 	 * @throw Exception on error.
 	 */
-	void unload() throw(SharedLibException);
+	void unload();
 private:
 
 #ifdef WIN32

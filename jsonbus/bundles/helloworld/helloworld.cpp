@@ -20,12 +20,12 @@
 #include "helloworld.h"
 #include "helloimpl.h"
 
-void HelloWorld::start(BundleContext& context) throw(BundleActivatorException) {
+void HelloWorld::start(BundleContext& context) {
 	logInfo() << "HelloWorld bundle starting...";
 	HelloImpl helloSrv;
 	context.registerService(helloSrv);
 }
 
-void HelloWorld::stop(BundleContext& context) throw(BundleActivatorException) {
+void HelloWorld::stop(BundleContext& context) {
 	logInfo() << "HelloWorld bundle stopping...";
 }

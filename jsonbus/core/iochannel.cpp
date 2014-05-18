@@ -26,33 +26,47 @@
 
 namespace JSONBus {
 
-size_t IOChannel::s_read(char *buffer, size_t maxlen) throw(IOException) {
+IOChannel::IOChannel(int fd) : m_fd(fd), m_epfd(-1) {
+	THROW_IOEXP_ON_ERR(m_epfd = epoll_create1(0));
+	m_event.data.fd = m_fd;
+	m_event.events = EPOLLIN | EPOLLET;
+	THROW_IOEXP_ON_ERR(epoll_ctl (m_epfd, EPOLL_CTL_ADD, m_fd, &m_event));
+}
+
+IOChannel::~IOChannel() {
+}
+
+size_t IOChannel::s_read(char *buffer, size_t maxlen) {
 	ssize_t ret;
 	ret = ::read(m_fd, buffer, maxlen);
 	THROW_IOEXP_ON_ERR(ret);
 	return ret;
 }
 
-void IOChannel::s_write(const char *buffer, size_t len) throw(IOException) {
+void IOChannel::s_write(const char *buffer, size_t len) {
 	int ret = 0;
 	while (len > 0) {
-		ret = ::write(m_fd, buffer, len);
-		THROW_IOEXP_ON_ERR(ret);
+		THROW_IOEXP_ON_ERR(ret = ::write(m_fd, buffer, len));
 		len -= ret;
 		buffer += ret;
 	}
 }
 
-void IOChannel::close() throw(IOException) {
-	AbstractChannel::close();
+void IOChannel::close() {
 	THROW_IOEXP_ON_ERR(::close(m_fd));
+	AbstractChannel::close();
 }
 
-size_t IOChannel::s_available() throw(IOException) {
+size_t IOChannel::s_available() {
 	size_t result;
 	THROW_IOEXP_ON_ERR(::ioctl(m_fd, FIONREAD, &result));
 	return result;
 }
 
+bool IOChannel::s_waitForReadyRead(int timeout) {
+	int ret;
+	THROW_IOEXP_ON_ERR(ret = epoll_wait(m_epfd, m_events,1 ,timeout));
+	return ret == 1 && m_events[0].events & EPOLLIN;
+}
 
 }

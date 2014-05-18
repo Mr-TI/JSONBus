@@ -67,12 +67,12 @@ public:
 	/**
 	 * @brief Function called on bundle start
 	 */
-	virtual void start(BundleContext &context) throw(BundleActivatorException) = 0;
+	virtual void start(BundleContext &context) = 0;
 	
 	/**
 	 * @brief Function called on bundle stop
 	 */
-	virtual void stop(BundleContext &context) throw(BundleActivatorException) = 0;
+	virtual void stop(BundleContext &context) = 0;
 	
 };
 

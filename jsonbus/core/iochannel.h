@@ -17,7 +17,7 @@
 #ifndef JSONPARSER_IOCHANNEL_H
 #define JSONPARSER_IOCHANNEL_H
 
-#include <sys/time.h>
+#include <sys/epoll.h>
 #include <jsonbus/core/shareddata.h>
 #include <jsonbus/core/abstractchannel.h>
 
@@ -48,7 +48,7 @@ public:
 	/**
 	 * @brief Close the channel
 	 */
-	virtual void close() throw(IOException);
+	virtual void close();
 	
 	/**
 	 * @brief Get the inner file descriptor if supported
@@ -57,19 +57,16 @@ public:
 	virtual int getFd();
 	
 protected:
-	virtual size_t s_available() throw(IOException);
-	virtual size_t s_read(char *buffer, size_t maxlen) throw(IOException);
-	virtual void s_write(const char *buffer, size_t len) throw(IOException);
+	virtual size_t s_available();
+	virtual size_t s_read(char *buffer, size_t maxlen);
+	virtual void s_write(const char *buffer, size_t len);
+	bool s_waitForReadyRead(int timeout);
 
 private:
-	int m_fd;
+	int m_fd, m_epfd;
+	epoll_event m_event;
+	epoll_event m_events[1];
 };
-
-inline IOChannel::IOChannel(int fd) : m_fd(fd) {
-}
-
-inline IOChannel::~IOChannel() {
-}
 
 inline int IOChannel::getFd() {
 	return m_fd;

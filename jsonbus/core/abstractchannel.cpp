@@ -17,6 +17,7 @@
 #include "iochannel.h"
 #include "logger.h"
 #include <sys/ioctl.h>
+#include <sys/time.h>
 #include <string.h>
 #include <unistd.h>
 #include <QString>
@@ -35,23 +36,23 @@ inline void AbstractChannel::checkBuf() {
 	}
 }
 
-char AbstractChannel::get() throw(IOException) {
+char AbstractChannel::get() {
 	checkBuf();
 	return m_readBuff[m_readStart++];
 }
 
-char AbstractChannel::peek() throw(IOException) {
+char AbstractChannel::peek() {
 	checkBuf();
 	return m_readBuff[m_readStart];
 }
 
-void AbstractChannel::ignore(size_t len) throw(IOException) {
+void AbstractChannel::ignore(size_t len) {
 	for (size_t i=0; i < len; i++) {
 		get();
 	}
 }
 
-size_t AbstractChannel::read(char *buffer, size_t maxlen) throw(IOException) {
+size_t AbstractChannel::read(char *buffer, size_t maxlen) {
 	size_t count;
 	if (m_readEnd != m_readStart) {
 		count = qMin(m_readEnd - m_readStart, maxlen);
@@ -63,45 +64,32 @@ size_t AbstractChannel::read(char *buffer, size_t maxlen) throw(IOException) {
 	return s_read(buffer, count);
 }
 
-void AbstractChannel::write(const char *buffer, size_t len) throw(IOException) {
+void AbstractChannel::write(const char *buffer, size_t len) {
 	s_write(buffer, len);
 }
 
-size_t AbstractChannel::available(bool noEmpty) throw (IOException) {
+size_t AbstractChannel::available(bool noEmpty) {
 	int n = s_available();
 	if (noEmpty && n == 0) {
 		int fd = getFd();
 		if (fd == -1) {
 			throw EOFException("End of File");
 		}
-		if (m_deadline.tv_sec == 0) {
-			timeval waitime;
-			do {
+		if (m_deadline == -1) {
+			while (!s_waitForReadyRead(100)) {
 				if (!m_enabled) {
 					throw EOFException("Closed channel");
 				}
-				waitime.tv_sec = 0;
-				waitime.tv_usec = 100000;
-				FD_ZERO(&(m_readfds));
-				FD_SET(fd, &(m_readfds));
-				THROW_IOEXP_ON_ERR(n = select(fd + 1, &(m_readfds), nullptr, nullptr, &waitime));
-			} while (n == 0);
+			}
 		} else {
-			timeval curtime, waitime;
-			do {
+			while (!s_waitForReadyRead(100)) {
 				if (!m_enabled) {
 					throw EOFException("Closed channel");
 				}
-				THROW_IOEXP_ON_ERR(gettimeofday(&curtime, nullptr));
-				if (m_deadline.tv_sec < curtime.tv_sec || (m_deadline.tv_sec == curtime.tv_sec && m_deadline.tv_usec < curtime.tv_usec)) {
+				if (m_deadline < QDateTime::currentMSecsSinceEpoch()) {
 					throw IOException("Time exceeds");
 				}
-				waitime.tv_sec = 0;
-				waitime.tv_usec = 100000;
-				FD_ZERO(&(m_readfds));
-				FD_SET(fd, &(m_readfds));
-				THROW_IOEXP_ON_ERR(n = select(fd + 1, &(m_readfds), nullptr, nullptr, &waitime));
-			} while (n == 0);
+			}
 		}
 		n = s_available();
 		if (n == 0) {

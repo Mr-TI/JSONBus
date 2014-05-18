@@ -109,7 +109,7 @@ public:
 	/**
 	 * @brief Exception destructor.
 	 */
-	virtual ~Exception() throw();
+	virtual ~Exception();
 
 	/**
 	 * @brief Get the exeption message.
@@ -146,7 +146,7 @@ jsonbus_declare_exception(EOFException, IOException);
 
 inline Exception::Exception(const QString& message): d(new ExceptionData(message)) {}
 inline Exception::Exception(const Exception& exception): d(exception.d) {}
-inline Exception::~Exception() throw() {}
+inline Exception::~Exception() {}
 inline Exception* Exception::clone() const {
 	return new Exception(*this);
 }

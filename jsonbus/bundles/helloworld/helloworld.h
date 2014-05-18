@@ -31,8 +31,8 @@
 using namespace JSONBus;
 
 class HelloWorld: public BundleActivator {
-	virtual void start(BundleContext& context) throw(BundleActivatorException);
-	virtual void stop(BundleContext& context) throw(BundleActivatorException);
+	virtual void start(BundleContext& context);
+	virtual void stop(BundleContext& context);
 };
 
 #endif // JSONBUS_BUNDLES_HELLOWORLD_H

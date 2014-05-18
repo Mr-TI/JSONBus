@@ -37,7 +37,7 @@ QString Bundle::toString(Bundle::State state) {
 	}
 }
 
-Bundle::Bundle(const QString &path) throw(BundleException)
+Bundle::Bundle(const QString &path)
 : m_state(RESOLVED), m_context(*this), m_libFile(path) {
 	m_owner = QThread::currentThreadId();
 	try {
@@ -66,7 +66,7 @@ Bundle::Bundle(const QString &path) throw(BundleException)
 	m_libFile.unload();
 }
 
-void Bundle::install() throw(BundleException) {
+void Bundle::install() {
 	if (QThread::currentThreadId() != m_owner) {
 		//TODO: Operation execution by the owner thread
 		throw UnsupportedOperationException("Bundle::install");
@@ -85,7 +85,7 @@ void Bundle::install() throw(BundleException) {
 	throw IllegalOperationException("Try to install a bundle with state " + toString(m_state));
 }
 
-void Bundle::uninstall() throw(BundleException) {
+void Bundle::uninstall() {
 	if (QThread::currentThreadId() != m_owner) {
 		//TODO: Operation execution by the owner thread
 		throw UnsupportedOperationException("Bundle::uninstall");
@@ -102,7 +102,7 @@ void Bundle::uninstall() throw(BundleException) {
 	throw IllegalOperationException("Try to uninstall a bundle with state " + toString(m_state));
 }
 
-void Bundle::start() throw(BundleException) {
+void Bundle::start() {
 	if (QThread::currentThreadId() != m_owner) {
 		//TODO: Operation execution by the owner thread
 		throw UnsupportedOperationException("Bundle::install");
@@ -120,7 +120,7 @@ void Bundle::start() throw(BundleException) {
 	throw IllegalOperationException("Try to start a bundle with state " + toString(m_state));
 }
 
-void Bundle::stop() throw(BundleException) {
+void Bundle::stop() {
 	if (QThread::currentThreadId() != m_owner) {
 		//TODO: Operation execution by the owner thread
 		throw UnsupportedOperationException("Bundle::install");

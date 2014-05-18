@@ -50,46 +50,46 @@ public:
 	/**
 	 * @brief Close the channel
 	 */
-	virtual void close() throw(IOException);
+	virtual void close();
 	
 	/**
 	 * @brief Get the next char
 	 * @return a byte
 	 */
-	char get() throw(IOException);
+	char get();
 	
 	/**
 	 * @brief Return the next char without extract it
 	 * @return a char
 	 */
-	char peek() throw(IOException);
+	char peek();
 	
 	/**
 	 * @brief Ignore one or more char
 	 */
-	void ignore(size_t len = 1) throw(IOException);
+	void ignore(size_t len = 1);
 	
 	/**
 	 * @brief Read a buffer
 	 * @return The number of read charracters
 	 */
-	size_t read(char *buffer, size_t maxlen) throw(IOException);
+	size_t read(char *buffer, size_t maxlen);
 	
 	/**
 	 * @brief Write a buffer
 	 */
-	void write(const char *buffer, size_t len) throw(IOException);
+	void write(const char *buffer, size_t len);
 	
 	/**
 	 * @brief Flush output data
 	 */
-	void flush() throw(IOException);
+	void flush();
 	
 	/**
 	 * @brief Get available data for read
 	 * @return number of byte ready to read
 	 */
-	size_t available(bool noEmpty=false) throw(IOException);
+	size_t available(bool noEmpty=false);
 	
 	/**
 	 * @brief Get the inner file descriptor if supported
@@ -97,13 +97,22 @@ public:
 	 */
 	virtual int getFd();
 	
-	void setDeadLine(const timeval &deadline);
+	/**
+	 * @brief Set deadline.
+	 * 
+	 * This is a way to perform a timeout over several read call.
+	 * This deadline can be moved or cancelled by another call.
+	 * 
+	 * @param msec number of milliseconds since 1970-01-01T00:00:00 
+	 * Universal Coordinated Time or -1 to cancell it
+	 */
+	void setDeadLine(qint64 msecs);
 	
 protected:
-	virtual size_t s_available() throw(IOException) = 0;
-	virtual size_t s_read(char *buffer, size_t maxlen) throw(IOException) = 0;
-	virtual void s_write(const char *buffer, size_t len) throw(IOException) = 0;
-// 	virtual void s_waitForReadyRead() throw(IOException) = 0;
+	virtual size_t s_available() = 0;
+	virtual size_t s_read(char *buffer, size_t maxlen) = 0;
+	virtual void s_write(const char *buffer, size_t len) = 0;
+	virtual bool s_waitForReadyRead(int timeout) = 0;
 	
 private:
 	void checkBuf();
@@ -112,30 +121,28 @@ private:
 	char m_readBuff[64];
 	size_t m_readStart;
 	size_t m_readEnd;
-	timeval m_deadline;
-	fd_set m_readfds;
+	qint64 m_deadline;
 };
 
-inline AbstractChannel::AbstractChannel(): m_enabled(true), m_readStart(0), m_readEnd(0), m_deadline({0, 0}) {
+inline AbstractChannel::AbstractChannel(): m_enabled(true), m_readStart(0), m_readEnd(0), m_deadline(-1) {
 }
 
 inline AbstractChannel::~AbstractChannel() {
 }
 
-inline void AbstractChannel::close()  throw(IOException){
+inline void AbstractChannel::close() {
 	m_enabled = false;
 }
 
-inline void AbstractChannel::setDeadLine(const timeval& deadline) {
-	m_deadline.tv_sec = deadline.tv_sec;
-	m_deadline.tv_usec = deadline.tv_usec;
+inline void AbstractChannel::setDeadLine(qint64 msecs) {
+	m_deadline = msecs;
 }
 
 inline int AbstractChannel::getFd() {
 	return -1;
 }
 
-inline void AbstractChannel::flush() throw(IOException) {
+inline void AbstractChannel::flush() {
 }
 
 

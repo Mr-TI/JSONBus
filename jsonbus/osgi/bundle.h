@@ -90,7 +90,7 @@ public:
 	/**
 	 * @brief Bundle constructor.
 	 */
-	Bundle(const QString &path) throw(BundleException);
+	Bundle(const QString &path);
 
 	/**
 	 * @brief Bundle destructor.
@@ -112,22 +112,22 @@ public:
 	/**
 	 * @brief Install the bundle
 	 */
-	virtual void install() throw(BundleException);
+	virtual void install();
 	
 	/**
 	 * @brief Start the bundle
 	 */
-	virtual void start() throw(BundleException);
+	virtual void start();
 	
 	/**
 	 * @brief Stop the bundle
 	 */
-	virtual void stop() throw(BundleException);
+	virtual void stop();
 	
 	/**
 	 * @brief Uninstall the bundle
 	 */
-	virtual void uninstall() throw(BundleException);
+	virtual void uninstall();
 	
 	/**
 	 * @brief Get the bundle state
