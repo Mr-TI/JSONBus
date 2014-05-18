@@ -25,6 +25,9 @@ using namespace std;
 #include <string>
 #include <scanner.h>
 
+#define VARIANT_STRING()\
+	yylval->node = new variant_t(yytext);
+
 #define VARIANT_TXT2(_type_)\
 	yylval->node = new variant_t(yytext);\
 	yylval->node->convert(variant_t::_type_)
@@ -148,6 +151,6 @@ escape_prefix           \\
 <INITIAL>{semicolon}                      {BEGIN INITIAL; RETURN_TOKEN(TMEMBERSEP);}
 <INITIAL>{dblcote}                        {BEGIN STRING; STRING_BEGIN();}
 <INITIAL>{space}                          {}
-<INITIAL>.                                {RETURN_TOKEN(TSYNERR);}
+<INITIAL>.                                {VARIANT_STRING();RETURN_TOKEN(TSYNERR);}
 
 %%

@@ -21,10 +21,37 @@
 #include "application.h"
 #include "logger.h"
 
+static void sigsegv_signal_handler(int sig) {
+
+  fprintf(stderr, "\n##### SEGMENTATION FAULT #####\n\n");
+
+  void *trace[32];
+  size_t size, i;
+  char **strings;
+
+  size    = backtrace( trace, 32 );
+  strings = backtrace_symbols( trace, size );
+
+  fprintf( stderr, "\nBACKTRACE:\n\n" );
+
+  for( i = 0; i < size; i++ ){
+	  fprintf( stderr, "  %s\n", strings[i] );
+  }
+
+  fprintf(stderr, "\n##############################\n\n");
+
+  exit(-1);
+}
+
 namespace JSONBus {
 
 Application::Application(int &argc, char **argv)
 	: QCoreApplication(argc, argv) {
+	struct sigaction act;
+	sigemptyset(&act.sa_mask);
+	act.sa_flags = 0;
+	act.sa_handler = sigsegv_signal_handler;
+	sigaction( SIGSEGV, &act, NULL);
 }
 
 Application::~Application() {

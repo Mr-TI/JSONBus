@@ -21,6 +21,7 @@
 
 #ifdef USE_JSONBUS_EXCEPTION
 #include <jsonbus/core/jsonparser.h>
+#include <logger.h>
 #define ErrorException JSONBus::ErrorJSONParserException 
 #define EOFException JSONBus::EOFJSONParserException
 #else
@@ -45,7 +46,7 @@ QVariant Driver::parse() {
 	variant_t ret;
 	result = &ret;
 	if (parser.parse() != 0) {
-		throw ErrorException(lastError);
+		throw ErrorException(QString("Line: ") + QString::number(scanner.lineno()) + ", column: " + QString::number(scanner.YYLeng()) + ", " + lastError);
 	}
 	if (!result) {
 		throw EOFException();

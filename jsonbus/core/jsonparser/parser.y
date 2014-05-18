@@ -36,18 +36,18 @@ using namespace std;
 
 %token              TEND 0          "the end of file"
 
-%token              TOBJBEGIN       "an object begin '{'"
-%token              TOBJEND         "an object end '}'"
-%token              TARRBEGIN       "an array begin '['"
-%token              TARREND         "an array end ']'"
-%token              TMEMBERSEP      "an object field separator ':'"
-%token              TELEMENTSEP     "an object/array element separator ','"
-%token <str>        TSTRING         "a string"
-%token <node>       TVARIANT        "a variant"
+%token              TOBJBEGIN       "object begin '{'"
+%token              TOBJEND         "object end '}'"
+%token              TARRBEGIN       "array begin '['"
+%token              TARREND         "array end ']'"
+%token              TMEMBERSEP      "object field separator ':'"
+%token              TELEMENTSEP     "object/array element separator ','"
+%token <str>        TSTRING         "string"
+%token <node>       TVARIANT        "variant"
 
-%token              TSYNERRESC      "an invalid escaped character"
-%token              TSYNERRUNI      "an invalid unicode character"
-%token              TSYNERR         "an unknow character"
+%token              TSYNERRESC      "invalid escaped character"
+%token              TSYNERRUNI      "invalid unicode character"
+%token              TSYNERR         "invalid character"
 
 %start ROOT
 

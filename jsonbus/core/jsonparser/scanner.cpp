@@ -17,6 +17,7 @@
 #include <globals.h>
 #include <scanner.h>
 #include <jsonbus/core/abstractchannel.h>
+#include <logger.h>
 
 using namespace JSONBus;
 
@@ -35,10 +36,10 @@ void Scanner::set_debug(bool b) {
 
 int Scanner::LexerInput( char* buf, int max_size ) {
 	try {
-		buf[0] = m_channel->read();
+		buf[0] = m_channel->get();
 		return 1;
 	} catch (...) {
-		return -1;
+		return 0;
 	}
 }
 

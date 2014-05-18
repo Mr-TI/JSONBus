@@ -14,12 +14,13 @@
  *   limitations under the License.
  */
 
-#ifndef JSONPARSER_ABSTRACTSTREAMBUF_H
-#define JSONPARSER_ABSTRACTSTREAMBUF_H
+#ifndef JSONPARSER_ABSTRACTCHANNEL_H
+#define JSONPARSER_ABSTRACTCHANNEL_H
 
 #include <iostream>
 #include <fstream>
 #include <jsonbus/core/shareddata.h>
+#include <jsonbus/core/exception.h>
 #include "sharedptr.h"
 
 /**
@@ -47,37 +48,99 @@ public:
 	virtual ~AbstractChannel() = 0;
 	
 	/**
-	 * @brief Disable the buffer
+	 * @brief Close the channel
 	 */
-	virtual void close() = 0;
+	virtual void close() throw(IOException);
 	
 	/**
-	 * @brief underflow
-	 * @return a charracter or EOF
+	 * @brief Get the next char
+	 * @return a byte
 	 */
-	virtual int read() = 0;
+	char get() throw(IOException);
 	
 	/**
-	 * @brief underflow
-	 * @return a charracter or EOF
+	 * @brief Return the next char without extract it
+	 * @return a char
 	 */
-	virtual int read(char buffer, int maxlen) = 0;
+	char peek() throw(IOException);
 	
 	/**
-	 * @brief underflow
-	 * @return a charracter or EOF
+	 * @brief Ignore one or more char
 	 */
-	virtual void write(int val) = 0;
+	void ignore(size_t len = 1) throw(IOException);
 	
 	/**
-	 * @brief underflow
-	 * @return a charracter or EOF
+	 * @brief Read a buffer
+	 * @return The number of read charracters
 	 */
-	virtual void write(char buffer, int len) = 0;
+	size_t read(char *buffer, size_t maxlen) throw(IOException);
+	
+	/**
+	 * @brief Write a buffer
+	 */
+	void write(const char *buffer, size_t len) throw(IOException);
+	
+	/**
+	 * @brief Flush output data
+	 */
+	void flush() throw(IOException);
+	
+	/**
+	 * @brief Get available data for read
+	 * @return number of byte ready to read
+	 */
+	size_t available(bool noEmpty=false) throw(IOException);
+	
+	/**
+	 * @brief Get the inner file descriptor if supported
+	 * @return the inner file descriptor or -1 if not supported
+	 */
+	virtual int getFd();
+	
+	void setDeadLine(const timeval &deadline);
+	
+protected:
+	virtual size_t s_available() throw(IOException) = 0;
+	virtual size_t s_read(char *buffer, size_t maxlen) throw(IOException) = 0;
+	virtual void s_write(const char *buffer, size_t len) throw(IOException) = 0;
+// 	virtual void s_waitForReadyRead() throw(IOException) = 0;
+	
+private:
+	void checkBuf();
+	
+	bool m_enabled;
+	char m_readBuff[64];
+	size_t m_readStart;
+	size_t m_readEnd;
+	timeval m_deadline;
+	fd_set m_readfds;
 };
+
+inline AbstractChannel::AbstractChannel(): m_enabled(true), m_readStart(0), m_readEnd(0), m_deadline({0, 0}) {
+}
+
+inline AbstractChannel::~AbstractChannel() {
+}
+
+inline void AbstractChannel::close()  throw(IOException){
+	m_enabled = false;
+}
+
+inline void AbstractChannel::setDeadLine(const timeval& deadline) {
+	m_deadline.tv_sec = deadline.tv_sec;
+	m_deadline.tv_usec = deadline.tv_usec;
+}
+
+inline int AbstractChannel::getFd() {
+	return -1;
+}
+
+inline void AbstractChannel::flush() throw(IOException) {
+}
+
 
 typedef SharedPtr<AbstractChannel> ChannelPtr;
 
 }
 
-#endif // JSONPARSER_ABSTRACTSTREAMBUF_H
+#endif // JSONPARSER_ABSTRACTCHANNEL_H

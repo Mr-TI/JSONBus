@@ -19,6 +19,7 @@
 #include <QStringList>
 #include <jsonbus/core/common.h>
 #include <jsonbus/core/jsonparsertask.h>
+#include <jsonbus/core/iochannel.h>
 #include "slaveapplication.h"
 
 namespace JSONBus {
@@ -31,11 +32,11 @@ SlaveApplication::~SlaveApplication() {
 }
 
 void SlaveApplication::onStart() {
-	JSONParserTask *jsonParserTask = new JSONParserTask(null /* STDIN_FILENO */);
+	JSONParserTask *jsonParserTask = new JSONParserTask(new IOChannel(STDIN_FILENO));
 	
 	connect(jsonParserTask, SIGNAL(terminated()), this, SLOT(quit()));
 	connect(jsonParserTask, SIGNAL(dataAvailable(QVariant)), this, SLOT(onDataAvailable(QVariant)));
-	connect(this, SIGNAL(aboutToQuit()), jsonParserTask, SLOT(terminate()));
+	connect(this, SIGNAL(aboutToQuit()), jsonParserTask, SLOT(cancel()));
 	
 	QThreadPool::globalInstance()->start(jsonParserTask);
 }
