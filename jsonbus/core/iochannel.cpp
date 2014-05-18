@@ -34,6 +34,7 @@ IOChannel::IOChannel(int fd) : m_fd(fd), m_epfd(-1) {
 }
 
 IOChannel::~IOChannel() {
+	::close(m_epfd);
 }
 
 size_t IOChannel::s_read(char *buffer, size_t maxlen) {

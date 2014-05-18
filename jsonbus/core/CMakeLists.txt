@@ -26,8 +26,12 @@ include(${QT_USE_FILE})
 qt4_wrap_ui(project_UIS_H)
 qt4_wrap_cpp(project_MOC_SRCS jsonparsertask.h application.h slaveapplication.h)
 
+# ### SSL ###
+find_package(OpenSSL REQUIRED)
+include_directories(${OPENSSL_INCLUDE_DIR})
+
 add_subdirectory(jsonparser)
 
 # ### TARGET ###
 add_library(jsonbus ${JSONBUS_LIBRARY_TYPE} ${project_SRCS} ${project_HDRS} ${project_MOC_SRCS})
-target_link_libraries(jsonbus ${QT_LIBRARIES} jsonparser)
+target_link_libraries(jsonbus ${QT_LIBRARIES} ${OPENSSL_LIBRARIES} jsonparser)

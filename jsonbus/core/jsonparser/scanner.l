@@ -14,6 +14,13 @@
  *   limitations under the License.
  */
 
+%top{
+
+#define YY_TYPEDEF_YY_SIZE_T
+typedef int yy_size_t;
+
+}
+
 %{
 #include <iostream>
 using namespace std;

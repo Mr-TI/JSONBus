@@ -21,7 +21,7 @@
 #include <fstream>
 #include <jsonbus/core/shareddata.h>
 #include <jsonbus/core/exception.h>
-#include "sharedptr.h"
+#include <jsonbus/core/sharedptr.h>
 
 /**
  * @namespace
@@ -49,45 +49,53 @@ public:
 	
 	/**
 	 * @brief Close the channel
+	 * @throw IOException on error
 	 */
 	virtual void close();
 	
 	/**
 	 * @brief Get the next char
 	 * @return a byte
+	 * @throw IOException on error
 	 */
 	char get();
 	
 	/**
 	 * @brief Return the next char without extract it
 	 * @return a char
+	 * @throw IOException on error
 	 */
 	char peek();
 	
 	/**
 	 * @brief Ignore one or more char
+	 * @throw IOException on error
 	 */
 	void ignore(size_t len = 1);
 	
 	/**
 	 * @brief Read a buffer
 	 * @return The number of read charracters
+	 * @throw IOException on error
 	 */
 	size_t read(char *buffer, size_t maxlen);
 	
 	/**
 	 * @brief Write a buffer
+	 * @throw IOException on error
 	 */
 	void write(const char *buffer, size_t len);
 	
 	/**
 	 * @brief Flush output data
+	 * @throw IOException on error
 	 */
 	void flush();
 	
 	/**
 	 * @brief Get available data for read
 	 * @return number of byte ready to read
+	 * @throw IOException on error
 	 */
 	size_t available(bool noEmpty=false);
 	
