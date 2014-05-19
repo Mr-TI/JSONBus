@@ -15,6 +15,7 @@
  */
 
 #include "selector.h"
+#include "selectionkey.h"
 #include "logger.h"
 #include <sys/ioctl.h>
 #include <sys/time.h>
@@ -27,16 +28,26 @@
 
 namespace JSONBus {
 
-Selector::Selector() {
+Selector::Selector() : m_eventCnt(0) {
+	THROW_IOEXP_ON_ERR(m_epfd = epoll_create1(0));
 }
 
 Selector::~Selector() {
+	::close(m_epfd);
 }
 
-void Selector::select(int timeout) {
+bool Selector::select(int timeout) {
+	ssize_t ret;
+	THROW_IOEXP_ON_ERR(ret = epoll_wait(m_epfd, m_events,sizeof(m_events) ,timeout));
+	return (m_eventCnt = ret) > 0;
 }
 
-void Selector::close() {
+void Selector::put(const SharedPtr< SelectionKey >& key) {
+	m_keys[key->channel()->s_fd()] = key;
 }
-	
+
+void Selector::remove(SelectionKey* key) {
+
+}
+
 }

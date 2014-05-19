@@ -27,14 +27,9 @@
 
 namespace JSONBus {
 
-SelectionKey::SelectionKey() {
-}
-
-SelectionKey::~SelectionKey() {
-}
-
 void SelectionKey::cancel() {
-	m_valid = false;
+	m_selector.remove(this);
+	m_channel = nullptr;
 }
 	
 }

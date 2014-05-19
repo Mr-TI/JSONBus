@@ -94,7 +94,7 @@ void Bundle::uninstall() {
 		stop();
 	}
 	if (m_state == RESOLVED) {
-		m_bundleActivator = null;
+		m_bundleActivator = nullptr;
 		m_libFile.unload();
 		m_state = UNINSTALLED;
 		return;
@@ -112,7 +112,7 @@ void Bundle::start() {
 	}
 	if (m_state == RESOLVED) {
 		m_state = STARTING;
-		if (m_bundleActivator != null) {
+		if (m_bundleActivator != nullptr) {
 			m_bundleActivator->start(m_context);
 		}
 		m_state = ACTIVE;
@@ -128,7 +128,7 @@ void Bundle::stop() {
 	}
 	if (m_state == ACTIVE) {
 		m_state = STOPPING;
-		if (m_bundleActivator != null) {
+		if (m_bundleActivator != nullptr) {
 			m_bundleActivator->stop(m_context);
 		}
 		m_state = RESOLVED;

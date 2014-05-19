@@ -46,6 +46,12 @@ public:
 	virtual ~ServerSocketChannel();
 	
 	/**
+	 * @brief Return if the channel is open
+	 * @return true if the channel is open, otherwise false
+	 */
+	virtual bool isOpen();
+	
+	/**
 	 * @brief Close the channel
 	 * @throw IOException on error
 	 */
@@ -63,6 +69,10 @@ protected:
 
 inline int &ServerSocketChannel::s_fd() {
 	return m_fd;
+}
+
+inline bool ServerSocketChannel::isOpen() {
+	return m_fd != -1;
 }
 
 }

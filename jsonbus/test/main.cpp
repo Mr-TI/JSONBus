@@ -47,7 +47,7 @@ void dump(SharedPtr<B> b) {
 int main(int argc, char **argv) {
 	
 	try {
-		SharedPtr<C> c = null;
+		SharedPtr<C> c = nullptr;
 		SharedPtr<B> b = newB();
 		SharedPtr<A> ab = b, ac = new C(1);
 		SharedPtr<A> f, g, h;
@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
 		logInfo() << "ab = b = nullptr";
 		logFine() << h;
 		logInfo() << "f = null";
-		f = null;
+		f = nullptr;
 		logFine() << h;
 		logInfo() << "g = null";
 		g = 0;
@@ -72,14 +72,12 @@ int main(int argc, char **argv) {
 		logFine() << h;
 		
 		logInfo() << "(  ab == nullptr) is " << (ab == nullptr);
-		logInfo() << "(null == nullptr) is " << (null == nullptr);
 		
 		logFine() << "ac => " << ac;
 		logFine() << " c => " << c;
 		logInfo() << "(ac == c) is " << (ac == c);
 		
 		
-		logFine() << null;
 		logFine() << b;
 		
 		b->i = 0; // throw NullPointerException

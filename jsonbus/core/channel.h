@@ -38,6 +38,7 @@ class Selector;
  * @copyright Apache License, Version 2.0
  */
 class Channel: public SharedData {
+	friend class Selector;
 public:
 	/**
 	 * @brief Channel constructor
@@ -50,8 +51,13 @@ public:
 	virtual ~Channel() = 0;
 	
 	/**
+	 * @brief Return if the channel is open
+	 * @return true if the channel is open, otherwise false
+	 */
+	virtual bool isOpen() = 0;
+	
+	/**
 	 * @brief Close the channel
-	 * @throw IOException on error
 	 */
 	virtual void close();
 	

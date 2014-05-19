@@ -22,6 +22,7 @@
 #include <jsonbus/core/sharedptr.h>
 #include <jsonbus/core/channel.h>
 #include <sys/epoll.h>
+#include <qt4/QtCore/QMap>
 
 /**
  * @namespace
@@ -29,6 +30,7 @@
 namespace JSONBus {
 
 class Channel;
+class SelectionKey;
 
 /**
  * @brief Selector
@@ -38,6 +40,7 @@ class Channel;
  * @copyright Apache License, Version 2.0
  */
 class Selector {
+	friend class SelectionKey;
 public:
 	/**
 	 * @brief Selector constructor
@@ -53,13 +56,7 @@ public:
 	 * @brief Select the ready channels for respertive designed operations
 	 * @param timeout time in milliseconds or 0 for an undefined time
 	 */
-	virtual void select(int timeout);
-	
-	/**
-	 * @brief Close the channel
-	 * @throw IOException on error
-	 */
-	virtual void close();
+	virtual bool select(int timeout);
 
 private:
 	
@@ -68,17 +65,19 @@ private:
 	 * @param channel channel to register or update
 	 * @param flags
 	 */
-// 	virtual void put(const SharedPtr<Channel> &channel, int flags);
+	virtual void put(const SharedPtr<SelectionKey> &key);
 	
 	/**
 	 * @brief Remove a channel from this selector
 	 * @param channel channel to remove
 	 */
-// 	virtual void remove(const SharedPtr<Channel> &channel);
+	virtual void remove(SelectionKey *key);
 	
 	int m_epfd;
 	epoll_event m_event;
 	epoll_event m_events[64];
+	uint m_eventCnt;
+	QMap<int, SharedPtr<SelectionKey> > m_keys;
 };
 
 }

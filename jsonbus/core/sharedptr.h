@@ -167,9 +167,6 @@ public:
 /// @brief Generic pointer type
 typedef SharedPtr<SharedData> GenericPtr;
 
-/// @brief Null pointer
-const GenericPtr null;
-
 extern void __raise_InvalidClassException();
 extern void __raise_NullPointerException();
 
