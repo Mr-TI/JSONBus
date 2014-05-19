@@ -14,40 +14,55 @@
  *   limitations under the License.
  */
 
-#ifndef JSONPARSER_DRIVER_H
-#define JSONPARSER_DRIVER_H
+#ifndef JSONPARSER_SELECTIONKEY_H
+#define JSONPARSER_SELECTIONKEY_H
 
-#include <QVariant>
-#include <jsonbus/core/streamchannel.h>
-
-namespace jsonparser {
-
-class Parser;
-class Scanner;
-class r;
+#include <jsonbus/core/shareddata.h>
+#include <jsonbus/core/exception.h>
+#include <jsonbus/core/sharedptr.h>
+#include "channel.h"
+#include <sys/epoll.h>
 
 /**
- * @brief JSON parser driver
+ * @namespace
+ */
+namespace JSONBus {
+
+/**
+ * @brief SelectionKey
  * 
  * @author <a href="mailto:emericv@openihs.org">Emeric Verschuur</a>
  * @date 2014
  * @copyright Apache License, Version 2.0
  */
-class Driver {
+class SelectionKey {
 public:
-	Driver(const JSONBus::StreamChannelPtr &channel);
-	~Driver();
-	QVariant parse();
+	
+	/**
+	 * @brief SelectionKey destructor
+	 */
+	~SelectionKey();
+	
+	void cancel();
+	
+	bool isReadable();
+	
+	bool isWritable();
+	
+	bool isValid();
+
 private:
-	QString lastError;
-	Scanner &scanner;
-	Parser &parser;
-	QVariant *result;
-	friend class Parser;
-	friend class Scanner;
-	friend class r;
+	/**
+	 * @brief SelectionKey constructor
+	 */
+	SelectionKey();
+	
+	bool m_valid;
 };
+
+typedef SharedPtr<SelectionKey> SelectionKeyPtr;
+
 
 }
 
-#endif // JSONPARSER_DRIVER_H
+#endif // JSONPARSER_SELECTIONKEY_H

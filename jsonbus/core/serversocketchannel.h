@@ -18,8 +18,8 @@
 #define JSONPARSER_SERVERSOCKETCHANNEL_H
 
 #include <jsonbus/core/exception.h>
-#include <jsonbus/core/selectablechannel.h>
-#include <jsonbus/core/abstractchannel.h>
+#include <jsonbus/core/channel.h>
+#include <jsonbus/core/streamchannel.h>
 
 /**
  * @namespace
@@ -33,7 +33,7 @@ namespace JSONBus {
  * @date 2014
  * @copyright Apache License, Version 2.0
  */
-class ServerSocketChannel: public SelectableChannel {
+class ServerSocketChannel: public Channel {
 public:
 	/**
 	 * @brief Socket constructor
@@ -54,19 +54,14 @@ public:
 	/**
 	 * @brief Connect
 	 */
-	ChannelPtr accept();
-	
-	/**
-	 * @brief Get the inner file descriptor if supported
-	 * @return the inner file descriptor or -1 if not supported
-	 */
-	virtual int getFd();
+	StreamChannelPtr accept();
 	
 protected:
+	virtual int &s_fd();
 	int m_fd;
 };
 
-inline int ServerSocketChannel::getFd() {
+inline int &ServerSocketChannel::s_fd() {
 	return m_fd;
 }
 

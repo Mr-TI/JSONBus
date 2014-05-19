@@ -72,7 +72,7 @@ void ServerSocketChannel::close() {
 #define CLIENT_HOST_MAXLEN 256
 #define CLIENT_SERV_MAXLEN 32
 
-ChannelPtr ServerSocketChannel::accept() {
+StreamChannelPtr ServerSocketChannel::accept() {
 	char client_host[CLIENT_HOST_MAXLEN + 1];
 	client_host[0] = '\0';
 	char client_serv[CLIENT_SERV_MAXLEN + 1];

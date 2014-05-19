@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-#include "iochannel.h"
+#include "selector.h"
 #include "logger.h"
 #include <sys/ioctl.h>
 #include <sys/time.h>
@@ -26,5 +26,17 @@
 	if ((exp) == -1) throw IOException(QString() + __FILE__ + ":" + __LINE__ + ": " + strerror(errno))
 
 namespace JSONBus {
+
+Selector::Selector() {
+}
+
+Selector::~Selector() {
+}
+
+void Selector::select(int timeout) {
+}
+
+void Selector::close() {
+}
 	
 }

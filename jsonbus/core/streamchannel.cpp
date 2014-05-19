@@ -27,7 +27,7 @@
 
 namespace JSONBus {
 
-inline void AbstractChannel::checkBuf() {
+inline void StreamChannel::checkBuf() {
 	if (m_readEnd == m_readStart) {
 		size_t n;
 		n = available(true);
@@ -36,23 +36,23 @@ inline void AbstractChannel::checkBuf() {
 	}
 }
 
-char AbstractChannel::get() {
+char StreamChannel::get() {
 	checkBuf();
 	return m_readBuff[m_readStart++];
 }
 
-char AbstractChannel::peek() {
+char StreamChannel::peek() {
 	checkBuf();
 	return m_readBuff[m_readStart];
 }
 
-void AbstractChannel::ignore(size_t len) {
+void StreamChannel::ignore(size_t len) {
 	for (size_t i=0; i < len; i++) {
 		get();
 	}
 }
 
-size_t AbstractChannel::read(char *buffer, size_t maxlen) {
+size_t StreamChannel::read(char *buffer, size_t maxlen) {
 	size_t count;
 	if (m_readEnd != m_readStart) {
 		count = qMin(m_readEnd - m_readStart, maxlen);
@@ -64,17 +64,13 @@ size_t AbstractChannel::read(char *buffer, size_t maxlen) {
 	return s_read(buffer, count);
 }
 
-void AbstractChannel::write(const char *buffer, size_t len) {
+void StreamChannel::write(const char *buffer, size_t len) {
 	s_write(buffer, len);
 }
 
-size_t AbstractChannel::available(bool noEmpty) {
+size_t StreamChannel::available(bool noEmpty) {
 	int n = s_available();
 	if (noEmpty && n == 0) {
-		int fd = getFd();
-		if (fd == -1) {
-			throw EOFException("End of File");
-		}
 		if (m_deadline == -1) {
 			while (!s_waitForReadyRead(100)) {
 				if (!m_enabled) {

@@ -26,7 +26,7 @@
 #define JSONBUS_JSONPARSER_H
 
 #include <jsonbus/core/exception.h>
-#include <jsonbus/core/abstractchannel.h>
+#include <jsonbus/core/streamchannel.h>
 
 #ifndef JSONBUS_EXPORT
 #define JSONBUS_EXPORT
@@ -63,7 +63,7 @@ public:
 	 * @param channel Channel pointer
 	 * @param parent Parent object
 	 */
-	JSONParser(const ChannelPtr &channel, QObject* parent = 0);
+	JSONParser(const StreamChannelPtr &channel, QObject* parent = 0);
 	
 	/**
 	 * @brief JSONParser destructor.
@@ -80,7 +80,7 @@ public:
 	void cancel();
 	
 private:
-	ChannelPtr m_channel;
+	StreamChannelPtr m_channel;
 	jsonparser::Driver *m_driver;
 };
 

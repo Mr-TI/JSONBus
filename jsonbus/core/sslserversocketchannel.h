@@ -19,7 +19,7 @@
 
 #include <jsonbus/core/exception.h>
 #include <jsonbus/core/serversocketchannel.h>
-#include <jsonbus/core/abstractchannel.h>
+#include <jsonbus/core/streamchannel.h>
 #include <openssl/ssl.h>
 
 /**
@@ -55,7 +55,7 @@ public:
 	/**
 	 * @brief Connect
 	 */
-	ChannelPtr accept();
+	StreamChannelPtr accept();
 	
 	/**
 	 * @brief Get the inner file descriptor if supported

@@ -14,17 +14,21 @@
  *   limitations under the License.
  */
 
-#ifndef JSONPARSER_IOCHANNEL_H
-#define JSONPARSER_IOCHANNEL_H
+#ifndef JSONPARSER_SELECTABLECHANNEL_H
+#define JSONPARSER_SELECTABLECHANNEL_H
 
-#include <sys/epoll.h>
 #include <jsonbus/core/shareddata.h>
-#include <jsonbus/core/streamchannel.h>
+#include <jsonbus/core/exception.h>
+#include <jsonbus/core/sharedptr.h>
+#include <jsonbus/core/selector.h>
 
 /**
  * @namespace
  */
 namespace JSONBus {
+
+class SelectionKey;
+class Selector;
 
 /**
  * @brief Abstract channel
@@ -33,19 +37,17 @@ namespace JSONBus {
  * @date 2014
  * @copyright Apache License, Version 2.0
  */
-class IOChannel: public StreamChannel {
+class Channel: public SharedData {
 public:
 	/**
-	 * @brief AbstractChannel constructor
-	 * @param fd a valid file descriptor
-	 * @throw IOException on error
+	 * @brief Channel constructor
 	 */
-	IOChannel(int fd);
+	Channel();
 	
 	/**
-	 * @brief AbstractChannel destructor
+	 * @brief Channel destructor
 	 */
-	virtual ~IOChannel();
+	virtual ~Channel() = 0;
 	
 	/**
 	 * @brief Close the channel
@@ -53,24 +55,23 @@ public:
 	 */
 	virtual void close();
 	
+	SharedPtr<SelectionKey> registerTo(Selector &sel, int ops);
+	
 protected:
-	virtual int &s_fd();
-	virtual size_t s_available();
-	virtual size_t s_read(char *buffer, size_t maxlen);
-	virtual void s_write(const char *buffer, size_t len);
-	bool s_waitForReadyRead(int timeout);
-	int m_fd;
-
-private:
-	int m_epfd;
-	epoll_event m_event;
-	epoll_event m_events[1];
+	virtual int &s_fd() = 0;
 };
 
-inline int &IOChannel::s_fd() {
-	return m_fd;
+inline Channel::Channel() {
 }
+
+inline Channel::~Channel() {
+}
+
+inline void Channel::close() {
+}
+
+typedef SharedPtr<Channel> ChannelPtr;
 
 }
 
-#endif // JSONPARSER_IOCHANNEL_H
+#endif // JSONPARSER_SELECTABLECHANNEL_H

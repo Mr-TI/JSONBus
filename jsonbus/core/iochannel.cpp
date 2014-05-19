@@ -55,7 +55,7 @@ void IOChannel::s_write(const char *buffer, size_t len) {
 
 void IOChannel::close() {
 	THROW_IOEXP_ON_ERR(::close(m_fd));
-	AbstractChannel::close();
+	StreamChannel::close();
 }
 
 size_t IOChannel::s_available() {

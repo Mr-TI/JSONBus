@@ -14,66 +14,73 @@
  *   limitations under the License.
  */
 
-#ifndef JSONPARSER_SELECTABLECHANNEL_H
-#define JSONPARSER_SELECTABLECHANNEL_H
+#ifndef JSONPARSER_SELECTOR_H
+#define JSONPARSER_SELECTOR_H
 
 #include <jsonbus/core/shareddata.h>
 #include <jsonbus/core/exception.h>
 #include <jsonbus/core/sharedptr.h>
+#include <jsonbus/core/channel.h>
+#include <sys/epoll.h>
 
 /**
  * @namespace
  */
 namespace JSONBus {
 
+class Channel;
+
 /**
- * @brief Abstract channel
+ * @brief Selector
  * 
  * @author <a href="mailto:emericv@openihs.org">Emeric Verschuur</a>
  * @date 2014
  * @copyright Apache License, Version 2.0
  */
-class SelectableChannel: public SharedData {
+class Selector {
 public:
 	/**
-	 * @brief SelectableChannel constructor
+	 * @brief Selector constructor
 	 */
-	SelectableChannel();
+	Selector();
 	
 	/**
-	 * @brief SelectableChannel destructor
+	 * @brief Selector destructor
 	 */
-	virtual ~SelectableChannel() = 0;
+	virtual ~Selector();
+	
+	/**
+	 * @brief Select the ready channels for respertive designed operations
+	 * @param timeout time in milliseconds or 0 for an undefined time
+	 */
+	virtual void select(int timeout);
 	
 	/**
 	 * @brief Close the channel
 	 * @throw IOException on error
 	 */
 	virtual void close();
+
+private:
 	
 	/**
-	 * @brief Get the inner file descriptor if supported
-	 * @return the inner file descriptor or -1 if not supported
+	 * @brief Register or update a channel to this selector
+	 * @param channel channel to register or update
+	 * @param flags
 	 */
-	virtual int getFd();
+// 	virtual void put(const SharedPtr<Channel> &channel, int flags);
+	
+	/**
+	 * @brief Remove a channel from this selector
+	 * @param channel channel to remove
+	 */
+// 	virtual void remove(const SharedPtr<Channel> &channel);
+	
+	int m_epfd;
+	epoll_event m_event;
+	epoll_event m_events[64];
 };
 
-inline SelectableChannel::SelectableChannel() {
 }
 
-inline SelectableChannel::~SelectableChannel() {
-}
-
-inline void SelectableChannel::close() {
-}
-
-inline int SelectableChannel::getFd() {
-	return -1;
-}
-
-
-typedef SharedPtr<SelectableChannel> SelectableChannelPtr;
-
-}
-
-#endif // JSONPARSER_SELECTABLECHANNEL_H
+#endif // JSONPARSER_SELECTOR_H

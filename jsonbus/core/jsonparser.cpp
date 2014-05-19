@@ -24,7 +24,7 @@ using namespace jsonparser;
 
 namespace JSONBus {
 
-JSONParser::JSONParser(const ChannelPtr& channel, QObject* parent)
+JSONParser::JSONParser(const StreamChannelPtr& channel, QObject* parent)
 	: QObject (parent), m_channel(channel), m_driver(new Driver(channel)){
 }
 

@@ -16,14 +16,14 @@
 
 #include <globals.h>
 #include <scanner.h>
-#include <jsonbus/core/abstractchannel.h>
+#include <jsonbus/core/streamchannel.h>
 #include <logger.h>
 
 using namespace JSONBus;
 
 namespace jsonparser {
 
-Scanner::Scanner(const ChannelPtr& channel)
+Scanner::Scanner(const StreamChannelPtr& channel)
         : jsonparserFlexLexer(nullptr, nullptr), m_channel(channel) {
 }
 

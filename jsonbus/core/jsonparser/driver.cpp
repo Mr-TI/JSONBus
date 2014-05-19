@@ -32,7 +32,7 @@ using namespace JSONBus;
 
 namespace jsonparser {
 
-Driver::Driver(const ChannelPtr& channel)
+Driver::Driver(const StreamChannelPtr& channel)
 		: scanner(*new Scanner(channel)),
 		parser(*new Parser(*this)){
 }

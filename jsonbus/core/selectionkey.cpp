@@ -14,40 +14,27 @@
  *   limitations under the License.
  */
 
-#ifndef JSONPARSER_DRIVER_H
-#define JSONPARSER_DRIVER_H
+#include "selectionkey.h"
+#include "logger.h"
+#include <sys/ioctl.h>
+#include <sys/time.h>
+#include <string.h>
+#include <unistd.h>
+#include <QString>
 
-#include <QVariant>
-#include <jsonbus/core/streamchannel.h>
+#define THROW_IOEXP_ON_ERR(exp) \
+	if ((exp) == -1) throw IOException(QString() + __FILE__ + ":" + __LINE__ + ": " + strerror(errno))
 
-namespace jsonparser {
+namespace JSONBus {
 
-class Parser;
-class Scanner;
-class r;
-
-/**
- * @brief JSON parser driver
- * 
- * @author <a href="mailto:emericv@openihs.org">Emeric Verschuur</a>
- * @date 2014
- * @copyright Apache License, Version 2.0
- */
-class Driver {
-public:
-	Driver(const JSONBus::StreamChannelPtr &channel);
-	~Driver();
-	QVariant parse();
-private:
-	QString lastError;
-	Scanner &scanner;
-	Parser &parser;
-	QVariant *result;
-	friend class Parser;
-	friend class Scanner;
-	friend class r;
-};
-
+SelectionKey::SelectionKey() {
 }
 
-#endif // JSONPARSER_DRIVER_H
+SelectionKey::~SelectionKey() {
+}
+
+void SelectionKey::cancel() {
+	m_valid = false;
+}
+	
+}

@@ -18,7 +18,7 @@
 #define JSONPARSER_ABSTRACTCHANNEL_H
 
 #include <jsonbus/core/exception.h>
-#include <jsonbus/core/selectablechannel.h>
+#include <jsonbus/core/channel.h>
 
 /**
  * @namespace
@@ -32,17 +32,17 @@ namespace JSONBus {
  * @date 2014
  * @copyright Apache License, Version 2.0
  */
-class AbstractChannel: public SelectableChannel {
+class StreamChannel: public Channel {
 public:
 	/**
 	 * @brief AbstractChannel constructor
 	 */
-	AbstractChannel();
+	StreamChannel();
 	
 	/**
 	 * @brief AbstractChannel destructor
 	 */
-	virtual ~AbstractChannel() = 0;
+	virtual ~StreamChannel() = 0;
 	
 	/**
 	 * @brief Close the channel
@@ -123,25 +123,25 @@ private:
 	qint64 m_deadline;
 };
 
-inline AbstractChannel::AbstractChannel(): m_enabled(true), m_readStart(0), m_readEnd(0), m_deadline(-1) {
+inline StreamChannel::StreamChannel(): m_enabled(true), m_readStart(0), m_readEnd(0), m_deadline(-1) {
 }
 
-inline AbstractChannel::~AbstractChannel() {
+inline StreamChannel::~StreamChannel() {
 }
 
-inline void AbstractChannel::close() {
+inline void StreamChannel::close() {
 	m_enabled = false;
 }
 
-inline void AbstractChannel::setDeadLine(qint64 msecs) {
+inline void StreamChannel::setDeadLine(qint64 msecs) {
 	m_deadline = msecs;
 }
 
-inline void AbstractChannel::flush() {
+inline void StreamChannel::flush() {
 }
 
 
-typedef SharedPtr<AbstractChannel> ChannelPtr;
+typedef SharedPtr<StreamChannel> StreamChannelPtr;
 
 }
 

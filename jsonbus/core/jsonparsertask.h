@@ -40,7 +40,7 @@ public:
 	 * @param fd File descriptor
 	 * @param parent Parent object
 	 */
-	JSONParserTask(const ChannelPtr &channel, QObject* parent = 0);
+	JSONParserTask(const StreamChannelPtr &channel, QObject* parent = 0);
 	
 	/**
 	 * @brief Task main
