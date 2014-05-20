@@ -42,6 +42,21 @@ bool Selector::select(int timeout) {
 	return (m_eventCnt = ret) > 0;
 }
 
+QList< SelectionKeyPtr > Selector::selectedKeys() {
+	QList< SelectionKeyPtr > list;
+	for (uint i = 0; i < m_eventCnt; i++) {
+		if (!m_keys.contains(m_events[i].data.fd)) {
+			continue;
+		}
+		SelectionKeyPtr key = m_keys[m_events[i].data.fd];
+		m_keys.remove(m_events[i].data.fd);
+		key->m_events = m_events[i].events;
+		list.append(key);
+	}
+	return list;
+}
+
+
 void Selector::put(const SharedPtr< SelectionKey >& key) {
 	m_keys[key->channel()->s_fd()] = key;
 }

@@ -39,6 +39,7 @@ class Channel;
  */
 class SelectionKey : public SharedData {
 	friend class Channel;
+	friend class Selector;
 public:
 	enum Flags {
 		OP_READ = EPOLLIN,

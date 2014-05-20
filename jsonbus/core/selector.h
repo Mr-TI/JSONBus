@@ -22,7 +22,7 @@
 #include <jsonbus/core/sharedptr.h>
 #include <jsonbus/core/channel.h>
 #include <sys/epoll.h>
-#include <qt4/QtCore/QMap>
+#include <QMap>
 
 /**
  * @namespace
@@ -57,6 +57,12 @@ public:
 	 * @param timeout time in milliseconds or 0 for an undefined time
 	 */
 	virtual bool select(int timeout);
+	
+	/**
+	 * @brief Get selected keys
+	 * @param return the key list
+	 */
+	QList< SharedPtr<SelectionKey> > selectedKeys();
 
 private:
 	
