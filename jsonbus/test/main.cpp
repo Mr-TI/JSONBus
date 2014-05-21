@@ -16,6 +16,10 @@
 
 #include <jsonbus/core/sharedptr.h>
 #include <jsonbus/core/logger.h>
+#include <jsonbus/core/selector.h>
+#include <jsonbus/core/serversocketchannel.h>
+#include <jsonbus/core/selectionkey.h>
+#include <unistd.h>
 
 using namespace JSONBus;
 using namespace std;
@@ -44,8 +48,7 @@ void dump(SharedPtr<B> b) {
 	logInfo() << "b: " << b->i;
 }
 
-int main(int argc, char **argv) {
-	
+void testPtr() {
 	try {
 		SharedPtr<C> c = nullptr;
 		SharedPtr<B> b = newB();
@@ -80,12 +83,25 @@ int main(int argc, char **argv) {
 		
 		logFine() << b;
 		
-		b->i = 0; // throw NullPointerException
+// 		b->i = 0; // throw NullPointerException
 		
 	} catch (Exception &e) {
 		logCrit() << "terminate called after throwing an instance of " << e;
 	}
 	logInfo() << "DONE!";
+}
+
+void testSelect() {
+	Selector selector;
+	SharedPtr<ServerSocketChannel> server = new ServerSocketChannel("::1", 3333);
 	
+	server->registerTo(selector, SelectionKey::OP_READ);
+
+	server->accept();
+}
+
+int main(int argc, char **argv) {
+	
+	testSelect();
 	return 0;
 }

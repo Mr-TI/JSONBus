@@ -31,7 +31,7 @@
 
 namespace JSONBus {
 
-class JSONParserTask : public JSONBus::JSONParser, public QRunnable {
+class JSONParserTask : public QObject, public JSONBus::JSONParser, public QRunnable {
 	Q_OBJECT
 public:
 	

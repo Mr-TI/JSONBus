@@ -33,24 +33,40 @@
 namespace JSONBus {
 
 static int __connect(const QString &host, int port) {
-	addrinfo *addrinfo, *it;
-	bool connected;
-	int fd;
-	THROW_IOEXP_ON_ERR(fd = socket(addrinfo->ai_family, SOCK_STREAM, 0));
-	if (getaddrinfo(host.toStdString().c_str(), NULL, NULL, &addrinfo) == -1) {
-		THROW_IOEXP(hstrerror(h_errno));
-	}
-	((struct sockaddr_in *)(addrinfo->ai_addr))->sin_port = htons(port);
-	it = addrinfo;
+	addrinfo *addrinfo = NULL, *it;
+	bool connected = false;
+	const char* error = NULL;
+	int fd = -1;
+	QRegExp regex("^\\s*\\[([a-fA-F0-9:]+)\\]\\s*$");
 	do {
-		connected |= (connect(fd, it->ai_addr, it->ai_addrlen) == 0);
-		it = it->ai_next;
-	} while(!connected && it);
-	freeaddrinfo(addrinfo);
-	if (!connected) {
+		if (::getaddrinfo((regex.indexIn(host) > -1 ? regex.cap(1).toStdString().c_str() : 
+			host.toStdString().c_str()), NULL, NULL, &addrinfo) == -1) {
+			error = ::hstrerror(h_errno);
+			break;
+		}
+		it = addrinfo;
+		do {
+			fd = ::socket(it->ai_family, SOCK_STREAM, 0);
+			if (fd == -1)
+				break;
+			((struct sockaddr_in *)(it->ai_addr))->sin_port = htons(port);
+			connected |= (::connect(fd, it->ai_addr, it->ai_addrlen) == 0);
+			if (connected)
+				break;
+			::close(fd);
+			it = it->ai_next;
+		} while(it);
+	} while (false);
+	if (addrinfo) {
+		::freeaddrinfo(addrinfo);
+	}
+	if (connected)
+		return fd;
+	if (error) {
+		THROW_IOEXP(error);
+	} else {
 		THROW_IOEXP(nullptr);
 	}
-	return fd;
 }
 
 SocketChannel::SocketChannel(const QString &host, int port): IOChannel(__connect(host, port)) {

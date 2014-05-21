@@ -49,21 +49,19 @@ jsonbus_declare_exception(ErrorJSONParserException, JSONParserException);
 /**
  * @brief JSON Parser management.
  */
-class JSONBUS_EXPORT JSONParser: public QObject {
+class JSONBUS_EXPORT JSONParser {
 public:
 	
 	/**
 	 * @brief JSONParser constructor.
-	 * @param parent Parent object
 	 */
-	JSONParser(QObject* parent = 0);
+	JSONParser();
 	
 	/**
 	 * @brief JSONParser constructor.
 	 * @param channel Channel pointer
-	 * @param parent Parent object
 	 */
-	JSONParser(const StreamChannelPtr &channel, QObject* parent = 0);
+	JSONParser(const StreamChannelPtr &channel);
 	
 	/**
 	 * @brief JSONParser destructor.

@@ -34,31 +34,47 @@
 
 namespace JSONBus {
 
-inline int __bind(const QString &host, int port) {
-	addrinfo *addrinfo, *it;
-	bool connected;
-	int fd;
-	THROW_IOEXP_ON_ERR(fd = socket(addrinfo->ai_family, SOCK_STREAM, 0));
+static int __bind(const QString &host, int port, int listenQueueSize) {
+	addrinfo *addrinfo = NULL, *it;
+	bool bound = false;
+	const char* error = NULL;
+	int fd = -1, ret;
 	QRegExp regex("^\\s*\\[([a-fA-F0-9:]+)\\]\\s*$");
-	if (getaddrinfo((regex.indexIn(host) > -1 ? regex.cap(1).toStdString().c_str() : 
-		host.toStdString().c_str()), NULL, NULL, &addrinfo) == -1) {
-		THROW_IOEXP(hstrerror(h_errno));
-	}
-	((struct sockaddr_in *)(addrinfo->ai_addr))->sin_port = htons(port);
-	it = addrinfo;
 	do {
-		connected |= (connect(fd, it->ai_addr, it->ai_addrlen) == 0);
-		it = it->ai_next;
-	} while(!connected && it);
-	freeaddrinfo(addrinfo);
-	if (!connected) {
+		if (::getaddrinfo((regex.indexIn(host) > -1 ? regex.cap(1).toStdString().c_str() : 
+			host.toStdString().c_str()), NULL, NULL, &addrinfo) == -1) {
+			error = ::hstrerror(h_errno);
+			break;
+		}
+		it = addrinfo;
+		do {
+			fd = ::socket(it->ai_family, SOCK_STREAM, 0);
+			if (fd == -1)
+				break;
+			((struct sockaddr_in *)(it->ai_addr))->sin_port = htons(port);
+			ret = ::bind(fd, it->ai_addr, it->ai_addrlen);
+			bound |= (ret == 0);
+			if (bound)
+				break;
+			::close(fd);
+			it = it->ai_next;
+		} while(it);
+	} while (false);
+	if (addrinfo) {
+		freeaddrinfo(addrinfo);
+	}
+	if (bound) {
+		THROW_IOEXP_ON_ERR(listen(fd, 10));
+		return fd;
+	}
+	if (error) {
+		THROW_IOEXP(error);
+	} else {
 		THROW_IOEXP(nullptr);
 	}
-	return fd;
 }
 
-ServerSocketChannel::ServerSocketChannel(const QString &host, int port) {
-	m_fd = __bind(host, port);
+ServerSocketChannel::ServerSocketChannel(const QString &host, int port, int listenQueueSize): m_fd(__bind(host, port, listenQueueSize)) {
 }
 
 ServerSocketChannel::~ServerSocketChannel() {
@@ -66,7 +82,8 @@ ServerSocketChannel::~ServerSocketChannel() {
 }
 
 void ServerSocketChannel::close() {
-	THROW_IOEXP_ON_ERR(::close(m_fd));
+	logFinest() << "ServerSocketChannel::close()";
+	::close(m_fd);
 }
 
 #define CLIENT_HOST_MAXLEN 256

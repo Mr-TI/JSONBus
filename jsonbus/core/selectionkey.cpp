@@ -16,6 +16,7 @@
 
 #include "selectionkey.h"
 #include "logger.h"
+#include "selector.h"
 #include <sys/ioctl.h>
 #include <sys/time.h>
 #include <string.h>
@@ -28,6 +29,10 @@
 namespace JSONBus {
 
 void SelectionKey::cancel() {
+	if (!isValid()) {
+		return;
+	}
+	QMutexLocker _(&(m_selector.m_synchronize));
 	m_selector.remove(this);
 	m_channel = nullptr;
 }

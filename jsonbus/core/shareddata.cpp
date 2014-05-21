@@ -14,25 +14,21 @@
  *   limitations under the License.
  */
 
-#include "channel.h"
+#include <common.h>
 #include "logger.h"
-#include "selector.h"
-#include "selectionkey.h"
-#include <sys/ioctl.h>
-#include <sys/time.h>
-#include <string.h>
-#include <unistd.h>
-#include <QString>
-
-#define THROW_IOEXP_ON_ERR(exp) \
-	if ((exp) == -1) throw IOException(QString() + __FILE__ + ":" + __LINE__ + ": " + strerror(errno))
+#include "shareddata.h"
 
 namespace JSONBus {
 
-SharedPtr< SelectionKey > Channel::registerTo(Selector& sel, int ops) {
-	SelectionKeyPtr key = new SelectionKey(sel, this);
-	sel.put(key, ops & (SelectionKey::OP_READ | SelectionKey::OP_WRITE));
-	return key;
+static std::atomic_uint_fast64_t __count;
+
+SharedData::SharedData(): ref(0) {
+	logFinest() << "SharedData::new " << "[0x" << 
+		toHexString(this) << "] (count=" << ++__count << ")";
+}
+SharedData::~SharedData() {
+	logFinest() << "SharedData::del " << "[0x" << 
+		toHexString(this) << "] (count=" << --__count << ")";
 }
 
 }

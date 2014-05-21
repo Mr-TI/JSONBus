@@ -39,8 +39,11 @@ private:
 	SharedData(const SharedData& other);
     SharedData &operator=(const SharedData &);
 };
-inline SharedData::SharedData(): ref(0) {}
-inline SharedData::~SharedData() {}
+
+// inline SharedData::SharedData(): ref(0) {
+// }
+// inline SharedData::~SharedData() {
+// }
 
 }
 

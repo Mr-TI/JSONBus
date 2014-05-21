@@ -64,7 +64,7 @@ public:
 	SharedPtr<SelectionKey> registerTo(Selector &sel, int ops);
 	
 protected:
-	virtual int &s_fd() = 0;
+	virtual int &fd() = 0;
 };
 
 inline Channel::Channel() {

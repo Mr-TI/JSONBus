@@ -38,7 +38,7 @@ public:
 	/**
 	 * @brief Socket constructor
 	 */
-	ServerSocketChannel(const QString &host, int port);
+	ServerSocketChannel(const QString &host, int port, int listenQueueSize=5);
 	
 	/**
 	 * @brief Socket destructor
@@ -63,17 +63,19 @@ public:
 	StreamChannelPtr accept();
 	
 protected:
-	virtual int &s_fd();
+	virtual int &fd();
 	int m_fd;
 };
 
-inline int &ServerSocketChannel::s_fd() {
+inline int &ServerSocketChannel::fd() {
 	return m_fd;
 }
 
 inline bool ServerSocketChannel::isOpen() {
 	return m_fd != -1;
 }
+
+typedef SharedPtr<ServerSocketChannel> ServerSocketChannelPtr;
 
 }
 

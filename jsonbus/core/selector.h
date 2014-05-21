@@ -41,6 +41,7 @@ class SelectionKey;
  */
 class Selector {
 	friend class SelectionKey;
+	friend class Channel;
 public:
 	/**
 	 * @brief Selector constructor
@@ -54,15 +55,20 @@ public:
 	
 	/**
 	 * @brief Select the ready channels for respertive designed operations
-	 * @param timeout time in milliseconds or 0 for an undefined time
+	 * @param timeout time in milliseconds or -1 for an undefined time
 	 */
-	virtual bool select(int timeout);
+	virtual bool select(int timeout = -1);
 	
 	/**
 	 * @brief Get selected keys
 	 * @param return the key list
 	 */
 	QList< SharedPtr<SelectionKey> > selectedKeys();
+	
+	/**
+	 * @brief Cancel the selector
+	 */
+	virtual void cancel();
 
 private:
 	
@@ -71,20 +77,26 @@ private:
 	 * @param channel channel to register or update
 	 * @param flags
 	 */
-	virtual void put(const SharedPtr<SelectionKey> &key);
+	virtual void put(const SharedPtr<SelectionKey> &key, int events);
 	
 	/**
 	 * @brief Remove a channel from this selector
 	 * @param channel channel to remove
 	 */
-	virtual void remove(SelectionKey *key);
+	virtual void remove(const SharedPtr<SelectionKey> &key);
 	
+	bool m_enabled;
 	int m_epfd;
 	epoll_event m_event;
 	epoll_event m_events[64];
-	uint m_eventCnt;
 	QMap<int, SharedPtr<SelectionKey> > m_keys;
+	QList<SharedPtr<SelectionKey> > m_pendingKeys;
+	QMutex m_synchronize;
 };
+
+inline void Selector::cancel() {
+	m_enabled = false;
+}
 
 }
 

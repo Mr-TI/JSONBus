@@ -28,7 +28,7 @@
 
 namespace JSONBus {
 
-Selector::Selector() : m_eventCnt(0) {
+Selector::Selector() : m_enabled(true), m_synchronize(QMutex::Recursive) {
 	THROW_IOEXP_ON_ERR(m_epfd = epoll_create1(0));
 }
 
@@ -37,32 +37,50 @@ Selector::~Selector() {
 }
 
 bool Selector::select(int timeout) {
-	ssize_t ret;
-	THROW_IOEXP_ON_ERR(ret = epoll_wait(m_epfd, m_events,sizeof(m_events) ,timeout));
-	return (m_eventCnt = ret) > 0;
+	QMutexLocker locker(&m_synchronize);
+	ssize_t ret = 0;
+	m_pendingKeys.clear();
+	locker.unlock();
+	while (m_enabled && timeout != 0) {
+		locker.relock();
+		THROW_IOEXP_ON_ERR(ret = epoll_wait(m_epfd, m_events,sizeof(m_events) ,1));
+		if (ret > 0) {
+			for (uint i = 0; i < ret; i++) {
+				THROW_IOEXP_ON_ERR(epoll_ctl (m_epfd, EPOLL_CTL_DEL, m_events[i].data.fd, NULL));
+				if (!m_keys.contains(m_events[i].data.fd)) {
+					continue;
+				}
+				SelectionKeyPtr key = m_keys[m_events[i].data.fd];
+				m_keys.remove(m_events[i].data.fd);
+				key->m_events = m_events[i].events;
+				m_pendingKeys.append(key);
+			}
+			return true;
+		}
+		timeout--;
+		locker.unlock();
+	}
+	return false;
 }
 
 QList< SelectionKeyPtr > Selector::selectedKeys() {
-	QList< SelectionKeyPtr > list;
-	for (uint i = 0; i < m_eventCnt; i++) {
-		if (!m_keys.contains(m_events[i].data.fd)) {
-			continue;
-		}
-		SelectionKeyPtr key = m_keys[m_events[i].data.fd];
-		m_keys.remove(m_events[i].data.fd);
-		key->m_events = m_events[i].events;
-		list.append(key);
-	}
-	return list;
+	QMutexLocker _(&m_synchronize);
+	return m_pendingKeys;
 }
 
 
-void Selector::put(const SharedPtr< SelectionKey >& key) {
-	m_keys[key->channel()->s_fd()] = key;
+void Selector::put(const SelectionKeyPtr& key, int events) {
+	QMutexLocker _(&m_synchronize);
+	m_keys[key->channel()->fd()] = key;
+	m_event.data.fd = key->channel()->fd();
+	m_event.events = events | EPOLLET | EPOLLONESHOT;
+	THROW_IOEXP_ON_ERR(epoll_ctl (m_epfd, EPOLL_CTL_ADD, m_event.data.fd, &m_event));
 }
 
-void Selector::remove(SelectionKey* key) {
-
+void Selector::remove(const SelectionKeyPtr& key) {
+	QMutexLocker _(&m_synchronize);
+	m_keys.remove(key->channel()->fd());
+	THROW_IOEXP_ON_ERR(epoll_ctl (m_epfd, EPOLL_CTL_DEL, key->channel()->fd(), NULL));
 }
 
 }

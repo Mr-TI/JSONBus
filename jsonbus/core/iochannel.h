@@ -60,7 +60,7 @@ public:
 	virtual void close();
 	
 protected:
-	virtual int &s_fd();
+	virtual int &fd();
 	virtual size_t s_available();
 	virtual size_t s_read(char *buffer, size_t maxlen);
 	virtual void s_write(const char *buffer, size_t len);
@@ -73,7 +73,7 @@ private:
 	epoll_event m_events[1];
 };
 
-inline int &IOChannel::s_fd() {
+inline int &IOChannel::fd() {
 	return m_fd;
 }
 

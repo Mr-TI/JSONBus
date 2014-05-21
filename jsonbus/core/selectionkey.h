@@ -47,11 +47,6 @@ public:
 	};
 	
 	/**
-	 * @brief SelectionKey constructor
-	 */
-	SelectionKey(Selector &selector, SharedPtr<Channel> channel);
-	
-	/**
 	 * @brief SelectionKey destructor
 	 */
 	~SelectionKey();
@@ -86,6 +81,11 @@ public:
 	bool isValid();
 
 private:
+	/**
+	 * @brief SelectionKey constructor
+	 */
+	SelectionKey(Selector &selector, SharedPtr<Channel> channel);
+	
 	Selector &m_selector;
 	SharedPtr<Channel> m_channel;
 	int m_events;
