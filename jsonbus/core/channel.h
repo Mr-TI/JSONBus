@@ -62,9 +62,9 @@ public:
 	 */
 	virtual void close();
 	
-	SharedPtr<SelectionKey> registerTo(Selector &sel, int ops);
+	SharedPtr<SelectionKey> registerTo(JSONBus::Selector& selector, int options);
 	
-	SharedPtr<SelectionKey> keyFor(Selector &sel);
+	SharedPtr<SelectionKey> keyFor(Selector &selector);
 	
 protected:
 	virtual int &fd() = 0;
@@ -73,9 +73,6 @@ protected:
 private:
 	QMap<Selector*, SharedPtr<SelectionKey> > m_keys;
 };
-
-inline void Channel::close() {
-}
 
 typedef SharedPtr<Channel> ChannelPtr;
 

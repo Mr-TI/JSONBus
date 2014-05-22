@@ -28,7 +28,6 @@
 namespace JSONBus {
 
 class SelectionKey;
-class Channel;
 
 /**
  * @brief Selector

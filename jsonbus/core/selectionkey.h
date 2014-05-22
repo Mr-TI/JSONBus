@@ -84,7 +84,7 @@ private:
 	/**
 	 * @brief SelectionKey constructor
 	 */
-	SelectionKey(Selector &selector, SharedPtr<Channel> channel);
+	SelectionKey(Selector &selector, SharedPtr<Channel> channel, int events);
 	
 	Selector &m_selector;
 	SharedPtr<Channel> m_channel;

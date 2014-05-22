@@ -18,20 +18,17 @@
 #include "logger.h"
 #include "selector.h"
 #include "channel.h"
-#include <sys/ioctl.h>
-#include <sys/time.h>
-#include <string.h>
-#include <unistd.h>
-#include <qt4/QtCore/QMap>
-#include <QString>
 
 #define THROW_IOEXP_ON_ERR(exp) \
-	if ((exp) == -1) throw IOException(QString() + __FILE__ + ":" + __LINE__ + ": " + strerror(errno))
+	if ((exp) == -1) throw IOException(QString() + __FILE__ + ":" + QString::number(__LINE__) + ": " + strerror(errno))
 
 namespace JSONBus {
 
-SelectionKey::SelectionKey(Selector &selector, SharedPtr<Channel> channel)
+SelectionKey::SelectionKey(Selector &selector, SharedPtr<Channel> channel, int events)
 : m_selector(selector), m_channel(channel), m_events(0) {
+	QMutexLocker _(&(selector.m_synchronize));
+	selector.put(this, events & (SelectionKey::OP_READ | SelectionKey::OP_WRITE));
+	channel->m_keys[&selector] = this;
 }
 
 SelectionKey::~SelectionKey() {

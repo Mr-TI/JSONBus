@@ -25,7 +25,7 @@
 #include <QString>
 
 #define THROW_IOEXP_ON_ERR(exp) \
-	if ((exp) == -1) throw IOException(QString() + __FILE__ + ":" + __LINE__ + ": " + strerror(errno))
+	if ((exp) == -1) throw IOException(QString() + __FILE__ + ":" + QString::number(__LINE__) + ": " + strerror(errno))
 
 namespace JSONBus {
 
@@ -33,14 +33,24 @@ Channel::Channel() {
 }
 
 Channel::~Channel() {
+	auto list = m_keys.values();
+	for (auto it = list.begin(); it != list.end(); it++) {
+		(*it)->cancel();
+	}
 }
 
-SharedPtr< SelectionKey > Channel::registerTo(Selector& sel, int ops) {
-	QMutexLocker _(&(sel.m_synchronize));
-	SelectionKeyPtr key = new SelectionKey(sel, this);
-	sel.put(key, ops & (SelectionKey::OP_READ | SelectionKey::OP_WRITE));
-	m_keys[&sel] = key;
-	return key;
+void Channel::close() {
+	auto list = m_keys.values();
+	for (auto it = list.begin(); it != list.end(); it++) {
+		(*it)->cancel();
+	}
+}
+
+SelectionKeyPtr Channel::registerTo(Selector& selector, int options) {
+	if (m_keys.contains(&selector)) {
+		m_keys[&selector]->cancel();
+	}
+	return new SelectionKey(selector, this, options);
 }
 
 }

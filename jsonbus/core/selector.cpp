@@ -25,7 +25,7 @@
 #include <QString>
 
 #define THROW_IOEXP_ON_ERR(exp) \
-	if ((exp) == -1) throw IOException(QString() + __FILE__ + ":" + __LINE__ + ": " + strerror(errno))
+	if ((exp) == -1) throw IOException(QString() + __FILE__ + ":" + QString::number(__LINE__) + ": " + strerror(errno))
 
 namespace JSONBus {
 
@@ -34,6 +34,11 @@ Selector::Selector() : m_enabled(true), m_synchronize(QMutex::Recursive) {
 }
 
 Selector::~Selector() {
+	QMutexLocker locker(&m_synchronize);
+	auto list = m_keys.values();
+	for (auto it = list.begin(); it != list.end(); it++) {
+		(*it)->cancel();
+	}
 	::close(m_epfd);
 }
 
@@ -54,6 +59,7 @@ bool Selector::select(int timeout) {
 				}
 				SelectionKeyPtr key = m_keys[fdc];
 				m_keys.remove(fdc);
+				key->channel()->m_keys.remove(this);
 				key->channel()->updateStatus(m_events[i].events);
 				key->m_events = m_events[i].events;
 				m_pendingKeys.append(key);

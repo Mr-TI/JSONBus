@@ -23,10 +23,10 @@
 #include <QString>
 
 #define THROW_IOEXP_ON_ERR(exp) \
-	if ((exp) < 1) throw IOException(QString() + __FILE__ + ":" + __LINE__ + ": " + SSLIOChannel::getLastError())
+	if ((exp) < 1) throw IOException(QString() + __FILE__ + ":" + QString::number(__LINE__) + ": " + SSLIOChannel::getLastError())
 
 #define THROW_IOEXP_ON_NULL(exp) \
-	if ((exp) == nullptr) throw IOException(QString() + __FILE__ + ":" + __LINE__ + ": " + SSLIOChannel::getLastError())
+	if ((exp) == nullptr) throw IOException(QString() + __FILE__ + ":" + QString::number(__LINE__) + ": " + SSLIOChannel::getLastError())
 
 namespace JSONBus {
 
