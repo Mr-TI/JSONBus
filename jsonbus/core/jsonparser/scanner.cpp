@@ -16,15 +16,14 @@
 
 #include <globals.h>
 #include <scanner.h>
-#include <jsonbus/core/streamchannel.h>
 #include <logger.h>
 
 using namespace JSONBus;
 
 namespace jsonparser {
 
-Scanner::Scanner(const StreamChannelPtr& channel)
-        : jsonparserFlexLexer(nullptr, nullptr), m_channel(channel) {
+Scanner::Scanner(jsonparser::Scanner::getc_t getc, void* stream)
+        : jsonparserFlexLexer(nullptr, nullptr), m_getc(getc), m_stream(stream) {
 }
 
 Scanner::~Scanner() {
@@ -36,7 +35,7 @@ void Scanner::set_debug(bool b) {
 
 int Scanner::LexerInput( char* buf, int max_size ) {
 	try {
-		buf[0] = m_channel->get();
+		buf[0] = m_getc(m_stream);
 		return 1;
 	} catch (...) {
 		return 0;

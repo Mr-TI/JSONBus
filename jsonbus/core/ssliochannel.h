@@ -14,8 +14,8 @@
  *   limitations under the License.
  */
 
-#ifndef JSONPARSER_SSLCHANNEL_H
-#define JSONPARSER_SSLCHANNEL_H
+#ifndef JSONPARSER_SSLIOCHANNEL_H
+#define JSONPARSER_SSLIOCHANNEL_H
 
 #include <sys/epoll.h>
 #include <openssl/ssl.h>
@@ -81,4 +81,4 @@ private:
 
 }
 
-#endif // JSONPARSER_SSLCHANNEL_H
+#endif // JSONPARSER_SSLIOCHANNEL_H

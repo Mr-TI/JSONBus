@@ -26,7 +26,6 @@
 #define JSONBUS_JSONPARSER_H
 
 #include <jsonbus/core/exception.h>
-#include <jsonbus/core/streamchannel.h>
 
 #ifndef JSONBUS_EXPORT
 #define JSONBUS_EXPORT
@@ -45,6 +44,7 @@ namespace JSONBus {
 jsonbus_declare_exception(JSONParserException, Exception);
 jsonbus_declare_exception(EOFJSONParserException, JSONParserException);
 jsonbus_declare_exception(ErrorJSONParserException, JSONParserException);
+class StreamChannel;
 
 /**
  * @brief JSON Parser management.
@@ -61,7 +61,7 @@ public:
 	 * @brief JSONParser constructor.
 	 * @param channel Channel pointer
 	 */
-	JSONParser(const StreamChannelPtr &channel);
+	JSONParser(const SharedPtr<StreamChannel> &channel);
 	
 	/**
 	 * @brief JSONParser destructor.
@@ -78,7 +78,9 @@ public:
 	void cancel();
 	
 private:
-	StreamChannelPtr m_channel;
+	static char s_getc(void *stream);
+	
+	SharedPtr<StreamChannel> m_channel;
 	jsonparser::Driver *m_driver;
 };
 

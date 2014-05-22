@@ -20,7 +20,6 @@
 #include <jsonbus/core/shareddata.h>
 #include <jsonbus/core/exception.h>
 #include <jsonbus/core/sharedptr.h>
-#include "channel.h"
 #include <sys/epoll.h>
 
 /**
@@ -29,6 +28,7 @@
 namespace JSONBus {
 
 class Channel;
+class Selector;
 
 /**
  * @brief SelectionKey
@@ -90,13 +90,6 @@ private:
 	SharedPtr<Channel> m_channel;
 	int m_events;
 };
-
-inline SelectionKey::SelectionKey(Selector &selector, SharedPtr<Channel> channel)
-: m_selector(selector), m_channel(channel), m_events(0) {
-}
-
-inline SelectionKey::~SelectionKey() {
-}
 
 inline bool SelectionKey::isReadable() {
 	return m_events & OP_READ;

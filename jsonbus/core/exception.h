@@ -49,7 +49,7 @@ public:\
 	}\
 };
 
-#include "sharedptr.h"
+#include <jsonbus/core/sharedptr.h>
 
 namespace JSONBus {
 

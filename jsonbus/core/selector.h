@@ -17,10 +17,8 @@
 #ifndef JSONPARSER_SELECTOR_H
 #define JSONPARSER_SELECTOR_H
 
-#include <jsonbus/core/shareddata.h>
 #include <jsonbus/core/exception.h>
 #include <jsonbus/core/sharedptr.h>
-#include <jsonbus/core/channel.h>
 #include <sys/epoll.h>
 #include <QMap>
 
@@ -29,8 +27,8 @@
  */
 namespace JSONBus {
 
-class Channel;
 class SelectionKey;
+class Channel;
 
 /**
  * @brief Selector

@@ -29,7 +29,6 @@
 #endif
 
 #include <parser.hh>
-#include <jsonbus/core/streamchannel.h>
 
 /**
  * @namespace
@@ -45,19 +44,22 @@ namespace jsonparser {
  */
 class Scanner : public jsonparserFlexLexer {
 public:
-    Scanner(const JSONBus::StreamChannelPtr &channel);
+	typedef char (*getc_t)(void *);
+	
+	Scanner(getc_t getc, void *stream);
 
-    virtual ~Scanner();
+	virtual ~Scanner();
 
-    virtual Parser::token_type yylex(Parser::semantic_type *yylval);
+	virtual Parser::token_type yylex(Parser::semantic_type *yylval);
 
-    void set_debug(bool b);
+	void set_debug(bool b);
 
 protected:
 	virtual int LexerInput( char* buf, int max_size );
 	
 private:
-	JSONBus::StreamChannelPtr m_channel;
+	getc_t m_getc;
+	void *m_stream;
 };
 
 }

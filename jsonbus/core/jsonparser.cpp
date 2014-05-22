@@ -18,14 +18,19 @@
 #include "jsonparser.h"
 #include "jsonparser/driver.h"
 #include "jsonparser/exception.h"
+#include "streamchannel.h"
 #include <sstream>
 
 using namespace jsonparser;
 
 namespace JSONBus {
 
+char JSONParser::s_getc(void* stream) {
+	return ((StreamChannel*)stream)->get();
+}
+
 JSONParser::JSONParser(const StreamChannelPtr& channel)
-	: m_channel(channel), m_driver(new Driver(channel)){
+	: m_channel(channel), m_driver(new Driver(s_getc, m_channel.data())){
 }
 
 JSONParser::~JSONParser() {

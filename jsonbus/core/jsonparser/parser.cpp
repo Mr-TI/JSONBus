@@ -17,7 +17,6 @@
 #include "globals.h"
 #include <parser.hh>
 #include "driver.h"
-#include <sstream>
 
 namespace jsonparser {
 

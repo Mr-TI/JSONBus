@@ -28,6 +28,7 @@
 
 #include <QRunnable>
 #include <jsonbus/core/jsonparser.h>
+#include <jsonbus/core/streamchannel.h>
 
 namespace JSONBus {
 

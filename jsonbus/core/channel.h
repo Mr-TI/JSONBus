@@ -39,6 +39,7 @@ class Selector;
  */
 class Channel: public SharedData {
 	friend class Selector;
+	friend class SelectionKey;
 public:
 	/**
 	 * @brief Channel constructor
@@ -63,17 +64,15 @@ public:
 	
 	SharedPtr<SelectionKey> registerTo(Selector &sel, int ops);
 	
+	SharedPtr<SelectionKey> keyFor(Selector &sel);
+	
 protected:
 	virtual int &fd() = 0;
 	virtual void updateStatus(int events) = 0;
 	
+private:
+	QMap<Selector*, SharedPtr<SelectionKey> > m_keys;
 };
-
-inline Channel::Channel() {
-}
-
-inline Channel::~Channel() {
-}
 
 inline void Channel::close() {
 }

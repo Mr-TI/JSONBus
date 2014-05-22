@@ -18,7 +18,6 @@
 #define JSONPARSER_DRIVER_H
 
 #include <QVariant>
-#include <jsonbus/core/streamchannel.h>
 
 namespace jsonparser {
 
@@ -35,7 +34,8 @@ class r;
  */
 class Driver {
 public:
-	Driver(const JSONBus::StreamChannelPtr &channel);
+	typedef char (*getc_t)(void *);
+	Driver(getc_t getc, void *stream);
 	~Driver();
 	QVariant parse();
 private:

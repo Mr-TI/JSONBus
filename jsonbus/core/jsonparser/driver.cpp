@@ -21,19 +21,18 @@
 
 #ifdef USE_JSONBUS_EXCEPTION
 #include <jsonbus/core/jsonparser.h>
-#include <logger.h>
-#define ErrorException JSONBus::ErrorJSONParserException 
-#define EOFException JSONBus::EOFJSONParserException
+#define ErrorException ErrorJSONParserException 
+#define EOFException EOFJSONParserException
+using namespace JSONBus;
 #else
 #include "exception.h"
 #endif
 
-using namespace JSONBus;
 
 namespace jsonparser {
 
-Driver::Driver(const StreamChannelPtr& channel)
-		: scanner(*new Scanner(channel)),
+Driver::Driver(getc_t getc, void *stream)
+		: scanner(*new Scanner(getc, stream)),
 		parser(*new Parser(*this)){
 }
 

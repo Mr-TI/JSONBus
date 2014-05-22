@@ -17,10 +17,12 @@
 #include "selectionkey.h"
 #include "logger.h"
 #include "selector.h"
+#include "channel.h"
 #include <sys/ioctl.h>
 #include <sys/time.h>
 #include <string.h>
 #include <unistd.h>
+#include <qt4/QtCore/QMap>
 #include <QString>
 
 #define THROW_IOEXP_ON_ERR(exp) \
@@ -28,12 +30,20 @@
 
 namespace JSONBus {
 
+SelectionKey::SelectionKey(Selector &selector, SharedPtr<Channel> channel)
+: m_selector(selector), m_channel(channel), m_events(0) {
+}
+
+SelectionKey::~SelectionKey() {
+}
+
 void SelectionKey::cancel() {
 	if (!isValid()) {
 		return;
 	}
 	QMutexLocker _(&(m_selector.m_synchronize));
 	m_selector.remove(this);
+	m_channel->m_keys.remove(&m_selector);
 	m_channel = nullptr;
 }
 	
