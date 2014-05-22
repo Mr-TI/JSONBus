@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-#include "sslchannel.h"
+#include "ssliochannel.h"
 #include "logger.h"
 #include <sys/ioctl.h>
 #include <string.h>
@@ -29,7 +29,7 @@
 
 namespace JSONBus {
 
-QString SSLChannel::getLastError() {
+QString SSLIOChannel::getLastError() {
 	QString msg;
 	const char *txt;
 	unsigned long int err = ERR_get_error();
@@ -47,21 +47,25 @@ QString SSLChannel::getLastError() {
 	return msg;
 }
 
-SSLChannel::SSLChannel(int fd, SSL_CTX *ctx) : IOChannel(fd), m_ssl(nullptr) {
+SSLIOChannel::SSLIOChannel(int fd, SSL_CTX *ctx, bool closeOnDelete) : IOChannel(fd, closeOnDelete), m_ssl(nullptr) {
 	THROW_IOEXP_ON_NULL(m_ssl = SSL_new(ctx));
 	THROW_IOEXP_ON_ERR(SSL_set_fd(m_ssl, fd));
 }
 
-SSLChannel::~SSLChannel() {
+SSLIOChannel::~SSLIOChannel() {
+	if (m_ssl) {
+		::SSL_shutdown(m_ssl);
+		m_ssl = NULL;
+	}
 }
 
-size_t SSLChannel::s_read(char *buffer, size_t maxlen) {
+size_t SSLIOChannel::s_read(char *buffer, size_t maxlen) {
 	ssize_t n;
 	THROW_IOEXP_ON_ERR(n = SSL_read(m_ssl, buffer, maxlen));
 	return n;
 }
 
-void SSLChannel::s_write(const char *buffer, size_t len) {
+void SSLIOChannel::s_write(const char *buffer, size_t len) {
 	ssize_t ret = 0;
 	while (len > 0) {
 		THROW_IOEXP_ON_ERR(ret = SSL_write(m_ssl, buffer, len));
@@ -70,12 +74,15 @@ void SSLChannel::s_write(const char *buffer, size_t len) {
 	}
 }
 
-void SSLChannel::close() {
-	THROW_IOEXP_ON_ERR(::SSL_shutdown(m_ssl));
-	IOChannel::close();
+void SSLIOChannel::close() {
+	if (m_ssl) {
+		::SSL_shutdown(m_ssl);
+		IOChannel::close();
+		m_ssl = NULL;
+	}
 }
 
-size_t SSLChannel::s_available() {
+size_t SSLIOChannel::s_available() {
 	size_t result = SSL_pending(m_ssl);
 	if (result > 0) {
 		return result;
@@ -84,11 +91,11 @@ size_t SSLChannel::s_available() {
 	return result;
 }
 
-void SSLChannel::accept() {
+void SSLIOChannel::accept() {
 	THROW_IOEXP_ON_ERR(::SSL_accept(m_ssl));
 }
 
-void SSLChannel::connect() {
+void SSLIOChannel::connect() {
 	THROW_IOEXP_ON_ERR(::SSL_connect(m_ssl));
 }
 

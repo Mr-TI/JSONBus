@@ -17,6 +17,7 @@
 #include "selector.h"
 #include "selectionkey.h"
 #include "logger.h"
+#include "serversocketchannel.h"
 #include <sys/ioctl.h>
 #include <sys/time.h>
 #include <string.h>
@@ -38,20 +39,22 @@ Selector::~Selector() {
 
 bool Selector::select(int timeout) {
 	QMutexLocker locker(&m_synchronize);
-	ssize_t ret = 0;
+	ssize_t ret = 0, fdc;
 	m_pendingKeys.clear();
 	locker.unlock();
 	while (m_enabled && timeout != 0) {
 		locker.relock();
 		THROW_IOEXP_ON_ERR(ret = epoll_wait(m_epfd, m_events,sizeof(m_events) ,1));
 		if (ret > 0) {
-			for (uint i = 0; i < ret; i++) {
-				THROW_IOEXP_ON_ERR(epoll_ctl (m_epfd, EPOLL_CTL_DEL, m_events[i].data.fd, NULL));
-				if (!m_keys.contains(m_events[i].data.fd)) {
+			for (ssize_t i = 0; i < ret; i++) {
+				fdc = m_events[i].data.fd;
+				THROW_IOEXP_ON_ERR(epoll_ctl (m_epfd, EPOLL_CTL_DEL, fdc, NULL));
+				if (!m_keys.contains(fdc)) {
 					continue;
 				}
-				SelectionKeyPtr key = m_keys[m_events[i].data.fd];
-				m_keys.remove(m_events[i].data.fd);
+				SelectionKeyPtr key = m_keys[fdc];
+				m_keys.remove(fdc);
+				key->channel()->updateStatus(m_events[i].events);
 				key->m_events = m_events[i].events;
 				m_pendingKeys.append(key);
 			}
@@ -73,7 +76,7 @@ void Selector::put(const SelectionKeyPtr& key, int events) {
 	QMutexLocker _(&m_synchronize);
 	m_keys[key->channel()->fd()] = key;
 	m_event.data.fd = key->channel()->fd();
-	m_event.events = events | EPOLLET | EPOLLONESHOT;
+	m_event.events = events | EPOLLET;
 	THROW_IOEXP_ON_ERR(epoll_ctl (m_epfd, EPOLL_CTL_ADD, m_event.data.fd, &m_event));
 }
 

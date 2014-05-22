@@ -65,6 +65,8 @@ public:
 	
 protected:
 	virtual int &fd() = 0;
+	virtual void updateStatus(int events) = 0;
+	
 };
 
 inline Channel::Channel() {

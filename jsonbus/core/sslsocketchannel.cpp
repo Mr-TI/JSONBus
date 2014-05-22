@@ -16,17 +16,17 @@
 
 #include "sslsocketchannel.h"
 #include "logger.h"
-#include "sslchannel.h"
+#include "ssliochannel.h"
 #include <sys/ioctl.h>
 #include <string.h>
 #include <unistd.h>
 #include <QString>
 
 #define THROW_IOEXP_ON_ERR(exp) \
-	if ((exp) < 1) throw IOException(QString() + __FILE__ + ":" + __LINE__ + ": " + SSLChannel::getLastError())
+	if ((exp) < 1) throw IOException(QString() + __FILE__ + ":" + __LINE__ + ": " + SSLIOChannel::getLastError())
 
 #define THROW_IOEXP_ON_NULL(exp) \
-	if ((exp) == nullptr) throw IOException(QString() + __FILE__ + ":" + __LINE__ + ": " + SSLChannel::getLastError())
+	if ((exp) == nullptr) throw IOException(QString() + __FILE__ + ":" + __LINE__ + ": " + SSLIOChannel::getLastError())
 
 namespace JSONBus {
 

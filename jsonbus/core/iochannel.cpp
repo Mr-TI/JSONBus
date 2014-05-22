@@ -26,7 +26,7 @@
 
 namespace JSONBus {
 
-IOChannel::IOChannel(int fd) : m_fd(fd), m_epfd(-1) {
+IOChannel::IOChannel(int fd, bool closeOnDelete) : m_fd(fd), m_closeOnDelete(closeOnDelete), m_epfd(-1) {
 	THROW_IOEXP_ON_ERR(m_epfd = epoll_create1(0));
 	m_event.data.fd = m_fd;
 	m_event.events = EPOLLIN | EPOLLET;
@@ -34,6 +34,10 @@ IOChannel::IOChannel(int fd) : m_fd(fd), m_epfd(-1) {
 }
 
 IOChannel::~IOChannel() {
+	if (m_closeOnDelete && m_fd != -1) {
+		::close(m_fd);
+		m_fd = -1;
+	}
 	::close(m_epfd);
 }
 
@@ -54,12 +58,16 @@ void IOChannel::s_write(const char *buffer, size_t len) {
 }
 
 void IOChannel::close() {
-	THROW_IOEXP_ON_ERR(::close(m_fd));
-	StreamChannel::close();
+	if (m_fd != -1) {
+		::close(m_fd);
+		m_fd = -1;
+		StreamChannel::close();
+	}
 }
 
 size_t IOChannel::s_available() {
 	size_t result;
+	s_waitForReadyRead(0);
 	THROW_IOEXP_ON_ERR(::ioctl(m_fd, FIONREAD, &result));
 	return result;
 }
@@ -67,7 +75,25 @@ size_t IOChannel::s_available() {
 bool IOChannel::s_waitForReadyRead(int timeout) {
 	int ret;
 	THROW_IOEXP_ON_ERR(ret = epoll_wait(m_epfd, m_events,1 ,timeout));
-	return ret == 1 && m_events[0].events & EPOLLIN;
+	if (ret != 1) {
+		return false;
+	}
+	if (m_events[0].events & EPOLLHUP) {
+		throw EOFException();
+	}
+	if (m_events[0].events & EPOLLERR) {
+		throw IOException(QString() + __FILE__ + ":" + __LINE__ + ": " + strerror(errno));
+	}
+	return m_events[0].events & EPOLLIN;
+}
+
+void IOChannel::updateStatus(int events) {
+	if (events & EPOLLIN) {
+		int result;
+		if (::ioctl(m_fd, FIONREAD, &result) == -1 || result == 0) {
+			close();
+		}
+	}
 }
 
 }

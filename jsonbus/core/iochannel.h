@@ -40,7 +40,7 @@ public:
 	 * @param fd a valid file descriptor
 	 * @throw IOException on error
 	 */
-	IOChannel(int fd);
+	IOChannel(int fd, bool closeOnDelete = false);
 	
 	/**
 	 * @brief AbstractChannel destructor
@@ -61,11 +61,13 @@ public:
 	
 protected:
 	virtual int &fd();
+	virtual void updateStatus(int events);
 	virtual size_t s_available();
 	virtual size_t s_read(char *buffer, size_t maxlen);
 	virtual void s_write(const char *buffer, size_t len);
 	bool s_waitForReadyRead(int timeout);
 	int m_fd;
+	bool m_closeOnDelete;
 
 private:
 	int m_epfd;

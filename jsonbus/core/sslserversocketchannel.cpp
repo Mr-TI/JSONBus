@@ -17,7 +17,7 @@
 #include "sslserversocketchannel.h"
 #include "logger.h"
 #include "iochannel.h"
-#include "sslchannel.h"
+#include "ssliochannel.h"
 #include <sys/ioctl.h>
 #include <sys/time.h>
 #include <string.h>
@@ -62,7 +62,7 @@ StreamChannelPtr SSLServerSocketChannel::accept() {
 		THROW_IOEXP(hstrerror(h_errno));
 	}
 	logFiner() << "SSLServerSocketChannel: New connection from " << client_host << ":" << client_serv;
-	SharedPtr<SSLChannel> channel = new SSLChannel(cldf, m_ctx);
+	SharedPtr<SSLIOChannel> channel = new SSLIOChannel(cldf, m_ctx);
 	channel->accept();
 	return channel;
 }

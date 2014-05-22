@@ -78,12 +78,19 @@ ServerSocketChannel::ServerSocketChannel(const QString &host, int port, int list
 }
 
 ServerSocketChannel::~ServerSocketChannel() {
-
+	if (m_fd != -1) {
+		logFinest() << "ServerSocketChannel::close()";
+		::close(m_fd);
+		m_fd = -1;
+	}
 }
 
 void ServerSocketChannel::close() {
-	logFinest() << "ServerSocketChannel::close()";
-	::close(m_fd);
+	if (m_fd != -1) {
+		logFinest() << "ServerSocketChannel::close()";
+		::close(m_fd);
+		m_fd = -1;
+	}
 }
 
 #define CLIENT_HOST_MAXLEN 256
@@ -102,7 +109,11 @@ StreamChannelPtr ServerSocketChannel::accept() {
 		THROW_IOEXP(hstrerror(h_errno));
 	}
 	logFiner() << "ServerSocketChannel: New connection from " << client_host << ":" << client_serv;
-	return new IOChannel(cldf);
+	return new IOChannel(cldf, true);
 }
+
+void ServerSocketChannel::updateStatus(int events) {
+}
+
 
 }

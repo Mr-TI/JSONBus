@@ -35,7 +35,7 @@ namespace JSONBus {
  * @date 2014
  * @copyright Apache License, Version 2.0
  */
-class SSLChannel: public IOChannel {
+class SSLIOChannel: public IOChannel {
 public:
 	/**
 	 * @brief AbstractChannel constructor
@@ -43,12 +43,12 @@ public:
 	 * @param ctx a valid ssl context
 	 * @throw IOException on error
 	 */
-	SSLChannel(int fd, SSL_CTX *ctx);
+	SSLIOChannel(int fd, SSL_CTX *ctx, bool closeOnDelete = false);
 	
 	/**
 	 * @brief AbstractChannel destructor
 	 */
-	virtual ~SSLChannel();
+	virtual ~SSLIOChannel();
 	
 	/**
 	 * @brief SSL session connect

@@ -69,7 +69,7 @@ static int __connect(const QString &host, int port) {
 	}
 }
 
-SocketChannel::SocketChannel(const QString &host, int port): IOChannel(__connect(host, port)) {
+SocketChannel::SocketChannel(const QString &host, int port): IOChannel(__connect(host, port), true) {
 	
 }
 
