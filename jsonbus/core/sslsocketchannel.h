@@ -28,6 +28,8 @@
  */
 namespace JSONBus {
 
+class SSLServerSocketChannel;
+
 /**
  * @brief Abstract channel
  * 
@@ -36,6 +38,7 @@ namespace JSONBus {
  * @copyright Apache License, Version 2.0
  */
 class SSLSocketChannel: public SocketChannel {
+	friend SSLServerSocketChannel;
 public:
 	/**
 	 * @brief AbstractChannel constructor
@@ -43,7 +46,7 @@ public:
 	 * @param ctx a valid ssl context
 	 * @throw IOException on error
 	 */
-	SSLSocketChannel(const QString& host, int port, SSL_CTX* ctx);
+	SSLSocketChannel(const QString &host, int port, SSL_CTX* ctx);
 	
 	/**
 	 * @brief AbstractChannel destructor
@@ -57,6 +60,7 @@ public:
 	virtual void close();
 	
 protected:
+	SSLSocketChannel(int fd, const QString &name, SSL_CTX* ctx);
 	virtual size_t s_available();
 	virtual size_t s_read(char *buffer, size_t maxlen);
 	virtual void s_write(const char *buffer, size_t len);

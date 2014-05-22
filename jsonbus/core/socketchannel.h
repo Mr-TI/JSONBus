@@ -25,6 +25,8 @@
  */
 namespace JSONBus {
 
+class ServerSocketChannel;
+
 /**
  * @brief Abstract channel
  * 
@@ -33,6 +35,7 @@ namespace JSONBus {
  * @copyright Apache License, Version 2.0
  */
 class SocketChannel: public IOChannel {
+	friend class ServerSocketChannel;
 public:
 	/**
 	 * @brief Socket constructor
@@ -43,6 +46,12 @@ public:
 	 * @brief Socket destructor
 	 */
 	virtual ~SocketChannel();
+	
+protected:
+	SocketChannel(int fd, const QString &name);
+	
+private:
+	QString m_name;
 };
 
 typedef SharedPtr<SocketChannel> SocketPtr;

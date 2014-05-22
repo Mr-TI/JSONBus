@@ -69,12 +69,16 @@ static int __connect(const QString &host, int port) {
 	}
 }
 
-SocketChannel::SocketChannel(const QString &host, int port): IOChannel(__connect(host, port), true) {
-	
+SocketChannel::SocketChannel(const QString& host, int port): IOChannel(__connect(host, port), true), m_name(host + ":" + QString::number(port)) {
+	logFiner() << "SocketChannel::connected to " << m_name;
+}
+
+SocketChannel::SocketChannel(int fd, const QString &name): IOChannel(fd, true), m_name(name) {
+	logFiner() << "SocketChannel::connected from " << m_name;
 }
 
 SocketChannel::~SocketChannel() {
-
+	logFiner() << "SocketChannel::disconnected from " << m_name;
 }
 
 }

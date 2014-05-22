@@ -18,6 +18,7 @@
 #include "logger.h"
 #include "iochannel.h"
 #include "ssliochannel.h"
+#include "sslsocketchannel.h"
 #include <sys/ioctl.h>
 #include <sys/time.h>
 #include <string.h>
@@ -35,7 +36,7 @@
 
 namespace JSONBus {
 
-SSLServerSocketChannel::SSLServerSocketChannel(const QString &host, int port, SSL_CTX *ctx): ServerSocketChannel(host, port), m_ctx(ctx) {
+SSLServerSocketChannel::SSLServerSocketChannel(const QString &host, int port, SSL_CTX* ctx): ServerSocketChannel(host, port), m_ctx(ctx) {
 }
 
 SSLServerSocketChannel::~SSLServerSocketChannel() {
@@ -61,10 +62,7 @@ StreamChannelPtr SSLServerSocketChannel::accept() {
 	if (getnameinfo(&sockaddr_client, sockaddr_len, client_host, CLIENT_HOST_MAXLEN, client_serv, CLIENT_SERV_MAXLEN, 0) == -1) {
 		THROW_IOEXP(hstrerror(h_errno));
 	}
-	logFiner() << "SSLServerSocketChannel: New connection from " << client_host << ":" << client_serv;
-	SharedPtr<SSLIOChannel> channel = new SSLIOChannel(cldf, m_ctx);
-	channel->accept();
-	return channel;
+	return new SSLSocketChannel(cldf, QString(client_host) + ":" + client_serv, m_ctx);
 }
 
 }

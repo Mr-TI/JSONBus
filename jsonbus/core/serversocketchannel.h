@@ -66,6 +66,7 @@ protected:
 	virtual int &fd();
 	virtual void updateStatus(int events);
 	int m_fd;
+	QString m_name;
 };
 
 inline int &ServerSocketChannel::fd() {

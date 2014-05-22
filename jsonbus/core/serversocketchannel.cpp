@@ -17,6 +17,7 @@
 #include "serversocketchannel.h"
 #include "logger.h"
 #include "iochannel.h"
+#include "socketchannel.h"
 #include <sys/ioctl.h>
 #include <sys/time.h>
 #include <string.h>
@@ -54,8 +55,9 @@ static int __bind(const QString &host, int port, int listenQueueSize) {
 			((struct sockaddr_in *)(it->ai_addr))->sin_port = htons(port);
 			ret = ::bind(fd, it->ai_addr, it->ai_addrlen);
 			bound |= (ret == 0);
-			if (bound)
+			if (bound) {
 				break;
+			}
 			::close(fd);
 			it = it->ai_next;
 		} while(it);
@@ -75,11 +77,13 @@ static int __bind(const QString &host, int port, int listenQueueSize) {
 }
 
 ServerSocketChannel::ServerSocketChannel(const QString &host, int port, int listenQueueSize): m_fd(__bind(host, port, listenQueueSize)) {
+	m_name = host + ":" + QString::number(port);
+	logFiner() << "ServerSocketChannel::start listening on " << m_name;
 }
 
 ServerSocketChannel::~ServerSocketChannel() {
 	if (m_fd != -1) {
-		logFinest() << "ServerSocketChannel::close()";
+		logFiner() << "ServerSocketChannel::stop listening on " << m_name;
 		::close(m_fd);
 		m_fd = -1;
 	}
@@ -87,7 +91,7 @@ ServerSocketChannel::~ServerSocketChannel() {
 
 void ServerSocketChannel::close() {
 	if (m_fd != -1) {
-		logFinest() << "ServerSocketChannel::close()";
+		logFiner() << "ServerSocketChannel::stop listening on " << m_name;
 		::close(m_fd);
 		m_fd = -1;
 	}
@@ -108,8 +112,7 @@ StreamChannelPtr ServerSocketChannel::accept() {
 	if (getnameinfo(&sockaddr_client, sockaddr_len, client_host, CLIENT_HOST_MAXLEN, client_serv, CLIENT_SERV_MAXLEN, 0) == -1) {
 		THROW_IOEXP(hstrerror(h_errno));
 	}
-	logFiner() << "ServerSocketChannel: New connection from " << client_host << ":" << client_serv;
-	return new IOChannel(cldf, true);
+	return new SocketChannel(cldf, QString(client_host) + ":" + client_serv);
 }
 
 void ServerSocketChannel::updateStatus(int events) {
