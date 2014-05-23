@@ -22,7 +22,7 @@
 #ifdef USE_JSONBUS_EXCEPTION
 #include <jsonbus/core/jsonparser.h>
 #define ErrorException ErrorJSONParserException 
-#define EOFException EOFJSONParserException
+#define EOFException IOException
 using namespace JSONBus;
 #else
 #include "exception.h"

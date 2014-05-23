@@ -20,15 +20,13 @@
 
 namespace JSONBus {
 
-static std::atomic_uint_fast64_t __count;
+std::atomic_uint_fast64_t __jsonbus_shared_data_count;
 
 SharedData::SharedData(): ref(0) {
-	logFinest() << "SharedData::new " << "[0x" << 
-		toHexString(this) << "] (count=" << ++__count << ")";
+	__jsonbus_shared_data_count++;
 }
 SharedData::~SharedData() {
-	logFinest() << "SharedData::del " << "[0x" << 
-		toHexString(this) << "] (count=" << --__count << ")";
+	__jsonbus_shared_data_count--;
 }
 
 }

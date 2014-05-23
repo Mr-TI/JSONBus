@@ -42,7 +42,6 @@ class Driver;
 namespace JSONBus {
 
 jsonbus_declare_exception(JSONParserException, Exception);
-jsonbus_declare_exception(EOFJSONParserException, JSONParserException);
 jsonbus_declare_exception(ErrorJSONParserException, JSONParserException);
 class StreamChannel;
 

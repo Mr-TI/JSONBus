@@ -16,8 +16,9 @@
 
 #include <jsonbus/core/logger.h>
 #include <stdio.h>
+#include <stdarg.h>
 
-using namespace JSONBus;
+namespace JSONBus {
 
 const char *Logger::LEVEL_HDRS[][8] = {
 	{
@@ -82,4 +83,18 @@ Logger &Logger::operator<<(Exception &e) {
 	}
 #endif //JSONBUS_DISPLAY_BACKTRACE
 	return *this;
+}
+
+extern std::atomic_uint_fast64_t __jsonbus_shared_data_count;
+
+void __log_data_ref_init(void* data) {
+	logFinest() << "SharedPtr::init   " << __demangle(typeid(*(SharedData*)data).name()) 
+	<< "[" << toHexString(data) << "] (count=" << __jsonbus_shared_data_count << ")";
+}
+
+void __log_data_ref_delete(void* data) {
+	logFinest() << "SharedPtr::delete " << __demangle(typeid(*(SharedData*)data).name()) 
+	<< "[" << toHexString(data) << "] (count=" << (__jsonbus_shared_data_count-1) << ")";
+}
+
 }
