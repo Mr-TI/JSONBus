@@ -49,7 +49,7 @@ class StreamChannel;
 /**
  * @brief JSON Parser management.
  */
-class JSONBUS_EXPORT JSONParser {
+class JSONBUS_EXPORT JSONParser : public SharedData {
 public:
 	
 	/**
