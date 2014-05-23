@@ -54,7 +54,7 @@ private:
 	QString m_name;
 };
 
-typedef SharedPtr<SocketChannel> SocketPtr;
+typedef SharedPtr<SocketChannel> SocketChannelPtr;
 
 }
 

@@ -43,23 +43,17 @@ static QString sanitizeString( QString str )
   return QString( QLatin1String( "\"%1\"" ) ).arg( str );
 }
 
-JSONSerializer::JSONSerializer(QObject *parent)
-: QObject(parent), m_stream(*new StdStream(cout)) {
+JSONSerializer::JSONSerializer(StreamChannelPtr channel, QObject* parent)
+: QObject(parent), m_streamPtr(new ChannelOutputStream(channel)), m_stream(*m_streamPtr) {
 	
 }
 
-JSONSerializer::JSONSerializer(ostream& stream, QObject* parent)
-: QObject(parent), m_stream(*new StdStream(stream)) {
-	
-}
-
-JSONSerializer::JSONSerializer(const JSONBus::JSONSerializer::Stream& stream, QObject* parent)
-: QObject(parent), m_stream(*stream.clone()) {
+JSONSerializer::JSONSerializer(JSONSerializer::OutputStream& stream, QObject* parent)
+: QObject(parent), m_stream(stream) {
 	
 }
 
 JSONSerializer::~JSONSerializer() {
-	delete &m_stream;
 }
 
 void JSONSerializer::serialize(const QVariant &variant) {

@@ -26,6 +26,7 @@
 #define JSONBUS_JSONSERIALIZER_H
 
 #include <jsonbus/core/exception.h>
+#include "streamchannel.h"
 
 #ifndef JSONBUS_EXPORT
 #define JSONBUS_EXPORT
@@ -41,85 +42,67 @@ jsonbus_declare_exception(JSONSerializerException, Exception);
 /**
  * @brief JSON serializer management.
  */
-class JSONBUS_EXPORT JSONSerializer: public QObject {
+class JSONBUS_EXPORT JSONSerializer: public SharedData, public QObject {
 public:
 	/**
 	 * @brief Abstract ouput stream
 	 */
-	class Stream {
+	class OutputStream: public SharedData {
 	public:
 		/**
 		 * @brief Abstract ouput stream constructor
 		 */
-		inline Stream () {};
+		OutputStream ();
 		
 		/**
 		 * @brief Abstract ouput stream destructor
 		 */
-		inline virtual ~Stream () {};
+		virtual ~OutputStream ();
 		
 		/**
 		 * @brief Abstract output stream operator
 		 * @param data Data to write
 		 */
-		virtual Stream& operator << (const QString &data) = 0;
-		
-		/**
-		 * @brief Clone the output stream object
-		 * @return a pointer to the coned StdStream object.
-		 */
-		virtual Stream* clone() const = 0;
+		virtual OutputStream& operator << (const QString &data) = 0;
 	};
 	
 	/**
 	 * @brief Std ouput stream
 	 */
-	class StdStream :public Stream {
+	class ChannelOutputStream :public OutputStream {
 	public:
 		/**
 		 * @brief Std ouput stream constructor from an std::ostream
 		 * @param stream std::ostream reference
 		 */
-		inline StdStream (std::ostream &stream) :m_stream(stream) {};
+		ChannelOutputStream (const StreamChannelPtr& channel);
 		
 		/**
 		 * @brief Std ouput stream destructor
 		 */
-		inline virtual ~StdStream () {};
+		~ChannelOutputStream ();
 		
 		/**
 		 * @brief Std output stream operator
 		 */
-		inline virtual Stream& operator << (const QString &data) { m_stream << data.toUtf8().data(); return *this; };
-		
-		/**
-		 * @brief Clone the output stream object
-		 * @return a pointer to the coned StdStream object.
-		 */
-		inline virtual Stream* clone() const { return new StdStream(m_stream); };
+		OutputStream& operator << (const QString &data);
 	private:
-		std::ostream &m_stream;
+		StreamChannelPtr m_channel;
 	};
-	
-	/**
-	 * @brief JSONSerializer constructor.
-	 * @param parent Parent object
-	 */
-	JSONSerializer(QObject* parent = 0);
 	
 	/**
 	 * @brief JSONSerializer constructor.
 	 * @param stream A reference to the std output stream
 	 * @param parent Parent object
 	 */
-	JSONSerializer(std::ostream &stream, QObject* parent = 0);
+	JSONSerializer(StreamChannelPtr channel, QObject* parent = 0);
 	
 	/**
 	 * @brief JSONSerializer constructor.
 	 * @param stream A reference to the output stream
 	 * @param parent Parent object
 	 */
-	JSONSerializer(const Stream &stream, QObject* parent = 0);
+	JSONSerializer(OutputStream &stream, QObject* parent = 0);
 	
 	/**
 	 * @brief JSONSerializer destructor.
@@ -132,8 +115,28 @@ public:
 	 */
 	void serialize(const QVariant &variant);
 private:
-	Stream &m_stream;
+	SharedPtr<OutputStream> m_streamPtr;
+	OutputStream &m_stream;
 };
+
+inline JSONSerializer::OutputStream::OutputStream() {
+}
+
+inline JSONSerializer::OutputStream::~OutputStream() {
+}
+
+inline JSONSerializer::ChannelOutputStream::ChannelOutputStream(const StreamChannelPtr& channel): m_channel(channel) {
+}
+
+inline JSONSerializer::ChannelOutputStream::~ChannelOutputStream() {
+}
+
+inline JSONSerializer::OutputStream& JSONSerializer::ChannelOutputStream::operator<<(const QString& data) {
+	auto bytes = data.toUtf8();
+	size_t len = bytes.length();
+	m_channel->write(bytes.data(), len);
+	return *this; 
+}
 
 }
 

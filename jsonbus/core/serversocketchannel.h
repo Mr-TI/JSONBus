@@ -19,12 +19,13 @@
 
 #include <jsonbus/core/exception.h>
 #include <jsonbus/core/channel.h>
-#include <jsonbus/core/streamchannel.h>
 
 /**
  * @namespace
  */
 namespace JSONBus {
+
+class SocketChannel;
 
 /**
  * @brief Abstract channel
@@ -60,7 +61,7 @@ public:
 	/**
 	 * @brief Connect
 	 */
-	StreamChannelPtr accept();
+	SharedPtr<SocketChannel> accept();
 	
 protected:
 	virtual int &fd();

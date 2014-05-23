@@ -19,13 +19,14 @@
 
 #include <jsonbus/core/exception.h>
 #include <jsonbus/core/serversocketchannel.h>
-#include <jsonbus/core/streamchannel.h>
 #include <openssl/ssl.h>
 
 /**
  * @namespace
  */
 namespace JSONBus {
+
+class SocketChannel;
 
 /**
  * @brief Abstract channel
@@ -55,7 +56,7 @@ public:
 	/**
 	 * @brief Connect
 	 */
-	StreamChannelPtr accept();
+	SharedPtr<SocketChannel> accept();
 	
 	/**
 	 * @brief Get the inner file descriptor if supported
