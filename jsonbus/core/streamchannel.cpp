@@ -69,7 +69,7 @@ void StreamChannel::write(const char *buffer, size_t len) {
 }
 
 size_t StreamChannel::available(bool noEmpty) {
-	int n = s_available();
+	int n = s_available() + (m_readEnd - m_readStart);
 	if (noEmpty && n == 0) {
 		if (m_deadline == -1) {
 			while (!s_waitForReadyRead(100)) {
