@@ -42,7 +42,7 @@ jsonbus_declare_exception(JSONSerializerException, Exception);
 /**
  * @brief JSON serializer management.
  */
-class JSONBUS_EXPORT JSONSerializer: public SharedData, public QObject {
+class JSONBUS_EXPORT JSONSerializer {
 public:
 	/**
 	 * @brief Abstract ouput stream
@@ -93,16 +93,15 @@ public:
 	/**
 	 * @brief JSONSerializer constructor.
 	 * @param stream A reference to the std output stream
-	 * @param parent Parent object
 	 */
-	JSONSerializer(StreamChannelPtr channel, QObject* parent = 0);
+	JSONSerializer(StreamChannelPtr channel);
 	
 	/**
 	 * @brief JSONSerializer constructor.
 	 * @param stream A reference to the output stream
 	 * @param parent Parent object
 	 */
-	JSONSerializer(OutputStream &stream, QObject* parent = 0);
+	JSONSerializer(OutputStream &stream);
 	
 	/**
 	 * @brief JSONSerializer destructor.

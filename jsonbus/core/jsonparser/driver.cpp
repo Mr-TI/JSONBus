@@ -44,6 +44,7 @@ Driver::~Driver() {
 QVariant Driver::parse() {
 	variant_t ret;
 	result = &ret;
+	scanner.resetPos();
 	if (parser.parse() != 0) {
 		throw ErrorException(QString("Line: ") + QString::number(scanner.lineno()) + ", column: " + QString::number(scanner.YYLeng()) + ", " + lastError);
 	}

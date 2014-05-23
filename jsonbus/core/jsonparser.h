@@ -48,7 +48,7 @@ class StreamChannel;
 /**
  * @brief JSON Parser management.
  */
-class JSONBUS_EXPORT JSONParser : public SharedData {
+class JSONBUS_EXPORT JSONParser {
 public:
 	
 	/**
@@ -72,7 +72,7 @@ public:
 	 * @return QVariant object
 	 * @throw JSONParserException on parsing error
 	 */
-	QVariant parse();
+	QVariant parse(int timeout = -1);
 	
 	void cancel();
 	

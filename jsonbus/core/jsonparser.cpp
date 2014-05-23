@@ -37,7 +37,8 @@ JSONParser::~JSONParser() {
 	delete m_driver;
 }
 
-QVariant JSONParser::parse() {
+QVariant JSONParser::parse(int timeout) {
+	m_channel->setDeadLine(timeout == -1? -1: QDateTime::currentMSecsSinceEpoch() + timeout);
 	return m_driver->parse();
 }
 

@@ -22,7 +22,7 @@
 #include <QString>
 
 #define THROW_IOEXP_ON_ERR(exp) \
-	if ((exp) == -1) throw IOException(QString() + __FILE__ + ":" + QString::number(__LINE__) + ": " + strerror(errno))
+	if ((exp) == -1) throw IOException(QString() + __FILE__ + ":" + QString::number(__LINE__) + ": " + QString::fromLocal8Bit(strerror(errno)))
 
 namespace JSONBus {
 

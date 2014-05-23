@@ -29,10 +29,6 @@ Scanner::Scanner(jsonparser::Scanner::getc_t getc, void* stream)
 Scanner::~Scanner() {
 }
 
-void Scanner::set_debug(bool b) {
-    yy_flex_debug = b;
-}
-
 int Scanner::LexerInput( char* buf, int max_size ) {
 	try {
 		buf[0] = m_getc(m_stream);

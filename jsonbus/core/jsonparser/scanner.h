@@ -51,8 +51,10 @@ public:
 	virtual ~Scanner();
 
 	virtual Parser::token_type yylex(Parser::semantic_type *yylval);
+	
+	virtual void resetPos();
 
-	void set_debug(bool b);
+	virtual void set_debug(bool b);
 
 protected:
 	virtual int LexerInput( char* buf, int max_size );
@@ -61,6 +63,15 @@ private:
 	getc_t m_getc;
 	void *m_stream;
 };
+
+inline void Scanner::set_debug(bool b) {
+	yy_flex_debug = b;
+}
+
+inline void Scanner::resetPos() {
+	yylineno = 1;
+	yyleng = 0;
+}
 
 }
 

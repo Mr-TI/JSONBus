@@ -29,10 +29,10 @@
 #include <netdb.h>
 
 #define THROW_IOEXP_ON_ERR(exp) \
-	if ((exp) == -1) throw IOException(QString() + __FILE__ + ":" + QString::number(__LINE__) + ": " + strerror(errno))
+	if ((exp) == -1) throw IOException(QString() + __FILE__ + ":" + QString::number(__LINE__) + ": " + QString::fromLocal8Bit(strerror(errno)))
 
 #define THROW_IOEXP(msg) \
-	throw IOException(QString() + __FILE__ + ":" + QString::number(__LINE__) + ": " + (msg == NULL ? strerror(errno) : msg))
+	throw IOException(QString() + __FILE__ + ":" + QString::number(__LINE__) + ": " + QString::fromLocal8Bit(msg == NULL ? strerror(errno) : msg))
 
 namespace JSONBus {
 

@@ -43,13 +43,13 @@ static QString sanitizeString( QString str )
   return QString( QLatin1String( "\"%1\"" ) ).arg( str );
 }
 
-JSONSerializer::JSONSerializer(StreamChannelPtr channel, QObject* parent)
-: QObject(parent), m_streamPtr(new ChannelOutputStream(channel)), m_stream(*m_streamPtr) {
+JSONSerializer::JSONSerializer(StreamChannelPtr channel)
+: m_streamPtr(new ChannelOutputStream(channel)), m_stream(*m_streamPtr) {
 	
 }
 
-JSONSerializer::JSONSerializer(JSONSerializer::OutputStream& stream, QObject* parent)
-: QObject(parent), m_stream(stream) {
+JSONSerializer::JSONSerializer(JSONSerializer::OutputStream& stream)
+: m_stream(stream) {
 	
 }
 

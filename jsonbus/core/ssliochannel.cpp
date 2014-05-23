@@ -35,14 +35,14 @@ QString SSLIOChannel::getLastError() {
 	unsigned long int err = ERR_get_error();
 	txt = ERR_func_error_string(err);
 	if (txt != nullptr) {
-		msg.append(txt);
+		msg.append(QString::fromLocal8Bit(txt));
 		msg.append(": ");
 	}
 	txt = ERR_reason_error_string(err);
 	if (txt != nullptr) {
-		msg.append(txt);
+		msg.append(QString::fromLocal8Bit(txt));
 	} else {
-		msg.append(strerror(errno));
+		msg.append(QString::fromLocal8Bit(strerror(errno)));
 	}
 	return msg;
 }
