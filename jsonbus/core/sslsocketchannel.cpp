@@ -30,8 +30,8 @@
 
 namespace JSONBus {
 
-SSLSocketChannel::SSLSocketChannel(const QString& host, int port, SSL_CTX* ctx) : SocketChannel(host, port), m_ssl(NULL) {
-	THROW_IOEXP_ON_NULL(m_ssl = SSL_new(ctx));
+SSLSocketChannel::SSLSocketChannel(const QString& host, int port, SSLContextPtr ctx) : SocketChannel(host, port), m_ssl(NULL) {
+	THROW_IOEXP_ON_NULL(m_ssl = SSL_new(ctx->getCTX()));
 	try {
 		THROW_IOEXP_ON_ERR(SSL_set_fd(m_ssl, m_fd));
 		THROW_IOEXP_ON_ERR(::SSL_connect(m_ssl));
@@ -41,8 +41,8 @@ SSLSocketChannel::SSLSocketChannel(const QString& host, int port, SSL_CTX* ctx) 
 	}
 }
 
-SSLSocketChannel::SSLSocketChannel(int fd, const QString& name, SSL_CTX* ctx) : SocketChannel(fd, name), m_ssl(NULL) {
-	THROW_IOEXP_ON_NULL(m_ssl = SSL_new(ctx));
+SSLSocketChannel::SSLSocketChannel(int fd, const QString& name, SSLContextPtr ctx) : SocketChannel(fd, name), m_ssl(NULL) {
+	THROW_IOEXP_ON_NULL(m_ssl = SSL_new(ctx->getCTX()));
 	try {
 		THROW_IOEXP_ON_ERR(SSL_set_fd(m_ssl, m_fd));
 		THROW_IOEXP_ON_ERR(::SSL_accept(m_ssl));

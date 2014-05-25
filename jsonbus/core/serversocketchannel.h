@@ -61,7 +61,7 @@ public:
 	/**
 	 * @brief Connect
 	 */
-	SharedPtr<SocketChannel> accept();
+	virtual SharedPtr<SocketChannel> accept();
 	
 protected:
 	virtual int &fd();

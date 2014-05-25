@@ -22,6 +22,7 @@
 #include <openssl/err.h>
 #include <jsonbus/core/shareddata.h>
 #include <jsonbus/core/socketchannel.h>
+#include <jsonbus/core/sslcontext.h>
 
 /**
  * @namespace
@@ -46,7 +47,7 @@ public:
 	 * @param ctx a valid ssl context
 	 * @throw IOException on error
 	 */
-	SSLSocketChannel(const QString &host, int port, SSL_CTX* ctx);
+	SSLSocketChannel(const QString &host, int port, SSLContextPtr ctx);
 	
 	/**
 	 * @brief AbstractChannel destructor
@@ -60,7 +61,7 @@ public:
 	virtual void close();
 	
 protected:
-	SSLSocketChannel(int fd, const QString &name, SSL_CTX* ctx);
+	SSLSocketChannel(int fd, const QString &name, SSLContextPtr ctx);
 	virtual size_t s_available();
 	virtual size_t s_read(char *buffer, size_t maxlen);
 	virtual void s_write(const char *buffer, size_t len);

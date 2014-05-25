@@ -36,7 +36,7 @@
 
 namespace JSONBus {
 
-SSLServerSocketChannel::SSLServerSocketChannel(const QString &host, int port, SSL_CTX* ctx): ServerSocketChannel(host, port), m_ctx(ctx) {
+SSLServerSocketChannel::SSLServerSocketChannel(const QString &host, int port, SSLContextPtr ctx): ServerSocketChannel(host, port), m_ctx(ctx) {
 }
 
 SSLServerSocketChannel::~SSLServerSocketChannel() {

@@ -14,55 +14,42 @@
  *   limitations under the License.
  */
 
-#ifndef JSONPARSER_SSLSERVERSOCKETCHANNEL_H
-#define JSONPARSER_SSLSERVERSOCKETCHANNEL_H
+#ifndef JSONBUS_SSLCONTEXT_H
+#define JSONBUS_SSLCONTEXT_H
 
-#include <jsonbus/core/exception.h>
-#include <jsonbus/core/serversocketchannel.h>
-#include <jsonbus/core/sslcontext.h>
 #include <openssl/ssl.h>
+#include <jsonbus/core/sharedptr.h>
 
 /**
  * @namespace
  */
 namespace JSONBus {
 
-class SocketChannel;
-
 /**
- * @brief Abstract channel
+ * @brief SSL context
  * 
  * @author <a href="mailto:emericv@openihs.org">Emeric Verschuur</a>
  * @date 2014
  * @copyright Apache License, Version 2.0
  */
-class SSLServerSocketChannel: public ServerSocketChannel {
+class SSLContext : public SharedData {
 public:
-	/**
-	 * @brief Socket constructor
-	 */
-	SSLServerSocketChannel(const QString &host, int port, SSLContextPtr ctx);
+	SSLContext();
 	
-	/**
-	 * @brief Socket destructor
-	 */
-	virtual ~SSLServerSocketChannel();
+    virtual ~SSLContext();
 	
-	/**
-	 * @brief Close the channel
-	 * @throw IOException on error
-	 */
-	virtual void close();
-	
-	/**
-	 * @brief Connect
-	 */
-	virtual SharedPtr<SocketChannel> accept();
-	
-private:
-    SSLContextPtr m_ctx;
+	virtual SSL_CTX *getCTX() = 0;
 };
+
+inline SSLContext::SSLContext() {
+}
+
+inline SSLContext::~SSLContext() {
+}
+
+
+typedef SharedPtr<SSLContext> SSLContextPtr;
 
 }
 
-#endif // JSONPARSER_SSLSERVERSOCKETCHANNEL_H
+#endif // JSONBUS_SSLCONTEXT_H
