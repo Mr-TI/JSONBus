@@ -46,11 +46,11 @@ void Channel::close() {
 	}
 }
 
-SelectionKeyPtr Channel::registerTo(Selector& selector, int options) {
+SelectionKeyPtr Channel::registerTo(Selector& selector, int options, GenericPtr attachement) {
 	if (m_keys.contains(&selector)) {
 		m_keys[&selector]->cancel();
 	}
-	return new SelectionKey(selector, this, options);
+	return new SelectionKey(selector, this, options, attachement);
 }
 
 }

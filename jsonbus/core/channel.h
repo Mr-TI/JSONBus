@@ -62,7 +62,7 @@ public:
 	 */
 	virtual void close();
 	
-	SharedPtr<SelectionKey> registerTo(JSONBus::Selector& selector, int options);
+	SharedPtr<SelectionKey> registerTo(JSONBus::Selector& selector, int options, GenericPtr attachement=NULL);
 	
 	SharedPtr<SelectionKey> keyFor(Selector &selector);
 	

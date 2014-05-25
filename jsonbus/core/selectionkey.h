@@ -79,16 +79,29 @@ public:
 	 * @return true if it is valid, otherwise false
 	 */
 	bool isValid();
+	
+	/**
+	 * @brief Attach the given object to this key
+	 * @param obj pointer
+	 */
+	void attach(GenericPtr obj);
+	
+	/**
+	 * @brief Retrieves the current attachment
+	 * @return pointer to the current attachment
+	 */
+	GenericPtr attachment();
 
 private:
 	/**
 	 * @brief SelectionKey constructor
 	 */
-	SelectionKey(Selector &selector, SharedPtr<Channel> channel, int events);
+	SelectionKey(Selector &selector, SharedPtr<Channel> channel, int events, GenericPtr attachement=NULL);
 	
 	Selector &m_selector;
 	SharedPtr<Channel> m_channel;
 	int m_events;
+	GenericPtr m_attachement;
 };
 
 inline bool SelectionKey::isReadable() {
@@ -101,6 +114,14 @@ inline bool SelectionKey::isWritable() {
 
 inline bool SelectionKey::isValid() {
 	return m_channel != nullptr;
+}
+
+inline void SelectionKey::attach(GenericPtr obj) {
+	m_attachement = obj;
+}
+
+inline GenericPtr SelectionKey::attachment() {
+	return m_attachement;
 }
 
 inline SharedPtr< Channel > SelectionKey::channel() {

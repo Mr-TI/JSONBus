@@ -21,8 +21,10 @@
 #include <jsonbus/core/settings.h>
 #include <jsonbus/core/jsonserializer.h>
 #include <jsonbus/core/logger.h>
+#include <jsonbus/core/iochannel.h>
 
 #include "container.h"
+#include <unistd.h>
 
 #ifdef WIN32
 #	define JSONBUS_SERVICEFILE_PREFIX ""
@@ -35,7 +37,7 @@
 jsonbus_declare_application(Container)
 
 Container::Container(int &argc, char **argv)
-	: SlaveApplication(argc, argv) {
+	: SlaveApplication(argc, argv), m_jsonSerialiser(new IOChannel(STDOUT_FILENO)) {
 }
 
 Container::~Container() {}

@@ -24,8 +24,8 @@
 
 namespace JSONBus {
 
-SelectionKey::SelectionKey(Selector &selector, SharedPtr<Channel> channel, int events)
-: m_selector(selector), m_channel(channel), m_events(0) {
+SelectionKey::SelectionKey(Selector &selector, SharedPtr<Channel> channel, int events, GenericPtr attachement)
+: m_selector(selector), m_channel(channel), m_events(0), m_attachement(attachement) {
 	QMutexLocker _(&(selector.m_synchronize));
 	selector.put(this, events & (SelectionKey::OP_READ | SelectionKey::OP_WRITE));
 	channel->m_keys[&selector] = this;

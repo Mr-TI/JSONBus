@@ -19,6 +19,7 @@
 #include <jsonbus/core/selector.h>
 #include <jsonbus/core/serversocketchannel.h>
 #include <jsonbus/core/selectionkey.h>
+#include <jsonbus/core/socketchannel.h>
 #include <unistd.h>
 
 using namespace JSONBus;
