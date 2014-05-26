@@ -40,6 +40,8 @@ class JSONBUS_EXPORT ename:public eparent {\
 public:\
     inline ename(const QString &msg = ""):eparent(msg) {}\
 	\
+    inline virtual ~ename() throw() {}\
+	\
 	inline virtual void raise() const {\
 		throw *this;\
 	}\
@@ -101,6 +103,11 @@ public:
 	Exception(const Exception &exception);
 
 	/**
+	 * @brief Exception destructor.
+	 */
+	virtual ~Exception() throw();
+
+	/**
 	 * @brief Get the exeption message.
 	 * @return QString message.
 	 */
@@ -135,6 +142,7 @@ jsonbus_declare_exception(EOFException, IOException);
 
 inline Exception::Exception(const QString& message): d(new ExceptionData(message)) {}
 inline Exception::Exception(const Exception& exception): d(exception.d) {}
+inline Exception::~Exception() throw() {}
 inline Exception* Exception::clone() const {
 	return new Exception(*this);
 }
