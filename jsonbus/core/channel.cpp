@@ -29,7 +29,7 @@
 
 namespace JSONBus {
 
-Channel::Channel() {
+Channel::Channel(): m_open(true) {
 }
 
 Channel::~Channel() {
@@ -40,10 +40,15 @@ Channel::~Channel() {
 }
 
 void Channel::close() {
+	if (!m_open) {
+		return;
+	}
+	m_open = false;
 	auto list = m_keys.values();
 	for (auto it = list.begin(); it != list.end(); it++) {
 		(*it)->cancel();
 	}
+	emit closed();
 }
 
 SelectionKeyPtr Channel::registerTo(Selector& selector, int options, GenericPtr attachement) {
@@ -51,6 +56,13 @@ SelectionKeyPtr Channel::registerTo(Selector& selector, int options, GenericPtr 
 		m_keys[&selector]->cancel();
 	}
 	return new SelectionKey(selector, this, options, attachement);
+}
+
+SharedPtr< SelectionKey > Channel::keyFor(Selector& selector) {
+	if (m_keys.contains(&selector)) {
+		return m_keys[&selector];
+	}
+	return nullptr;
 }
 
 }

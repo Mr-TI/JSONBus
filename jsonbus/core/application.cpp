@@ -78,6 +78,7 @@ void Application::run() {
 		logInfo() << __demangle(typeid(*this).name()) << " started.";
 		exec();
 		logFiner() << __demangle(typeid(*this).name()) << " stopping...";
+		onStop();;
 	} catch (ExitApplicationException &e) {
 		
 	} catch (Exception &e) {

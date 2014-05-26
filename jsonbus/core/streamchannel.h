@@ -116,21 +116,16 @@ protected:
 private:
 	void checkBuf();
 	
-	bool m_enabled;
 	char m_readBuff[64];
 	size_t m_readStart;
 	size_t m_readEnd;
 	qint64 m_deadline;
 };
 
-inline StreamChannel::StreamChannel(): m_enabled(true), m_readStart(0), m_readEnd(0), m_deadline(-1) {
+inline StreamChannel::StreamChannel(): m_readStart(0), m_readEnd(0), m_deadline(-1) {
 }
 
 inline StreamChannel::~StreamChannel() {
-}
-
-inline void StreamChannel::close() {
-	m_enabled = false;
 }
 
 inline void StreamChannel::setDeadLine(qint64 msecs) {

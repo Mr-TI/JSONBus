@@ -24,7 +24,7 @@ file(GLOB project_SRCS *.cpp)
 find_package(Qt4 REQUIRED)
 include(${QT_USE_FILE})
 qt4_wrap_ui(project_UIS_H)
-qt4_wrap_cpp(project_MOC_SRCS jsonparsertask.h application.h slaveapplication.h)
+qt4_wrap_cpp(project_MOC_SRCS jsonparsertask.h application.h slaveapplication.h channel.h)
 
 # ### SSL ###
 find_package(OpenSSL REQUIRED)

@@ -37,7 +37,8 @@ class Selector;
  * @date 2014
  * @copyright Apache License, Version 2.0
  */
-class Channel: public SharedData {
+class Channel: public QObject, public SharedData {
+	Q_OBJECT
 	friend class Selector;
 	friend class SelectionKey;
 public:
@@ -55,24 +56,33 @@ public:
 	 * @brief Return if the channel is open
 	 * @return true if the channel is open, otherwise false
 	 */
-	virtual bool isOpen() = 0;
-	
-	/**
-	 * @brief Close the channel
-	 */
-	virtual void close();
+	virtual bool isOpen();
 	
 	SharedPtr<SelectionKey> registerTo(JSONBus::Selector& selector, int options, GenericPtr attachement=NULL);
 	
 	SharedPtr<SelectionKey> keyFor(Selector &selector);
+
+public slots:
+	/**
+	 * @brief Close the channel
+	 */
+	virtual void close();
+
+signals:
+	void closed();
 	
 protected:
 	virtual int &fd() = 0;
 	virtual void updateStatus(int events) = 0;
+	bool m_open;
 	
 private:
 	QMap<Selector*, SharedPtr<SelectionKey> > m_keys;
 };
+
+inline bool Channel::isOpen() {
+	return m_open;
+}
 
 typedef SharedPtr<Channel> ChannelPtr;
 

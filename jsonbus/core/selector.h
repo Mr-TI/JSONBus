@@ -85,7 +85,7 @@ private:
 	bool m_enabled;
 	int m_epfd;
 	epoll_event m_event;
-	epoll_event m_events[64];
+	epoll_event *m_events;
 	QMap<int, SharedPtr<SelectionKey> > m_keys;
 	QList<SharedPtr<SelectionKey> > m_pendingKeys;
 	QMutex m_synchronize;

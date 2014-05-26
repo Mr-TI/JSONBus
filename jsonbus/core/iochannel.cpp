@@ -28,15 +28,15 @@ namespace JSONBus {
 
 IOChannel::IOChannel(int fd, bool closeOnDelete) : m_fd(fd), m_closeOnDelete(closeOnDelete), m_epfd(-1) {
 	THROW_IOEXP_ON_ERR(m_epfd = epoll_create1(0));
+	bzero(&m_event, sizeof(epoll_event));
 	m_event.data.fd = m_fd;
 	m_event.events = EPOLLIN | EPOLLET;
 	THROW_IOEXP_ON_ERR(epoll_ctl (m_epfd, EPOLL_CTL_ADD, m_fd, &m_event));
 }
 
 IOChannel::~IOChannel() {
-	if (m_closeOnDelete && m_fd != -1) {
-		::close(m_fd);
-		m_fd = -1;
+	if (m_closeOnDelete && isOpen()) {
+		close();
 	}
 	::close(m_epfd);
 }
@@ -58,9 +58,8 @@ void IOChannel::s_write(const char *buffer, size_t len) {
 }
 
 void IOChannel::close() {
-	if (m_fd != -1) {
+	if (isOpen()) {
 		::close(m_fd);
-		m_fd = -1;
 		StreamChannel::close();
 	}
 }

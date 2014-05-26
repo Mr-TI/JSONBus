@@ -22,7 +22,8 @@
 #include <sys/time.h>
 #include <string.h>
 #include <unistd.h>
-#include <QString>
+
+#define JSONBUS_SELECTOR_EPOLL_EVENT_SIZE 64
 
 #define THROW_IOEXP_ON_ERR(exp) \
 	if ((exp) == -1) throw IOException(QString() + __FILE__ + ":" + QString::number(__LINE__) + ": " + QString::fromLocal8Bit(strerror(errno)))
@@ -31,6 +32,7 @@ namespace JSONBus {
 
 Selector::Selector() : m_enabled(true), m_synchronize(QMutex::Recursive) {
 	THROW_IOEXP_ON_ERR(m_epfd = epoll_create1(0));
+	m_events = new epoll_event[JSONBUS_SELECTOR_EPOLL_EVENT_SIZE];
 }
 
 Selector::~Selector() {
@@ -39,6 +41,7 @@ Selector::~Selector() {
 	for (auto it = list.begin(); it != list.end(); it++) {
 		(*it)->cancel();
 	}
+	delete[] m_events;
 	::close(m_epfd);
 }
 
@@ -49,7 +52,12 @@ bool Selector::select(int timeout) {
 	locker.unlock();
 	while (m_enabled && timeout != 0) {
 		locker.relock();
-		THROW_IOEXP_ON_ERR(ret = epoll_wait(m_epfd, m_events,sizeof(m_events) ,1));
+		ret = epoll_wait(m_epfd, m_events,JSONBUS_SELECTOR_EPOLL_EVENT_SIZE ,1);
+		if (errno == EINTR) {
+			ret = 0;
+			continue;
+		}
+		THROW_IOEXP_ON_ERR(ret);
 		if (ret > 0) {
 			for (ssize_t i = 0; i < ret; i++) {
 				fdc = m_events[i].data.fd;
@@ -81,6 +89,7 @@ QList< SelectionKeyPtr > Selector::selectedKeys() {
 void Selector::put(const SelectionKeyPtr& key, int events) {
 	QMutexLocker _(&m_synchronize);
 	m_keys[key->channel()->fd()] = key;
+	bzero(&m_event, sizeof(epoll_event));
 	m_event.data.fd = key->channel()->fd();
 	m_event.events = events | EPOLLET;
 	THROW_IOEXP_ON_ERR(epoll_ctl (m_epfd, EPOLL_CTL_ADD, m_event.data.fd, &m_event));

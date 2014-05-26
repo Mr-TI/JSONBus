@@ -54,6 +54,10 @@ SSLSocketChannel::SSLSocketChannel(int fd, const QString& name, SSLContextPtr ct
 
 
 SSLSocketChannel::~SSLSocketChannel() {
+	if (isOpen()) {
+		close();
+	}
+	::SSL_free(m_ssl);
 }
 
 size_t SSLSocketChannel::s_read(char *buffer, size_t maxlen) {
@@ -72,8 +76,10 @@ void SSLSocketChannel::s_write(const char *buffer, size_t len) {
 }
 
 void SSLSocketChannel::close() {
-	THROW_IOEXP_ON_ERR(::SSL_shutdown(m_ssl));
-	IOChannel::close();
+	if (isOpen()) {
+		::SSL_shutdown(m_ssl);
+		IOChannel::close();
+	}
 }
 
 size_t SSLSocketChannel::s_available() {

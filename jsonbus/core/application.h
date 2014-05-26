@@ -114,6 +114,11 @@ protected:
 	 */
 	virtual void onStart() = 0;
 	
+	/**
+	 * @brief Method called during start process
+	 */
+	virtual void onStop();
+	
 private slots:
 	/**
 	 * @brief Called when the application is quitting
@@ -126,6 +131,9 @@ inline Application &Application::getInstance () {
 }
 inline void Application::runInstance() {
 	getInstance().run();
+}
+inline void Application::onStop() {
+
 }
 
 }

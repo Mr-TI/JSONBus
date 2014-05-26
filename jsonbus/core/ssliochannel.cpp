@@ -53,10 +53,10 @@ SSLIOChannel::SSLIOChannel(int fd, SSL_CTX *ctx, bool closeOnDelete) : IOChannel
 }
 
 SSLIOChannel::~SSLIOChannel() {
-	if (m_ssl) {
-		::SSL_shutdown(m_ssl);
-		m_ssl = NULL;
+	if (m_closeOnDelete && isOpen()) {
+		close();
 	}
+	::SSL_free(m_ssl);
 }
 
 size_t SSLIOChannel::s_read(char *buffer, size_t maxlen) {
@@ -75,10 +75,9 @@ void SSLIOChannel::s_write(const char *buffer, size_t len) {
 }
 
 void SSLIOChannel::close() {
-	if (m_ssl) {
+	if (isOpen()) {
 		::SSL_shutdown(m_ssl);
 		IOChannel::close();
-		m_ssl = NULL;
 	}
 }
 

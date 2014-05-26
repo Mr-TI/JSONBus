@@ -73,13 +73,13 @@ size_t StreamChannel::available(bool noEmpty) {
 	if (noEmpty && n == 0) {
 		if (m_deadline == -1) {
 			while (!s_waitForReadyRead(100)) {
-				if (!m_enabled) {
+				if (!m_open) {
 					throw EOFException("Closed channel");
 				}
 			}
 		} else {
 			while (!s_waitForReadyRead(100)) {
-				if (!m_enabled) {
+				if (!m_open) {
 					throw EOFException("Closed channel");
 				}
 				if (m_deadline < QDateTime::currentMSecsSinceEpoch()) {
@@ -93,6 +93,10 @@ size_t StreamChannel::available(bool noEmpty) {
 		}
 	}
 	return n;
+}
+
+void StreamChannel::close() {
+	Channel::close();
 }
 
 
