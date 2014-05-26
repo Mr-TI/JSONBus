@@ -51,18 +51,10 @@ void SSLServerSocketChannel::close() {
 #define CLIENT_SERV_MAXLEN 32
 
 SocketChannelPtr SSLServerSocketChannel::accept() {
-	char client_host[CLIENT_HOST_MAXLEN + 1];
-	client_host[0] = '\0';
-	char client_serv[CLIENT_SERV_MAXLEN + 1];
-	client_serv[0] = '\0';
-	struct sockaddr sockaddr_client;
-	socklen_t sockaddr_len = sizeof(struct sockaddr);
-	int cldf = ::accept(m_fd, &sockaddr_client, &sockaddr_len);
-	THROW_IOEXP_ON_ERR(cldf);
-	if (getnameinfo(&sockaddr_client, sockaddr_len, client_host, CLIENT_HOST_MAXLEN, client_serv, CLIENT_SERV_MAXLEN, 0) == -1) {
-		THROW_IOEXP(hstrerror(h_errno));
-	}
-	return new SSLSocketChannel(cldf, QString(client_host) + ":" + client_serv, m_ctx);
+	int cldf;
+	QString name;
+	s_accept(cldf, name);
+	return new SSLSocketChannel(cldf, name, m_ctx);
 }
 
 }

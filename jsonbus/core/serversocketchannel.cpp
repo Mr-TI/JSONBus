@@ -26,6 +26,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
 
 #define THROW_IOEXP_ON_ERR(exp) \
 	if ((exp) == -1) throw IOException(QString() + __FILE__ + ":" + QString::number(__LINE__) + ": " + QString::fromLocal8Bit(strerror(errno)))
@@ -76,43 +78,60 @@ static int __bind(const QString &host, int port, int listenQueueSize) {
 	}
 }
 
-ServerSocketChannel::ServerSocketChannel(const QString &host, int port, int listenQueueSize): m_fd(__bind(host, port, listenQueueSize)) {
-	m_name = host + ":" + QString::number(port);
+ServerSocketChannel::ServerSocketChannel(const QString &host, int port, int listenQueueSize)
+: m_fd(__bind(host, port, listenQueueSize)), m_name(host + ":" + QString::number(port)), 
+m_keepAlive(0), m_keepIntlv(0), m_keepIdle(0), m_keepCnt(0) {
 	logFiner() << "ServerSocketChannel::start listening on " << m_name;
 }
 
 ServerSocketChannel::~ServerSocketChannel() {
-	if (m_fd != -1) {
-		logFiner() << "ServerSocketChannel::stop listening on " << m_name;
-		::close(m_fd);
-		m_fd = -1;
+	if (isOpen()) {
+		close();
 	}
 }
 
 void ServerSocketChannel::close() {
-	if (m_fd != -1) {
+	if (isOpen()) {
 		logFiner() << "ServerSocketChannel::stop listening on " << m_name;
 		::close(m_fd);
-		m_fd = -1;
 	}
 }
 
 #define CLIENT_HOST_MAXLEN 256
 #define CLIENT_SERV_MAXLEN 32
 
-SocketChannelPtr ServerSocketChannel::accept() {
+void ServerSocketChannel::s_accept(int &cldf, QString &name) {
 	char client_host[CLIENT_HOST_MAXLEN + 1];
 	client_host[0] = '\0';
 	char client_serv[CLIENT_SERV_MAXLEN + 1];
 	client_serv[0] = '\0';
 	struct sockaddr sockaddr_client;
 	socklen_t sockaddr_len = sizeof(struct sockaddr);
-	int cldf = ::accept(m_fd, &sockaddr_client, &sockaddr_len);
+	cldf = ::accept(m_fd, &sockaddr_client, &sockaddr_len);
 	THROW_IOEXP_ON_ERR(cldf);
 	if (getnameinfo(&sockaddr_client, sockaddr_len, client_host, CLIENT_HOST_MAXLEN, client_serv, CLIENT_SERV_MAXLEN, 0) == -1) {
 		THROW_IOEXP(hstrerror(h_errno));
 	}
-	return new SocketChannel(cldf, QString(client_host) + ":" + client_serv);
+	name = QString(client_host) + ":" + client_serv;
+	if (m_keepAlive) {
+		THROW_IOEXP_ON_ERR(setsockopt(cldf, SOL_SOCKET, SO_KEEPALIVE, &m_keepAlive, sizeof m_keepAlive));
+	}
+	if (m_keepIntlv) {
+		THROW_IOEXP_ON_ERR(setsockopt(cldf, IPPROTO_TCP, TCP_KEEPINTVL, &m_keepIntlv, sizeof m_keepIntlv));
+	}
+	if (m_keepIdle) {
+		THROW_IOEXP_ON_ERR(setsockopt(cldf, IPPROTO_TCP, TCP_KEEPIDLE, &m_keepIdle, sizeof m_keepIdle));
+	}
+	if (m_keepCnt) {
+		THROW_IOEXP_ON_ERR(setsockopt(cldf, IPPROTO_TCP, TCP_KEEPCNT, &m_keepCnt, sizeof m_keepCnt));
+	}
+}
+
+SocketChannelPtr ServerSocketChannel::accept() {
+	int cldf;
+	QString name;
+	s_accept(cldf, name);
+	return new SocketChannel(cldf, name);
 }
 
 void ServerSocketChannel::updateStatus(int events) {

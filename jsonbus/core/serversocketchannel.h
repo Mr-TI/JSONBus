@@ -47,12 +47,6 @@ public:
 	virtual ~ServerSocketChannel();
 	
 	/**
-	 * @brief Return if the channel is open
-	 * @return true if the channel is open, otherwise false
-	 */
-	virtual bool isOpen();
-	
-	/**
 	 * @brief Close the channel
 	 * @throw IOException on error
 	 */
@@ -63,20 +57,47 @@ public:
 	 */
 	virtual SharedPtr<SocketChannel> accept();
 	
+	void setKeepAlive(bool value);
+	void setKeepIntlv(int value);
+	void setKeepIdle(int value);
+	void setKeepCnt(int value);
+	
 protected:
+	/**
+	 * @brief Connect
+	 */
+	virtual void s_accept(int &cldf, QString &name);
+	
 	virtual int &fd();
 	virtual void updateStatus(int events);
 	int m_fd;
 	QString m_name;
+	int m_keepAlive;
+	int m_keepIntlv;
+	int m_keepIdle;
+	int m_keepCnt;
 };
 
 inline int &ServerSocketChannel::fd() {
 	return m_fd;
 }
 
-inline bool ServerSocketChannel::isOpen() {
-	return m_fd != -1;
+inline void ServerSocketChannel::setKeepAlive(bool value) {
+	m_keepAlive = value ? 1 : 0;
 }
+
+inline void ServerSocketChannel::setKeepCnt(int value) {
+	m_keepCnt = value;
+}
+
+inline void ServerSocketChannel::setKeepIdle(int value) {
+	m_keepIdle = value;
+}
+
+inline void ServerSocketChannel::setKeepIntlv(int value) {
+	m_keepIntlv = value;
+}
+
 
 typedef SharedPtr<ServerSocketChannel> ServerSocketChannelPtr;
 
