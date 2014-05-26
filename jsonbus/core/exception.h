@@ -73,18 +73,12 @@ public:
 	 * @param message Message
 	 */
 	ExceptionData(const QString &message);
-	
-	/**
-	 * @brief ExceptionData destructor
-	 */
-	virtual ~ExceptionData();
 };
 
 typedef SharedPtr<ExceptionData> ExceptionDataPtr;
 
 inline ExceptionData::ExceptionData(const QString &message): message(message), 
 	backtraceSize(::backtrace(backtrace, JSONBUS_EXCEPTION_BACKTRACE_SIZE)) {}
-inline ExceptionData::~ExceptionData() {}
 
 /**
  * This class can manage exceptions.
