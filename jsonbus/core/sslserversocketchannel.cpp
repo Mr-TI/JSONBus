@@ -44,7 +44,7 @@ SSLServerSocketChannel::~SSLServerSocketChannel() {
 }
 
 void SSLServerSocketChannel::close() {
-	THROW_IOEXP_ON_ERR(::close(m_fd));
+	ServerSocketChannel::close();
 }
 
 #define CLIENT_HOST_MAXLEN 256
