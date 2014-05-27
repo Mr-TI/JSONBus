@@ -26,16 +26,18 @@
 #include <QObject>
 #include <QtCore>
 
-#define jsonparser_declare_exception(ename, eparent)\
-class ename:public eparent {\
+#define jsonparser_declare_exception(ename, eparent) \
+class JSONBUS_EXPORT ename:public eparent {\
 public:\
     inline ename(const QString &msg = ""):eparent(msg) {}\
 	\
-	inline void raise() const {\
+    inline virtual ~ename() throw() {}\
+	\
+	inline virtual void raise() const {\
 		throw *this;\
 	}\
 	\
-	inline ename *clone() const {\
+	inline virtual ename *clone() const {\
 		return new ename(*this);\
 	}\
 };
