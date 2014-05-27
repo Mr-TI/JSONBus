@@ -39,7 +39,7 @@ class SSLServerSocketChannel;
  * @copyright Apache License, Version 2.0
  */
 class SSLSocketChannel: public SocketChannel {
-	friend SSLServerSocketChannel;
+	friend class SSLServerSocketChannel;
 public:
 	/**
 	 * @brief AbstractChannel constructor
