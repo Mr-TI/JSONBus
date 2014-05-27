@@ -1,11 +1,18 @@
 JSONBus
 =======
 
-prerequisites for ubuntu:<br/>
-    $ sudo apt-get install build-essential libqt4-dev libssl-dev bison flex git cmake<br/>
+[![Build Status](https://travis-ci.org/Mr-TI/JSONBus.svg?branch=master)](https://travis-ci.org/Mr-TI/JSONBus)
 
-build:<br/>
-    $ mkdir build<br/>
-    $ cd build<br/>
-    $ cmake ..<br/>
-    $ make<br/>
+prerequisites for ubuntu:
+
+```bash
+$ sudo apt-get install build-essential libqt4-dev libssl-dev bison flex git cmake
+```
+
+build:
+```bash
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
+```

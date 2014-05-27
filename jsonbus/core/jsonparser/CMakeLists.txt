@@ -24,7 +24,7 @@ file(GLOB project_SRCS *.cpp)
 # ### FLEX & BISON ###
 find_package(BISON)
 find_package(FLEX)
-bison_target(Parser parser.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cc)
+bison_target(Parser parser.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cc COMPILE_FLAGS -Wno-deprecated)
 flex_target(Scanner scanner.l ${CMAKE_CURRENT_BINARY_DIR}/scanner.cc)
 add_flex_bison_dependency(Scanner Parser)
 
