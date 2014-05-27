@@ -17,9 +17,7 @@
 #ifndef JSONPARSER_SSLSOCKETCHANNEL_H
 #define JSONPARSER_SSLSOCKETCHANNEL_H
 
-#include <sys/epoll.h>
 #include <openssl/ssl.h>
-#include <openssl/err.h>
 #include <jsonbus/core/shareddata.h>
 #include <jsonbus/core/socketchannel.h>
 #include <jsonbus/core/sslcontext.h>
