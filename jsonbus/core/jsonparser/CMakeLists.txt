@@ -24,13 +24,14 @@ file(GLOB project_SRCS *.cpp)
 # ### FLEX & BISON ###
 find_package(BISON)
 find_package(FLEX)
-bison_target(Parser parser.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cc COMPILE_FLAGS -Wno-deprecated)
-flex_target(Scanner scanner.l ${CMAKE_CURRENT_BINARY_DIR}/scanner.cc)
-add_flex_bison_dependency(Scanner Parser)
-
 if ("${BISON_VERSION}" MATCHES "(^2\\..*)")
 	add_definitions(-DGNU_BISON_V2)
+bison_target(Parser parser.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cc COMPILE_FLAGS)
+else ()
+bison_target(Parser parser.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cc COMPILE_FLAGS -Wno-deprecated)
 endif ()
+flex_target(Scanner scanner.l ${CMAKE_CURRENT_BINARY_DIR}/scanner.cc)
+add_flex_bison_dependency(Scanner Parser)
 
 # ### TARGET ###
 add_library(jsonparser STATIC ${BISON_Parser_OUTPUTS} ${FLEX_Scanner_OUTPUTS} ${project_SRCS} ${project_HDRS})
