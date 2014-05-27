@@ -30,6 +30,8 @@ qt4_wrap_cpp(project_MOC_SRCS jsonparsertask.h application.h slaveapplication.h 
 find_package(OpenSSL REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIR})
 
+add_definitions(-DUSE_JSONBUS_EXCEPTION)
+
 add_subdirectory(jsonparser)
 
 # ### TARGET ###
