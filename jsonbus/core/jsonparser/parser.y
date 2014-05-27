@@ -56,8 +56,12 @@ using namespace std;
 %type <node>        ROOT VARIANT
 
 %language "C++"
+%define namespace "jsonparser"
+%define parser_class_name "Parser"
+/*
 %define api.namespace {jsonparser}
 %define parser_class_name {Parser}
+*/
 %parse-param {Driver &driver}
 
 %destructor { delete $$; } TSTRING TVARIANT

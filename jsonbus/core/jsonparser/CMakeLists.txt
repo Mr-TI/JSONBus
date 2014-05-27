@@ -28,6 +28,9 @@ bison_target(Parser parser.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cc)
 flex_target(Scanner scanner.l ${CMAKE_CURRENT_BINARY_DIR}/scanner.cc)
 add_flex_bison_dependency(Scanner Parser)
 
+if ("${BISON_VERSION}" MATCHES "(^2\\..*)")
+	add_definitions(-DGNU_BISON_V2)
+endif ()
+
 # ### TARGET ###
 add_library(jsonparser STATIC ${BISON_Parser_OUTPUTS} ${FLEX_Scanner_OUTPUTS} ${project_SRCS} ${project_HDRS})
-# target_link_libraries(jsonparser )
