@@ -18,11 +18,9 @@
 #include <scanner.h>
 #include <logger.h>
 
-using namespace JSONBus;
-
 namespace jsonparser {
 
-Scanner::Scanner(jsonparser::Scanner::getc_t getc, void* stream)
+Scanner::Scanner(Scanner::getc_t getc, void* stream)
         : jsonparserFlexLexer(nullptr, nullptr), m_getc(getc), m_stream(stream) {
 }
 

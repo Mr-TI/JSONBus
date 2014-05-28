@@ -56,7 +56,7 @@ size_t StreamChannel::read(char *buffer, size_t maxlen) {
 	size_t count;
 	if (m_readEnd != m_readStart) {
 		count = qMin(m_readEnd - m_readStart, maxlen);
-		memccpy(buffer, m_readBuff, count, 1);
+		memcpy(buffer, m_readBuff + m_readStart, count);
 		m_readStart += count;
 		return count;
 	}

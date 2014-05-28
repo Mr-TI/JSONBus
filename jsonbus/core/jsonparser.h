@@ -77,6 +77,20 @@ public:
 	 */
 	QVariant parse();
 	
+	/**
+	 * @brief Parse a JSON data from a byte array
+	 * @return QVariant object
+	 * @throw JSONParserException on parsing error
+	 */
+	static QVariant parse(const char *data, uint len);
+	
+	/**
+	 * @brief Parse a JSON data from a byte array
+	 * @return QVariant object
+	 * @throw JSONParserException on parsing error
+	 */
+	static QVariant parse(const QString &data);
+	
 private:
 	jsonparser::Driver *m_driver;
 };

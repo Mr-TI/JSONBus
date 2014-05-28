@@ -25,12 +25,37 @@ using namespace jsonparser;
 
 namespace JSONBus {
 
+struct __data_buffer_t {
+	const char *data;
+	const char *end;
+};
+
+static char jsonparser_datastream_getc(void* ptr) {
+	if (((__data_buffer_t*)ptr)->data == ((__data_buffer_t*)ptr)->end) {
+		throw new EOFException();
+	}
+	return *(((__data_buffer_t*)ptr)->data++);
+}
+
 static char jsonparser_channel_getc(void* stream) {
 	return ((StreamChannel*)stream)->get();
 }
 
 JSONParser::JSONParser(fGetc_t getChar, void* ptr)
 	: m_driver(new Driver(getChar, ptr)) {
+}
+
+QVariant JSONParser::parse(const QString& data) {
+	QByteArray tmp = data.toUtf8();
+	__data_buffer_t buf = {tmp.constData(), tmp.constData() + tmp.length()};
+	JSONParser parser(jsonparser_datastream_getc, &buf);
+	return parser.parse();
+}
+
+QVariant JSONParser::parse(const char* data, uint len) {
+	__data_buffer_t buf = {data, data + len};
+	JSONParser parser(jsonparser_datastream_getc, &buf);
+	return parser.parse();
 }
 
 JSONParser::JSONParser(StreamChannelPtr channel)
