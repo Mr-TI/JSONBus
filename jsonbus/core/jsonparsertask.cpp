@@ -23,7 +23,7 @@
 namespace JSONBus {
 
 JSONParserTask::JSONParserTask(const StreamChannelPtr& channel, QObject* parent)
-: QObject(parent), JSONParser(channel), m_stop(false) {
+: QObject(parent), JSONParser(channel), m_channel(channel), m_stop(false) {
 
 }
 
@@ -46,7 +46,7 @@ void JSONParserTask::run() {
 
 void JSONParserTask::cancel() {
 	m_stop = true;
-	JSONParser::cancel();
+	m_channel->close();
 }
 
 

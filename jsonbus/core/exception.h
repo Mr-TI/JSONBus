@@ -138,6 +138,7 @@ jsonbus_declare_exception(InvalidClassException, PointerException);
 jsonbus_declare_exception(IllegalOperationException, Exception);
 jsonbus_declare_exception(UnsupportedOperationException, Exception);
 jsonbus_declare_exception(IOException, Exception);
+jsonbus_declare_exception(IOTimeoutException, IOException);
 jsonbus_declare_exception(EOFException, IOException);
 
 inline Exception::Exception(const QString& message): d(new ExceptionData(message)) {}

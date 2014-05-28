@@ -21,7 +21,7 @@ file(GLOB project_HDRS *.h)
 file(GLOB project_SRCS *.cpp)
 
 # ### QT4 ###
-find_package(Qt4 REQUIRED)
+find_package(Qt4 COMPONENTS QtCore REQUIRED)
 include(${QT_USE_FILE})
 qt4_wrap_ui(project_UIS_H)
 qt4_wrap_cpp(project_MOC_SRCS jsonparsertask.h application.h slaveapplication.h channel.h)

@@ -31,10 +31,6 @@
 #define JSONBUS_EXPORT
 #endif
 
-#include <QString>
-#include <QTextStream>
-#include <QVariant>
-
 namespace jsonparser {
 class Driver;
 }
@@ -50,6 +46,7 @@ class StreamChannel;
  */
 class JSONBUS_EXPORT JSONParser {
 public:
+	typedef char (*fGetc_t)(void *ptr);
 	
 	/**
 	 * @brief JSONParser constructor.
@@ -60,7 +57,13 @@ public:
 	 * @brief JSONParser constructor.
 	 * @param channel Channel pointer
 	 */
-	JSONParser(const SharedPtr<StreamChannel> &channel);
+	JSONParser(fGetc_t getChar, void *ptr);
+	
+	/**
+	 * @brief JSONParser constructor.
+	 * @param channel Channel pointer
+	 */
+	JSONParser(SharedPtr<StreamChannel> channel);
 	
 	/**
 	 * @brief JSONParser destructor.
@@ -72,14 +75,9 @@ public:
 	 * @return QVariant object
 	 * @throw JSONParserException on parsing error
 	 */
-	QVariant parse(int timeout = -1);
-	
-	void cancel();
+	QVariant parse();
 	
 private:
-	static char s_getc(void *stream);
-	
-	SharedPtr<StreamChannel> m_channel;
 	jsonparser::Driver *m_driver;
 };
 

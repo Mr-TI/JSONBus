@@ -83,7 +83,7 @@ size_t StreamChannel::available(bool noEmpty) {
 					throw EOFException("Closed channel");
 				}
 				if (m_deadline < QDateTime::currentMSecsSinceEpoch()) {
-					throw IOException("Time exceeds");
+					throw IOTimeoutException("Time exceeds");
 				}
 			}
 		}

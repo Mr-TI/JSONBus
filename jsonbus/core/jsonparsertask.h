@@ -53,6 +53,7 @@ signals:
 public slots:
 	void cancel();
 private:
+	StreamChannelPtr m_channel;
 	bool m_stop;
 };
 

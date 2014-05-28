@@ -25,26 +25,24 @@ using namespace jsonparser;
 
 namespace JSONBus {
 
-char JSONParser::s_getc(void* stream) {
+static char jsonparser_channel_getc(void* stream) {
 	return ((StreamChannel*)stream)->get();
 }
 
-JSONParser::JSONParser(const StreamChannelPtr& channel)
-	: m_channel(channel), m_driver(new Driver(s_getc, m_channel.data())){
+JSONParser::JSONParser(fGetc_t getChar, void* ptr)
+	: m_driver(new Driver(getChar, ptr)) {
+}
+
+JSONParser::JSONParser(StreamChannelPtr channel)
+	: m_driver(new Driver(jsonparser_channel_getc, channel.data())) {
 }
 
 JSONParser::~JSONParser() {
 	delete m_driver;
 }
 
-QVariant JSONParser::parse(int timeout) {
-	m_channel->setDeadLine(timeout == -1? -1: QDateTime::currentMSecsSinceEpoch() + timeout);
+QVariant JSONParser::parse() {
 	return m_driver->parse();
 }
-
-void JSONParser::cancel() {
-	m_channel->close();
-}
-
 
 }
