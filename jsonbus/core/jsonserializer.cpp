@@ -14,8 +14,8 @@
  *   limitations under the License.
  */
 
-#include <common.h>
-#include <jsonserializer.h>
+#include "common.h"
+#include "jsonserializer.h"
 
 #define JSON_NULL "null"
 #define JSON_TRUE "true"
@@ -30,6 +30,77 @@
 using namespace std;
 
 namespace JSONBus {
+
+/**
+	* @brief Std ouput stream
+	*/
+class ChannelOutputStream :public JSONSerializer::OutputStream {
+public:
+	/**
+		* @brief Std ouput stream constructor from an std::ostream
+		* @param stream std::ostream reference
+		*/
+	ChannelOutputStream (const StreamChannelPtr& channel);
+	
+	/**
+		* @brief Std ouput stream destructor
+		*/
+	~ChannelOutputStream ();
+	
+	/**
+		* @brief Std output stream operator
+		*/
+	OutputStream& operator << (const QString &data);
+private:
+	StreamChannelPtr m_channel;
+};
+
+inline ChannelOutputStream::ChannelOutputStream(const StreamChannelPtr& channel): m_channel(channel) {
+}
+
+inline ChannelOutputStream::~ChannelOutputStream() {
+}
+
+inline JSONSerializer::OutputStream& ChannelOutputStream::operator<<(const QString& data) {
+	QByteArray bytes = data.toUtf8();
+	m_channel->write(bytes.data(), bytes.length());
+	return *this; 
+}
+
+/**
+	* @brief Std ouput stream
+	*/
+class ByteArrayOutputStream :public JSONSerializer::OutputStream {
+public:
+	/**
+		* @brief Std ouput stream constructor from an std::ostream
+		* @param stream std::ostream reference
+		*/
+	ByteArrayOutputStream (QByteArray& data);
+	
+	/**
+		* @brief Std ouput stream destructor
+		*/
+	~ByteArrayOutputStream ();
+	
+	/**
+		* @brief Std output stream operator
+		*/
+	OutputStream& operator << (const QString &data);
+private:
+	QByteArray& m_data;
+};
+
+ByteArrayOutputStream::ByteArrayOutputStream(QByteArray& data): m_data(data) {
+}
+
+ByteArrayOutputStream::~ByteArrayOutputStream() {
+}
+
+JSONSerializer::OutputStream& ByteArrayOutputStream::operator<<(const QString& data) {
+	m_data.append(data);
+	return *this; 
+}
 
 static QString sanitizeString( QString str )
 {
@@ -46,6 +117,10 @@ static QString sanitizeString( QString str )
 JSONSerializer::JSONSerializer(StreamChannelPtr channel)
 : m_streamPtr(new ChannelOutputStream(channel)), m_stream(*m_streamPtr) {
 	
+}
+
+JSONSerializer::JSONSerializer(QByteArray& data)
+: m_streamPtr(new ByteArrayOutputStream(data)), m_stream(*m_streamPtr) {
 }
 
 JSONSerializer::JSONSerializer(JSONSerializer::OutputStream& stream)

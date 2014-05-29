@@ -67,30 +67,6 @@ public:
 	};
 	
 	/**
-	 * @brief Std ouput stream
-	 */
-	class ChannelOutputStream :public OutputStream {
-	public:
-		/**
-		 * @brief Std ouput stream constructor from an std::ostream
-		 * @param stream std::ostream reference
-		 */
-		ChannelOutputStream (const StreamChannelPtr& channel);
-		
-		/**
-		 * @brief Std ouput stream destructor
-		 */
-		~ChannelOutputStream ();
-		
-		/**
-		 * @brief Std output stream operator
-		 */
-		OutputStream& operator << (const QString &data);
-	private:
-		StreamChannelPtr m_channel;
-	};
-	
-	/**
 	 * @brief JSONSerializer constructor.
 	 * @param stream A reference to the std output stream
 	 */
@@ -98,8 +74,13 @@ public:
 	
 	/**
 	 * @brief JSONSerializer constructor.
+	 * @param data Byte array reference
+	 */
+	JSONSerializer(QByteArray &data);
+	
+	/**
+	 * @brief JSONSerializer constructor.
 	 * @param stream A reference to the output stream
-	 * @param parent Parent object
 	 */
 	JSONSerializer(OutputStream &stream);
 	
@@ -122,19 +103,6 @@ inline JSONSerializer::OutputStream::OutputStream() {
 }
 
 inline JSONSerializer::OutputStream::~OutputStream() {
-}
-
-inline JSONSerializer::ChannelOutputStream::ChannelOutputStream(const StreamChannelPtr& channel): m_channel(channel) {
-}
-
-inline JSONSerializer::ChannelOutputStream::~ChannelOutputStream() {
-}
-
-inline JSONSerializer::OutputStream& JSONSerializer::ChannelOutputStream::operator<<(const QString& data) {
-	auto bytes = data.toUtf8();
-	size_t len = bytes.length();
-	m_channel->write(bytes.data(), len);
-	return *this; 
 }
 
 }
