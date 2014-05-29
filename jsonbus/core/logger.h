@@ -326,24 +326,24 @@ public:
 };
 
 inline void Logger::append(QString str) {
-	m_stream << str.replace('\n', levelHdrs[m_level]);
+	m_stream << str.replace('\n', levelHdrs[m_level] + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss | "));
 }
 
 inline void Logger::appendln() {
-	m_stream << levelHdrs[m_level];
+	m_stream << levelHdrs[m_level] << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss | ");
 }
 
 inline Logger::Logger(Logger::Level level)
 	: m_stream(&m_buffer),
 	  m_level(level) {
-	m_stream << (levelHdrs[m_level] + 1);
+	m_stream << (levelHdrs[m_level] + 1) << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss | ");
 }
 
 inline Logger::Logger(const Logger &other)
 	: m_buffer(other.m_buffer),
 	  m_stream(&m_buffer),
 	  m_level(other.m_level) {
-	m_stream << (levelHdrs[m_level] + 1);
+	m_stream << (levelHdrs[m_level] + 1) << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss | ");
 }
 
 inline Logger::~Logger() {
@@ -496,7 +496,7 @@ inline Logger &Logger::operator<<(const QMap<QString, QVariant> &hash) {
 	}
 	length++;
 	for (auto it=hash.begin(); it != hash.end(); it++) {
-		m_stream << levelHdrs[m_level] << "\t" << it.key().leftJustified(length, ' ') << ": " << it.value().toString();
+		m_stream << levelHdrs[m_level] << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss | ") << "\t" << it.key().leftJustified(length, ' ') << ": " << it.value().toString();
 	}
 	return *this;
 }
