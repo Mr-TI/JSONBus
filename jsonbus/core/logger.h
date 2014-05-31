@@ -484,7 +484,7 @@ Logger &Logger::operator<<(const SharedPtr<T> &p) {
 		m_stream << " [null]";
 	} else {
 		m_stream << " [0x" << 
-		toHexString(p.data()) << "]:" << __demangle(typeid(*p).name()) << "*{" << p.data()->ref << '}';
+		toHexString(p.data()) << "]:" << __demangle(typeid(*p).name()) << "*{" << p.data()->ptrNbRef << '}';
 	}
 	return *this;
 }
