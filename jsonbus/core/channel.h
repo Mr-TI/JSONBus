@@ -73,6 +73,7 @@ signals:
 	
 protected:
 	virtual int &fd() = 0;
+	virtual void closeFd() = 0;
 	virtual void updateStatus(int events) = 0;
 	bool m_open;
 	

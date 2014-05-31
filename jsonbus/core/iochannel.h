@@ -47,14 +47,9 @@ public:
 	 */
 	virtual ~IOChannel();
 	
-	/**
-	 * @brief Close the channel
-	 * @throw IOException on error
-	 */
-	virtual void close();
-	
 protected:
 	virtual int &fd();
+	virtual void closeFd();
 	virtual void updateStatus(int events);
 	virtual size_t s_available();
 	virtual size_t s_read(char *buffer, size_t maxlen);

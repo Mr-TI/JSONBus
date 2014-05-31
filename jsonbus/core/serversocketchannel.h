@@ -47,12 +47,6 @@ public:
 	virtual ~ServerSocketChannel();
 	
 	/**
-	 * @brief Close the channel
-	 * @throw IOException on error
-	 */
-	virtual void close();
-	
-	/**
 	 * @brief Connect
 	 */
 	virtual SharedPtr<SocketChannel> accept();
@@ -69,6 +63,7 @@ protected:
 	virtual void s_accept(int &cldf, QString &name);
 	
 	virtual int &fd();
+	virtual void closeFd();
 	virtual void updateStatus(int events);
 	int m_fd;
 	QString m_name;

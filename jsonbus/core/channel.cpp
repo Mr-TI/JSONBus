@@ -48,6 +48,7 @@ void Channel::close() {
 	for (auto it = list.begin(); it != list.end(); it++) {
 		(*it)->cancel();
 	}
+	closeFd();
 	emit closed();
 }
 

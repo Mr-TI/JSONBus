@@ -90,11 +90,9 @@ ServerSocketChannel::~ServerSocketChannel() {
 	}
 }
 
-void ServerSocketChannel::close() {
-	if (isOpen()) {
-		logFiner() << "ServerSocketChannel::stop listening on " << m_name;
-		::close(m_fd);
-	}
+void ServerSocketChannel::closeFd() {
+	logFiner() << "ServerSocketChannel::stop listening on " << m_name;
+	::close(m_fd);
 }
 
 #define CLIENT_HOST_MAXLEN 256

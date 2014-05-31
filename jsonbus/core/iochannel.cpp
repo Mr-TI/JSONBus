@@ -57,11 +57,8 @@ void IOChannel::s_write(const char *buffer, size_t len) {
 	}
 }
 
-void IOChannel::close() {
-	if (isOpen()) {
-		::close(m_fd);
-		StreamChannel::close();
-	}
+void IOChannel::closeFd() {
+	::close(m_fd);
 }
 
 size_t IOChannel::s_available() {
