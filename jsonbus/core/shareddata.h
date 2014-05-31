@@ -24,7 +24,7 @@ namespace JSONBus {
 class SharedData {
 public:
 	/// @brief Reference count
-	std::atomic_uint_fast16_t ref;
+	std::atomic_uint_fast16_t ptrNbRef;
 	
 	/**
 	 * @brief Shared data constructor

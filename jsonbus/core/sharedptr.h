@@ -172,7 +172,7 @@ extern void __raise_NullPointerException();
 void __log_data_ref_init(void* data);
 void __log_data_ref_delete(void* data);
 
-#define __JSONBUS_SHAREDPTR_DEBUG_NEW() if (m_data->ref == 0) __log_data_ref_init(m_data)
+#define __JSONBUS_SHAREDPTR_DEBUG_NEW() if (m_data->ptrNbRef == 0) __log_data_ref_init(m_data)
 #define __JSONBUS_SHAREDPTR_DEBUG_DEL() __log_data_ref_delete(m_data)
 
 template <typename T>
@@ -180,7 +180,7 @@ inline SharedPtr<T>::SharedPtr(): m_data(nullptr) {}
 template <typename T>
 inline SharedPtr<T>::~SharedPtr() {
 	if (m_data != nullptr) {
-		if (m_data->ref.fetch_sub(1) == 1) {
+		if (m_data->ptrNbRef.fetch_sub(1) == 1) {
 			__JSONBUS_SHAREDPTR_DEBUG_DEL();
 			delete m_data;
 		}
@@ -193,7 +193,7 @@ inline SharedPtr<T>::SharedPtr(T* data): m_data(data) {
 			__raise_InvalidClassException();
 		}
 		__JSONBUS_SHAREDPTR_DEBUG_NEW();
-		m_data->ref++;
+		m_data->ptrNbRef++;
 	}
 }
 template <typename T>
@@ -203,7 +203,7 @@ inline SharedPtr<T>::SharedPtr(const SharedPtr< T >& other): m_data(other.m_data
 			__raise_InvalidClassException();
 		}
 		__JSONBUS_SHAREDPTR_DEBUG_NEW();
-		m_data->ref++;
+		m_data->ptrNbRef++;
 	}
 }
 template <typename T>
@@ -214,7 +214,7 @@ inline SharedPtr<T>::SharedPtr(const SharedPtr< X >& other): m_data((T*)(other.d
 			__raise_InvalidClassException();
 		}
 		__JSONBUS_SHAREDPTR_DEBUG_NEW();
-		m_data->ref++;
+		m_data->ptrNbRef++;
 	}
 }
 template <typename T>
@@ -235,7 +235,7 @@ SharedPtr<T>& SharedPtr<T>::operator=(const SharedPtr<X>& other) {
 	if (m_data == (T*)(other.data())) {
 		return *this;
 	} else if (m_data != nullptr) {
-		if (m_data->ref.fetch_sub(1) == 1) {
+		if (m_data->ptrNbRef.fetch_sub(1) == 1) {
 			__JSONBUS_SHAREDPTR_DEBUG_DEL();
 			delete m_data;
 		}
@@ -246,7 +246,7 @@ SharedPtr<T>& SharedPtr<T>::operator=(const SharedPtr<X>& other) {
 	m_data = (T*)(other.data());
 	if (m_data != nullptr) {
 		__JSONBUS_SHAREDPTR_DEBUG_NEW();
-		m_data->ref++;
+		m_data->ptrNbRef++;
 	}
 	return *this;
 }
@@ -255,7 +255,7 @@ SharedPtr<T>& SharedPtr<T>::operator=(const T *data) {
 	if (m_data == data) {
 		return *this;
 	} else if (m_data != nullptr) {
-		if (m_data->ref.fetch_sub(1) == 1) {
+		if (m_data->ptrNbRef.fetch_sub(1) == 1) {
 			__JSONBUS_SHAREDPTR_DEBUG_DEL();
 			delete m_data;
 		}
@@ -266,7 +266,7 @@ SharedPtr<T>& SharedPtr<T>::operator=(const T *data) {
 	m_data = const_cast<T*>(data);
 	if (m_data != nullptr) {
 		__JSONBUS_SHAREDPTR_DEBUG_NEW();
-		m_data->ref++;
+		m_data->ptrNbRef++;
 	}
 	return *this;
 }

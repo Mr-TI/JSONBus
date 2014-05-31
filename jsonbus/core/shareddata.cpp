@@ -22,7 +22,7 @@ namespace JSONBus {
 
 std::atomic_uint_fast64_t __jsonbus_shared_data_count;
 
-SharedData::SharedData(): ref(0) {
+SharedData::SharedData(): ptrNbRef(0) {
 	__jsonbus_shared_data_count++;
 }
 SharedData::~SharedData() {
