@@ -32,7 +32,7 @@ struct __data_buffer_t {
 
 static char jsonparser_datastream_getc(void* ptr) {
 	if (((__data_buffer_t*)ptr)->data == ((__data_buffer_t*)ptr)->end) {
-		throw new EOFException();
+		throw EOFException();
 	}
 	return *(((__data_buffer_t*)ptr)->data++);
 }

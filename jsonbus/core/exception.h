@@ -40,6 +40,8 @@ class JSONBUS_EXPORT ename:public eparent {\
 public:\
     inline ename(const QString &msg = ""):eparent(msg) {}\
 	\
+    inline ename(const ename &exception):eparent(exception) {}\
+	\
     inline virtual ~ename() throw() {}\
 	\
 	inline virtual void raise() const {\
