@@ -32,7 +32,7 @@ const char* Exception::what() const throw() {
 	if (symTbl == NULL) {
 		return output.toAscii().constData();
 	}
-	for (int i = 0; i < d->backtraceSize; i++) {
+	for (uint i = 0; i < d->backtraceSize; i++) {
 		output.append('\n');
 		output.append(symTbl[i]);
 	}

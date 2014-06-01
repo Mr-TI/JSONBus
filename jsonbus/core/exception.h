@@ -40,6 +40,8 @@ class JSONBUS_EXPORT ename:public eparent {\
 public:\
     inline ename(const QString &msg = ""):eparent(msg) {}\
 	\
+	inline ename(const ExceptionDataPtr &data):eparent(data) {}\
+	\
     inline ename(const ename &exception):eparent(exception) {}\
 	\
     inline virtual ~ename() throw() {}\
@@ -69,7 +71,7 @@ public:
 	void *backtrace[JSONBUS_EXCEPTION_BACKTRACE_SIZE];
 	
 	/// @brief backtrace address fonction table size
-	int backtraceSize;
+	uint backtraceSize;
 	
 	/**
 	 * @brief ExceptionData contructor from a message
@@ -77,26 +79,38 @@ public:
 	 * @param message Message
 	 */
 	ExceptionData(const QString &message);
+    virtual ~ExceptionData();
 };
 
 typedef SharedPtr<ExceptionData> ExceptionDataPtr;
 
 inline ExceptionData::ExceptionData(const QString &message): message(message), 
 	backtraceSize(::backtrace(backtrace, JSONBUS_EXCEPTION_BACKTRACE_SIZE)) {}
+inline ExceptionData::~ExceptionData() {
+}
 
 /**
  * This class can manage exceptions.
  * @brief JSONBus : Exceptions.
  */
 class JSONBUS_EXPORT Exception : public QtConcurrent::Exception {
-	ExceptionDataPtr d;
 	friend class Logger;
+	ExceptionDataPtr d;
+protected:
+	template<class X>
+	SharedPtr<X> data();
 public:
 	/**
 	 * @brief Exception constructor.
 	 * @param message exeption message.
 	 */
 	Exception(const QString &message = "");
+	
+	/**
+	 * @brief Exception constructor.
+	 * @param message exeption message.
+	 */
+	Exception(const ExceptionDataPtr &data);
 	
 	/**
 	 * @brief Exception constructor.
@@ -134,6 +148,11 @@ public:
 	virtual Exception *clone() const;
 };
 
+template <typename X>
+inline SharedPtr< X > Exception::data() {
+	return d;
+}
+
 jsonbus_declare_exception(PointerException, Exception);
 jsonbus_declare_exception(NullPointerException, PointerException);
 jsonbus_declare_exception(InvalidClassException, PointerException);
@@ -144,6 +163,7 @@ jsonbus_declare_exception(IOTimeoutException, IOException);
 jsonbus_declare_exception(EOFException, IOException);
 
 inline Exception::Exception(const QString& message): d(new ExceptionData(message)) {}
+inline Exception::Exception(const ExceptionDataPtr &data): d(data) {}
 inline Exception::Exception(const Exception& exception): d(exception.d) {}
 inline Exception::~Exception() throw() {}
 inline Exception* Exception::clone() const {

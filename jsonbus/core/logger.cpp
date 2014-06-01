@@ -75,7 +75,7 @@ Logger &Logger::operator<<(Exception &e) {
 #ifdef JSONBUS_DISPLAY_BACKTRACE
 	char **symTbl = backtrace_symbols(e.d->backtrace, e.d->backtraceSize);
 	if (symTbl != NULL) {
-		for (int i = 0; i < e.d->backtraceSize; i++) {
+		for (uint i = 0; i < e.d->backtraceSize; i++) {
 			m_stream << levelHdrs[m_level] << '\t';
 			m_stream << symTbl[i];
 		}
