@@ -94,6 +94,12 @@ public:
 	 * @param variant object to serialize
 	 */
 	void serialize(const QVariant &variant);
+	
+	/**
+	 * @brief Serialize an object in JSON format
+	 * @param variant object to serialize
+	 */
+	static QString toString(const QVariant &variant);
 private:
 	SharedPtr<OutputStream> m_streamPtr;
 	OutputStream &m_stream;

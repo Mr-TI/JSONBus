@@ -114,6 +114,12 @@ static QString sanitizeString( QString str )
   return QString( QLatin1String( "\"%1\"" ) ).arg( str );
 }
 
+QString JSONSerializer::toString(const QVariant& variant) {
+	QByteArray data;
+	JSONSerializer(data).serialize(variant);
+	return QString::fromLocal8Bit(data);
+}
+
 JSONSerializer::JSONSerializer(StreamChannelPtr channel)
 : m_streamPtr(new ChannelOutputStream(channel)), m_stream(*m_streamPtr) {
 	
