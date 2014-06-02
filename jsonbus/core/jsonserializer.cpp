@@ -167,7 +167,7 @@ void JSONSerializer::serialize(const QVariant &variant) {
 			it++;
 		}
 		while (it != elements.end()) {
-			m_stream << JSON_MEMBER_SEP;
+			m_stream << JSON_ELEMENT_SEP;
 			serialize(*it);
 			it++;
 		}
