@@ -36,10 +36,20 @@ class SocketChannel;
  */
 class ServerSocketChannel: public Channel {
 public:
+	
+	enum {
+		OPT_REUSEPORT = 0x00010000,
+		OPT_REUSEADDR = 0x00020000,
+		MASK_OPTIONS = 0xFFFF0000,
+		MASK_BACKLOG = 0x0000FFFF
+	};
+	
+	static uint OPT_BACKLOG(uint pendingQueueMaxLen);
+	
 	/**
 	 * @brief Socket constructor
 	 */
-	ServerSocketChannel(const QString &host, int port, int listenQueueSize=5);
+	ServerSocketChannel(const QString &host, int port, uint opts=OPT_BACKLOG(5));
 	
 	/**
 	 * @brief Socket destructor
@@ -72,6 +82,10 @@ protected:
 	int m_keepIdle;
 	int m_keepCnt;
 };
+
+inline uint ServerSocketChannel::OPT_BACKLOG(uint pendingQueueMaxLen) {
+	return pendingQueueMaxLen & MASK_BACKLOG;
+}
 
 inline int &ServerSocketChannel::fd() {
 	return m_fd;

@@ -41,7 +41,7 @@ public:
 	/**
 	 * @brief Socket constructor
 	 */
-	SSLServerSocketChannel(const QString &host, int port, SSLContextPtr ctx);
+	SSLServerSocketChannel(const QString &host, int port, SSLContextPtr ctx, uint opts=OPT_BACKLOG(5));
 	
 	/**
 	 * @brief Socket destructor

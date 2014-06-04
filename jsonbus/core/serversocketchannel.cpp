@@ -37,11 +37,12 @@
 
 namespace JSONBus {
 
-static int __bind(const QString &host, int port, int listenQueueSize) {
+static int __bind(const QString &host, int port, uint opts) {
 	addrinfo *addrinfo = NULL, *it;
 	bool bound = false;
 	const char* error = NULL;
-	int fd = -1, ret;
+	int fd = -1;
+	int optval = 1;
 	QRegExp regex("^\\s*\\[([a-fA-F0-9:]+)\\]\\s*$");
 	do {
 		if (::getaddrinfo((regex.indexIn(host) > -1 ? regex.cap(1).toStdString().c_str() : 
@@ -51,12 +52,13 @@ static int __bind(const QString &host, int port, int listenQueueSize) {
 		}
 		it = addrinfo;
 		do {
-			fd = ::socket(it->ai_family, SOCK_STREAM, 0);
-			if (fd == -1)
-				break;
+			if ((fd = ::socket(it->ai_family, SOCK_STREAM, 0)) == -1) break;
+			if ((opts & ServerSocketChannel::OPT_REUSEADDR) && 
+				(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof optval) == -1)) break;
+			if ((opts & ServerSocketChannel::OPT_REUSEPORT) && 
+				(setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof optval) == -1)) break;
 			((struct sockaddr_in *)(it->ai_addr))->sin_port = htons(port);
-			ret = ::bind(fd, it->ai_addr, it->ai_addrlen);
-			bound |= (ret == 0);
+			bound |= (::bind(fd, it->ai_addr, it->ai_addrlen) == 0);
 			if (bound) {
 				break;
 			}
@@ -68,7 +70,7 @@ static int __bind(const QString &host, int port, int listenQueueSize) {
 		freeaddrinfo(addrinfo);
 	}
 	if (bound) {
-		THROW_IOEXP_ON_ERR(listen(fd, 10));
+		THROW_IOEXP_ON_ERR(listen(fd, opts & ServerSocketChannel::MASK_BACKLOG));
 		return fd;
 	}
 	if (error) {
@@ -78,8 +80,8 @@ static int __bind(const QString &host, int port, int listenQueueSize) {
 	}
 }
 
-ServerSocketChannel::ServerSocketChannel(const QString &host, int port, int listenQueueSize)
-: m_fd(__bind(host, port, listenQueueSize)), m_name(host + ":" + QString::number(port)), 
+ServerSocketChannel::ServerSocketChannel(const QString& host, int port, uint opts)
+: m_fd(__bind(host, port, opts)), m_name(host + ":" + QString::number(port)), 
 m_keepAlive(0), m_keepIntlv(0), m_keepIdle(0), m_keepCnt(0) {
 	logFiner() << "ServerSocketChannel::start listening on " << m_name;
 }
