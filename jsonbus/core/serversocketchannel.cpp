@@ -29,6 +29,10 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 
+#ifndef SO_REUSEPORT
+#	define SO_REUSEPORT 15
+#endif
+
 #define THROW_IOEXP_ON_ERR(exp) \
 	if ((exp) == -1) throw IOException(QString() + __FILE__ + ":" + QString::number(__LINE__) + ": " + QString::fromLocal8Bit(strerror(errno)))
 
