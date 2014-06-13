@@ -23,32 +23,32 @@
 
 static void sigsegv_signal_handler(int sig) {
 
-  fprintf(stderr, "\n##### SEGMENTATION FAULT #####\n\n");
+	fprintf(stderr, "\n##### SEGMENTATION FAULT #####\n\n");
 
-  void *trace[32];
-  size_t size, i;
-  char **strings;
+	void *trace[32];
+	size_t size, i;
+	char **strings;
 
-  size    = backtrace( trace, 32 );
-  strings = backtrace_symbols( trace, size );
+	size    = backtrace( trace, 32 );
+	strings = backtrace_symbols( trace, size );
 
-  fprintf( stderr, "\nBACKTRACE:\n\n" );
+	fprintf( stderr, "\nBACKTRACE:\n\n" );
 
-  for( i = 0; i < size; i++ ){
-	  fprintf( stderr, "  %s\n", strings[i] );
-  }
+	for( i = 0; i < size; i++ ){
+		fprintf( stderr, "  %s\n", strings[i] );
+	}
 
-  fprintf(stderr, "\n##############################\n\n");
+	fprintf(stderr, "\n##############################\n\n");
 
-  exit(-1);
+	exit(-1);
 }
 
 static void sigpipe_signal_handler(int sig) {
-	
+	fprintf(stderr, "### SIGPIPE ###\n");
 }
 
 static void sighup_signal_handler(int sig) {
-	
+	fprintf(stderr, "### SIGHUP ###\n");
 }
 
 namespace JSONBus {
