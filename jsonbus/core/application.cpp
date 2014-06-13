@@ -43,6 +43,14 @@ static void sigsegv_signal_handler(int sig) {
   exit(-1);
 }
 
+static void sigpipe_signal_handler(int sig) {
+	
+}
+
+static void sighup_signal_handler(int sig) {
+	
+}
+
 namespace JSONBus {
 
 Application::Application(int &argc, char **argv)
@@ -52,6 +60,10 @@ Application::Application(int &argc, char **argv)
 	act.sa_flags = 0;
 	act.sa_handler = sigsegv_signal_handler;
 	sigaction( SIGSEGV, &act, NULL);
+	act.sa_handler = sigpipe_signal_handler;
+	sigaction( SIGPIPE, &act, NULL);
+	act.sa_handler = sighup_signal_handler;
+	sigaction( SIGHUP, &act, NULL);
 }
 
 Application::~Application() {
