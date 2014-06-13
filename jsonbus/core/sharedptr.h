@@ -162,6 +162,9 @@ public:
 	 */
 	template<class X>
 	bool operator!= (const SharedPtr<X>& other) const;
+	
+	template<class X>
+	bool instanceof ();
 };
 
 /// @brief Generic pointer type
@@ -316,6 +319,12 @@ inline T *SharedPtr<T>::operator->() const {
 		__raise_NullPointerException();
 	}
 	return m_data;
+}
+
+template<class T>
+template<class X>
+inline bool SharedPtr<T>::instanceof () {
+	return dynamic_cast<X*>(m_data) != nullptr;
 }
 
 }
