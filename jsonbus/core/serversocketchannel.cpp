@@ -59,8 +59,8 @@ static int __bind(const QString &host, int port, uint opts) {
 			if ((fd = ::socket(it->ai_family, SOCK_STREAM, 0)) == -1) break;
 			if ((opts & ServerSocketChannel::OPT_REUSEADDR) && 
 				(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof optval) == -1)) break;
-			if ((opts & ServerSocketChannel::OPT_REUSEPORT) && 
-				(setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof optval) == -1)) break;
+// 			if ((opts & ServerSocketChannel::OPT_REUSEPORT) && 
+// 				(setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof optval) == -1)) break;
 			((struct sockaddr_in *)(it->ai_addr))->sin_port = htons(port);
 			bound |= (::bind(fd, it->ai_addr, it->ai_addrlen) == 0);
 			if (bound) {
