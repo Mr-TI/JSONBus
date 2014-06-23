@@ -1,7 +1,7 @@
-JSONBus
+NodeBus
 =======
 
-[![Build Status](https://travis-ci.org/Mr-TI/JSONBus.svg?branch=master)](https://travis-ci.org/Mr-TI/JSONBus)
+[![Build Status](https://travis-ci.org/Mr-TI/NodeBus.svg?branch=master)](https://travis-ci.org/Mr-TI/NodeBus)
 
 prerequisites for ubuntu:
 

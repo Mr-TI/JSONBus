@@ -15,7 +15,7 @@
 #
 
 # ### PROJECT ###
-project(jsonbus)
+project(nodebus)
 cmake_minimum_required(VERSION 2.8.0)
 
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/ ${CMAKE_MODULE_PATH})
@@ -43,8 +43,8 @@ else ()
     message(FATAL_ERROR "Your C++ compiler does not support C++11.")
 endif ()
 
-add_definitions(-DJSONBUS_DISPLAY_BACKTRACE)
-set(JSONBUS_LIBRARY_TYPE SHARED)
+add_definitions(-DNODEBUS_DISPLAY_BACKTRACE)
+set(NODEBUS_LIBRARY_TYPE SHARED)
 
 # ### SUBDIRECTORIES ###
-add_subdirectory(jsonbus)
+add_subdirectory(nodebus)
