@@ -21,19 +21,11 @@ file(GLOB project_HDRS *.h)
 file(GLOB project_SRCS *.cpp)
 
 # ### QT4 ###
-find_package(Qt4 COMPONENTS QtCore REQUIRED)
+find_package(Qt4 COMPONENTS QtCore QtNetwork REQUIRED)
 include(${QT_USE_FILE})
 qt4_wrap_ui(project_UIS_H)
-qt4_wrap_cpp(project_MOC_SRCS jsonparsertask.h application.h slaveapplication.h channel.h peeradmin.h peer.h)
-
-# ### SSL ###
-find_package(OpenSSL REQUIRED)
-include_directories(${OPENSSL_INCLUDE_DIR})
-
-add_definitions(-DUSE_NODEBUS_EXCEPTION)
-
-add_subdirectory(jsonparser)
+qt4_wrap_cpp(project_MOC_SRCS)
 
 # ### TARGET ###
-add_library(nodebus ${NODEBUS_LIBRARY_TYPE} ${project_SRCS} ${project_HDRS} ${project_MOC_SRCS})
-target_link_libraries(nodebus ${QT_LIBRARIES} ${OPENSSL_LIBRARIES} jsonparser)
+add_executable(nodebusproxy ${project_SRCS} ${project_HDRS} ${project_MOC_SRCS})
+target_link_libraries(nodebusproxy ${QT_LIBRARIES} nodebus)
