@@ -16,7 +16,6 @@
 
 #include "peer.h"
 #include "peeradmin.h"
-#include "proxy.h"
 #include <typeinfo>
 #include <nodebus/core/logger.h>
 #include <nodebus/core/selectionkey.h>
