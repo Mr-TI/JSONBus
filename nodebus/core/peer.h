@@ -23,8 +23,8 @@
  */
 
 
-#ifndef PEER_H
-#define PEER_H
+#ifndef NODEBUS_PEER_H
+#define NODEBUS_PEER_H
 
 #include <nodebus/core/sharedptr.h>
 #include <nodebus/core/streamchannel.h>
@@ -33,7 +33,8 @@
 #include <nodebus/core/socketchannel.h>
 #include <qt4/QtCore/QRunnable>
 #include <QVariant>
-using namespace NodeBus;
+
+namespace NodeBus {
 
 class Peer: public QObject, public SharedData {
 	Q_OBJECT
@@ -53,8 +54,8 @@ public:
 	};
 	
 	/**
-	 * @brief Client constructor.
-	 * @param channel
+	 * @brief Peer constructor.
+	 * @param socket
 	 */
 	Peer(SocketChannelPtr socket);
 	
@@ -80,4 +81,6 @@ inline bool Peer::isActive() {
 	return m_socket != nullptr && m_socket->isOpen();
 }
 
-#endif // PEER_H
+}
+
+#endif // NODEBUS_PEER_H

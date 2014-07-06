@@ -20,6 +20,8 @@
 #include <nodebus/core/logger.h>
 #include <nodebus/core/selectionkey.h>
 
+namespace NodeBus {
+
 PeerAdmin::PeerAdmin(QObject* parent)
 : QThread(parent), m_enabled(true), m_selector() {
 
@@ -88,4 +90,6 @@ void PeerAdmin::processServer(ServerSocketChannelPtr socket, SharedPtr< Peer::Fa
 			logWarn() << "  what(): " << e.message();
 	}
 	socket->registerTo(m_selector, SelectionKey::OP_READ, factory);
+}
+
 }

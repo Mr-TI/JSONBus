@@ -23,6 +23,8 @@
 #include <nodebus/core/jsonparser.h>
 #include <nodebus/core/jsonserializer.h>
 
+namespace NodeBus {
+
 Peer::Peer(SocketChannelPtr socket): m_socket(socket) {
 	connect(socket.data(), SIGNAL(closed()), this, SLOT(cancel()));
 }
@@ -57,4 +59,6 @@ void Peer::cancel() {
 	}
 	m_socket->close();
 	m_socket = nullptr;
+}
+
 }

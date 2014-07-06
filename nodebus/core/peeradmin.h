@@ -23,8 +23,8 @@
  */
 
 
-#ifndef JSONBUS_JSONPARSERTASK_H
-#define JSONBUS_JSONPARSERTASK_H
+#ifndef NODEBUS_PEERADMIN_H
+#define NODEBUS_PEERADMIN_H
 
 #include <QRunnable>
 #include <nodebus/core/jsonparser.h>
@@ -32,7 +32,8 @@
 #include <nodebus/core/socketchannel.h>
 #include <nodebus/core/selectionkey.h>
 #include <nodebus/core/peer.h>
-using namespace NodeBus;
+
+namespace NodeBus {
 
 class PeerAdmin : public QThread {
 	Q_OBJECT
@@ -64,4 +65,6 @@ private:
 	Selector m_selector;
 };
 
-#endif // JSONBUS_JSONPARSERTASK_H
+}
+
+#endif // NODEBUS_PEERADMIN_H

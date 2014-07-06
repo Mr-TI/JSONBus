@@ -109,7 +109,7 @@ void Proxy::onInit() {
 	CliArguments &args = CliArguments::getInstance();
 // 	args.define("daemonize",		'd', tr("Launch this service in background"));
 	args.define("edit-settings",	's', tr("Interactive settings edition"));
-	args.define("config",			'c', tr("Set a custom config path"), "/etc/proxy/proxy.conf");
+	args.define("config",			'c', tr("Set a custom config path"), "/etc/nodebusproxy/proxy.conf");
 #ifdef WIN32
 	args.define("win-cli",			'\0', tr("Switch to cli mode, don't launch a Windows service"));
 #endif
@@ -118,16 +118,16 @@ void Proxy::onInit() {
 void Proxy::onStart() {
 	CliArguments &args = CliArguments::getInstance();
 #ifdef WIN32
-	m_settings = new Settings("Bouygues Telecom", "Proxy", QSettings::NativeFormat);
+	m_settings = new Settings("", "Proxy", QSettings::NativeFormat);
 #else
 	m_settings = new Settings(args.getValue("config").toString(), QSettings::NativeFormat);
 #endif
 	m_settings->define("pidfile",	tr("Path of the file where the service PID will be written in"),
-					"/var/run/proxy.pid");
+					"/var/run/nodebusproxy.pid");
 	m_settings->define("intf-main/listen-uri",	tr("Main interface - Listen addresses (comma separated URIs)"),
 					"ssl://[::]:3693");
 	m_settings->define("intf-main/keystore-path",	tr("Main interface - PKCS12 keystore path"),
-					"/etc/proxy/keystore.p12");
+					"/etc/nodebusproxy/keystore.p12");
 	m_settings->define("intf-main/keystore-pwd",	tr("Main interface - PKCS12 keystore password"),
 					"");
 	m_settings->define("intf-console/listen-uri",	tr("Console interface - Listen addresses (comma separated URIs)"),
