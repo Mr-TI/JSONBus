@@ -15,15 +15,15 @@
  */
 
 /**
- * @brief NodeBus : CSON Parser management.
+ * @brief NodeBus : BCON Parser management.
  * 
  * @author <a href="mailto:emericv@openihs.org">Emeric Verschuur</a>
  * @date 2014
  * @copyright Apache License, Version 2.0
  */
 
-#ifndef NODEBUS_CSONPARSER_H
-#define NODEBUS_CSONPARSER_H
+#ifndef NODEBUS_BCONPARSER_H
+#define NODEBUS_BCONPARSER_H
 
 #include <nodebus/core/exception.h>
 #include <qt4/QtCore/QByteArray>
@@ -34,57 +34,57 @@
 
 namespace NodeBus {
 
-nodebus_declare_exception(CSONParserException, Exception);
-nodebus_declare_exception(ErrorCSONParserException, CSONParserException);
+nodebus_declare_exception(BCONParserException, Exception);
+nodebus_declare_exception(ErrorBCONParserException, BCONParserException);
 class StreamChannel;
 
 /**
- * @brief CSON Parser management.
+ * @brief BCON Parser management.
  */
 class NODEBUS_EXPORT BCONParser {
 public:
 	typedef char (*fGetc_t)(void *ptr);
 	
 	/**
-	 * @brief CSONParser constructor.
+	 * @brief BCONParser constructor.
 	 */
 	BCONParser();
 	
 	/**
-	 * @brief CSONParser constructor.
+	 * @brief BCONParser constructor.
 	 * @param channel Channel pointer
 	 */
 	BCONParser(fGetc_t getChar, void *ptr);
 	
 	/**
-	 * @brief CSONParser constructor.
+	 * @brief BCONParser constructor.
 	 * @param channel Channel pointer
 	 */
 	BCONParser(SharedPtr<StreamChannel> channel);
 	
 	/**
-	 * @brief CSONParser destructor.
+	 * @brief BCONParser destructor.
 	 */
 	~BCONParser();
 	
 	/**
-	 * @brief Parse a CSON data from a byte array
+	 * @brief Parse a BCON data from a byte array
 	 * @return QVariant object
-	 * @throw CSONParserException on parsing error
+	 * @throw BCONParserException on parsing error
 	 */
 	QVariant parse();
 	
 	/**
-	 * @brief Parse a CSON data from a byte array
+	 * @brief Parse a BCON data from a byte array
 	 * @return QVariant object
-	 * @throw CSONParserException on parsing error
+	 * @throw BCONParserException on parsing error
 	 */
 	static QVariant parse(const char *data, uint len);
 	
 	/**
-	 * @brief Parse a CSON data from a byte array
+	 * @brief Parse a BCON data from a byte array
 	 * @return QVariant object
-	 * @throw CSONParserException on parsing error
+	 * @throw BCONParserException on parsing error
 	 */
 	static QVariant parse(const QByteArray &data);
 	
@@ -99,4 +99,4 @@ private:
 
 }
 
-#endif //NODEBUS_CSONPARSER_H
+#endif //NODEBUS_BCONPARSER_H

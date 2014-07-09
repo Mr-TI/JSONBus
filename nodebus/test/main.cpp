@@ -25,6 +25,8 @@
 #include <nodebus/core/filechannel.h>
 #include <nodebus/core/jsonserializer.h>
 #include <nodebus/core/bconparser.h>
+#include <nodebus/core/bsonparser.h>
+#include <nodebus/core/bsonserializer.h>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -56,45 +58,41 @@ void dump(SharedPtr<B> b) {
 }
 
 void testPtr() {
-	try {
-		SharedPtr<C> c = nullptr;
-		SharedPtr<B> b = newB();
-		SharedPtr<A> ab = b, ac = new C(1);
-		SharedPtr<A> f, g, h;
-		f = g = h = b;
-		
-// 		c = ab; // throw InvalidClassException
-		c = ac;
-		
-		dump(ab);
-		logFine() << h;
-		ab = b = nullptr;
-		logInfo() << "ab = b = nullptr";
-		logFine() << h;
-		logInfo() << "f = null";
-		f = nullptr;
-		logFine() << h;
-		logInfo() << "g = null";
-		g = 0;
-		logFine() << h;
-		logInfo() << "h = null";
-		h = nullptr;
-		logFine() << h;
-		
-		logInfo() << "(  ab == nullptr) is " << (ab == nullptr);
-		
-		logFine() << "ac => " << ac;
-		logFine() << " c => " << c;
-		logInfo() << "(ac == c) is " << (ac == c);
-		
-		
-		logFine() << b;
-		
-// 		b->i = 0; // throw NullPointerException
-		
-	} catch (Exception &e) {
-		logCrit() << "terminate called after throwing an instance of " << e;
-	}
+	SharedPtr<C> c = nullptr;
+	SharedPtr<B> b = newB();
+	SharedPtr<A> ab = b, ac = new C(1);
+	SharedPtr<A> f, g, h;
+	f = g = h = b;
+	
+// 	c = ab; // throw InvalidClassException
+	c = ac;
+	
+	dump(ab);
+	logFine() << h;
+	ab = b = nullptr;
+	logInfo() << "ab = b = nullptr";
+	logFine() << h;
+	logInfo() << "f = null";
+	f = nullptr;
+	logFine() << h;
+	logInfo() << "g = null";
+	g = 0;
+	logFine() << h;
+	logInfo() << "h = null";
+	h = nullptr;
+	logFine() << h;
+	
+	logInfo() << "(  ab == nullptr) is " << (ab == nullptr);
+	
+	logFine() << "ac => " << ac;
+	logFine() << " c => " << c;
+	logInfo() << "(ac == c) is " << (ac == c);
+	
+	
+	logFine() << b;
+	
+// 	b->i = 0; // throw NullPointerException
+	
 	logInfo() << "DONE!";
 }
 
@@ -107,7 +105,7 @@ void testSelect() {
 	server->accept();
 }
 
-void testCSONParser() {
+void testBCONParser() {
 	StreamChannelPtr file = new FileChannel("test.json", 0);
 	QVariant v = JSONParser(file).parse();
 	logFiner() << Logger::dump(v);
@@ -118,7 +116,22 @@ void testCSONParser() {
 	JSONSerializer(new FileChannel("test0.json", O_CREAT | O_TRUNC | O_WRONLY)).serialize(v);
 }
 
+void testBSONParser() {
+	StreamChannelPtr file = new FileChannel("test.json", 0);
+	QVariant v = JSONParser(file).parse();
+	logFiner() << Logger::dump(v);
+	BSONSerializer(new FileChannel("test.bson", O_CREAT | O_TRUNC | O_WRONLY)).serialize(v);
+	file = new FileChannel("test.bson", 0);
+	v = BSONParser(file).parse();
+	logFiner() << Logger::dump(v);
+	JSONSerializer(new FileChannel("test0.json", O_CREAT | O_TRUNC | O_WRONLY)).serialize(v);
+}
+
 int main(int argc, char **argv) {
-	testCSONParser();
+// 	try {
+		testBSONParser();
+// 	} catch (Exception &e) {
+// 		logCrit() << "terminate called after throwing an instance of " << e;
+// 	}
 	return 0;
 }

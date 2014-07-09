@@ -130,7 +130,7 @@ bool BCONParser::parse(QVariant &res, QString* key) {
 					| ((getc() & 0xFF) << 20);
 				break;
 			default:
-				throw CSONParserException("Invalid " + QString((c & 0x40) ? "TSTRING" : "TDATA")  + " type " + QString::number(uint8_t(c & 0x30), 16));
+				throw BCONParserException("Invalid " + QString((c & 0x40) ? "TSTRING" : "TDATA")  + " type " + QString::number(uint8_t(c & 0x30), 16));
 		}
 		char buf[len];
 		for (int i = 0; i < len; i++) {
@@ -195,7 +195,7 @@ bool BCONParser::parse(QVariant &res, QString* key) {
 				break;
 			}
 			default:
-				throw CSONParserException("Invalid token " + c);
+				throw BCONParserException("Invalid token " + c);
 		}
 	}
 	if (key) {

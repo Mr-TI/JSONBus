@@ -50,18 +50,18 @@ namespace NodeBus {
 /**
 	* @brief ouput stream
 	*/
-class CSONChannelOutputStream :public BCONSerializer::OutputStream {
+class BCONChannelOutputStream :public BCONSerializer::OutputStream {
 public:
 	/**
 	 * @brief ouput stream constructor from an std::ostream
 	 * @param stream std::ostream reference
 	 */
-	CSONChannelOutputStream (const StreamChannelPtr& channel);
+	BCONChannelOutputStream (const StreamChannelPtr& channel);
 	
 	/**
 	 * @brief ouput stream destructor
 	 */
-	~CSONChannelOutputStream ();
+	~BCONChannelOutputStream ();
 	
 	/**
 	 * @brief output stream operator
@@ -76,18 +76,18 @@ private:
 	StreamChannelPtr m_channel;
 };
 
-inline CSONChannelOutputStream::CSONChannelOutputStream(const StreamChannelPtr& channel): m_channel(channel) {
+inline BCONChannelOutputStream::BCONChannelOutputStream(const StreamChannelPtr& channel): m_channel(channel) {
 }
 
-inline CSONChannelOutputStream::~CSONChannelOutputStream() {
+inline BCONChannelOutputStream::~BCONChannelOutputStream() {
 }
 
-inline BCONSerializer::OutputStream& CSONChannelOutputStream::operator<<(char byte) {
+inline BCONSerializer::OutputStream& BCONChannelOutputStream::operator<<(char byte) {
 	m_channel->write(&byte, 1);
 	return *this; 
 }
 
-inline BCONSerializer::OutputStream& CSONChannelOutputStream::operator<<(const QByteArray& data) {
+inline BCONSerializer::OutputStream& BCONChannelOutputStream::operator<<(const QByteArray& data) {
 	m_channel->write(data.data(), data.length());
 	return *this; 
 }
@@ -95,18 +95,18 @@ inline BCONSerializer::OutputStream& CSONChannelOutputStream::operator<<(const Q
 /**
 	* @brief Std ouput stream
 	*/
-class CSONByteArrayOutputStream :public BCONSerializer::OutputStream {
+class BCONByteArrayOutputStream :public BCONSerializer::OutputStream {
 public:
 	/**
 		* @brief Std ouput stream constructor from an std::ostream
 		* @param stream std::ostream reference
 		*/
-	CSONByteArrayOutputStream (QByteArray& data);
+	BCONByteArrayOutputStream (QByteArray& data);
 	
 	/**
 		* @brief Std ouput stream destructor
 		*/
-	~CSONByteArrayOutputStream();
+	~BCONByteArrayOutputStream();
 	
 	/**
 	 * @brief output stream operator
@@ -121,18 +121,18 @@ private:
 	QByteArray& m_data;
 };
 
-CSONByteArrayOutputStream::CSONByteArrayOutputStream(QByteArray& data): m_data(data) {
+BCONByteArrayOutputStream::BCONByteArrayOutputStream(QByteArray& data): m_data(data) {
 }
 
-CSONByteArrayOutputStream::~CSONByteArrayOutputStream() {
+BCONByteArrayOutputStream::~BCONByteArrayOutputStream() {
 }
 
-inline BCONSerializer::OutputStream& CSONByteArrayOutputStream::operator<<(char byte) {
+inline BCONSerializer::OutputStream& BCONByteArrayOutputStream::operator<<(char byte) {
 	m_data.append(byte);
 	return *this;
 }
 
-inline BCONSerializer::OutputStream& CSONByteArrayOutputStream::operator<<(const QByteArray& data) {
+inline BCONSerializer::OutputStream& BCONByteArrayOutputStream::operator<<(const QByteArray& data) {
 	m_data.append(data);
 	return *this;
 }
@@ -144,12 +144,12 @@ QString BCONSerializer::toString(const QVariant& variant) {
 }
 
 BCONSerializer::BCONSerializer(StreamChannelPtr channel)
-: m_streamPtr(new CSONChannelOutputStream(channel)), m_stream(*m_streamPtr) {
+: m_streamPtr(new BCONChannelOutputStream(channel)), m_stream(*m_streamPtr) {
 	
 }
 
 BCONSerializer::BCONSerializer(QByteArray& data)
-: m_streamPtr(new CSONByteArrayOutputStream(data)), m_stream(*m_streamPtr) {
+: m_streamPtr(new BCONByteArrayOutputStream(data)), m_stream(*m_streamPtr) {
 }
 
 BCONSerializer::BCONSerializer(BCONSerializer::OutputStream& stream)
@@ -185,10 +185,10 @@ void BCONSerializer::serialize(const QVariant &variant, const char *key) {
 		case QVariant::Invalid:
 			m_stream << TNULL;
 			break;
-		case QVariant::Bool: // Case of CSON boolean
+		case QVariant::Bool: // Case of BCON boolean
 			m_stream << (variant.toBool() ? TTRUE: TFALSE);
 			break;
-		case QVariant::Char: // Case of CSON boolean
+		case QVariant::Char: // Case of BCON boolean
 			m_stream << TBYTE
 					<< variant.toChar().toAscii();
 			break;
@@ -223,7 +223,7 @@ void BCONSerializer::serialize(const QVariant &variant, const char *key) {
 			write64(TDATETIME, variant.toDateTime().toMSecsSinceEpoch());
 			break;
 		}
-		case QVariant::Map: // Case of CSON object
+		case QVariant::Map: // Case of BCON object
 		{
 			m_stream << TMAP;
 			const QVariantMap elements = variant.toMap();
@@ -233,7 +233,7 @@ void BCONSerializer::serialize(const QVariant &variant, const char *key) {
 			m_stream << TEND;
 			break;
 		}
-		case QVariant::List: // Case of CSON array
+		case QVariant::List: // Case of BCON array
 		{
 			m_stream << TLIST;
 			const QVariantList elements = variant.toList();
@@ -266,11 +266,11 @@ void BCONSerializer::serialize(const QVariant &variant, const char *key) {
 						<< (char) (len >> 20);
 				m_stream << data;
 			} else {
-				throw CSONSerializerException("Fatal: too big String (length=" + QString::number(len) + ")");
+				throw BCONSerializerException("Fatal: too big String (length=" + QString::number(len) + ")");
 			}
 			break;
 		}
-		case QVariant::ByteArray: // Case of CSON string
+		case QVariant::ByteArray: // Case of BCON string
 		{
 			QByteArray data = variant.toByteArray();
 			int len = data.length();
@@ -293,12 +293,12 @@ void BCONSerializer::serialize(const QVariant &variant, const char *key) {
 						<< (char) (len >> 20);
 				m_stream << data;
 			} else {
-				throw CSONSerializerException("Fatal: too big byte array (length=" + QString::number(len) + ")");
+				throw BCONSerializerException("Fatal: too big byte array (length=" + QString::number(len) + ")");
 			}
 			break;
 		}
 		default:
-			throw CSONSerializerException("Fatal: QVariant type not managed.");
+			throw BCONSerializerException("Fatal: QVariant type not managed.");
 		
 	}
 		

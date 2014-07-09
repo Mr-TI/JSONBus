@@ -34,18 +34,18 @@ namespace NodeBus {
 /**
 	* @brief Std ouput stream
 	*/
-class ChannelOutputStream :public JSONSerializer::OutputStream {
+class JSONChannelOutputStream :public JSONSerializer::OutputStream {
 public:
 	/**
 		* @brief Std ouput stream constructor from an std::ostream
 		* @param stream std::ostream reference
 		*/
-	ChannelOutputStream (const StreamChannelPtr& channel);
+	JSONChannelOutputStream (const StreamChannelPtr& channel);
 	
 	/**
 		* @brief Std ouput stream destructor
 		*/
-	~ChannelOutputStream ();
+	~JSONChannelOutputStream ();
 	
 	/**
 		* @brief Std output stream operator
@@ -55,13 +55,13 @@ private:
 	StreamChannelPtr m_channel;
 };
 
-inline ChannelOutputStream::ChannelOutputStream(const StreamChannelPtr& channel): m_channel(channel) {
+inline JSONChannelOutputStream::JSONChannelOutputStream(const StreamChannelPtr& channel): m_channel(channel) {
 }
 
-inline ChannelOutputStream::~ChannelOutputStream() {
+inline JSONChannelOutputStream::~JSONChannelOutputStream() {
 }
 
-inline JSONSerializer::OutputStream& ChannelOutputStream::operator<<(const QString& data) {
+inline JSONSerializer::OutputStream& JSONChannelOutputStream::operator<<(const QString& data) {
 	QByteArray bytes = data.toUtf8();
 	m_channel->write(bytes.data(), bytes.length());
 	return *this; 
@@ -70,18 +70,18 @@ inline JSONSerializer::OutputStream& ChannelOutputStream::operator<<(const QStri
 /**
 	* @brief Std ouput stream
 	*/
-class ByteArrayOutputStream :public JSONSerializer::OutputStream {
+class JSONByteArrayOutputStream :public JSONSerializer::OutputStream {
 public:
 	/**
 		* @brief Std ouput stream constructor from an std::ostream
 		* @param stream std::ostream reference
 		*/
-	ByteArrayOutputStream (QByteArray& data);
+	JSONByteArrayOutputStream (QByteArray& data);
 	
 	/**
 		* @brief Std ouput stream destructor
 		*/
-	~ByteArrayOutputStream ();
+	~JSONByteArrayOutputStream ();
 	
 	/**
 		* @brief Std output stream operator
@@ -91,13 +91,13 @@ private:
 	QByteArray& m_data;
 };
 
-ByteArrayOutputStream::ByteArrayOutputStream(QByteArray& data): m_data(data) {
+JSONByteArrayOutputStream::JSONByteArrayOutputStream(QByteArray& data): m_data(data) {
 }
 
-ByteArrayOutputStream::~ByteArrayOutputStream() {
+JSONByteArrayOutputStream::~JSONByteArrayOutputStream() {
 }
 
-JSONSerializer::OutputStream& ByteArrayOutputStream::operator<<(const QString& data) {
+JSONSerializer::OutputStream& JSONByteArrayOutputStream::operator<<(const QString& data) {
 	m_data.append(data);
 	return *this; 
 }
@@ -121,12 +121,12 @@ QString JSONSerializer::toString(const QVariant& variant) {
 }
 
 JSONSerializer::JSONSerializer(StreamChannelPtr channel)
-: m_streamPtr(new ChannelOutputStream(channel)), m_stream(*m_streamPtr) {
+: m_streamPtr(new JSONChannelOutputStream(channel)), m_stream(*m_streamPtr) {
 	
 }
 
 JSONSerializer::JSONSerializer(QByteArray& data)
-: m_streamPtr(new ByteArrayOutputStream(data)), m_stream(*m_streamPtr) {
+: m_streamPtr(new JSONByteArrayOutputStream(data)), m_stream(*m_streamPtr) {
 }
 
 JSONSerializer::JSONSerializer(JSONSerializer::OutputStream& stream)

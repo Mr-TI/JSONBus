@@ -15,15 +15,15 @@
  */
 
 /**
- * @brief NodeBus : BCON serializer management.
+ * @brief NodeBus : BSON serializer management.
  * 
  * @author <a href="mailto:emericv@openihs.org">Emeric Verschuur</a>
  * @date 2014
  * @copyright Apache License, Version 2.0
  */
 
-#ifndef NODEBUS_BCONSERIALIZER_H
-#define NODEBUS_BCONSERIALIZER_H
+#ifndef NODEBUS_BSONSERIALIZER_H
+#define NODEBUS_BSONSERIALIZER_H
 
 #include <nodebus/core/exception.h>
 #include "streamchannel.h"
@@ -37,12 +37,12 @@
 
 namespace NodeBus {
 
-nodebus_declare_exception(BCONSerializerException, Exception);
+nodebus_declare_exception(BSONSerializerException, Exception);
 
 /**
- * @brief BCON serializer management.
+ * @brief BSON serializer management.
  */
-class NODEBUS_EXPORT BCONSerializer {
+class NODEBUS_EXPORT BSONSerializer {
 public:
 	/**
 	 * @brief Abstract ouput stream
@@ -73,50 +73,52 @@ public:
 	};
 	
 	/**
-	 * @brief BCONSerializer constructor.
+	 * @brief BSONSerializer constructor.
 	 * @param stream A reference to the std output stream
 	 */
-	BCONSerializer(StreamChannelPtr channel);
+	BSONSerializer(StreamChannelPtr channel);
 	
 	/**
-	 * @brief BCONSerializer constructor.
+	 * @brief BSONSerializer constructor.
 	 * @param data Byte array reference
 	 */
-	BCONSerializer(QByteArray &data);
+	BSONSerializer(QByteArray &data);
 	
 	/**
-	 * @brief BCONSerializer constructor.
+	 * @brief BSONSerializer constructor.
 	 * @param stream A reference to the output stream
 	 */
-	BCONSerializer(OutputStream &stream);
+	BSONSerializer(OutputStream &stream);
 	
 	/**
-	 * @brief BCONSerializer destructor.
+	 * @brief BSONSerializer destructor.
 	 */
-	~BCONSerializer();
+	~BSONSerializer();
 	
 	/**
-	 * @brief Serialize an object in BCON format
+	 * @brief Serialize an object in BSON format
 	 * @param variant object to serialize
 	 */
-	void serialize(const QVariant& variant, const char* key=NULL);
+	void serialize(const QVariant &variant);
 	
 	/**
-	 * @brief Serialize an object in BCON format
+	 * @brief Serialize an object in BSON format
 	 * @param variant object to serialize
 	 */
 	static QString toString(const QVariant &variant);
 private:
-	void write32(char type, uint32_t value);
-	void write64(char type, uint64_t value);
+	QByteArray serializeDocument(const QVariant &variant);
+	QByteArray serializeElt(const QVariant& variant, const QString &key);
+	void write32(QByteArray& output, uint32_t value);
+	void write64(QByteArray& output, uint64_t value);
 	SharedPtr<OutputStream> m_streamPtr;
 	OutputStream &m_stream;
 };
 
-inline BCONSerializer::OutputStream::OutputStream() {
+inline BSONSerializer::OutputStream::OutputStream() {
 }
 
-inline BCONSerializer::OutputStream::~OutputStream() {
+inline BSONSerializer::OutputStream::~OutputStream() {
 }
 
 }

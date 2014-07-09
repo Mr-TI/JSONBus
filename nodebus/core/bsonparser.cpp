@@ -58,6 +58,9 @@ static char jsonparser_datastream_getc(void* ptr) {
 }
 
 static char jsonparser_channel_getc(void* stream) {
+// 	static int i = 0;
+// 	i++;
+// 	logFinest() << "i=" << i << " c=" << QString::number(((StreamChannel*)stream)->peek(), 16);
 	return ((StreamChannel*)stream)->get();
 }
 
@@ -124,12 +127,13 @@ QVariant BSONParser::parseDocument() {
 
 bool BSONParser::parse(QVariant &res, QString &key) {
 	char c, t = getc();
+	if (t == TEND) {
+		return false;
+	}
 	while ((c = getc()) != '\0') {
 		key.append(c);
 	}
 	switch (t) {
-		case TEND:
-			return false;
 		case TUNDEF:
 			logWarn() << "Deprecated token Undefined";
 		case TNULL:
@@ -193,6 +197,7 @@ bool BSONParser::parse(QVariant &res, QString &key) {
 		}
 		case TMAP:
 		{
+			read32();
 			QVariantMap map;
 			while (true) {
 				QString key;
@@ -205,6 +210,7 @@ bool BSONParser::parse(QVariant &res, QString &key) {
 		}
 		case TLIST:
 		{
+			read32();
 			QVariantList list;
 			while (true) {
 				QString key;
@@ -216,7 +222,7 @@ bool BSONParser::parse(QVariant &res, QString &key) {
 			break;
 		}
 		default:
-			throw BSONParserException("Unsupported token " + t);
+			throw BSONParserException("Unsupported token " + QString::number(t, 16));
 	}
 	return true;
 }
