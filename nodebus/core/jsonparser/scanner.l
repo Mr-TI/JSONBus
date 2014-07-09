@@ -39,6 +39,12 @@ using namespace std;
 	yylval->node = new variant_t(yytext);\
 	yylval->node->convert(variant_t::_type_)
 
+#define VARIANT_NUMBER()\
+	yylval->node = new variant_t(yytext);\
+	yylval->node->convert(variant_t::LongLong);\
+	if ((yylval->node->toLongLong() & 0xFFFFFFFF00000000) == 0)\
+	yylval->node->convert(variant_t::Int)
+
 #define VARIANT_FROM(_value_)\
 	yylval->node = new variant_t(_value_)
 
@@ -86,7 +92,8 @@ kw_false                false
 kw_nan                  nan
 kw_infinity             [\-\+]?infinity
 
-number                  \-?[[:digit:]]+(\.[[:digit:]]+)?(e[\-\+]?[[:digit:]]+)?
+number                  \-?[[:digit:]]+(e[\-\+]?[[:digit:]]+)?
+float                   \-?[[:digit:]]+(\.[[:digit:]]+)?(e[\-\+]?[[:digit:]]+)?
 
 coma                    ,
 semicolon               :
@@ -148,7 +155,8 @@ escape_prefix           \\
 <INITIAL>{kw_nan}                         {BEGIN INITIAL; VARIANT_NAN(); RETURN_TOKEN(TVARIANT);}
 <INITIAL>{kw_infinity}                    {BEGIN INITIAL; VARIANT_INFINITY(); RETURN_TOKEN(TVARIANT);}
 
-<INITIAL>{number}                         {BEGIN INITIAL; VARIANT_TXT2(Double); RETURN_TOKEN(TVARIANT);}
+<INITIAL>{number}                         {BEGIN INITIAL; VARIANT_NUMBER(); RETURN_TOKEN(TVARIANT);}
+<INITIAL>{float}                          {BEGIN INITIAL; VARIANT_TXT2(Double); RETURN_TOKEN(TVARIANT);}
 
 <INITIAL>{square_bracket_open}            {BEGIN INITIAL; RETURN_TOKEN(TARRBEGIN);}
 <INITIAL>{square_bracket_close}           {BEGIN INITIAL; RETURN_TOKEN(TARREND);}

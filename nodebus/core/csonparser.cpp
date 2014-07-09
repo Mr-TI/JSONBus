@@ -17,7 +17,6 @@
 #include "common.h"
 #include "csonparser.h"
 #include "streamchannel.h"
-#include "logger.h"
 #include <qt4/QtCore/QVariant>
 #include <qt4/QtCore/QDate>
 
@@ -113,24 +112,25 @@ bool CSONParser::parse(QVariant &res, QString* key) {
 		for (int i = 0; i < len; i++) {
 			buf[i] = getc();
 		}
-		logFiner() << ((c & 0x40) ? "TSTRING6" : "TDATA6") << " len=" << len;
 		res = (c & 0x40) ? QString(QByteArray(buf, len)) : QByteArray(buf, len);
 	} else if (c & 0xF0) {
 		int32_t len;
 		len = c & 0x0F;
 		switch (c & 0x30) {
-			case 1:
+			case 0x10:
 				len |= (getc() & 0xFF) << 4;
 				break;
-			case 2:
+			case 0x20:
 				len |= ((getc() & 0xFF) << 4) 
 					| ((getc() & 0xFF) << 12);
 				break;
-			case 3:
+			case 0x30:
 				len |= ((getc() & 0xFF) << 4) 
 					| ((getc() & 0xFF) << 12) 
 					| ((getc() & 0xFF) << 20);
 				break;
+			default:
+				throw CSONParserException("Invalid " + QString((c & 0x40) ? "TSTRING" : "TDATA")  + " type " + QString::number(uint8_t(c & 0x30), 16));
 		}
 		char buf[len];
 		for (int i = 0; i < len; i++) {
@@ -140,51 +140,39 @@ bool CSONParser::parse(QVariant &res, QString* key) {
 	} else {
 		switch (c) {
 			case TEND:
-				logFiner() << "TEND";
 				return false;
 			case TNULL:
-				logFiner() << "TNULL";
 				res = QVariant();
 				break;
 			case TTRUE:
-				logFiner() << "TTRUE";
 				res = QVariant(true);
 				break;
 			case TFALSE:
-				logFiner() << "TFALSE";
 				res = QVariant(false);
 				break;
 			case TBYTE:
-				logFiner() << "TBYTE";
 				res = QVariant(getc());
 				break;
 			case TINT32:
-				logFiner() << "TINT32";
 				res = QVariant((int32_t)read32());
 				break;
 			case TINT64:
-				logFiner() << "TINT64";
 				res = QVariant((qlonglong)read64());
 				break;
 			case TUINT32:
-				logFiner() << "TUINT32";
 				res = QVariant((uint32_t)read32());
 				break;
 			case TUINT64:
-				logFiner() << "TUINT64";
 				res = QVariant((qulonglong)read64());
 				break;
 			case TDOUBLE:
-				logFiner() << "TDOUBLE";
 				res = QVariant((double)read64());
 				break;
 			case TTIMESTAMP:
-				logFiner() << "TTIMESTAMP";
 				res = QVariant(QDateTime::fromMSecsSinceEpoch((qlonglong)read64()));
 				break;
 			case TMAP:
 			{
-				logFiner() << "TMAP";
 				QVariantMap map;
 				while (true) {
 					QString key;
@@ -197,7 +185,6 @@ bool CSONParser::parse(QVariant &res, QString* key) {
 			}
 			case TLIST:
 			{
-				logFiner() << "TLIST";
 				QVariantList list;
 				while (true) {
 					QVariant value;
@@ -207,13 +194,14 @@ bool CSONParser::parse(QVariant &res, QString* key) {
 				res = list;
 				break;
 			}
+			default:
+				throw CSONParserException("Invalid token " + c);
 		}
 	}
 	if (key) {
 		while ((c = getc()) != '\0') {
 			key->append(c);
 		}
-		logFiner() << "KEY=" << *key;
 	}
 	return true;
 }

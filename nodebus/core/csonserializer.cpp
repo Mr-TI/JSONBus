@@ -16,7 +16,6 @@
 
 #include "common.h"
 #include "csonserializer.h"
-#include "logger.h"
 #include <qt4/QtCore/QVariant>
 
 #define TEND		((char)0x00)
@@ -84,13 +83,11 @@ inline CSONChannelOutputStream::~CSONChannelOutputStream() {
 }
 
 inline CSONSerializer::OutputStream& CSONChannelOutputStream::operator<<(char byte) {
-	logFiner() << QByteArray(&byte, 1);
 	m_channel->write(&byte, 1);
 	return *this; 
 }
 
 inline CSONSerializer::OutputStream& CSONChannelOutputStream::operator<<(const QByteArray& data) {
-	logFiner() << data;
 	m_channel->write(data.data(), data.length());
 	return *this; 
 }
