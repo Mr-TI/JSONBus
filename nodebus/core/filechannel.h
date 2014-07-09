@@ -14,8 +14,8 @@
  *   limitations under the License.
  */
 
-#ifndef JSONPARSER_IOCHANNEL_H
-#define JSONPARSER_IOCHANNEL_H
+#ifndef JSONPARSER_FILECHANNEL_H
+#define JSONPARSER_FILECHANNEL_H
 
 #include <sys/epoll.h>
 #include <nodebus/core/shareddata.h>
@@ -33,46 +33,38 @@ namespace NodeBus {
  * @date 2014
  * @copyright Apache License, Version 2.0
  */
-class IOChannel: public StreamChannel {
+class FileChannel: public StreamChannel {
 public:
-	enum Flags {
-		CLOSE_ON_DELETE = 0x01,
-		READABLE = 0x02,
-		WRITABLE = 0x04
-	};
 	/**
 	 * @brief AbstractChannel constructor
 	 * @param fd a valid file descriptor
 	 * @throw IOException on error
 	 */
-	IOChannel(int fd, int flags = READABLE | WRITABLE);
+	FileChannel(const char *path, int flags);
 	
 	/**
 	 * @brief AbstractChannel destructor
 	 */
-	virtual ~IOChannel();
+	virtual ~FileChannel();
 	
 protected:
 	virtual int &fd();
 	virtual void closeFd();
-	virtual void updateStatus(int events);
 	virtual size_t s_available();
 	virtual size_t s_read(char *buffer, size_t maxlen);
 	virtual void s_write(const char *buffer, size_t len);
+	virtual void updateStatus(int events);
 	bool s_waitForReadyRead(int timeout);
 	int m_fd;
-	bool m_closeOnDelete;
-
-private:
-	int m_epfd;
-	epoll_event m_event;
-	epoll_event m_events[1];
 };
 
-inline int &IOChannel::fd() {
+inline void FileChannel::updateStatus(int events) {
+}
+
+inline int &FileChannel::fd() {
 	return m_fd;
 }
 
 }
 
-#endif // JSONPARSER_IOCHANNEL_H
+#endif // JSONPARSER_FILECHANNEL_H

@@ -14,11 +14,12 @@
  *   limitations under the License.
  */
 
-#include "iochannel.h"
+#include "filechannel.h"
 #include "logger.h"
 #include <sys/ioctl.h>
 #include <string.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <QString>
 
 #define THROW_IOEXP_ON_ERR(exp) \
@@ -26,31 +27,24 @@
 
 namespace NodeBus {
 
-IOChannel::IOChannel(int fd, int flags) : m_fd(fd), m_closeOnDelete(flags & CLOSE_ON_DELETE), m_epfd(-1) {
-	THROW_IOEXP_ON_ERR(m_epfd = epoll_create1(0));
-	bzero(&m_event, sizeof(epoll_event));
-	m_event.data.fd = m_fd;
-	m_event.events = EPOLLIN | EPOLLET;
-	if (flags & READABLE) {
-		THROW_IOEXP_ON_ERR(epoll_ctl (m_epfd, EPOLL_CTL_ADD, m_fd, &m_event));
-	}
+FileChannel::FileChannel(const char *path, int flags) : m_fd(-1) {
+	THROW_IOEXP_ON_ERR(m_fd = open(path, flags));
 }
 
-IOChannel::~IOChannel() {
-	if (m_closeOnDelete && isOpen()) {
+FileChannel::~FileChannel() {
+	if (isOpen()) {
 		close();
 	}
-	::close(m_epfd);
 }
 
-size_t IOChannel::s_read(char *buffer, size_t maxlen) {
+size_t FileChannel::s_read(char *buffer, size_t maxlen) {
 	ssize_t ret;
 	ret = ::read(m_fd, buffer, maxlen);
 	THROW_IOEXP_ON_ERR(ret);
 	return ret;
 }
 
-void IOChannel::s_write(const char *buffer, size_t len) {
+void FileChannel::s_write(const char *buffer, size_t len) {
 	int ret = 0;
 	while (len > 0) {
 		THROW_IOEXP_ON_ERR(ret = ::write(m_fd, buffer, len));
@@ -59,39 +53,19 @@ void IOChannel::s_write(const char *buffer, size_t len) {
 	}
 }
 
-void IOChannel::closeFd() {
+void FileChannel::closeFd() {
 	::close(m_fd);
 }
 
-size_t IOChannel::s_available() {
-	size_t result;
+size_t FileChannel::s_available() {
+	size_t result = 0;
 	s_waitForReadyRead(0);
 	THROW_IOEXP_ON_ERR(::ioctl(m_fd, FIONREAD, &result));
 	return result;
 }
 
-bool IOChannel::s_waitForReadyRead(int timeout) {
-	int ret;
-	THROW_IOEXP_ON_ERR(ret = epoll_wait(m_epfd, m_events,1 ,timeout));
-	if (ret != 1) {
-		return false;
-	}
-	if (m_events[0].events & EPOLLHUP) {
-		throw EOFException();
-	}
-	if (m_events[0].events & EPOLLERR) {
-		throw IOException(QString() + __FILE__ + ":" + __LINE__ + ": " + strerror(errno));
-	}
-	return m_events[0].events & EPOLLIN;
-}
-
-void IOChannel::updateStatus(int events) {
-	if (events & EPOLLIN) {
-		int result;
-		if (::ioctl(m_fd, FIONREAD, &result) == -1 || result == 0) {
-			close();
-		}
-	}
+bool FileChannel::s_waitForReadyRead(int timeout) {
+	return true;
 }
 
 }

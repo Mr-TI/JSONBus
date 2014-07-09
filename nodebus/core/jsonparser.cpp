@@ -19,7 +19,6 @@
 #include "jsonparser/driver.h"
 #include "jsonparser/exception.h"
 #include "streamchannel.h"
-#include <sstream>
 
 using namespace jsonparser;
 
