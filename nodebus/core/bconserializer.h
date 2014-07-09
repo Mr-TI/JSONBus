@@ -42,7 +42,7 @@ nodebus_declare_exception(CSONSerializerException, Exception);
 /**
  * @brief CSON serializer management.
  */
-class NODEBUS_EXPORT CSONSerializer {
+class NODEBUS_EXPORT BCONSerializer {
 public:
 	/**
 	 * @brief Abstract ouput stream
@@ -76,24 +76,24 @@ public:
 	 * @brief CSONSerializer constructor.
 	 * @param stream A reference to the std output stream
 	 */
-	CSONSerializer(StreamChannelPtr channel);
+	BCONSerializer(StreamChannelPtr channel);
 	
 	/**
 	 * @brief CSONSerializer constructor.
 	 * @param data Byte array reference
 	 */
-	CSONSerializer(QByteArray &data);
+	BCONSerializer(QByteArray &data);
 	
 	/**
 	 * @brief CSONSerializer constructor.
 	 * @param stream A reference to the output stream
 	 */
-	CSONSerializer(OutputStream &stream);
+	BCONSerializer(OutputStream &stream);
 	
 	/**
 	 * @brief CSONSerializer destructor.
 	 */
-	~CSONSerializer();
+	~BCONSerializer();
 	
 	/**
 	 * @brief Serialize an object in CSON format
@@ -113,10 +113,10 @@ private:
 	OutputStream &m_stream;
 };
 
-inline CSONSerializer::OutputStream::OutputStream() {
+inline BCONSerializer::OutputStream::OutputStream() {
 }
 
-inline CSONSerializer::OutputStream::~OutputStream() {
+inline BCONSerializer::OutputStream::~OutputStream() {
 }
 
 }

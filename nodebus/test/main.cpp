@@ -21,10 +21,10 @@
 #include <nodebus/core/selectionkey.h>
 #include <nodebus/core/socketchannel.h>
 #include <nodebus/core/jsonparser.h>
-#include <nodebus/core/csonserializer.h>
+#include <nodebus/core/bconserializer.h>
 #include <nodebus/core/filechannel.h>
 #include <nodebus/core/jsonserializer.h>
-#include <nodebus/core/csonparser.h>
+#include <nodebus/core/bconparser.h>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -111,9 +111,9 @@ void testCSONParser() {
 	StreamChannelPtr file = new FileChannel("test.json", 0);
 	QVariant v = JSONParser(file).parse();
 	logFiner() << Logger::dump(v);
-	CSONSerializer(new FileChannel("test.cson", O_CREAT | O_TRUNC | O_WRONLY)).serialize(v);
+	BCONSerializer(new FileChannel("test.cson", O_CREAT | O_TRUNC | O_WRONLY)).serialize(v);
 	file = new FileChannel("test.cson", 0);
-	v = CSONParser(file).parse();
+	v = BCONParser(file).parse();
 	logFiner() << Logger::dump(v);
 	JSONSerializer(new FileChannel("test0.json", O_CREAT | O_TRUNC | O_WRONLY)).serialize(v);
 }

@@ -15,7 +15,7 @@
  */
 
 #include "common.h"
-#include "csonparser.h"
+#include "bconparser.h"
 #include "streamchannel.h"
 #include <qt4/QtCore/QVariant>
 #include <qt4/QtCore/QDate>
@@ -30,7 +30,7 @@
 #define TUINT32		((char)0x07)
 #define TUINT64		((char)0x08)
 #define TDOUBLE		((char)0x0A)
-#define TTIMESTAMP	((char)0x0B)
+#define TDATETIME	((char)0x0B)
 #define TMAP		((char)0x0C)
 #define TLIST		((char)0x0D)
 
@@ -52,47 +52,47 @@ static char jsonparser_channel_getc(void* stream) {
 	return ((StreamChannel*)stream)->get();
 }
 
-CSONParser::CSONParser(fGetc_t getChar, void* ptr)
+BCONParser::BCONParser(fGetc_t getChar, void* ptr)
 	: m_getChar(getChar), m_ptr(ptr) {
 }
 
-QVariant CSONParser::parse(const QByteArray& data) {
+QVariant BCONParser::parse(const QByteArray& data) {
 	__data_buffer_t buf = {data.constData(), data.constData() + data.length()};
-	CSONParser parser(jsonparser_datastream_getc, &buf);
+	BCONParser parser(jsonparser_datastream_getc, &buf);
 	return parser.parse();
 }
 
-QVariant CSONParser::parse(const char* data, uint len) {
+QVariant BCONParser::parse(const char* data, uint len) {
 	__data_buffer_t buf = {data, data + len};
-	CSONParser parser(jsonparser_datastream_getc, &buf);
+	BCONParser parser(jsonparser_datastream_getc, &buf);
 	return parser.parse();
 }
 
-CSONParser::CSONParser(StreamChannelPtr channel)
+BCONParser::BCONParser(StreamChannelPtr channel)
 	: m_getChar(jsonparser_channel_getc), m_ptr(channel.data()) {
 }
 
-CSONParser::~CSONParser() {
+BCONParser::~BCONParser() {
 }
 
-QVariant CSONParser::parse() {
+QVariant BCONParser::parse() {
 	QVariant res;
 	parse(res, NULL);
 	return res;
 }
 
-inline char CSONParser::getc() {
+inline char BCONParser::getc() {
 	return m_getChar(m_ptr);
 }
 
-inline uint32_t CSONParser::read32() {
+inline uint32_t BCONParser::read32() {
 	return (getc() & 0xFF)
 		| ((getc() & 0xFF) << 8)
 		| ((getc() & 0xFF) << 16)
 		| ((getc() & 0xFF) << 24);
 }
 
-inline uint64_t CSONParser::read64() {
+inline uint64_t BCONParser::read64() {
 	return (uint64_t)(getc() & 0xFF)
 		| ((uint64_t)(getc() & 0xFF) << 8)
 		| ((uint64_t)(getc() & 0xFF) << 16)
@@ -103,7 +103,7 @@ inline uint64_t CSONParser::read64() {
 		| ((uint64_t)(getc() & 0xFF) << 56);
 }
 
-bool CSONParser::parse(QVariant &res, QString* key) {
+bool BCONParser::parse(QVariant &res, QString* key) {
 	char c = getc();
 	if (c & 0x80) {
 		int32_t len;
@@ -112,7 +112,7 @@ bool CSONParser::parse(QVariant &res, QString* key) {
 		for (int i = 0; i < len; i++) {
 			buf[i] = getc();
 		}
-		res = (c & 0x40) ? QString(QByteArray(buf, len)) : QByteArray(buf, len);
+		res = (c & 0x40) ? QString::fromUtf8(buf, len) : QByteArray(buf, len);
 	} else if (c & 0xF0) {
 		int32_t len;
 		len = c & 0x0F;
@@ -136,7 +136,7 @@ bool CSONParser::parse(QVariant &res, QString* key) {
 		for (int i = 0; i < len; i++) {
 			buf[i] = getc();
 		}
-		res = (c & 0x40) ? QString(QByteArray(buf, len)) : QByteArray(buf, len);
+		res = (c & 0x40) ? QString::fromUtf8(buf, len) : QByteArray(buf, len);
 	} else {
 		switch (c) {
 			case TEND:
@@ -168,7 +168,7 @@ bool CSONParser::parse(QVariant &res, QString* key) {
 			case TDOUBLE:
 				res = QVariant((double)read64());
 				break;
-			case TTIMESTAMP:
+			case TDATETIME:
 				res = QVariant(QDateTime::fromMSecsSinceEpoch((qlonglong)read64()));
 				break;
 			case TMAP:

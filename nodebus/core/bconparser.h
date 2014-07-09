@@ -41,31 +41,31 @@ class StreamChannel;
 /**
  * @brief CSON Parser management.
  */
-class NODEBUS_EXPORT CSONParser {
+class NODEBUS_EXPORT BCONParser {
 public:
 	typedef char (*fGetc_t)(void *ptr);
 	
 	/**
 	 * @brief CSONParser constructor.
 	 */
-	CSONParser();
+	BCONParser();
 	
 	/**
 	 * @brief CSONParser constructor.
 	 * @param channel Channel pointer
 	 */
-	CSONParser(fGetc_t getChar, void *ptr);
+	BCONParser(fGetc_t getChar, void *ptr);
 	
 	/**
 	 * @brief CSONParser constructor.
 	 * @param channel Channel pointer
 	 */
-	CSONParser(SharedPtr<StreamChannel> channel);
+	BCONParser(SharedPtr<StreamChannel> channel);
 	
 	/**
 	 * @brief CSONParser destructor.
 	 */
-	~CSONParser();
+	~BCONParser();
 	
 	/**
 	 * @brief Parse a CSON data from a byte array

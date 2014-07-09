@@ -15,7 +15,7 @@
  */
 
 #include "common.h"
-#include "csonserializer.h"
+#include "bconserializer.h"
 #include <qt4/QtCore/QVariant>
 
 #define TEND		((char)0x00)
@@ -28,7 +28,7 @@
 #define TUINT32		((char)0x07)
 #define TUINT64		((char)0x08)
 #define TDOUBLE		((char)0x0A)
-#define TTIMESTAMP	((char)0x0B)
+#define TDATETIME	((char)0x0B)
 #define TMAP		((char)0x0C)
 #define TLIST		((char)0x0D)
 #define TDATA6		((char)0xA0)
@@ -50,7 +50,7 @@ namespace NodeBus {
 /**
 	* @brief ouput stream
 	*/
-class CSONChannelOutputStream :public CSONSerializer::OutputStream {
+class CSONChannelOutputStream :public BCONSerializer::OutputStream {
 public:
 	/**
 	 * @brief ouput stream constructor from an std::ostream
@@ -82,12 +82,12 @@ inline CSONChannelOutputStream::CSONChannelOutputStream(const StreamChannelPtr& 
 inline CSONChannelOutputStream::~CSONChannelOutputStream() {
 }
 
-inline CSONSerializer::OutputStream& CSONChannelOutputStream::operator<<(char byte) {
+inline BCONSerializer::OutputStream& CSONChannelOutputStream::operator<<(char byte) {
 	m_channel->write(&byte, 1);
 	return *this; 
 }
 
-inline CSONSerializer::OutputStream& CSONChannelOutputStream::operator<<(const QByteArray& data) {
+inline BCONSerializer::OutputStream& CSONChannelOutputStream::operator<<(const QByteArray& data) {
 	m_channel->write(data.data(), data.length());
 	return *this; 
 }
@@ -95,7 +95,7 @@ inline CSONSerializer::OutputStream& CSONChannelOutputStream::operator<<(const Q
 /**
 	* @brief Std ouput stream
 	*/
-class CSONByteArrayOutputStream :public CSONSerializer::OutputStream {
+class CSONByteArrayOutputStream :public BCONSerializer::OutputStream {
 public:
 	/**
 		* @brief Std ouput stream constructor from an std::ostream
@@ -127,40 +127,40 @@ CSONByteArrayOutputStream::CSONByteArrayOutputStream(QByteArray& data): m_data(d
 CSONByteArrayOutputStream::~CSONByteArrayOutputStream() {
 }
 
-inline CSONSerializer::OutputStream& CSONByteArrayOutputStream::operator<<(char byte) {
+inline BCONSerializer::OutputStream& CSONByteArrayOutputStream::operator<<(char byte) {
 	m_data.append(byte);
 	return *this;
 }
 
-inline CSONSerializer::OutputStream& CSONByteArrayOutputStream::operator<<(const QByteArray& data) {
+inline BCONSerializer::OutputStream& CSONByteArrayOutputStream::operator<<(const QByteArray& data) {
 	m_data.append(data);
 	return *this;
 }
 
-QString CSONSerializer::toString(const QVariant& variant) {
+QString BCONSerializer::toString(const QVariant& variant) {
 	QByteArray data;
-	CSONSerializer(data).serialize(variant);
+	BCONSerializer(data).serialize(variant);
 	return QString::fromLocal8Bit(data);
 }
 
-CSONSerializer::CSONSerializer(StreamChannelPtr channel)
+BCONSerializer::BCONSerializer(StreamChannelPtr channel)
 : m_streamPtr(new CSONChannelOutputStream(channel)), m_stream(*m_streamPtr) {
 	
 }
 
-CSONSerializer::CSONSerializer(QByteArray& data)
+BCONSerializer::BCONSerializer(QByteArray& data)
 : m_streamPtr(new CSONByteArrayOutputStream(data)), m_stream(*m_streamPtr) {
 }
 
-CSONSerializer::CSONSerializer(CSONSerializer::OutputStream& stream)
+BCONSerializer::BCONSerializer(BCONSerializer::OutputStream& stream)
 : m_stream(stream) {
 	
 }
 
-CSONSerializer::~CSONSerializer() {
+BCONSerializer::~BCONSerializer() {
 }
 
-inline void CSONSerializer::write32(char type, uint32_t value) {
+inline void BCONSerializer::write32(char type, uint32_t value) {
 	m_stream << type
 		<< ((char)((value & 0xFF)))
 		<< ((char)(((value >> 8) & 0xFF)))
@@ -168,7 +168,7 @@ inline void CSONSerializer::write32(char type, uint32_t value) {
 		<< ((char)(((value >> 24) & 0xFF)));
 }
 
-inline void CSONSerializer::write64(char type, uint64_t value) {
+inline void BCONSerializer::write64(char type, uint64_t value) {
 	m_stream << type
 		<< ((char)((value & 0xFF)))
 		<< ((char)(((value >> 8) & 0xFF)))
@@ -180,7 +180,7 @@ inline void CSONSerializer::write64(char type, uint64_t value) {
 		<< ((char)(((value >> 56) & 0xFF)));
 }
 
-void CSONSerializer::serialize(const QVariant &variant, const char *key) {
+void BCONSerializer::serialize(const QVariant &variant, const char *key) {
 	switch (variant.type()) {
 		case QVariant::Invalid:
 			m_stream << TNULL;
@@ -220,7 +220,7 @@ void CSONSerializer::serialize(const QVariant &variant, const char *key) {
 		case QVariant::Date:
 		case QVariant::Time:
 		{
-			write64(TTIMESTAMP, variant.toDateTime().toMSecsSinceEpoch());
+			write64(TDATETIME, variant.toDateTime().toMSecsSinceEpoch());
 			break;
 		}
 		case QVariant::Map: // Case of CSON object
