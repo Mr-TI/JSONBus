@@ -19,7 +19,6 @@
 
 #include <nodebus/core/common.h>
 #include <nodebus/core/settings.h>
-#include <nodebus/core/jsonserializer.h>
 #include <nodebus/core/logger.h>
 #include <nodebus/core/iochannel.h>
 

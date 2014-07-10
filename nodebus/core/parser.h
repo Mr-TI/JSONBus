@@ -15,15 +15,15 @@
  */
 
 /**
- * @brief NodeBus : BSON Parser management.
+ * @brief NodeBus : BCON Parser management.
  * 
  * @author <a href="mailto:emericv@openihs.org">Emeric Verschuur</a>
  * @date 2014
  * @copyright Apache License, Version 2.0
  */
 
-#ifndef NODEBUS_BSONPARSER_H
-#define NODEBUS_BSONPARSER_H
+#ifndef NODEBUS_PARSER_H
+#define NODEBUS_PARSER_H
 
 #include <nodebus/core/exception.h>
 #include <qt4/QtCore/QByteArray>
@@ -34,70 +34,78 @@
 
 namespace NodeBus {
 
-nodebus_declare_exception(BSONParserException, Exception);
-nodebus_declare_exception(ErrorBSONParserException, BSONParserException);
+nodebus_declare_exception(ParserException, Exception);
+nodebus_declare_exception(ErrorParserException, ParserException);
 class StreamChannel;
 
 /**
- * @brief BSON Parser management.
+ * @brief BCON Parser management.
  */
-class NODEBUS_EXPORT BSONParser {
+class NODEBUS_EXPORT Parser {
 public:
 	typedef char (*fGetc_t)(void *ptr);
 	
-	/**
-	 * @brief BSONParser constructor.
-	 */
-	BSONParser();
+	/// @brief Format
+	enum Format {
+		/// @brief JSON format
+		JSON,
+		/// @brief BCON format
+		BCON,
+		/// @brief BSON format
+		BSON
+	};
 	
 	/**
-	 * @brief BSONParser constructor.
+	 * @brief Parser constructor.
 	 * @param channel Channel pointer
 	 */
-	BSONParser(fGetc_t getChar, void *ptr);
+	Parser(fGetc_t getChar, void *ptr, Format format = JSON);
 	
 	/**
-	 * @brief BSONParser constructor.
+	 * @brief Parser constructor.
 	 * @param channel Channel pointer
 	 */
-	BSONParser(SharedPtr<StreamChannel> channel);
+	Parser(SharedPtr<StreamChannel> channel, Format format = JSON);
 	
 	/**
-	 * @brief BSONParser destructor.
+	 * @brief Parser destructor.
 	 */
-	~BSONParser();
+	~Parser();
 	
 	/**
-	 * @brief Parse a BSON data from a byte array
+	 * @brief Parse a BCON data from a byte array
 	 * @return QVariant object
-	 * @throw BSONParserException on parsing error
+	 * @throw ParserException on parsing error
 	 */
 	QVariant parse();
 	
 	/**
-	 * @brief Parse a BSON data from a byte array
+	 * @brief Parse a BCON data from a byte array
 	 * @return QVariant object
-	 * @throw BSONParserException on parsing error
+	 * @throw ParserException on parsing error
 	 */
-	static QVariant parse(const char *data, uint len);
+	static QVariant parse(const char *data, uint len, Format format = JSON);
 	
 	/**
-	 * @brief Parse a BSON data from a byte array
+	 * @brief Parse a BCON data from a byte array
 	 * @return QVariant object
-	 * @throw BSONParserException on parsing error
+	 * @throw ParserException on parsing error
 	 */
-	static QVariant parse(const QByteArray &data);
+	static QVariant parse(const QByteArray &data, Format format = JSON);
 	
 private:
-	QVariant parseDocument();
-	bool parse(QVariant& res, QString& key);
+	bool parseBCON(QVariant &res, QString* key);
 	char getc();
-	int32_t read32();
-	int64_t read64();
+	uint32_t read32();
+	uint64_t read64();
+	Format m_format;
+	SharedPtr<StreamChannel> m_channel;
 	fGetc_t m_getChar;
 	void *m_ptr;
+	QVariant parseBSONDocument();
+	bool parseBSONElt(QVariant &res, QString &key);
 };
 
 }
 
-#endif //NODEBUS_BSONPARSER_H
+#endif //NODEBUS_PARSER_H

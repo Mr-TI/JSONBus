@@ -19,6 +19,7 @@
 #include <qt4/QtCore/qthreadpool.h>
 #include <nodebus/core/logger.h>
 #include <nodebus/core/selectionkey.h>
+#include "parser.h"
 
 namespace NodeBus {
 
@@ -48,7 +49,7 @@ void PeerAdmin::run() {
 				}
 			}
 		}
-	} catch (JSONParserException &e) {
+	} catch (ParserException &e) {
 		if (m_enabled) {
 			logFine() << __demangle(typeid(*this).name()) << " leaving main loop normally";
 		} else {

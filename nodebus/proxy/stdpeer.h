@@ -28,8 +28,8 @@
 
 #include <nodebus/core/sharedptr.h>
 #include <nodebus/core/streamchannel.h>
-#include <nodebus/core/jsonparser.h>
-#include <nodebus/core/jsonserializer.h>
+#include <nodebus/core/parser.h>
+#include <nodebus/core/serializer.h>
 #include <nodebus/core/peer.h>
 #include <QVariant>
 using namespace NodeBus;
@@ -68,8 +68,8 @@ private:
 	void writeError(const QString& object, const QString& message, const QString& type="message");
 	void writeResponse(const QString &object, const QVariant &data);
 	static QMap<QString, SharedPtr<StdPeer> > m_stdPeers;
-	JSONParser m_parser;
-	JSONSerializer m_serializer;
+	Parser m_parser;
+	Serializer m_serializer;
 	QString m_uid;
 	QMutex m_synchronize;
 	QMap<QString, SharedPtr<HttpPeer> > m_httpPeers;

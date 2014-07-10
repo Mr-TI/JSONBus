@@ -20,13 +20,9 @@
 #include <nodebus/core/serversocketchannel.h>
 #include <nodebus/core/selectionkey.h>
 #include <nodebus/core/socketchannel.h>
-#include <nodebus/core/jsonparser.h>
-#include <nodebus/core/bconserializer.h>
+#include <nodebus/core/parser.h>
+#include <nodebus/core/serializer.h>
 #include <nodebus/core/filechannel.h>
-#include <nodebus/core/jsonserializer.h>
-#include <nodebus/core/bconparser.h>
-#include <nodebus/core/bsonparser.h>
-#include <nodebus/core/bsonserializer.h>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -106,32 +102,29 @@ void testSelect() {
 }
 
 void testBCONParser() {
-	StreamChannelPtr file = new FileChannel("test.json", 0);
-	QVariant v = JSONParser(file).parse();
+	QVariant v = Parser(new FileChannel("test.json", 0), Parser::JSON).parse();
 	logFiner() << Logger::dump(v);
-	BCONSerializer(new FileChannel("test.cson", O_CREAT | O_TRUNC | O_WRONLY)).serialize(v);
-	file = new FileChannel("test.cson", 0);
-	v = BCONParser(file).parse();
+	Serializer(new FileChannel("test.cson", O_CREAT | O_TRUNC | O_WRONLY), Serializer::BCON).serialize(v);
+	v = Parser(new FileChannel("test.cson", 0), Parser::BCON).parse();
 	logFiner() << Logger::dump(v);
-	JSONSerializer(new FileChannel("test0.json", O_CREAT | O_TRUNC | O_WRONLY)).serialize(v);
+	Serializer(new FileChannel("test_BCON.json", O_CREAT | O_TRUNC | O_WRONLY), Serializer::JSON).serialize(v);
 }
 
 void testBSONParser() {
-	StreamChannelPtr file = new FileChannel("test.json", 0);
-	QVariant v = JSONParser(file).parse();
+	QVariant v = Parser(new FileChannel("test.json", 0), Parser::JSON).parse();
 	logFiner() << Logger::dump(v);
-	BSONSerializer(new FileChannel("test.bson", O_CREAT | O_TRUNC | O_WRONLY)).serialize(v);
-	file = new FileChannel("test.bson", 0);
-	v = BSONParser(file).parse();
+	Serializer(new FileChannel("test.bson", O_CREAT | O_TRUNC | O_WRONLY), Serializer::BSON).serialize(v);
+	v = Parser(new FileChannel("test.bson", 0), Parser::BSON).parse();
 	logFiner() << Logger::dump(v);
-	JSONSerializer(new FileChannel("test0.json", O_CREAT | O_TRUNC | O_WRONLY)).serialize(v);
+	Serializer(new FileChannel("test_BSON.json", O_CREAT | O_TRUNC | O_WRONLY), Serializer::JSON).serialize(v);
 }
 
 int main(int argc, char **argv) {
-// 	try {
+	try {
 		testBSONParser();
-// 	} catch (Exception &e) {
-// 		logCrit() << "terminate called after throwing an instance of " << e;
-// 	}
+		testBCONParser();
+	} catch (Exception &e) {
+		logCrit() << "terminate called after throwing an instance of " << e;
+	}
 	return 0;
 }

@@ -28,8 +28,6 @@
 
 #include <nodebus/core/sharedptr.h>
 #include <nodebus/core/streamchannel.h>
-#include <nodebus/core/jsonparser.h>
-#include <nodebus/core/jsonserializer.h>
 #include <nodebus/core/socketchannel.h>
 #include <qt4/QtCore/QRunnable>
 #include <QVariant>

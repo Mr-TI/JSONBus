@@ -21,8 +21,8 @@
 #include <nodebus/core/logger.h>
 #include <nodebus/core/selectionkey.h>
 #include <nodebus/core/streamchannel.h>
-#include <nodebus/core/jsonparser.h>
-#include <nodebus/core/jsonserializer.h>
+#include <nodebus/core/parser.h>
+#include <nodebus/core/serializer.h>
 
 QMap<QString, SharedPtr<StdPeer> > StdPeer::m_stdPeers;
 
@@ -61,7 +61,7 @@ void StdPeer::writeError(const QString &object, const QString &message, const QS
 	res["object"] = QVariant(object);
 	res["status"] = QVariant("failure");
 	res["error-message"] = QVariant(message);
-	logFiner() << "Peer << " << JSONSerializer::toString(res);
+	logFiner() << "Peer << " << Serializer::toJSONString(res);
 	m_serializer.serialize(res);
 	m_socket->write("\n", 1);
 }
@@ -72,7 +72,7 @@ void StdPeer::writeResponse(const QString &object, const QVariant &data) {
 	res["object"] = QVariant(object);
 	res["status"] = QVariant("success");
 	res["data"] = data;
-	logFiner() << "Peer << " << JSONSerializer::toString(res);
+	logFiner() << "Peer << " << Serializer::toJSONString(res);
 	m_serializer.serialize(res);
 	m_socket->write("\n", 1);
 }
@@ -87,7 +87,7 @@ QString StdPeer::send(QVariantMap &request, SharedPtr<HttpPeer> peer) {
 		request["uid"] = uid;
 	}
 	m_httpPeers[uid] = peer;
-	logFiner() << "Peer << " << JSONSerializer::toString(request);
+	logFiner() << "Peer << " << Serializer::toJSONString(request);
 	m_serializer.serialize(request);
 	m_socket->write("\n", 1);
 	return uid;
@@ -109,7 +109,7 @@ void StdPeer::process() {
 		}
 		m_socket->setDeadLine(QDateTime::currentMSecsSinceEpoch() + 30000);
 		QVariantMap message = m_parser.parse().toMap();
-		logFiner() << "Peer >> " << JSONSerializer::toString(message);
+		logFiner() << "Peer >> " << Serializer::toJSONString(message);
 		QString object = message["object"].toString();
 		if (object.isEmpty()) {
 			writeError("Proxy", "Malformed message, missing 'object' field");

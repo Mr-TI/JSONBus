@@ -27,7 +27,6 @@
 #define NODEBUS_PEERADMIN_H
 
 #include <QRunnable>
-#include <nodebus/core/jsonparser.h>
 #include <nodebus/core/serversocketchannel.h>
 #include <nodebus/core/socketchannel.h>
 #include <nodebus/core/selectionkey.h>

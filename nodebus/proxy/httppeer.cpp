@@ -23,8 +23,8 @@
 #include <nodebus/core/logger.h>
 #include <nodebus/core/selectionkey.h>
 #include <nodebus/core/streamchannel.h>
-#include <nodebus/core/jsonparser.h>
-#include <nodebus/core/jsonserializer.h>
+#include <nodebus/core/parser.h>
+#include <nodebus/core/serializer.h>
 
 class HTTPExceptionData :public ExceptionData {
 public:
@@ -61,7 +61,7 @@ void HttpPeer::cancel() {
 
 void HttpPeer::sendResult(uint code, const QVariant& content) {
 	QByteArray msgData;
-	JSONSerializer(msgData).serialize(content);
+	Serializer(msgData).serialize(content);
 	QHttpResponseHeader rspHdr;
 	rspHdr.setStatusLine(code);
 	rspHdr.setContentLength(msgData.length());
@@ -130,7 +130,7 @@ void HttpPeer::process() {
 		}
 		QVariantMap message;
 		try {
-			message = JSONParser::parse(payloadData, payloadLen).toMap();
+			message = Parser::parse(payloadData, payloadLen).toMap();
 		} catch (Exception &e) {
 			throw HTTPException(400, "Data parse error: " + e.message());
 		}

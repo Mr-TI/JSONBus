@@ -20,8 +20,8 @@
 #include "driver.h"
 
 #ifdef USE_NODEBUS_EXCEPTION
-#include <nodebus/core/jsonparser.h>
-#define ErrorException ErrorJSONParserException
+#include <nodebus/core/parser.h>
+#define ErrorException ErrorParserException
 using namespace NodeBus;
 #else
 #include "exception.h"

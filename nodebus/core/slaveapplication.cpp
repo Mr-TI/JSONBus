@@ -18,7 +18,6 @@
 #include <typeinfo>
 #include <QStringList>
 #include <nodebus/core/common.h>
-#include <nodebus/core/jsonparsertask.h>
 #include <nodebus/core/iochannel.h>
 #include "slaveapplication.h"
 
@@ -32,13 +31,13 @@ SlaveApplication::~SlaveApplication() {
 }
 
 void SlaveApplication::onStart() {
-	JSONParserTask *jsonParserTask = new JSONParserTask(new IOChannel(STDIN_FILENO));
-	
-	connect(jsonParserTask, SIGNAL(terminated()), this, SLOT(quit()));
-	connect(jsonParserTask, SIGNAL(dataAvailable(QVariant)), this, SLOT(onDataAvailable(QVariant)));
-	connect(this, SIGNAL(aboutToQuit()), jsonParserTask, SLOT(cancel()));
-	
-	QThreadPool::globalInstance()->start(jsonParserTask);
+// 	JSONParserTask *jsonParserTask = new JSONParserTask(new IOChannel(STDIN_FILENO));
+// 	
+// 	connect(jsonParserTask, SIGNAL(terminated()), this, SLOT(quit()));
+// 	connect(jsonParserTask, SIGNAL(dataAvailable(QVariant)), this, SLOT(onDataAvailable(QVariant)));
+// 	connect(this, SIGNAL(aboutToQuit()), jsonParserTask, SLOT(cancel()));
+// 	
+// 	QThreadPool::globalInstance()->start(jsonParserTask);
 }
 
 }

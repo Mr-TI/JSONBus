@@ -24,7 +24,7 @@
 #define NODEBUS_CONTAINER_H
 
 #include <nodebus/core/sharedlib.h>
-#include <nodebus/core/jsonserializer.h>
+#include <nodebus/core/serializer.h>
 #include <nodebus/core/slaveapplication.h>
 #include <nodebus/osgi/bundle.h>
 #include <nodebus/osgi/bundleactivator.h>
@@ -73,7 +73,7 @@ protected slots:
 private:
 	SharedLibPtr m_libFile;
 	BundlePtr m_bundle;
-	JSONSerializer m_jsonSerialiser;
+	Serializer m_jsonSerialiser;
 };
 
 #endif //NODEBUS_CONTAINER_H

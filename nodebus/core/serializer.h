@@ -22,8 +22,8 @@
  * @copyright Apache License, Version 2.0
  */
 
-#ifndef NODEBUS_BSONSERIALIZER_H
-#define NODEBUS_BSONSERIALIZER_H
+#ifndef NODEBUS_SERIALIZER_H
+#define NODEBUS_SERIALIZER_H
 
 #include <nodebus/core/exception.h>
 #include "streamchannel.h"
@@ -37,12 +37,12 @@
 
 namespace NodeBus {
 
-nodebus_declare_exception(BSONSerializerException, Exception);
+nodebus_declare_exception(SerializerException, Exception);
 
 /**
  * @brief BSON serializer management.
  */
-class NODEBUS_EXPORT BSONSerializer {
+class NODEBUS_EXPORT Serializer {
 public:
 	/**
 	 * @brief Abstract ouput stream
@@ -61,7 +61,7 @@ public:
 		
 		/**
 		 * @brief Abstract output stream operator
-		 * @param data Data to write
+		 * @param byte Data to write
 		 */
 		virtual OutputStream& operator << (char byte) = 0;
 		
@@ -70,30 +70,46 @@ public:
 		 * @param data Data to write
 		 */
 		virtual OutputStream& operator << (const QByteArray &data) = 0;
+		
+		/**
+		 * @brief Abstract output stream operator
+		 * @param data Data to write
+		 */
+		virtual OutputStream& operator << (const QString &data) = 0;
+	};
+	
+	/// @brief Format
+	enum Format {
+		/// @brief JSON format
+		JSON,
+		/// @brief BCON format
+		BCON,
+		/// @brief BSON format
+		BSON
 	};
 	
 	/**
-	 * @brief BSONSerializer constructor.
+	 * @brief Serializer constructor.
 	 * @param stream A reference to the std output stream
 	 */
-	BSONSerializer(StreamChannelPtr channel);
+	Serializer(StreamChannelPtr channel, Format format=JSON);
 	
 	/**
-	 * @brief BSONSerializer constructor.
+	 * @brief Serializer constructor.
 	 * @param data Byte array reference
 	 */
-	BSONSerializer(QByteArray &data);
+	Serializer(QByteArray &data, Format format=JSON);
 	
 	/**
-	 * @brief BSONSerializer constructor.
+	 * @brief Serializer constructor.
 	 * @param stream A reference to the output stream
 	 */
-	BSONSerializer(OutputStream &stream);
+	Serializer(OutputStream &stream, Format format=JSON);
 	
 	/**
-	 * @brief BSONSerializer destructor.
+	 * @brief Serializer destructor.
 	 */
-	~BSONSerializer();
+	~Serializer();
 	
 	/**
 	 * @brief Serialize an object in BSON format
@@ -105,20 +121,25 @@ public:
 	 * @brief Serialize an object in BSON format
 	 * @param variant object to serialize
 	 */
-	static QString toString(const QVariant &variant);
+	static QString toJSONString(const QVariant &variant);
 private:
-	QByteArray serializeDocument(const QVariant &variant);
-	QByteArray serializeElt(const QVariant& variant, const QString &key);
+	void serializeBCON(const QVariant &variant, const QString *key=NULL);
+	void serializeJSON(const QVariant &variant);
+	QByteArray serializeBSONDocument(const QVariant &variant);
+	QByteArray serializeBSONElt(const QVariant& variant, const QString &key);
+	void write32(char type, uint32_t value);
+	void write64(char type, uint64_t value);
 	void write32(QByteArray& output, uint32_t value);
 	void write64(QByteArray& output, uint64_t value);
 	SharedPtr<OutputStream> m_streamPtr;
 	OutputStream &m_stream;
+	Format m_format;
 };
 
-inline BSONSerializer::OutputStream::OutputStream() {
+inline Serializer::OutputStream::OutputStream() {
 }
 
-inline BSONSerializer::OutputStream::~OutputStream() {
+inline Serializer::OutputStream::~OutputStream() {
 }
 
 }

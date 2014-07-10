@@ -17,7 +17,6 @@
 #include <typeinfo>
 #include <QStringList>
 #include <nodebus/core/common.h>
-#include <nodebus/core/jsonparsertask.h>
 #include "application.h"
 #include "logger.h"
 
