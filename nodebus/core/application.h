@@ -28,7 +28,7 @@
 #include <QCoreApplication>
 #include <nodebus/core/exception.h>
 #include <nodebus/core/cliarguments.h>
-#include "settings.h"
+#include <nodebus/core/settings.h>
 #include <signal.h>
 #include <fcntl.h>
 

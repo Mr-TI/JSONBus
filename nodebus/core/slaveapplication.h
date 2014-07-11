@@ -27,7 +27,7 @@
 
 #include <QCoreApplication>
 #include <nodebus/core/application.h>
-#include "settings.h"
+#include <nodebus/core/settings.h>
 
 namespace NodeBus {
 

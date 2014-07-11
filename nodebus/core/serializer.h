@@ -26,7 +26,7 @@
 #define NODEBUS_SERIALIZER_H
 
 #include <nodebus/core/exception.h>
-#include "streamchannel.h"
+#include <nodebus/core/streamchannel.h>
 
 #ifndef NODEBUS_EXPORT
 #define NODEBUS_EXPORT
