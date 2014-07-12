@@ -61,7 +61,7 @@ void HttpPeer::cancel() {
 
 void HttpPeer::sendResult(uint code, const QVariant& content) {
 	QByteArray msgData;
-	Serializer(msgData).serialize(content);
+	Serializer(msgData, m_format).serialize(content);
 	QHttpResponseHeader rspHdr;
 	rspHdr.setStatusLine(code);
 	rspHdr.setContentLength(msgData.length());
@@ -107,15 +107,20 @@ void HttpPeer::process() {
 		if (httpHeader.method() != "POST") {
 			throw HTTPException(405, "Only POST method is supported");
 		}
-		if (httpHeader.contentType() != "application/json") {
-			throw HTTPException(415, "Content type must be 'application/json'");
+		if (httpHeader.contentType() == "application/json") {
+			m_format = JSON;
+		} else if (httpHeader.contentType() == "application/bson") {
+			m_format = BSON;
+		} else if (httpHeader.contentType() == "application/bcon") {
+			m_format = BCON;
+		} else {
+			throw HTTPException(415, "Missing/Unknow ContentType (can be 'application/json', 'application/bson' or 'application/bcon')");
 		}
 		uint payloadLen = httpHeader.contentLength();
 		if (payloadLen == 0) {
 			throw HTTPException(400, "No data found");
 		}
-		char payloadData[payloadLen + 1];
-		payloadData[payloadLen] = '\0';
+		char payloadData[payloadLen];
 		try {
 			uint n = 0;
 			while (n < payloadLen) {
@@ -124,16 +129,16 @@ void HttpPeer::process() {
 		} catch (IOTimeoutException &e) {
 			throw HTTPException(408, "Request timeout");
 		}
-		logFiner() << payloadData;
 		while ((n = m_socket->available()) > 0) {
 			m_socket->ignore(n);
 		}
 		QVariantMap message;
 		try {
-			message = Parser::parse(payloadData, payloadLen).toMap();
+			message = Parser::parse(payloadData, payloadLen, m_format).toMap();
 		} catch (Exception &e) {
 			throw HTTPException(400, "Data parse error: " + e.message());
 		}
+		logFiner() << Serializer::toJSONString(message);
 		QString uid = httpHeader.path().section('/', 1);
 		if (!uid.isEmpty()) {
 			m_stdPeer = StdPeer::get(uid);

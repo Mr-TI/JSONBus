@@ -189,16 +189,16 @@ QString Serializer::toJSONString(const QVariant& variant) {
 	return QString::fromLocal8Bit(data);
 }
 
-Serializer::Serializer(StreamChannelPtr channel, Serializer::Format format)
+Serializer::Serializer(StreamChannelPtr channel, DataFormat format)
 : m_streamPtr(new SerializerChannelOutputStream(channel)), m_stream(*m_streamPtr), m_format(format) {
 	
 }
 
-Serializer::Serializer(QByteArray& data, Serializer::Format format)
+Serializer::Serializer(QByteArray& data, DataFormat format)
 : m_streamPtr(new SerializerByteArrayOutputStream(data)), m_stream(*m_streamPtr), m_format(format) {
 }
 
-Serializer::Serializer(Serializer::OutputStream& stream, Serializer::Format format)
+Serializer::Serializer(Serializer::OutputStream& stream, DataFormat format)
 : m_stream(stream), m_format(format) {
 	
 }
@@ -208,13 +208,13 @@ Serializer::~Serializer() {
 
 void Serializer::serialize(const QVariant& variant) {
 	switch (m_format) {
-		case NodeBus::Serializer::BCON:
+		case DataFormat::BCON:
 			serializeBCON(variant);
 			break;
-		case NodeBus::Serializer::BSON:
+		case DataFormat::BSON:
 			m_stream << serializeBSONDocument(variant);
 			break;
-		case NodeBus::Serializer::JSON:
+		case DataFormat::JSON:
 			serializeJSON(variant);
 			break;
 	}

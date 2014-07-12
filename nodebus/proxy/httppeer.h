@@ -29,6 +29,7 @@
 #include <nodebus/core/sharedptr.h>
 #include <nodebus/core/streamchannel.h>
 #include <nodebus/core/peer.h>
+#include <nodebus/core/global.h>
 #include <QVariant>
 
 class StdPeer;
@@ -60,6 +61,7 @@ private:
 	bool m_processDone;
 	SharedPtr<StdPeer> m_stdPeer;
 	QString m_reqUid;
+	DataFormat m_format;
 };
 
 inline SharedPtr< Peer > HttpPeer::Factory::build(SocketChannelPtr channel) {

@@ -76,34 +76,34 @@ static char __parser_channel_getc(void* stream) {
 	return ((StreamChannel*)stream)->get();
 }
 
-Parser::Parser(fGetc_t getChar, void* ptr, Format format)
+Parser::Parser(fGetc_t getChar, void* ptr, DataFormat format)
 	: m_format(format), m_getChar(getChar), m_ptr(ptr) {
-	if (format == Parser::JSON) {
+	if (format == DataFormat::JSON) {
 		m_ptr = new jsonparser::Driver(getChar, ptr);
 	}
 }
 
-QVariant Parser::parse(const QByteArray& data, Format format) {
+QVariant Parser::parse(const QByteArray& data, DataFormat format) {
 	__data_buffer_t buf = {data.constData(), data.constData() + data.length()};
 	Parser parser(__parser_datastream_getc, &buf, format);
 	return parser.parse();
 }
 
-QVariant Parser::parse(const char* data, uint len, Format format) {
+QVariant Parser::parse(const char* data, uint len, DataFormat format) {
 	__data_buffer_t buf = {data, data + len};
 	Parser parser(__parser_datastream_getc, &buf, format);
 	return parser.parse();
 }
 
-Parser::Parser(StreamChannelPtr channel, Format format)
+Parser::Parser(StreamChannelPtr channel, DataFormat format)
 	: m_format(format), m_channel(channel), m_getChar(__parser_channel_getc), m_ptr(channel.data()) {
-	if (format == Parser::JSON) {
+	if (format == DataFormat::JSON) {
 		m_ptr = new jsonparser::Driver(m_getChar, m_ptr);
 	}
 }
 
 Parser::~Parser() {
-	if (m_format == Parser::JSON) {
+	if (m_format == DataFormat::JSON) {
 		delete (jsonparser::Driver*)m_ptr;
 	}
 }
@@ -111,13 +111,13 @@ Parser::~Parser() {
 QVariant Parser::parse() {
 	QVariant res;
 	switch (m_format) {
-		case Parser::BCON:
+		case DataFormat::BCON:
 			parseBCON(res, NULL);
 			break;
-		case Parser::BSON:
+		case DataFormat::BSON:
 			res = parseBSONDocument();
 			break;
-		case Parser::JSON:
+		case DataFormat::JSON:
 			res = ((jsonparser::Driver*)(m_ptr))->parse();
 			break;
 	}

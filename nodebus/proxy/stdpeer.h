@@ -40,7 +40,11 @@ class StdPeer: public Peer {
 public:
 	
 	class Factory: public Peer::Factory {
+	private:
+		DataFormat m_format;
 	public:
+		Factory(DataFormat format);
+		virtual ~Factory();
 		virtual SharedPtr<Peer> build(SocketChannelPtr socket);
 	};
 	
@@ -48,7 +52,7 @@ public:
 	 * @brief MainClient constructor.
 	 * @param socket
 	 */
-	StdPeer(SocketChannelPtr socket);
+	StdPeer(SocketChannelPtr socket, DataFormat format);
 	
 	virtual ~StdPeer();
 	
@@ -75,8 +79,14 @@ private:
 	QMap<QString, SharedPtr<HttpPeer> > m_httpPeers;
 };
 
+inline StdPeer::Factory::Factory(DataFormat format): m_format(format) {
+}
+
+inline StdPeer::Factory::~Factory() {
+}
+
 inline SharedPtr< Peer > StdPeer::Factory::build(SocketChannelPtr channel) {
-	return new StdPeer(channel);
+	return new StdPeer(channel, m_format);
 }
 
 inline QList< QString > StdPeer::getUidList() {

@@ -26,6 +26,7 @@
 #define NODEBUS_PARSER_H
 
 #include <nodebus/core/exception.h>
+#include <nodebus/core/global.h>
 #include <qt4/QtCore/QByteArray>
 
 #ifndef NODEBUS_EXPORT
@@ -45,27 +46,17 @@ class NODEBUS_EXPORT Parser {
 public:
 	typedef char (*fGetc_t)(void *ptr);
 	
-	/// @brief Format
-	enum Format {
-		/// @brief JSON format
-		JSON,
-		/// @brief BCON format
-		BCON,
-		/// @brief BSON format
-		BSON
-	};
+	/**
+	 * @brief Parser constructor.
+	 * @param channel Channel pointer
+	 */
+	Parser(fGetc_t getChar, void *ptr, DataFormat format = JSON);
 	
 	/**
 	 * @brief Parser constructor.
 	 * @param channel Channel pointer
 	 */
-	Parser(fGetc_t getChar, void *ptr, Format format = JSON);
-	
-	/**
-	 * @brief Parser constructor.
-	 * @param channel Channel pointer
-	 */
-	Parser(SharedPtr<StreamChannel> channel, Format format = JSON);
+	Parser(SharedPtr<StreamChannel> channel, DataFormat format = JSON);
 	
 	/**
 	 * @brief Parser destructor.
@@ -84,21 +75,21 @@ public:
 	 * @return QVariant object
 	 * @throw ParserException on parsing error
 	 */
-	static QVariant parse(const char *data, uint len, Format format = JSON);
+	static QVariant parse(const char *data, uint len, DataFormat format = JSON);
 	
 	/**
 	 * @brief Parse a BCON data from a byte array
 	 * @return QVariant object
 	 * @throw ParserException on parsing error
 	 */
-	static QVariant parse(const QByteArray &data, Format format = JSON);
+	static QVariant parse(const QByteArray &data, DataFormat format = JSON);
 	
 private:
 	bool parseBCON(QVariant &res, QString* key);
 	char getc();
 	uint32_t read32();
 	uint64_t read64();
-	Format m_format;
+	DataFormat m_format;
 	SharedPtr<StreamChannel> m_channel;
 	fGetc_t m_getChar;
 	void *m_ptr;

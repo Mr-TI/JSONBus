@@ -27,6 +27,7 @@
 
 #include <nodebus/core/exception.h>
 #include <nodebus/core/streamchannel.h>
+#include <nodebus/core/global.h>
 
 #ifndef NODEBUS_EXPORT
 #define NODEBUS_EXPORT
@@ -78,33 +79,23 @@ public:
 		virtual OutputStream& operator << (const QString &data) = 0;
 	};
 	
-	/// @brief Format
-	enum Format {
-		/// @brief JSON format
-		JSON,
-		/// @brief BCON format
-		BCON,
-		/// @brief BSON format
-		BSON
-	};
-	
 	/**
 	 * @brief Serializer constructor.
 	 * @param stream A reference to the std output stream
 	 */
-	Serializer(StreamChannelPtr channel, Format format=JSON);
+	Serializer(StreamChannelPtr channel, DataFormat format=JSON);
 	
 	/**
 	 * @brief Serializer constructor.
 	 * @param data Byte array reference
 	 */
-	Serializer(QByteArray &data, Format format=JSON);
+	Serializer(QByteArray &data, DataFormat format=JSON);
 	
 	/**
 	 * @brief Serializer constructor.
 	 * @param stream A reference to the output stream
 	 */
-	Serializer(OutputStream &stream, Format format=JSON);
+	Serializer(OutputStream &stream, DataFormat format=JSON);
 	
 	/**
 	 * @brief Serializer destructor.
@@ -133,7 +124,7 @@ private:
 	void write64(QByteArray& output, uint64_t value);
 	SharedPtr<OutputStream> m_streamPtr;
 	OutputStream &m_stream;
-	Format m_format;
+	DataFormat m_format;
 };
 
 inline Serializer::OutputStream::OutputStream() {

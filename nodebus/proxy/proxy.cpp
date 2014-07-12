@@ -130,6 +130,8 @@ void Proxy::onStart() {
 					"/etc/nodebusproxy/keystore.p12");
 	m_settings->define("intf-main/keystore-pwd",	tr("Main interface - PKCS12 keystore password"),
 					"");
+	m_settings->define("intf-main/format",	tr("Main interface - Data format (can be 'JSON', 'BSON' or 'BCON')"),
+					"JSON");
 	m_settings->define("intf-console/listen-uri",	tr("Console interface - Listen addresses (comma separated URIs)"),
 					"http://localhost:3695");
 	m_settings->define("intf-console/keystore-path",	tr("Console interface - PKCS12 keystore path"),
@@ -149,7 +151,17 @@ void Proxy::onStart() {
 		throw ApplicationException("No URL given for listen addresse list on the main interface");
 	}
 	SSLContextPtr sslCtx;
-	GenericPtr clientFactory = new StdPeer::Factory();
+	GenericPtr clientFactory = new StdPeer::Factory(JSON);
+	QString format = m_settings->value("intf-main/format").toString();
+	if (format == "JSON") {
+		clientFactory = new StdPeer::Factory(JSON);
+	} else if (format == "BSON") {
+		clientFactory = new StdPeer::Factory(BSON);
+	} else if (format == "BCON") {
+		clientFactory = new StdPeer::Factory(BCON);
+	} else {
+		throw ApplicationException("Missing/Invalid format for intf-main/format setting (can be 'JSON', 'BSON' or 'BCON')");
+	}
 	for (auto it = urls.begin(); it != urls.end(); it++) {
 		QUrl url(*it);
 		ServerSocketChannelPtr server;
@@ -159,10 +171,10 @@ void Proxy::onStart() {
 							m_settings->value("intf-main/keystore-pwd").toString());
 			}
 			m_socketAdmin.attach(server = new SSLServerSocketChannel(url.host(), url.port(3693), sslCtx, 
-															SSLServerSocketChannel::OPT_BACKLOG(5) | SSLServerSocketChannel::OPT_REUSEADDR), clientFactory);
+					SSLServerSocketChannel::OPT_BACKLOG(5) | SSLServerSocketChannel::OPT_REUSEADDR), clientFactory);
 		} else if (url.scheme() == "socket") {
 			m_socketAdmin.attach(server = new ServerSocketChannel(url.host(), url.port(3693), 
-															ServerSocketChannel::OPT_BACKLOG(5) | ServerSocketChannel::OPT_REUSEADDR), clientFactory);
+					ServerSocketChannel::OPT_BACKLOG(5) | ServerSocketChannel::OPT_REUSEADDR), clientFactory);
 		} else {
 			throw ApplicationException("Unsupported sheme '" + url.scheme() + "' (possibles values are 'socket' or 'ssl')");
 		}

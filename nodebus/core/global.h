@@ -43,4 +43,14 @@
 #	define NODEBUS_UINT64_HEXA_FMT "%016llX"
 #endif
 
+/// @brief Format
+enum DataFormat {
+	/// @brief JSON format
+	JSON,
+	/// @brief BCON format
+	BCON,
+	/// @brief BSON format
+	BSON
+};
+
 #endif
