@@ -122,8 +122,8 @@ void Proxy::onStart() {
 #else
 	m_settings = new Settings(args.getValue("config").toString(), QSettings::NativeFormat);
 #endif
-	m_settings->define("pidfile",	tr("Path of the file where the service PID will be written in"),
-					"/var/run/nodebusproxy.pid");
+// 	m_settings->define("pidfile",	tr("Path of the file where the service PID will be written in"),
+// 					"/var/run/nodebusproxy.pid");
 	m_settings->define("intf-main/listen-uri",	tr("Main interface - Listen addresses (comma separated URIs)"),
 					"ssl://[::]:3693");
 	m_settings->define("intf-main/keystore-path",	tr("Main interface - PKCS12 keystore path"),
@@ -198,10 +198,10 @@ void Proxy::onStart() {
 							m_settings->value("intf-console/keystore-pwd").toString());
 			}
 			m_socketAdmin.attach(new SSLServerSocketChannel(url.host(), url.port(3695), sslCtx, 
-															SSLServerSocketChannel::OPT_BACKLOG(5) | SSLServerSocketChannel::OPT_REUSEADDR), clientFactory);
+					SSLServerSocketChannel::OPT_BACKLOG(5) | SSLServerSocketChannel::OPT_REUSEADDR), clientFactory);
 		} else if (url.scheme() == "http") {
 			m_socketAdmin.attach(new ServerSocketChannel(url.host(), url.port(3695), 
-															ServerSocketChannel::OPT_BACKLOG(5) | ServerSocketChannel::OPT_REUSEADDR), clientFactory);
+					ServerSocketChannel::OPT_BACKLOG(5) | ServerSocketChannel::OPT_REUSEADDR), clientFactory);
 		} else {
 			throw ApplicationException("Unsupported sheme '" + url.scheme() + "' (possibles values are 'http' or 'https')");
 		}

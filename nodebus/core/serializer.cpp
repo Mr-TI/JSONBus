@@ -331,7 +331,7 @@ void Serializer::serializeBCON(const QVariant &variant, const QString *key) {
 						<< (char) ((len & 0xFF000) >> 12);
 				m_stream << data;
 			} else if (len < (LENGTH2P36)) {
-				m_stream << (char) ((BCON_TOKEN_STRING20 & 0xFF) | (len & 0x0F))
+				m_stream << (char) ((BCON_TOKEN_STRING36 & 0xFF) | (len & 0x0F))
 						<< (char) ((len & 0xFF0) >> 4)
 						<< (char) ((len & 0xFF000) >> 12)
 						<< (char) (len >> 20);
@@ -358,7 +358,7 @@ void Serializer::serializeBCON(const QVariant &variant, const QString *key) {
 						<< (char) ((len & 0xFF000) >> 12);
 				m_stream << data;
 			} else if (len < (LENGTH2P36)) {
-				m_stream << (char) ((BCON_TOKEN_DATA20 & 0xFF) | (len & 0x0F))
+				m_stream << (char) ((BCON_TOKEN_DATA36 & 0xFF) | (len & 0x0F))
 						<< (char) ((len & 0xFF0) >> 4)
 						<< (char) ((len & 0xFF000) >> 12)
 						<< (char) (len >> 20);
