@@ -117,6 +117,7 @@ kw_default              default
 kw_oneway               oneway
 kw_in                   in
 kw_out                  out
+kw_inout                inout
 kw_sequence             sequence
 kw_exception            exception
 kw_raises               raises
@@ -133,8 +134,8 @@ square_bracket_open     \[
 square_bracket_close    \]
 curly_bracket_open      \{
 curly_bracket_close     \}
-lesser_than             <
-greter_than             >
+less_than               <
+greater_than            >
 
 value_unicode           [0-9a-f]{4}
 
@@ -148,6 +149,9 @@ escape_newline          n
 escape_car_ret          r
 escape_horiz_tab        t
 escape_prefix           \\
+comment_open            /\*
+comment_end             \*/
+comment_line            //.*$
 
 %s STRING STRING_ESCAPE STRING_ESCAPE_UNICODE
 
@@ -166,6 +170,9 @@ escape_prefix           \\
 <STRING>{dblcote}                         {BEGIN INITIAL; RETURN_TOKEN(TSTRING);}
 <STRING>{escape_prefix}                   {BEGIN STRING_ESCAPE;}
 <STRING>.                                 {BEGIN STRING; STRING_APPEND(yytext[0]);}
+
+<COMMENT>{comment_end}                    {BEGIN INITIAL;}
+<COMMENT>.                                {BEGIN COMMENT;}
 
 <STRING_ESCAPE>{escape_unicode}           {BEGIN STRING_ESCAPE_UNICODE; }
 <STRING_ESCAPE>{escape_backslash}         {BEGIN STRING; STRING_APPEND('\\');}
@@ -219,6 +226,7 @@ escape_prefix           \\
 <INITIAL>{kw_oneway}                      {BEGIN INITIAL; RETURN_TOKEN(TONEWAY);}  
 <INITIAL>{kw_in}                          {BEGIN INITIAL; RETURN_TOKEN(TIN);}
 <INITIAL>{kw_out}                         {BEGIN INITIAL; RETURN_TOKEN(TOUT);}
+<INITIAL>{kw_inout}                       {BEGIN INITIAL; RETURN_TOKEN(TINOUT);}
 <INITIAL>{kw_sequence}                    {BEGIN INITIAL; RETURN_TOKEN(TSEQUENCE);}  
 <INITIAL>{kw_exception}                   {BEGIN INITIAL; RETURN_TOKEN(TEXCEPTION);}   
 <INITIAL>{kw_raises}                      {BEGIN INITIAL; RETURN_TOKEN(TRAISES);}
@@ -231,9 +239,16 @@ escape_prefix           \\
 <INITIAL>{square_bracket_close}           {BEGIN INITIAL; RETURN_TOKEN(TARRAYEND);}
 <INITIAL>{semicolon}                      {BEGIN INITIAL; RETURN_TOKEN(TSEMICOLON);}
 <INITIAL>{coma}                           {BEGIN INITIAL; RETURN_TOKEN(TCOMA);}
+<INITIAL>{less_than}                      {BEGIN INITIAL; RETURN_TOKEN(TLTHAN);}
+<INITIAL>{greater_than}                   {BEGIN INITIAL; RETURN_TOKEN(TGTHAN);}
 
 <INITIAL>{dblcote}                        {BEGIN STRING; STRING_BEGIN();}
-<INITIAL>{space}                          {}
+
+<INITIAL>{comment_open}                   {BEGIN COMMENT;}
+
+<INITIAL>{comment_line}                   {BEGIN INITIAL;}
+<INITIAL>{space}                          {BEGIN INITIAL;}
+
 <INITIAL>.                                {VARIANT_STRING();RETURN_TOKEN(TSYNERR);}
 
 %%

@@ -27,8 +27,8 @@
 
 namespace NodeBus {
 
-FileChannel::FileChannel(const char *path, int flags) : m_fd(-1) {
-	THROW_IOEXP_ON_ERR(m_fd = open(path, flags));
+FileChannel::FileChannel(const char* path, int flags, int mode) : m_fd(-1) {
+	THROW_IOEXP_ON_ERR(m_fd = open(path, flags, mode));
 }
 
 FileChannel::~FileChannel() {

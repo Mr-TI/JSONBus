@@ -64,6 +64,7 @@ using namespace std;
 %token              TONEWAY         "oneway"
 %token              TIN             "in"
 %token              TOUT            "out"
+%token              TINOUT          "inout"
 %token              TSEQUENCE       "sequence"
 %token              TEXCEPTION      "exception"
 %token              TRAISES         "raises"
@@ -74,6 +75,8 @@ using namespace std;
 %token              TBLOCKEND       "block end '}'"
 %token              TARRAYBEGIN     "array begin '['"
 %token              TARRAYEND       "array end ']'"
+%token              TLTHAN          "less than '<'"
+%token              TGTHAN          "greater than '>'"
 %token              TSEMICOLON      "semicolon ':'"
 %token              TCOMA           "coma ','"
 %token <str>        TSTRINGVAL      "string"
@@ -91,7 +94,7 @@ using namespace std;
 %type <node>        ROOT VARIANT
 
 %language "C++"
-%define namespace "jsonparser"
+%define namespace "idlparser"
 %define parser_class_name "Parser"
 /*
 %define api.namespace {jsonparser}
@@ -112,21 +115,6 @@ ROOT : VARIANT                          {$$ = $1; driver.result->setValue(*$1); 
     | TEND                              {$$ = NULL; driver.result = NULL; YYACCEPT;}
     ;
 
-VARIANT : TOBJBEGIN MEMBERS TOBJEND     {$$ = r::map2variant($2);}
-    | TARRBEGIN ELEMENTS TARREND        {$$ = r::list2variant($2);}
-    | TOBJBEGIN TOBJEND                 {$$ = r::map2variant(new object_t());}
-    | TARRBEGIN TARREND                 {$$ = r::list2variant(new array_t());}
-    | TSTRING                           {$$ = r::string2variant($1);}
-    | TVARIANT                          {$$ = $1;}
-    ;
 
-MEMBERS : MEMBERS TELEMENTSEP
-        TSTRING TMEMBERSEP VARIANT       {$$ = r::mapAppendVariant($1, $3, $5);}
-    | TSTRING TMEMBERSEP VARIANT         {$$ = r::mapAppendVariant(NULL, $1, $3);}
-    ;
-
-ELEMENTS : ELEMENTS TELEMENTSEP VARIANT {$$ = r::listAppendVariant($1, $3);}
-    | VARIANT                           {$$ = r::listAppendVariant(NULL, $1);}
-    ;
 
 %%
