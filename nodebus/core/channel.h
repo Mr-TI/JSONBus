@@ -58,8 +58,22 @@ public:
 	 */
 	virtual bool isOpen();
 	
-	SharedPtr<SelectionKey> registerTo(NodeBus::Selector& selector, int options, GenericPtr attachement=NULL);
+	/**
+	 * @brief Register this channel to the given selector
+	 * 
+	 * @param selector Reference to the selector
+	 * @param options SelectionKey::Flag
+	 * @param attachement Pointer to an optional attachement
+	 * 
+	 * @return Pointer to the selection key
+	 */
+	SharedPtr<SelectionKey> registerTo(Selector& selector, int options, GenericPtr attachement=NULL);
 	
+	/**
+	 * @brief Get the suitable selection key related to the given selector
+	 * 
+	 * @return Pointer to the selection key or null
+	 */
 	SharedPtr<SelectionKey> keyFor(Selector &selector);
 
 public slots:
