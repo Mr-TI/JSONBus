@@ -490,7 +490,7 @@ QByteArray Serializer::serializeBSONDocument(const QVariant &variant) {
 			throw SerializerException("Fatal: Invalid document.");
 	}
 	QByteArray ret;
-	write32(ret, payload.length() + 1);
+	write32(ret, payload.length() + 5);
 	ret.append(payload);
 	ret.append(BSON_TOKEN_END);
 	return ret;
