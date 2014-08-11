@@ -33,33 +33,33 @@ using namespace std;
 #include <scanner.h>
 
 #define VARIANT_STRING()\
-	yylval->node = new variant_t(yytext);
+	yylval->node = variant_t(yytext);
 
 #define VARIANT_TXT2(_type_)\
-	yylval->node = new variant_t(yytext);\
-	yylval->node->convert(variant_t::_type_)
+	yylval->node = variant_t(yytext);\
+	yylval->node.convert(variant_t::_type_)
 
 #define VARIANT_NUMBER()\
-	yylval->node = new variant_t(yytext);\
-	yylval->node->convert(variant_t::LongLong);\
-	if ((yylval->node->toLongLong() & 0xFFFFFFFF00000000) == 0)\
-	yylval->node->convert(variant_t::Int)
+	yylval->node = variant_t(yytext);\
+	yylval->node.convert(variant_t::LongLong);\
+	if ((yylval->node.toLongLong() & 0xFFFFFFFF00000000) == 0)\
+	yylval->node.convert(variant_t::Int)
 
 #define VARIANT_FROM(_value_)\
-	yylval->node = new variant_t(_value_)
+	yylval->node = variant_t(_value_)
 
 #define VARIANT_INVALID()\
-	yylval->node = new variant_t()
+	yylval->node = variant_t()
 	
 #define VARIANT_INFINITY()\
-	yylval->node = new variant_t(variant_t::Double);\
-	yylval->node->setValue(yytext[0] == '-'?\
+	yylval->node = variant_t(variant_t::Double);\
+	yylval->node.setValue(yytext[0] == '-'?\
 	-std::numeric_limits<double>::infinity():\
 	std::numeric_limits<double>::infinity())
 	
 #define VARIANT_NAN()\
-	yylval->node = new variant_t(variant_t::Double);\
-	yylval->node->setValue(std::numeric_limits<double>::quiet_NaN())
+	yylval->node = variant_t(variant_t::Double);\
+	yylval->node.setValue(std::numeric_limits<double>::quiet_NaN())
 
 #define STRING_BEGIN()\
 	yylval->str = new string_t()
@@ -127,8 +127,11 @@ kw_typedef              typedef
 number                  \-?[[:digit:]]+(e[\-\+]?[[:digit:]]+)?
 float                   \-?[[:digit:]]+(\.[[:digit:]]+)?(e[\-\+]?[[:digit:]]+)?
 
+symbol                  [a-zA-Z_][a-zA-Z0-9_]+
+
 coma                    ,
-semicolon               :
+colon                   :
+semicolon               ;
 dblcote                 \"
 square_bracket_open     \[
 square_bracket_close    \]
@@ -237,6 +240,7 @@ comment_line            //.*$
 <INITIAL>{curly_bracket_close}            {BEGIN INITIAL; RETURN_TOKEN(TBLOCKEND);}
 <INITIAL>{square_bracket_open}            {BEGIN INITIAL; RETURN_TOKEN(TARRAYBEGIN);}
 <INITIAL>{square_bracket_close}           {BEGIN INITIAL; RETURN_TOKEN(TARRAYEND);}
+<INITIAL>{colon}                          {BEGIN INITIAL; RETURN_TOKEN(TCOLON);}
 <INITIAL>{semicolon}                      {BEGIN INITIAL; RETURN_TOKEN(TSEMICOLON);}
 <INITIAL>{coma}                           {BEGIN INITIAL; RETURN_TOKEN(TCOMA);}
 <INITIAL>{less_than}                      {BEGIN INITIAL; RETURN_TOKEN(TLTHAN);}
@@ -248,6 +252,8 @@ comment_line            //.*$
 
 <INITIAL>{comment_line}                   {BEGIN INITIAL;}
 <INITIAL>{space}                          {BEGIN INITIAL;}
+
+<INITIAL>{symbol}                         {BEGIN INITIAL; VARIANT_INVALID(); RETURN_TOKEN(TVARIANT);}
 
 <INITIAL>.                                {VARIANT_STRING();RETURN_TOKEN(TSYNERR);}
 

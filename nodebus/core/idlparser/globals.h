@@ -28,8 +28,8 @@ namespace jsonparser {
 #define JSONPARSER_DRIVER_H_TYPES
 typedef QVariant variant_t;
 typedef QString string_t;
-typedef QMap<string_t, variant_t> object_t;
-typedef QList<variant_t> array_t;
+typedef QMap<string_t, variant_t> variant_map_t;
+typedef QList<variant_t> variant_list_t;
 #endif // JSONPARSER_DRIVER_H_TYPES
 
 class Driver;

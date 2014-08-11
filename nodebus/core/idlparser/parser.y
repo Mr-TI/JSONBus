@@ -28,13 +28,13 @@ using namespace std;
 %}
 
 %union {
-  string_t *str;
-  variant_t *node;
-  array_t *array;
-  object_t *object;
+  string_t str;
+  variant_t node;
+  variant_list_t array;
+  variant_map_t map;
 }
 
-%token              TEND 0          "the end of file"
+%token              TEND 0          "end of file"
 
 %token              TMODULE         "module"
 %token              TINTERFACE      "interface"
@@ -77,21 +77,22 @@ using namespace std;
 %token              TARRAYEND       "array end ']'"
 %token              TLTHAN          "less than '<'"
 %token              TGTHAN          "greater than '>'"
-%token              TSEMICOLON      "semicolon ':'"
+%token              TCOLON          "colon ':'"
+%token              TSEMICOLON      "semicolon ';'"
 %token              TCOMA           "coma ','"
 %token <str>        TSTRINGVAL      "string"
-%token <str>        TSTRING         "string"
+%token <str>        TSYMBOL         "string"
 %token <node>       TVARIANT        "variant"
 
 %token              TSYNERRESC      "invalid escaped character"
 %token              TSYNERRUNI      "invalid unicode character"
 %token              TSYNERR         "invalid character"
 
-%start ROOT
+%start DOCUMENT
 
 %type <object>      MEMBERS
 %type <array>       ELEMENTS
-%type <node>        ROOT VARIANT
+%type <node>        DOCUMENT VARIANT
 
 %language "C++"
 %define namespace "idlparser"
@@ -102,18 +103,47 @@ using namespace std;
 */
 %parse-param {Driver &driver}
 
-%destructor { delete $$; } TSTRING TVARIANT
-%destructor { delete $$; } MEMBERS
-%destructor { delete $$; } ELEMENTS
-%destructor { delete $$; } ROOT VARIANT
-
 %error-verbose
 
 %%
 
-ROOT : VARIANT                          {$$ = $1; driver.result->setValue(*$1); YYACCEPT;}
-    | TEND                              {$$ = NULL; driver.result = NULL; YYACCEPT;}
+DOCUMENT : DOCUMENT_ELTS TEND                     {$$ = $1; driver.result = $1; }
     ;
+
+DOCUMENT_ELTS : DOCUMENT_ELTS DOCUMENT_ELT        {}
+    | DOCUMENT_ELT                                {}
+    ;
+
+DOCUMENT_ELT : MODULE_ELT
+    | INCLUDE
+    ;
+
+MODULE_ELTS : MODULE_ELTS MODULE_ELT
+    | MODULE_ELT
+    ;
+
+MODULE_ELT : INTERFACE
+    | MODULE
+    | ENUM
+    | STRUCT
+    | TYPEDEF
+    | EXCEPTION
+    ;
+
+MODULE : TMODULE TSYMBOL TBLOCKBEGIN MODULE_ELTS TBLOCKEND TSEMICOLON
+    ;
+
+ENUM : TENUM TSYMBOL 
+    ;
+
+
+
+
+
+
+
+
+
 
 
 

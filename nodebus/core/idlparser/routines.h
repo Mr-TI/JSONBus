@@ -30,21 +30,21 @@ public:
 		return variant;
 	}
 	
-	inline static variant_t *map2variant(object_t *obj) {
+	inline static variant_t *map2variant(variant_map_t *obj) {
 		variant_t *variant = new variant_t(*obj);
 		delete obj;
 		return variant;
 	}
 	
-	inline static variant_t *list2variant(array_t *tbl) {
+	inline static variant_t *list2variant(variant_list_t *tbl) {
 		variant_t *variant = new variant_t(*tbl);
 		delete tbl;
 		return variant;
 	}
 	
-	inline static object_t *mapAppendVariant(object_t *obj, string_t *key, variant_t *val) {
+	inline static variant_map_t *mapAppendVariant(variant_map_t *obj, string_t *key, variant_t *val) {
 		if (!obj) {
-			obj = new object_t();
+			obj = new variant_map_t();
 		}
 		obj->insert(*key, *val);
 		delete key;
@@ -52,9 +52,9 @@ public:
 		return obj;
 	}
 	
-	inline static array_t *listAppendVariant(array_t *tbl, variant_t *val) {
+	inline static variant_list_t *listAppendVariant(variant_list_t *tbl, variant_t *val) {
 		if (!tbl) {
-			tbl = new array_t();
+			tbl = new variant_list_t();
 		}
 		tbl->push_back(*val);
 		delete val;
