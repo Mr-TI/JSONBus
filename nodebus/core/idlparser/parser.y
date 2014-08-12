@@ -36,6 +36,8 @@ using namespace std;
 
 %token              TEND 0          "end of file"
 
+%token              TINCLUDE        "#include<...>"
+
 %token              TMODULE         "module"
 %token              TINTERFACE      "interface"
 
@@ -49,6 +51,8 @@ using namespace std;
 %token              TSHORT          "short"
 %token              TLONG           "octet"
 %token              TSTRING         "string"
+%token              TOBJECT         "Object"
+%token              TANY            "any"
 
 %token              TUNSIGNED       "unsigned"
 %token              TCONST          "const"
@@ -75,6 +79,8 @@ using namespace std;
 %token              TBLOCKEND       "block end '}'"
 %token              TARRAYBEGIN     "array begin '['"
 %token              TARRAYEND       "array end ']'"
+%token              TPARTHBEGIN     "parenthesis begin '('"
+%token              TPARTHEND       "parenthesis end ')'"
 %token              TLTHAN          "less than '<'"
 %token              TGTHAN          "greater than '>'"
 %token              TCOLON          "colon ':'"
@@ -115,7 +121,7 @@ DOCUMENT_ELTS : DOCUMENT_ELTS DOCUMENT_ELT        {}
     ;
 
 DOCUMENT_ELT : MODULE_ELT
-    | INCLUDE
+    | TINCLUDE
     ;
 
 MODULE_ELTS : MODULE_ELTS MODULE_ELT
@@ -133,18 +139,41 @@ MODULE_ELT : INTERFACE
 MODULE : TMODULE TSYMBOL TBLOCKBEGIN MODULE_ELTS TBLOCKEND TSEMICOLON
     ;
 
-ENUM : TENUM TSYMBOL 
+ENUM : TENUM TSYMBOL TBLOCKBEGIN ENUM_ELTS TBLOCKEND TSEMICOLON
     ;
 
+SYMBOL_LIST : SYMBOL_LIST TCOMA TSYMBOL
+    | TSYMBOL
+    ;
 
+MODULE_ELTS : MODULE_ELTS MODULE_ELT | MODULE_ELT ;
 
+INTERFACE : TINTERFACE TSYMBOL TCOLON SYMBOL_LIST TBLOCKBEGIN INTERFACE_ELTS TBLOCKEND TSEMICOLON
+    | TINTERFACE TSYMBOL TBLOCKBEGIN INTERFACE_ELTS TBLOCKEND TSEMICOLON
+    ;
 
+INTERFACE_ELTS : INTERFACE_ELTS INTERFACE_ELT | INTERFACE_ELT ;
 
+INTERFACE_ELT : ATTRIBUTE | METHOD
 
+SEQUENCE : TSEQUENCE TLTHAN TYPE TGTHAN;
 
-
-
-
-
+TYPE : TBOOLEAN
+    | TFLOAT
+    | TDOUBLE
+    | TCHAR
+    | TUNSIGNED TCHAR
+    | TWCHAR
+    | TUNSIGNED TWCHAR
+    | TSHORT
+    | TUNSIGNED TSHORT
+    | TLONG
+    | TUNSIGNED TLONG
+    | TLONG TLONG
+    | TUNSIGNED TLONG TLONG
+    | TSTRING
+    | TOBJECT
+    | TANY
+    ;
 
 %%

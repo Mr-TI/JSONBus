@@ -84,6 +84,9 @@ typedef jsonparser::Parser::token_type token_type;
 %}
 
 space                   [\t\n\r ]
+newline                 \n
+
+kw_include              ^[\t\n\r ]*#[\t\n\r ]*include[\t\n\r ]*<
 
 kw_null                 null
 kw_true                 true
@@ -102,6 +105,8 @@ kw_long                 long
 kw_short                short
 kw_octet                octet
 kw_string               string
+kw_object               Object
+kw_any                  any
 
 kw_unsigned             unsigned
 kw_const                const
@@ -137,8 +142,11 @@ square_bracket_open     \[
 square_bracket_close    \]
 curly_bracket_open      \{
 curly_bracket_close     \}
+parenthesis_open        \(
+parenthesis_close       \)
 less_than               <
 greater_than            >
+sharp                   #
 
 value_unicode           [0-9a-f]{4}
 
@@ -156,7 +164,7 @@ comment_open            /\*
 comment_end             \*/
 comment_line            //.*$
 
-%s STRING STRING_ESCAPE STRING_ESCAPE_UNICODE
+%s STRING STRING_ESCAPE STRING_ESCAPE_UNICODE INCLUDE
 
 %option noyywrap yylineno c++
 /*%option batch never-interactive*/
@@ -173,6 +181,10 @@ comment_line            //.*$
 <STRING>{dblcote}                         {BEGIN INITIAL; RETURN_TOKEN(TSTRING);}
 <STRING>{escape_prefix}                   {BEGIN STRING_ESCAPE;}
 <STRING>.                                 {BEGIN STRING; STRING_APPEND(yytext[0]);}
+
+<INCLUDE>{greater_than}                   {BEGIN INITIAL; RETURN_TOKEN(TINCLUDE);}
+<INCLUDE>{newline}                        {BEGIN INITIAL; RETURN_TOKEN(TSYNERR);}
+<INCLUDE>.                                {BEGIN INCLUDE; STRING_APPEND(yytext[0]);}
 
 <COMMENT>{comment_end}                    {BEGIN INITIAL;}
 <COMMENT>.                                {BEGIN COMMENT;}
@@ -191,6 +203,8 @@ comment_line            //.*$
 <STRING_ESCAPE_UNICODE>{value_unicode}    {BEGIN STRING; STRING_APPEND_UNICODE();}
 <STRING_ESCAPE_UNICODE>.                  {BEGIN INITIAL; STRING_CLEAR(); RETURN_TOKEN(TSYNERRUNI);}
 
+<INITIAL>{kw_include}                     {BEGIN INITIAL; RETURN_TOKEN(TINCLUDE);}
+
 <INITIAL>{kw_null}                        {BEGIN INITIAL; VARIANT_INVALID(); RETURN_TOKEN(TVARIANT);}
 <INITIAL>{kw_undefined}                   {BEGIN INITIAL; VARIANT_INVALID(); RETURN_TOKEN(TVARIANT);}
 <INITIAL>{kw_true}                        {BEGIN INITIAL; VARIANT_FROM(true); RETURN_TOKEN(TVARIANT);}
@@ -205,42 +219,47 @@ comment_line            //.*$
 <INITIAL>{kw_interface}                   {BEGIN INITIAL; RETURN_TOKEN(TINTERFACE);}
 
 <INITIAL>{kw_void}                        {BEGIN INITIAL; RETURN_TOKEN(TVOID);}
-<INITIAL>{kw_boolean}                     {BEGIN INITIAL; RETURN_TOKEN(TBOOLEAN);}   
+<INITIAL>{kw_boolean}                     {BEGIN INITIAL; RETURN_TOKEN(TBOOLEAN);}
 <INITIAL>{kw_char}                        {BEGIN INITIAL; RETURN_TOKEN(TCHAR);}
-<INITIAL>{kw_wchar}                       {BEGIN INITIAL; RETURN_TOKEN(TWCHAR);}  
-<INITIAL>{kw_float}                       {BEGIN INITIAL; RETURN_TOKEN(TFLOAT);}  
-<INITIAL>{kw_double}                      {BEGIN INITIAL; RETURN_TOKEN(TDOUBLE);}   
-<INITIAL>{kw_long}                        {BEGIN INITIAL; RETURN_TOKEN(TLONG);} 
-<INITIAL>{kw_short}                       {BEGIN INITIAL; RETURN_TOKEN(TSHORT);}   
-<INITIAL>{kw_octet}                       {BEGIN INITIAL; RETURN_TOKEN(TOCTET);}   
-<INITIAL>{kw_string}                      {BEGIN INITIAL; RETURN_TOKEN(TSTRING);}   
+<INITIAL>{kw_wchar}                       {BEGIN INITIAL; RETURN_TOKEN(TWCHAR);}
+<INITIAL>{kw_float}                       {BEGIN INITIAL; RETURN_TOKEN(TFLOAT);}
+<INITIAL>{kw_double}                      {BEGIN INITIAL; RETURN_TOKEN(TDOUBLE);}
+<INITIAL>{kw_long}                        {BEGIN INITIAL; RETURN_TOKEN(TLONG);}
+<INITIAL>{kw_short}                       {BEGIN INITIAL; RETURN_TOKEN(TSHORT);}
+<INITIAL>{kw_octet}                       {BEGIN INITIAL; RETURN_TOKEN(TOCTET);}
+<INITIAL>{kw_string}                      {BEGIN INITIAL; RETURN_TOKEN(TSTRING);}
+<INITIAL>{kw_object}                      {BEGIN INITIAL; RETURN_TOKEN(TOBJECT);}
+<INITIAL>{kw_any}                         {BEGIN INITIAL; RETURN_TOKEN(TANY);}
 
-<INITIAL>{kw_unsigned}                    {BEGIN INITIAL; RETURN_TOKEN(TUNSIGNED);}    
-<INITIAL>{kw_const}                       {BEGIN INITIAL; RETURN_TOKEN(TCONST);} 
-<INITIAL>{kw_readonly}                    {BEGIN INITIAL; RETURN_TOKEN(TREADONLY);}   
-<INITIAL>{kw_attribute}                   {BEGIN INITIAL; RETURN_TOKEN(TATTRIBUTE);}    
+<INITIAL>{kw_unsigned}                    {BEGIN INITIAL; RETURN_TOKEN(TUNSIGNED);}
+<INITIAL>{kw_const}                       {BEGIN INITIAL; RETURN_TOKEN(TCONST);}
+<INITIAL>{kw_readonly}                    {BEGIN INITIAL; RETURN_TOKEN(TREADONLY);}
+<INITIAL>{kw_attribute}                   {BEGIN INITIAL; RETURN_TOKEN(TATTRIBUTE);}
 
-<INITIAL>{kw_enum}                        {BEGIN INITIAL; RETURN_TOKEN(TENUM);} 
-<INITIAL>{kw_struct}                      {BEGIN INITIAL; RETURN_TOKEN(TSTRUCT);}   
-<INITIAL>{kw_union}                       {BEGIN INITIAL; RETURN_TOKEN(TUNION);} 
-<INITIAL>{kw_switch}                      {BEGIN INITIAL; RETURN_TOKEN(TSWITCH);}   
-<INITIAL>{kw_case}                        {BEGIN INITIAL; RETURN_TOKEN(TCASE);} 
-<INITIAL>{kw_default}                     {BEGIN INITIAL; RETURN_TOKEN(TDEFAULT);}   
-<INITIAL>{kw_oneway}                      {BEGIN INITIAL; RETURN_TOKEN(TONEWAY);}  
+<INITIAL>{kw_enum}                        {BEGIN INITIAL; RETURN_TOKEN(TENUM);}
+<INITIAL>{kw_struct}                      {BEGIN INITIAL; RETURN_TOKEN(TSTRUCT);}
+<INITIAL>{kw_union}                       {BEGIN INITIAL; RETURN_TOKEN(TUNION);}
+<INITIAL>{kw_switch}                      {BEGIN INITIAL; RETURN_TOKEN(TSWITCH);}
+<INITIAL>{kw_case}                        {BEGIN INITIAL; RETURN_TOKEN(TCASE);}
+<INITIAL>{kw_default}                     {BEGIN INITIAL; RETURN_TOKEN(TDEFAULT);}
+<INITIAL>{kw_oneway}                      {BEGIN INITIAL; RETURN_TOKEN(TONEWAY);}
 <INITIAL>{kw_in}                          {BEGIN INITIAL; RETURN_TOKEN(TIN);}
 <INITIAL>{kw_out}                         {BEGIN INITIAL; RETURN_TOKEN(TOUT);}
 <INITIAL>{kw_inout}                       {BEGIN INITIAL; RETURN_TOKEN(TINOUT);}
-<INITIAL>{kw_sequence}                    {BEGIN INITIAL; RETURN_TOKEN(TSEQUENCE);}  
-<INITIAL>{kw_exception}                   {BEGIN INITIAL; RETURN_TOKEN(TEXCEPTION);}   
+<INITIAL>{kw_sequence}                    {BEGIN INITIAL; RETURN_TOKEN(TSEQUENCE);}
+<INITIAL>{kw_exception}                   {BEGIN INITIAL; RETURN_TOKEN(TEXCEPTION);}
 <INITIAL>{kw_raises}                      {BEGIN INITIAL; RETURN_TOKEN(TRAISES);}
 
-<INITIAL>{kw_typedef}                     {BEGIN INITIAL; RETURN_TOKEN(TTYPEDEF);}  
+<INITIAL>{kw_typedef}                     {BEGIN INITIAL; RETURN_TOKEN(TTYPEDEF);}
 
 <INITIAL>{curly_bracket_open}             {BEGIN INITIAL; RETURN_TOKEN(TBLOCKBEGIN);}
 <INITIAL>{curly_bracket_close}            {BEGIN INITIAL; RETURN_TOKEN(TBLOCKEND);}
 <INITIAL>{square_bracket_open}            {BEGIN INITIAL; RETURN_TOKEN(TARRAYBEGIN);}
 <INITIAL>{square_bracket_close}           {BEGIN INITIAL; RETURN_TOKEN(TARRAYEND);}
-<INITIAL>{colon}                          {BEGIN INITIAL; RETURN_TOKEN(TCOLON);}
+<INITIAL>{parenthesis_open}               {BEGIN INITIAL; RETURN_TOKEN(TPARTHBEGIN);}
+<INITIAL>{parenthesis_close}              {BEGIN INITIAL; RETURN_TOKEN(TPARTHEND);}
+<INITIAL>{parenthesis_close}              {BEGIN INITIAL; RETURN_TOKEN(TSHARP);}
+<INITIAL>{sharp}                          {BEGIN INITIAL; RETURN_TOKEN(TCOLON);}
 <INITIAL>{semicolon}                      {BEGIN INITIAL; RETURN_TOKEN(TSEMICOLON);}
 <INITIAL>{coma}                           {BEGIN INITIAL; RETURN_TOKEN(TCOMA);}
 <INITIAL>{less_than}                      {BEGIN INITIAL; RETURN_TOKEN(TLTHAN);}
