@@ -129,6 +129,7 @@ kw_raises               raises
 
 kw_typedef              typedef
 
+integer                 [[:digit:]]+
 number                  \-?[[:digit:]]+(e[\-\+]?[[:digit:]]+)?
 float                   \-?[[:digit:]]+(\.[[:digit:]]+)?(e[\-\+]?[[:digit:]]+)?
 
@@ -212,8 +213,9 @@ comment_line            //.*$
 <INITIAL>{kw_nan}                         {BEGIN INITIAL; VARIANT_NAN(); RETURN_TOKEN(TVARIANT);}
 <INITIAL>{kw_infinity}                    {BEGIN INITIAL; VARIANT_INFINITY(); RETURN_TOKEN(TVARIANT);}
 
-<INITIAL>{number}                         {BEGIN INITIAL; VARIANT_NUMBER(); RETURN_TOKEN(TVARIANT);}
-<INITIAL>{float}                          {BEGIN INITIAL; VARIANT_TXT2(Double); RETURN_TOKEN(TVARIANT);}
+<INITIAL>{integer}                        {BEGIN INITIAL; VARIANT_NUMBER(); RETURN_TOKEN(TNUMBER);}
+<INITIAL>{number}                         {BEGIN INITIAL; VARIANT_NUMBER(); RETURN_TOKEN(TINTVAL);}
+<INITIAL>{float}                          {BEGIN INITIAL; VARIANT_TXT2(Double); RETURN_TOKEN(TFLOATVAL);}
 
 <INITIAL>{kw_module}                      {BEGIN INITIAL; RETURN_TOKEN(TMODULE);}
 <INITIAL>{kw_interface}                   {BEGIN INITIAL; RETURN_TOKEN(TINTERFACE);}
