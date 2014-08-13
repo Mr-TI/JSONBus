@@ -123,122 +123,127 @@ DOCUMENT_ELTS : DOCUMENT_ELTS DOCUMENT_ELT        {}
     | DOCUMENT_ELT                                {}
     ;
 
-DOCUMENT_ELT : MODULE_ELT
-    | TINCLUDE
+DOCUMENT_ELT : MODULE_ELT                         {}
+    | TINCLUDE                                    {}
     ;
 
-MODULE_ELTS : MODULE_ELTS MODULE_ELT
-    | MODULE_ELT
+MODULE_ELTS : MODULE_ELTS MODULE_ELT              {}
+    | MODULE_ELT                                  {}
     ;
 
-MODULE_ELT : INTERFACE
-    | MODULE
-    | ENUM
-    | STRUCT
-    | TYPEDEF
-    | EXCEPTION
+MODULE_ELT : INTERFACE                            {}
+    | MODULE                                      {}
+    | ENUM                                        {}
+    | STRUCT                                      {}
+    | TYPEDEF                                     {}
+    | EXCEPTION                                   {}
     ;
 
 MODULE : TMODULE TSYMBOL TBLOCKBEGIN MODULE_ELTS TBLOCKEND TSEMICOLON TSEMICOLON
+                                                  {}
     ;
 
-ENUM : TENUM TSYMBOL TBLOCKBEGIN ENUM_ELTS TBLOCKEND TSEMICOLON TSEMICOLON
+ENUM : TENUM TSYMBOL TBLOCKBEGIN SYMBOL_LIST TBLOCKEND TSEMICOLON TSEMICOLON
+                                                  {}
     ;
 
 STRUCT : TSTRUCT TSYMBOL TBLOCKBEGIN STRUCT_ELTS TBLOCKEND TSEMICOLON
+                                                  {}
     ;
 
 EXCEPTION : TSTRUCT TSYMBOL TBLOCKBEGIN STRUCT_ELTS TBLOCKEND TSEMICOLON
+                                                  {}
     ;
 
-STRUCT_ELTS : STRUCT_ELTS FIELD
-    | FIELD
+STRUCT_ELTS : STRUCT_ELTS FIELD                   {}
+    | FIELD                                       {}
     ;
 
-
-
-SYMBOL_LIST : SYMBOL_LIST TCOMA TSYMBOL
-    | TSYMBOL
+TYPEDEF : TYPE TSYMBOL                            {}
     ;
 
-INTERFACE : TINTERFACE TSYMBOL TCOLON SYMBOL_LIST TBLOCKBEGIN INTERFACE_ELTS TBLOCKEND TSEMICOLON
-    | TINTERFACE TSYMBOL TBLOCKBEGIN INTERFACE_ELTS TBLOCKEND TSEMICOLON
+SYMBOL_LIST : SYMBOL_LIST TCOMA SYMBOL            {}
+    | SYMBOL                                      {}
     ;
 
-INTERFACE_ELTS : INTERFACE_ELTS INTERFACE_ELT
-    | INTERFACE_ELT
+SYMBOL : SYMBOL TCOLON TCOLON TSYMBOL             {}
+    | TSYMBOL                                     {}
     ;
 
-INTERFACE_ELT : ATTRIBUTE
-    | METHOD
+INTERFACE : TINTERFACE SYMBOL TCOLON SYMBOL_LIST TBLOCKBEGIN INTERFACE_ELTS TBLOCKEND TSEMICOLON
+                                                  {}
+    | TINTERFACE SYMBOL TBLOCKBEGIN INTERFACE_ELTS TBLOCKEND TSEMICOLON
+                                                  {}
     ;
 
-SEQUENCE : TSEQUENCE TLTHAN TYPE TGTHAN
-    | TSEQUENCE TLTHAN TYPE TCOMA TNUMBER TGTHAN
+INTERFACE_ELTS : INTERFACE_ELTS INTERFACE_ELT     {}
+    | INTERFACE_ELT                               {}
     ;
 
-RET_TYPE : TYPE
-    | TVOID
+INTERFACE_ELT : ATTRIBUTE                         {}
+    | METHOD                                      {}
     ;
 
-TYPE : TBOOLEAN
-    | TFLOAT
-    | TDOUBLE
-    | TCHAR
-    | TWCHAR
-    | TSHORT
-    | TUNSIGNED TSHORT
-    | TLONG
-    | TUNSIGNED TLONG
-    | TLONG TLONG
-    | TUNSIGNED TLONG TLONG
-    | TSTRING
-    | TOBJECT
-    | TANY
-    | SEQUENCE
+SEQUENCE : TSEQUENCE TLTHAN TYPE TGTHAN           {}
+    | TSEQUENCE TLTHAN TYPE TCOMA TNUMBER TGTHAN  {}
     ;
 
-FIELD : TYPE TSYMBOL
-    | TYPE TSYMBOL TARRAYBEGIN TNUMBER TARRAYEND
-    | TYPE TSYMBOL TLTHAN TNUMBER TGTHAN
+RET_TYPE : TYPE                                   {}
+    | TVOID                                       {}
     ;
 
-ATTRIBUTE : TATTRIBUTE FIELD
-    | TREADONLY TATTRIBUTE FIELD
+TYPE : TBOOLEAN                                   {}
+    | TFLOAT                                      {}
+    | TDOUBLE                                     {}
+    | TCHAR                                       {}
+    | TWCHAR                                      {}
+    | TSHORT                                      {}
+    | TUNSIGNED TSHORT                            {}
+    | TLONG                                       {}
+    | TUNSIGNED TLONG                             {}
+    | TLONG TLONG                                 {}
+    | TUNSIGNED TLONG TLONG                       {}
+    | TSTRING                                     {}
+    | TOBJECT                                     {}
+    | TANY                                        {}
+    | SEQUENCE                                    {}
     ;
 
-METHOD : METHOD_PREFIX RET_TYPE TSYMBOL TPARTHBEGIN TPARTHEND METHOD_SUFFIX TCOMA
-    | METHOD_PREFIX RET_TYPE TSYMBOL TPARTHBEGIN PARAMETERS TPARTHEND METHOD_SUFFIX TCOMA
+FIELD : TYPE SYMBOL                               {}
+    | TYPE SYMBOL TARRAYBEGIN TNUMBER TARRAYEND   {}
+    | TYPE SYMBOL TLTHAN TNUMBER TGTHAN           {}
+    ;
+
+ATTRIBUTE : TATTRIBUTE FIELD                      {}
+    | TREADONLY TATTRIBUTE FIELD                  {}
+    ;
+
+METHOD : METHOD_PREFIX RET_TYPE SYMBOL TPARTHBEGIN TPARTHEND METHOD_SUFFIX TCOMA
+                                                  {}
+    | METHOD_PREFIX RET_TYPE SYMBOL TPARTHBEGIN PARAMETERS TPARTHEND METHOD_SUFFIX TCOMA
+                                                  {}
     ;
 
 METHOD_PREFIX : TONEWAY
     |
     ;
 
-METHOD_SUFFIX : TRAISES TPARTHBEGIN TSYMBOL TPARTHEND
+METHOD_SUFFIX : TRAISES TPARTHBEGIN SYMBOL TPARTHEND
     |
     ;
 
-PARAMETERS : PARAMETERS PARAMETER
-    | PARAMETER
+PARAMETERS : PARAMETERS PARAMETER                 {}
+    | PARAMETER                                   {}
     ;
 
-PARAMETER : PARAMETER_INOUT FIELD
+PARAMETER : PARAMETER_INOUT FIELD                 {}
     ; 
 
-PARAMETER_INOUT : TIN
-    | TOUT
-    | TINOUT
-    |
+PARAMETER_INOUT : TIN                             {}
+    | TOUT                                        {}
+    | TINOUT                                      {}
+    |                                             {}
     ;
-
-
-
-
-
-
-
-
 
 
 %%
