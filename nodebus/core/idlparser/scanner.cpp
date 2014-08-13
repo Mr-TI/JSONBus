@@ -18,10 +18,10 @@
 #include <scanner.h>
 #include <logger.h>
 
-namespace jsonparser {
+namespace idlparser {
 
 Scanner::Scanner(Scanner::getc_t getc, void* stream)
-        : jsonparserFlexLexer(nullptr, nullptr), m_getc(getc), m_stream(stream) {
+        : idlparserFlexLexer(nullptr, nullptr), m_getc(getc), m_stream(stream) {
 }
 
 Scanner::~Scanner() {
@@ -42,7 +42,7 @@ int Scanner::LexerInput( char* buf, int max_size ) {
 #undef yylex
 #endif
 
-int jsonparserFlexLexer::yylex() {
-    std::cerr << "call jsonparserFlexLexer::yylex()!" << std::endl;
+int idlparserFlexLexer::yylex() {
+    std::cerr << "call idlparserFlexLexer::yylex()!" << std::endl;
     return 0;
 }

@@ -22,7 +22,7 @@
 #include <QMap>
 #include <QList>
 
-namespace jsonparser {
+namespace idlparser {
 
 #ifndef JSONPARSER_DRIVER_H_TYPES
 #define JSONPARSER_DRIVER_H_TYPES

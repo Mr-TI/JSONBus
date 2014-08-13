@@ -18,12 +18,12 @@
 #define IDLSCANNER_H
 
 #ifndef YY_DECL
-#define YY_DECL jsonparser::Parser::token_type \
-    jsonparser::Scanner::yylex(jsonparser::Parser::semantic_type* yylval)
+#define YY_DECL idlparser::Parser::token_type \
+    idlparser::Scanner::yylex(idlparser::Parser::semantic_type* yylval)
 #endif
 
 #ifndef __FLEX_LEXER_H
-#define yyFlexLexer jsonparserFlexLexer
+#define yyFlexLexer idlparserFlexLexer
 #include <FlexLexer.h>
 #undef yyFlexLexer
 #endif
@@ -33,7 +33,7 @@
 /**
  * @namespace
  */
-namespace jsonparser {
+namespace idlparser {
 
 /**
  * @brief JSON scanner
@@ -42,7 +42,7 @@ namespace jsonparser {
  * @date 2014
  * @copyright Apache License, Version 2.0
  */
-class Scanner : public jsonparserFlexLexer {
+class Scanner : public idlparserFlexLexer {
 public:
 	typedef char (*getc_t)(void *);
 	

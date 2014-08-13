@@ -18,12 +18,13 @@
 #define IDLPARSER_DRIVER_H
 
 #include <QVariant>
+#include <qt4/QtCore/QString>
+#include <qt4/QtCore/qstack.h>
 
-namespace jsonparser {
+namespace idlparser {
 
 class Parser;
 class Scanner;
-class r;
 
 /**
  * @brief IDL parser driver
@@ -39,14 +40,33 @@ public:
 	~Driver();
 	QVariant parse();
 private:
+	friend class Parser;
+	friend class Scanner;
 	QString lastError;
 	Scanner &scanner;
 	Parser &parser;
-	QVariant *result;
-	friend class Parser;
-	friend class Scanner;
-	friend class r;
+	QVariant result;
+	QStack<QString> packageStack;
+	void packagePush(const QString &name);
+	QString absoluteName(const QString& name);
 };
+
+void Driver::packagePush(const QString& name) {
+	if (packageStack.isEmpty()) {
+		packageStack.push(name);
+	} else {
+		packageStack.push(packageStack.top() + "::" + name);
+	}
+}
+
+QString Driver::absoluteName(const QString& name) {
+	if (packageStack.isEmpty()) {
+		return name;
+	} else {
+		return packageStack.top() + "::" + name;
+	}
+}
+
 
 }
 

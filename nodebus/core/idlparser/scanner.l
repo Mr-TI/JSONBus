@@ -77,8 +77,8 @@ using namespace std;
 #define yywrap() 1
 
 #define RETURN_TOKEN(_label_) /*cout << #_label_ << endl;*/ return token::_label_
-typedef jsonparser::Parser::token token;
-typedef jsonparser::Parser::token_type token_type;
+typedef idlparser::Parser::token token;
+typedef idlparser::Parser::token_type token_type;
 #define yyterminate() RETURN_TOKEN(TEND)
 
 %}
@@ -161,11 +161,11 @@ escape_newline          n
 escape_car_ret          r
 escape_horiz_tab        t
 escape_prefix           \\
-comment_open            /\*
-comment_end             \*/
-comment_line            //.*$
+comment_open            \/\*
+comment_end             \*\/
+comment_line            \/\/.*$
 
-%s STRING STRING_ESCAPE STRING_ESCAPE_UNICODE INCLUDE
+%s STRING STRING_ESCAPE STRING_ESCAPE_UNICODE INCLUDE COMMENT
 
 %option noyywrap yylineno c++
 /*%option batch never-interactive*/
@@ -207,11 +207,8 @@ comment_line            //.*$
 <INITIAL>{kw_include}                     {BEGIN INITIAL; RETURN_TOKEN(TINCLUDE);}
 
 <INITIAL>{kw_null}                        {BEGIN INITIAL; VARIANT_INVALID(); RETURN_TOKEN(TVARIANT);}
-<INITIAL>{kw_undefined}                   {BEGIN INITIAL; VARIANT_INVALID(); RETURN_TOKEN(TVARIANT);}
 <INITIAL>{kw_true}                        {BEGIN INITIAL; VARIANT_FROM(true); RETURN_TOKEN(TVARIANT);}
 <INITIAL>{kw_false}                       {BEGIN INITIAL; VARIANT_FROM(false); RETURN_TOKEN(TVARIANT);}
-<INITIAL>{kw_nan}                         {BEGIN INITIAL; VARIANT_NAN(); RETURN_TOKEN(TVARIANT);}
-<INITIAL>{kw_infinity}                    {BEGIN INITIAL; VARIANT_INFINITY(); RETURN_TOKEN(TVARIANT);}
 
 <INITIAL>{integer}                        {BEGIN INITIAL; VARIANT_NUMBER(); RETURN_TOKEN(TNUMBER);}
 <INITIAL>{number}                         {BEGIN INITIAL; VARIANT_NUMBER(); RETURN_TOKEN(TINTVAL);}
@@ -260,7 +257,6 @@ comment_line            //.*$
 <INITIAL>{square_bracket_close}           {BEGIN INITIAL; RETURN_TOKEN(TARRAYEND);}
 <INITIAL>{parenthesis_open}               {BEGIN INITIAL; RETURN_TOKEN(TPARTHBEGIN);}
 <INITIAL>{parenthesis_close}              {BEGIN INITIAL; RETURN_TOKEN(TPARTHEND);}
-<INITIAL>{parenthesis_close}              {BEGIN INITIAL; RETURN_TOKEN(TSHARP);}
 <INITIAL>{sharp}                          {BEGIN INITIAL; RETURN_TOKEN(TCOLON);}
 <INITIAL>{semicolon}                      {BEGIN INITIAL; RETURN_TOKEN(TSEMICOLON);}
 <INITIAL>{coma}                           {BEGIN INITIAL; RETURN_TOKEN(TCOMA);}

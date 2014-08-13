@@ -18,7 +18,7 @@
 #include <parser.hh>
 #include "driver.h"
 
-namespace jsonparser {
+namespace idlparser {
 
 #ifdef GNU_BISON_V2
 void Parser::error(const Parser::location_type& l, const std::string& m) {

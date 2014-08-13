@@ -33,6 +33,7 @@ include_directories(${OPENSSL_INCLUDE_DIR})
 add_definitions(-DUSE_NODEBUS_EXCEPTION)
 
 add_subdirectory(jsonparser)
+# add_subdirectory(idlparser)
 
 # ### TARGET ###
 add_library(nodebus ${NODEBUS_LIBRARY_TYPE} ${project_SRCS} ${project_HDRS} ${project_MOC_SRCS})

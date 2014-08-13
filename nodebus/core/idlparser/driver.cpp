@@ -23,7 +23,7 @@
 #define ErrorException ErrorParserException
 using namespace NodeBus;
 
-namespace jsonparser {
+namespace idlparser {
 
 Driver::Driver(getc_t getc, void *stream)
 		: scanner(*new Scanner(getc, stream)),

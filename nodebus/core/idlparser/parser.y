@@ -20,7 +20,6 @@
 #include <parser.hh>
 #include "scanner.h"
 #include "driver.h"
-#include "routines.h"
 #define yylex driver.scanner.yylex
 
 using namespace std;
@@ -36,7 +35,7 @@ using namespace std;
 
 %token              TEND 0          "end of file"
 
-%token              TINCLUDE        "#include<...>"
+%token <str>        TINCLUDE        "#include<...>"
 
 %token              TMODULE         "module"
 %token              TINTERFACE      "interface"
@@ -49,7 +48,7 @@ using namespace std;
 %token              TDOUBLE         "double"
 %token              TLONG           "long"
 %token              TSHORT          "short"
-%token              TLONG           "octet"
+%token              TOCTET          "octet"
 %token              TSTRING         "string"
 %token              TOBJECT         "Object"
 %token              TANY            "any"
@@ -86,8 +85,9 @@ using namespace std;
 %token              TCOLON          "colon ':'"
 %token              TSEMICOLON      "semicolon ';'"
 %token              TCOMA           "coma ','"
-%token <str>        TSTRINGVAL      "string"
-%token <str>        TSYMBOL         "string"
+
+%token <str>        TSTRINGVAL      "string value"
+%token <str>        TSYMBOL         "symbol"
 %token <node>       TNUMBER         "number value"
 %token <node>       TINTVAL         "integer value"
 %token <node>       TFLOATVAL       "float value"
@@ -99,24 +99,22 @@ using namespace std;
 
 %start DOCUMENT
 
-%type <object>      MEMBERS
-%type <array>       ELEMENTS
-%type <node>        DOCUMENT VARIANT
+%type <node>        DOCUMENT
 
 %language "C++"
 %define namespace "idlparser"
 %define parser_class_name "Parser"
 /*
-%define api.namespace {jsonparser}
+%define api.namespace {idlparser}
 %define parser_class_name {Parser}
 */
-%parse-param {Driver &driver}
+%parse-param {idlparser::Driver &driver}
 
 %error-verbose
 
 %%
 
-DOCUMENT : DOCUMENT_ELTS TEND                     {$$ = $1; driver.result = $1; }
+DOCUMENT : DOCUMENT_ELTS TEND                     {YYACCEPT;}
     ;
 
 DOCUMENT_ELTS : DOCUMENT_ELTS DOCUMENT_ELT        {}
@@ -139,7 +137,10 @@ MODULE_ELT : INTERFACE                            {}
     | EXCEPTION                                   {}
     ;
 
-MODULE : TMODULE TSYMBOL TBLOCKBEGIN MODULE_ELTS TBLOCKEND TSEMICOLON TSEMICOLON
+MODULE_BEGIN : TMODULE TSYMBOL TBLOCKBEGIN        {driver.packagePush($2);}
+    ;
+
+MODULE : MODULE_BEGIN MODULE_ELTS TBLOCKEND TSEMICOLON TSEMICOLON
                                                   {}
     ;
 
