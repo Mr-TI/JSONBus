@@ -27,51 +27,41 @@ using namespace std;
 
 #define YY_READ_BUF_SIZE 1
 
-#include <globals.h>
+#include "ltype.h"
 #include <parser.hh>
 #include <string>
 #include <scanner.h>
 
 #define VARIANT_STRING()\
-	yylval->node = variant_t(yytext);
+	yylval->var = new QVariant(yytext);
 
 #define VARIANT_TXT2(_type_)\
-	yylval->node = variant_t(yytext);\
-	yylval->node.convert(variant_t::_type_)
+	yylval->var = new QVariant(yytext);\
+	yylval->var->convert(QVariant::_type_)
 
 #define VARIANT_NUMBER()\
-	yylval->node = variant_t(yytext);\
-	yylval->node.convert(variant_t::LongLong);\
-	if ((yylval->node.toLongLong() & 0xFFFFFFFF00000000) == 0)\
-	yylval->node.convert(variant_t::Int)
+	yylval->var = new QVariant(yytext);\
+	yylval->var->convert(QVariant::LongLong);\
+	if ((yylval->var->toLongLong() & 0xFFFFFFFF00000000) == 0)\
+	yylval->var->convert(QVariant::Int)
+
+#define VARIANT_NULL()\
+	yylval->var = new QVariant()
 
 #define VARIANT_FROM(_value_)\
-	yylval->node = variant_t(_value_)
-
-#define VARIANT_INVALID()\
-	yylval->node = variant_t()
-	
-#define VARIANT_INFINITY()\
-	yylval->node = variant_t(variant_t::Double);\
-	yylval->node.setValue(yytext[0] == '-'?\
-	-std::numeric_limits<double>::infinity():\
-	std::numeric_limits<double>::infinity())
-	
-#define VARIANT_NAN()\
-	yylval->node = variant_t(variant_t::Double);\
-	yylval->node.setValue(std::numeric_limits<double>::quiet_NaN())
+	yylval->var = new QVariant(_value_)
 
 #define STRING_BEGIN()\
-	yylval->str = new string_t()
+	yylval->str = new QString()
 
 #define STRING_APPEND(_val_)\
 	yylval->str->append(_val_);
 
 #define STRING_APPEND_UNICODE()\
-	yylval->str->append(QChar(string_t(yytext).toInt(0, 16)));
+	yylval->str->append(QChar(QString(yytext).toInt(0, 16)));
 
 #define STRING_CLEAR()\
-	delete yylval->str;
+	delete yylval->str;yylval->str = NULL;
 
 #undef yywrap
 #define yywrap() 1
@@ -199,14 +189,14 @@ comment_line            \/\/.*$
 <STRING_ESCAPE>{escape_newline}           {BEGIN STRING; STRING_APPEND('\n');}
 <STRING_ESCAPE>{escape_car_ret}           {BEGIN STRING; STRING_APPEND('\r');}
 <STRING_ESCAPE>{escape_horiz_tab}         {BEGIN STRING; STRING_APPEND('\t');}
-<STRING_ESCAPE>.                          {BEGIN INITIAL; STRING_CLEAR(); RETURN_TOKEN(TSYNERRESC);}
+<STRING_ESCAPE>.                          {BEGIN INITIAL; RETURN_TOKEN(TSYNERRESC);}
 
 <STRING_ESCAPE_UNICODE>{value_unicode}    {BEGIN STRING; STRING_APPEND_UNICODE();}
-<STRING_ESCAPE_UNICODE>.                  {BEGIN INITIAL; STRING_CLEAR(); RETURN_TOKEN(TSYNERRUNI);}
+<STRING_ESCAPE_UNICODE>.                  {BEGIN INITIAL; RETURN_TOKEN(TSYNERRUNI);}
 
 <INITIAL>{kw_include}                     {BEGIN INITIAL; RETURN_TOKEN(TINCLUDE);}
 
-<INITIAL>{kw_null}                        {BEGIN INITIAL; VARIANT_INVALID(); RETURN_TOKEN(TVARIANT);}
+<INITIAL>{kw_null}                        {BEGIN INITIAL; VARIANT_NULL(); RETURN_TOKEN(TVARIANT);}
 <INITIAL>{kw_true}                        {BEGIN INITIAL; VARIANT_FROM(true); RETURN_TOKEN(TVARIANT);}
 <INITIAL>{kw_false}                       {BEGIN INITIAL; VARIANT_FROM(false); RETURN_TOKEN(TVARIANT);}
 
@@ -270,7 +260,7 @@ comment_line            \/\/.*$
 <INITIAL>{comment_line}                   {BEGIN INITIAL;}
 <INITIAL>{space}                          {BEGIN INITIAL;}
 
-<INITIAL>{symbol}                         {BEGIN INITIAL; VARIANT_INVALID(); RETURN_TOKEN(TVARIANT);}
+<INITIAL>{symbol}                         {BEGIN INITIAL; VARIANT_STRING(); RETURN_TOKEN(TVARIANT);}
 
 <INITIAL>.                                {VARIANT_STRING();RETURN_TOKEN(TSYNERR);}
 

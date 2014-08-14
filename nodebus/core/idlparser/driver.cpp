@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-#include <globals.h>
+#include "ltype.h"
 #include <parser.hh>
 #include "scanner.h"
 #include "driver.h"
@@ -36,16 +36,12 @@ Driver::~Driver() {
 }
 
 QVariant Driver::parse() {
-	variant_t ret;
-	result = &ret;
+	result = QVariant();
 	scanner.resetPos();
 	if (parser.parse() != 0) {
 		throw ErrorException(QString("Line: ") + QString::number(scanner.lineno()) + ", column: " + QString::number(scanner.YYLeng()) + ", " + lastError);
 	}
-	if (!result) {
-		throw EOFException();
-	}
-	return *result;
+	return result;
 }
 
 }

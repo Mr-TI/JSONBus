@@ -16,22 +16,14 @@
 
 %{
 
-#include "globals.h"
+#include "ltype.h"
 #include <parser.hh>
 #include "scanner.h"
 #include "driver.h"
+#include <qt4/QtCore/QVariant>
 #define yylex driver.scanner.yylex
 
-using namespace std;
-
 %}
-
-%union {
-  string_t str;
-  variant_t node;
-  variant_list_t array;
-  variant_map_t map;
-}
 
 %token              TEND 0          "end of file"
 
@@ -99,7 +91,7 @@ using namespace std;
 
 %start DOCUMENT
 
-%type <node>        DOCUMENT
+%type <node>        DOCUMENT DOCUMENT_ELTS
 
 %language "C++"
 %define namespace "idlparser"
@@ -137,7 +129,7 @@ MODULE_ELT : INTERFACE                            {}
     | EXCEPTION                                   {}
     ;
 
-MODULE_BEGIN : TMODULE TSYMBOL TBLOCKBEGIN        {driver.packagePush($2);}
+MODULE_BEGIN : TMODULE TSYMBOL TBLOCKBEGIN        {driver.packagePush(*$2);}
     ;
 
 MODULE : MODULE_BEGIN MODULE_ELTS TBLOCKEND TSEMICOLON TSEMICOLON
@@ -152,7 +144,7 @@ STRUCT : TSTRUCT TSYMBOL TBLOCKBEGIN STRUCT_ELTS TBLOCKEND TSEMICOLON
                                                   {}
     ;
 
-EXCEPTION : TSTRUCT TSYMBOL TBLOCKBEGIN STRUCT_ELTS TBLOCKEND TSEMICOLON
+EXCEPTION : TEXCEPTION TSYMBOL TBLOCKBEGIN STRUCT_ELTS TBLOCKEND TSEMICOLON
                                                   {}
     ;
 

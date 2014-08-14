@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-#include <globals.h>
+#include <ltype.h>
 #include <scanner.h>
 #include <logger.h>
 

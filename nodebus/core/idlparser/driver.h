@@ -67,7 +67,6 @@ QString Driver::absoluteName(const QString& name) {
 	}
 }
 
-
 }
 
 #endif // IDLPARSER_DRIVER_H

@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-#include "globals.h"
+#include "ltype.h"
 #include <parser.hh>
 #include "driver.h"
 
@@ -29,5 +29,7 @@ void Parser::error(const std::string& m) {
 	driver.lastError = QString::fromStdString(m.c_str());
 }
 #endif
+
+
 
 }
