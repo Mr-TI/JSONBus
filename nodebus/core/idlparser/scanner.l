@@ -33,23 +33,23 @@ using namespace std;
 #include <scanner.h>
 
 #define VARIANT_STRING()\
-	yylval->var = new QVariant(yytext);
+	yylval->node  = new Node(yytext);
 
 #define VARIANT_TXT2(_type_)\
-	yylval->var = new QVariant(yytext);\
-	yylval->var->convert(QVariant::_type_)
+	yylval->node  = new Node(yytext);\
+	yylval->node->variant().convert(QVariant::_type_)
 
 #define VARIANT_NUMBER()\
-	yylval->var = new QVariant(yytext);\
-	yylval->var->convert(QVariant::LongLong);\
-	if ((yylval->var->toLongLong() & 0xFFFFFFFF00000000) == 0)\
-	yylval->var->convert(QVariant::Int)
+	yylval->node  = new Node(yytext);\
+	yylval->node->variant().convert(QVariant::LongLong);\
+	if ((yylval->node->variant().toLongLong() & 0xFFFFFFFF00000000) == 0)\
+	yylval->node->variant().convert(QVariant::Int)
 
 #define VARIANT_NULL()\
-	yylval->var = new QVariant()
+	yylval->node  = new Node(QVariant())
 
 #define VARIANT_FROM(_value_)\
-	yylval->var = new QVariant(_value_)
+	yylval->node  = new Node(_value_)
 
 #define STRING_BEGIN()\
 	yylval->str = new QString()
@@ -241,18 +241,6 @@ comment_line            \/\/.*$
 
 <INITIAL>{kw_typedef}                     {BEGIN INITIAL; RETURN_TOKEN(TTYPEDEF);}
 
-<INITIAL>{curly_bracket_open}             {BEGIN INITIAL; RETURN_TOKEN(TBLOCKBEGIN);}
-<INITIAL>{curly_bracket_close}            {BEGIN INITIAL; RETURN_TOKEN(TBLOCKEND);}
-<INITIAL>{square_bracket_open}            {BEGIN INITIAL; RETURN_TOKEN(TARRAYBEGIN);}
-<INITIAL>{square_bracket_close}           {BEGIN INITIAL; RETURN_TOKEN(TARRAYEND);}
-<INITIAL>{parenthesis_open}               {BEGIN INITIAL; RETURN_TOKEN(TPARTHBEGIN);}
-<INITIAL>{parenthesis_close}              {BEGIN INITIAL; RETURN_TOKEN(TPARTHEND);}
-<INITIAL>{sharp}                          {BEGIN INITIAL; RETURN_TOKEN(TCOLON);}
-<INITIAL>{semicolon}                      {BEGIN INITIAL; RETURN_TOKEN(TSEMICOLON);}
-<INITIAL>{coma}                           {BEGIN INITIAL; RETURN_TOKEN(TCOMA);}
-<INITIAL>{less_than}                      {BEGIN INITIAL; RETURN_TOKEN(TLTHAN);}
-<INITIAL>{greater_than}                   {BEGIN INITIAL; RETURN_TOKEN(TGTHAN);}
-
 <INITIAL>{dblcote}                        {BEGIN STRING; STRING_BEGIN();}
 
 <INITIAL>{comment_open}                   {BEGIN COMMENT;}
@@ -262,6 +250,6 @@ comment_line            \/\/.*$
 
 <INITIAL>{symbol}                         {BEGIN INITIAL; VARIANT_STRING(); RETURN_TOKEN(TVARIANT);}
 
-<INITIAL>.                                {VARIANT_STRING();RETURN_TOKEN(TSYNERR);}
+<INITIAL>.                                {BEGIN INITIAL; return (idlparser::Parser::token_type)yytext[0];}
 
 %%

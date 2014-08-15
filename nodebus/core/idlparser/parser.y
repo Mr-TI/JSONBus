@@ -27,7 +27,7 @@
 
 %token              TEND 0          "end of file"
 
-%token <str>        TINCLUDE        "#include<...>"
+%token <node>       TINCLUDE        "#include<...>"
 
 %token              TMODULE         "module"
 %token              TINTERFACE      "interface"
@@ -66,20 +66,8 @@
 
 %token              TTYPEDEF        "typedef"
 
-%token              TBLOCKBEGIN     "block begin '{'"
-%token              TBLOCKEND       "block end '}'"
-%token              TARRAYBEGIN     "array begin '['"
-%token              TARRAYEND       "array end ']'"
-%token              TPARTHBEGIN     "parenthesis begin '('"
-%token              TPARTHEND       "parenthesis end ')'"
-%token              TLTHAN          "less than '<'"
-%token              TGTHAN          "greater than '>'"
-%token              TCOLON          "colon ':'"
-%token              TSEMICOLON      "semicolon ';'"
-%token              TCOMA           "coma ','"
-
-%token <str>        TSTRINGVAL      "string value"
-%token <str>        TSYMBOL         "symbol"
+%token <node>       TSTRINGVAL      "string value"
+%token <node>       TSYMBOL         "symbol"
 %token <node>       TNUMBER         "number value"
 %token <node>       TINTVAL         "integer value"
 %token <node>       TFLOATVAL       "float value"
@@ -91,7 +79,13 @@
 
 %start DOCUMENT
 
-%type <node>        DOCUMENT DOCUMENT_ELTS
+%type <node>        DOCUMENT DOCUMENT_ELTS DOCUMENT_ELT MODULE_ELTS MODULE_ELT MODULE_BEGIN MODULE ENUM STRUCT EXCEPTION
+%type <node>        STRUCT_ELTS TYPEDEF SYMBOL_LIST SYMBOL INTERFACE INTERFACE_ELTS INTERFACE_ELT SEQUENCE RET_TYPE TYPE
+%type <node>        FIELD ATTRIBUTE CONSTANT EXPRESSION METHOD METHOD_PREFIX METHOD_SUFFIX PARAMETERS PARAMETER PARAMETER_INOUT
+%type <node>        VALUE
+
+%left	'+' '-'
+%left   '*' '/' '%'
 
 %language "C++"
 %define namespace "idlparser"
@@ -129,43 +123,43 @@ MODULE_ELT : INTERFACE                            {}
     | EXCEPTION                                   {}
     ;
 
-MODULE_BEGIN : TMODULE TSYMBOL TBLOCKBEGIN        {driver.packagePush(*$2);}
+MODULE_BEGIN : TMODULE TSYMBOL '{'                {driver.packagePush($2->toString());}
     ;
 
-MODULE : MODULE_BEGIN MODULE_ELTS TBLOCKEND TSEMICOLON TSEMICOLON
-                                                  {}
+MODULE : MODULE_BEGIN MODULE_ELTS '}' ';'
+                                                  {driver.packagePop();}
     ;
 
-ENUM : TENUM TSYMBOL TBLOCKBEGIN SYMBOL_LIST TBLOCKEND TSEMICOLON TSEMICOLON
-                                                  {}
+ENUM : TENUM TSYMBOL '{' SYMBOL_LIST '}' ';'
+                                                  {driver.lastError = "enum definition not supported yet";YYABORT;}
     ;
 
-STRUCT : TSTRUCT TSYMBOL TBLOCKBEGIN STRUCT_ELTS TBLOCKEND TSEMICOLON
-                                                  {}
+STRUCT : TSTRUCT TSYMBOL '{' STRUCT_ELTS '}' ';'
+                                                  {driver.lastError = "struct definition not supported yet";YYABORT;}
     ;
 
-EXCEPTION : TEXCEPTION TSYMBOL TBLOCKBEGIN STRUCT_ELTS TBLOCKEND TSEMICOLON
-                                                  {}
+EXCEPTION : TEXCEPTION TSYMBOL '{' STRUCT_ELTS '}' ';'
+                                                  {driver.lastError = "exception definition not supported yet";YYABORT;}
     ;
 
 STRUCT_ELTS : STRUCT_ELTS FIELD                   {}
     | FIELD                                       {}
     ;
 
-TYPEDEF : TYPE TSYMBOL                            {}
+TYPEDEF : TYPE TSYMBOL                            {driver.lastError = "typedef definition not supported yet";YYABORT;}
     ;
 
-SYMBOL_LIST : SYMBOL_LIST TCOMA SYMBOL            {}
+SYMBOL_LIST : SYMBOL_LIST ',' SYMBOL              {}
     | SYMBOL                                      {}
     ;
 
-SYMBOL : SYMBOL TCOLON TCOLON TSYMBOL             {}
-    | TSYMBOL                                     {}
+SYMBOL : SYMBOL ':' ':' TSYMBOL                   {$$ = new Node(QVariant($1->toString() + "::" + $4->toString()));}
+    | TSYMBOL                                     {$$ = $1;}
     ;
 
-INTERFACE : TINTERFACE SYMBOL TCOLON SYMBOL_LIST TBLOCKBEGIN INTERFACE_ELTS TBLOCKEND TSEMICOLON
+INTERFACE : TINTERFACE SYMBOL ':' SYMBOL_LIST '{' INTERFACE_ELTS '}' ';'
                                                   {}
-    | TINTERFACE SYMBOL TBLOCKBEGIN INTERFACE_ELTS TBLOCKEND TSEMICOLON
+    | TINTERFACE SYMBOL '{' INTERFACE_ELTS '}' ';'
                                                   {}
     ;
 
@@ -175,10 +169,11 @@ INTERFACE_ELTS : INTERFACE_ELTS INTERFACE_ELT     {}
 
 INTERFACE_ELT : ATTRIBUTE                         {}
     | METHOD                                      {}
+    | CONSTANT                                    {}
     ;
 
-SEQUENCE : TSEQUENCE TLTHAN TYPE TGTHAN           {}
-    | TSEQUENCE TLTHAN TYPE TCOMA TNUMBER TGTHAN  {}
+SEQUENCE : TSEQUENCE '<' TYPE '>'                 {driver.lastError = "sequence not supported yet";YYABORT;}
+    | TSEQUENCE '<' TYPE ',' TNUMBER '>'          {driver.lastError = "sequence not supported yet";YYABORT;}
     ;
 
 RET_TYPE : TYPE                                   {}
@@ -203,39 +198,56 @@ TYPE : TBOOLEAN                                   {}
     ;
 
 FIELD : TYPE SYMBOL                               {}
-    | TYPE SYMBOL TARRAYBEGIN TNUMBER TARRAYEND   {}
-    | TYPE SYMBOL TLTHAN TNUMBER TGTHAN           {}
+    | TYPE SYMBOL '[' TNUMBER ']'                 {driver.lastError = "array definition not supported";YYABORT;}
+    | TYPE SYMBOL '<' TNUMBER '>'                 {driver.lastError = "array definition not supported";YYABORT;}
     ;
 
-ATTRIBUTE : TATTRIBUTE FIELD                      {}
-    | TREADONLY TATTRIBUTE FIELD                  {}
+ATTRIBUTE : TATTRIBUTE FIELD ';'                  {}
+    | TREADONLY TATTRIBUTE FIELD ';'              {}
     ;
 
-METHOD : METHOD_PREFIX RET_TYPE SYMBOL TPARTHBEGIN TPARTHEND METHOD_SUFFIX TCOMA
+CONSTANT : TCONST FIELD '=' EXPRESSION ';'        {}
+    ;
+
+EXPRESSION : '(' EXPRESSION ')'                   {$$ = $2;}
+    | EXPRESSION '+' EXPRESSION                   {$$ = op_plus($1->variant(), $3->variant());}
+    | EXPRESSION '-' EXPRESSION                   {$$ = op_minus($1->variant(), $3->variant());}
+    | EXPRESSION '*' EXPRESSION                   {$$ = op_mult($1->variant(), $3->variant());}
+    | EXPRESSION '/' EXPRESSION                   {$$ = op_divid($1->variant(), $3->variant());}
+    | EXPRESSION '%' EXPRESSION                   {$$ = op_rest($1->variant(), $3->variant());}
+    | VALUE                                       {$$ = $1;}
+    ;
+
+VALUE : TVARIANT                                  {$$ = $1;}
+    | TSYMBOL                                     {driver.lastError = "symbol in expression not supported yet";YYABORT;}
+    ;
+
+METHOD : METHOD_PREFIX RET_TYPE SYMBOL '(' PARAMETERS ')' METHOD_SUFFIX ';'
                                                   {}
-    | METHOD_PREFIX RET_TYPE SYMBOL TPARTHBEGIN PARAMETERS TPARTHEND METHOD_SUFFIX TCOMA
-                                                  {}
     ;
 
-METHOD_PREFIX : TONEWAY
-    |
+METHOD_PREFIX : TONEWAY                           {}
+    |                                             {}
     ;
 
-METHOD_SUFFIX : TRAISES TPARTHBEGIN SYMBOL TPARTHEND
-    |
+METHOD_SUFFIX : TRAISES '(' SYMBOL_LIST ')'
+                                                  {driver.lastError = "exception raise not supported";YYABORT;}
+    |                                             {}
     ;
 
 PARAMETERS : PARAMETERS PARAMETER                 {}
     | PARAMETER                                   {}
+    | TVOID                                       {}
+    |                                             {}
     ;
 
 PARAMETER : PARAMETER_INOUT FIELD                 {}
     ; 
 
-PARAMETER_INOUT : TIN                             {}
-    | TOUT                                        {}
-    | TINOUT                                      {}
-    |                                             {}
+PARAMETER_INOUT : TIN                             {$$ = new Node(char(1));}
+    | TOUT                                        {$$ = new Node(char(2));}
+    | TINOUT                                      {$$ = new Node(char(3));}
+    |                                             {$$ = new Node(char(1));}
     ;
 
 

@@ -30,6 +30,4 @@ void Parser::error(const std::string& m) {
 }
 #endif
 
-
-
 }

@@ -21,27 +21,134 @@
 
 #include <QVariant>
 #include <QString>
+#include <qt4/QtCore/QVariant>
+#include <nodebus/core/shareddata.h>
+#include <nodebus/core/sharedptr.h>
+
+using namespace NodeBus;
 
 namespace idlparser {
 	
 class Driver;
 
-class LType {
+class Node: public SharedData {
+private:
+	void *data;
 public:
-	LType();
-	~LType();
-	QVariant *var;
-	QString *str;
+	Node(const QVariant &variant);
+	~Node();
+	QString toString();
+	QVariant &variant();
+	QVariantMap &variantMap();
+	QVariantList &variantList();
 };
 
-inline LType::LType(): var(NULL), str(NULL) {
+inline Node::Node(const QVariant& variant) {
+	data = new QVariant(variant);
+}
+
+inline QString Node::toString() {
+	return ((QVariant*)data)->toString();
+}
+
+inline QVariant& Node::variant() {
+	return *((QVariant*)data);
+}
+
+inline QVariantList& Node::variantList() {
+	return *((QVariantList*)data);
+}
+
+inline QVariantMap& Node::variantMap() {
+	return *((QVariantMap*)data);
+}
+
+inline Node::~Node() {
+	if (dynamic_cast<QVariant*>((QObject*)data)) {
+		delete (QVariant*)data;
+	} else if (dynamic_cast<QVariantMap*>((QObject*)data)) {
+		delete (QVariantMap*)data;
+	} else if (dynamic_cast<QVariantList*>((QObject*)data)) {
+		delete (QVariantList*)data;
+	}
+}
+
+class LType: public SharedData {
+public:
+	LType();
+	LType(const LType& other);
+	~LType();
+	SharedPtr<Node> node;
+	QString *str;
+	LType& operator= (const LType& other);
+};
+
+inline LType::LType(): str(NULL) {
+}
+
+inline LType::LType(const LType& other) {
+	node = other.node;
+	if (other.str) str = new QString(*(other.str));
 }
 
 inline LType::~LType() {
-	delete var;
 	delete str;
 }
 
+inline LType& LType::operator=(const LType& other) {
+	node = other.node;
+	if (other.str) str = new QString(*(other.str));
+	return *this;
+}
+
+inline Node* op_plus(const QVariant &op1, const QVariant &op2) {
+	if (!op1.canConvert(QVariant::Double) || !op2.canConvert(QVariant::Double)) {
+		return NULL;
+	} else if (op1.type() == QVariant::Double || op2.type() == QVariant::Double) {
+		return new Node(op1.toDouble() + op1.toDouble());
+	} else {
+		return new Node(op1.toLongLong() + op1.toLongLong());
+	}
+}
+
+inline Node* op_minus(const QVariant &op1, const QVariant &op2) {
+	if (!op1.canConvert(QVariant::Double) || !op2.canConvert(QVariant::Double)) {
+		return NULL;
+	} else if (op1.type() == QVariant::Double || op2.type() == QVariant::Double) {
+		return new Node(op1.toDouble() - op1.toDouble());
+	} else {
+		return new Node(op1.toLongLong() - op1.toLongLong());
+	}
+}
+
+inline Node* op_mult(const QVariant &op1, const QVariant &op2) {
+	if (!op1.canConvert(QVariant::Double) || !op2.canConvert(QVariant::Double)) {
+		return NULL;
+	} else if (op1.type() == QVariant::Double || op2.type() == QVariant::Double) {
+		return new Node(op1.toDouble() * op1.toDouble());
+	} else {
+		return new Node(op1.toLongLong() * op1.toLongLong());
+	}
+}
+
+inline Node* op_divid(const QVariant &op1, const QVariant &op2) {
+	if (!op1.canConvert(QVariant::Double) || !op2.canConvert(QVariant::Double)) {
+		return NULL;
+	} else if (op1.type() == QVariant::Double || op2.type() == QVariant::Double) {
+		return new Node(op1.toDouble() / op1.toDouble());
+	} else {
+		return new Node(op1.toLongLong() / op1.toLongLong());
+	}
+}
+
+inline Node* op_rest(const QVariant &op1, const QVariant &op2) {
+	if (!op1.canConvert(QVariant::Double) || !op2.canConvert(QVariant::Double)
+		|| op1.type() == QVariant::Double || op2.type() == QVariant::Double) {
+		return NULL;
+	} else {
+		return new Node(op1.toLongLong() % op1.toLongLong());
+	}
+}
 
 }
 

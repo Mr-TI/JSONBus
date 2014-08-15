@@ -47,23 +47,28 @@ private:
 	Parser &parser;
 	QVariant result;
 	QStack<QString> packageStack;
-	void packagePush(const QString &name);
-	QString absoluteName(const QString& name);
+	void packagePush(const QVariant& value);
+	void packagePop();
+	QString absoluteName(const QVariant& value);
 };
 
-void Driver::packagePush(const QString& name) {
+inline void Driver::packagePush(const QVariant& value) {
 	if (packageStack.isEmpty()) {
-		packageStack.push(name);
+		packageStack.push(value.toString());
 	} else {
-		packageStack.push(packageStack.top() + "::" + name);
+		packageStack.push(packageStack.top() + "::" + value.toString());
 	}
 }
 
-QString Driver::absoluteName(const QString& name) {
+inline void Driver::packagePop() {
+	packageStack.pop();
+}
+
+inline QString Driver::absoluteName(const QVariant& value) {
 	if (packageStack.isEmpty()) {
-		return name;
+		return value.toString();
 	} else {
-		return packageStack.top() + "::" + name;
+		return packageStack.top() + "::" + value.toString();
 	}
 }
 
