@@ -176,25 +176,25 @@ SEQUENCE : TSEQUENCE '<' TYPE '>'                 {driver.lastError = "sequence 
     | TSEQUENCE '<' TYPE ',' TNUMBER '>'          {driver.lastError = "sequence not supported yet";YYABORT;}
     ;
 
-RET_TYPE : TYPE                                   {}
-    | TVOID                                       {}
+RET_TYPE : TYPE                                   {$$ = $1;}
+    | TVOID                                       {$$ = new Node(char(-1));}
     ;
 
-TYPE : TBOOLEAN                                   {}
-    | TFLOAT                                      {}
-    | TDOUBLE                                     {}
-    | TCHAR                                       {}
-    | TWCHAR                                      {}
-    | TSHORT                                      {}
-    | TUNSIGNED TSHORT                            {}
-    | TLONG                                       {}
-    | TUNSIGNED TLONG                             {}
-    | TLONG TLONG                                 {}
-    | TUNSIGNED TLONG TLONG                       {}
-    | TSTRING                                     {}
-    | TOBJECT                                     {}
-    | TANY                                        {}
-    | SEQUENCE                                    {}
+TYPE : TOBJECT                                    {$$ = new Node(char(0));}
+    | TANY                                        {$$ = new Node(char(0));}
+    | TBOOLEAN                                    {$$ = new Node(char(1));}
+    | TCHAR                                       {$$ = new Node(char(2));}
+    | TWCHAR                                      {$$ = new Node(char(2));}
+    | TUNSIGNED TSHORT                            {$$ = new Node(char(3));}
+    | TSHORT                                      {$$ = new Node(char(4));}
+    | TUNSIGNED TLONG                             {$$ = new Node(char(3));}
+    | TLONG                                       {$$ = new Node(char(4));}
+    | TUNSIGNED TLONG TLONG                       {$$ = new Node(char(5));}
+    | TLONG TLONG                                 {$$ = new Node(char(6));}
+    | TFLOAT                                      {$$ = new Node(char(7));}
+    | TDOUBLE                                     {$$ = new Node(char(7));}
+    | TSTRING                                     {$$ = new Node(char(8));}
+    | SEQUENCE                                    {driver.lastError = "sequence not supported yet";YYABORT;}
     ;
 
 FIELD : TYPE SYMBOL                               {}
