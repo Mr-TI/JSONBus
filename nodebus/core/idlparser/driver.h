@@ -24,11 +24,12 @@
 #include <qt4/QtCore/QMap>
 
 #define NODE_KEY_TYPE      "T"
-#define NODE_KEY_RET_TYPE  "t"
-#define NODE_KEY_SYN_NAME  "n"
+#define NODE_KEY_DTYPE     "t"
+#define NODE_KEY_SNAME     "n"
 #define NODE_KEY_DIRECTION "d"
 #define NODE_KEY_WRITABLE  "w"
 #define NODE_KEY_VALUE     "v"
+#define NODE_KEY_PARAMS    "p"
 
 #define VTYPE_VOID         'v'
 #define VTYPE_ANY          'a'
@@ -97,9 +98,9 @@ inline void Driver::blockEnd() {
 	QString prefix;
 	if (!packageStack.isEmpty()) {
 		prefix = packageStack.top() + "::";
-	}
-	for (auto it = envLocal.begin(); it != envLocal.end(); it++) {
-		envGlobal.insert(prefix + it.key(), it.value());
+		for (auto it = envLocal.begin(); it != envLocal.end(); it++) {
+			envGlobal.insert(prefix + it.key(), it.value());
+		}
 	}
 	packageStack.pop();
 }
@@ -115,9 +116,11 @@ inline bool Driver::resolve(const QString& name, QVariant &value) {
 	} else if (envGlobal.contains(name)) {
 		field = envGlobal[name].toMap();
 	} else {
+		lastError = "Unresolved symbol " + name;
 		return false;
 	}
 	if (field.value(NODE_KEY_TYPE).toChar() != NTYPE_CONST) {
+		lastError = "Unresolved symbol " + name;
 		return false;
 	}
 	value = field.value(NODE_KEY_VALUE);

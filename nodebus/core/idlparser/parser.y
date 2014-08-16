@@ -80,10 +80,10 @@
 
 %start DOCUMENT
 
-%type <node>        DOCUMENT DOCUMENT_ELTS DOCUMENT_ELT MODULE_ELTS MODULE_ELT MODULE_BEGIN MODULE ENUM STRUCT EXCEPTION
+%type <node>        DOCUMENT DOCUMENT_ELTS DOCUMENT_ELT MODULE_ELTS MODULE_ELT MODULE_HEADER MODULE ENUM STRUCT EXCEPTION
 %type <node>        STRUCT_ELTS TYPEDEF SYMBOL_LIST SYMBOL INTERFACE INTERFACE_ELTS INTERFACE_ELT SEQUENCE RET_TYPE TYPE
-%type <node>        FIELD ATTRIBUTE CONSTANT EXPRESSION METHOD METHOD_PREFIX METHOD_SUFFIX PARAMETERS PARAMETER PARAMETER_DIR
-%type <node>        VALUE ATTRIBUTE_QUAL INTERFACE_PARENT
+%type <node>        FIELD ATTRIBUTE CONSTANT EXPRESSION METHOD METHOD_HEADER METHOD_FOOTER PARAMETERS PARAMETER PARAMETER_DIR
+%type <node>        VALUE ATTRIBUTE_QUAL INTERFACE_PARENT INTERFACE_HEADER
 
 %left	'+' '-'
 %left   '*' '/' '%'
@@ -112,6 +112,12 @@ DOCUMENT_ELT : MODULE_ELT                         {}
     | TINCLUDE                                    {}
     ;
 
+MODULE : MODULE_HEADER '{' MODULE_ELTS '}' ';'    {driver.blockEnd();}
+    ;
+
+MODULE_HEADER : TMODULE TSYMBOL                   {driver.blockBegin($2->toString());}
+    ;
+
 MODULE_ELTS : MODULE_ELTS MODULE_ELT              {}
     | MODULE_ELT                                  {}
     ;
@@ -124,30 +130,24 @@ MODULE_ELT : INTERFACE                            {}
     | EXCEPTION                                   {}
     ;
 
-MODULE_BEGIN : TMODULE TSYMBOL '{'                {driver.blockBegin($2->toString());}
-    ;
-
-MODULE : MODULE_BEGIN MODULE_ELTS '}' ';'         {driver.blockEnd();}
-    ;
-
 ENUM : TENUM TSYMBOL '{' SYMBOL_LIST '}' ';'      {driver.lastError = "enum definition not supported yet";YYABORT;}
     ;
 
 STRUCT : TSTRUCT TSYMBOL '{' STRUCT_ELTS '}' ';'  {driver.lastError = "struct definition not supported yet";YYABORT;}
     ;
 
-EXCEPTION : TEXCEPTION TSYMBOL '{' STRUCT_ELTS '}' ';'
-                                                  {driver.lastError = "exception definition not supported yet";YYABORT;}
-    ;
-
-STRUCT_ELTS : STRUCT_ELTS FIELD                   {$$ = $1; $$->list().append($2->map());}
+STRUCT_ELTS : STRUCT_ELTS FIELD                   {$$ = $1; $$->append($2->map());}
     | FIELD                                       {$$ = Node::newList($1->map());}
     ;
 
 TYPEDEF : TTYPEDEF TYPE TSYMBOL                   {driver.lastError = "typedef definition not supported yet";YYABORT;}
     ;
 
-SYMBOL_LIST : SYMBOL_LIST ',' SYMBOL              {$$ = $1; $$->list().append($3->val());}
+EXCEPTION : TEXCEPTION TSYMBOL '{' STRUCT_ELTS '}' ';'
+                                                  {driver.lastError = "exception definition not supported yet";YYABORT;}
+    ;
+
+SYMBOL_LIST : SYMBOL_LIST ',' SYMBOL              {$$ = $1; $$->append($3->val());}
     | SYMBOL                                      {$$ = Node::newList($1->val());}
     ;
 
@@ -155,8 +155,12 @@ SYMBOL : SYMBOL ':' ':' TSYMBOL                   {$$ = new Node($1->toString() 
     | TSYMBOL                                     {$$ = $1;}
     ;
 
-INTERFACE : TINTERFACE SYMBOL INTERFACE_PARENT '{' INTERFACE_ELTS '}' ';'
-                                                  {}
+INTERFACE : INTERFACE_HEADER '{' INTERFACE_ELTS '}' ';'
+                                                  {driver.blockEnd();}
+    ;
+
+INTERFACE_HEADER : TINTERFACE SYMBOL INTERFACE_PARENT
+                                                  {driver.blockBegin($2->toString());}
     ;
 
 INTERFACE_PARENT : ':' SYMBOL_LIST                {$$ = $2;}
@@ -203,17 +207,17 @@ TYPE : TOBJECT                                    {$$ = new Node(VTYPE_ANY);}
 FIELD : TYPE SYMBOL '<' TNUMBER '>'               {driver.lastError = "Error: array definition not supported";YYABORT;}
     | TYPE SYMBOL '[' TNUMBER ']'                 {driver.lastError = "Error: array definition not supported";YYABORT;}
     | TYPE SYMBOL '[' ']'                         {driver.lastError = "Error: array definition not supported";YYABORT;}
-    | TYPE SYMBOL                                 {$$ = Node::newMap(NODE_KEY_RET_TYPE, $1->val()); $$->map().insert("n", $2->val());}
+    | TYPE SYMBOL                                 {$$ = Node::newMap(NODE_KEY_DTYPE, $1->val())->insert(NODE_KEY_SNAME, $2->val());}
     ;
 
-ATTRIBUTE : ATTRIBUTE_QUAL TATTRIBUTE FIELD ';'   {$$ = $3; $$->map().insert(NODE_KEY_WRITABLE, $1->val());}
+ATTRIBUTE : ATTRIBUTE_QUAL TATTRIBUTE FIELD ';'   {$$ = $3->insert(NODE_KEY_WRITABLE, $1->val())->insert(NODE_KEY_TYPE, NTYPE_ATTR);}
     ;
 
 ATTRIBUTE_QUAL : TREADONLY                        {$$ = new Node(false);}
     |                                             {$$ = new Node(true);}
     ;
 
-CONSTANT : TCONST FIELD '=' EXPRESSION ';'        {$$ = $2; $$->map().insert(NODE_KEY_VALUE, $4->val());}
+CONSTANT : TCONST FIELD '=' EXPRESSION ';'        {$$ = $2; $$->insert(NODE_KEY_VALUE, $4->val());}
     ;
 
 EXPRESSION : '(' EXPRESSION ')'                   {$$ = $2;}
@@ -226,31 +230,29 @@ EXPRESSION : '(' EXPRESSION ')'                   {$$ = $2;}
     ;
 
 VALUE : TVARIANT                                  {$$ = $1;}
-    | TSYMBOL                                     {QVariant v; if (!driver.resolve($1->val().toString(), v)) {
-                                                      driver.lastError = "Unresolved symbol " + $1->val().toString();YYABORT;
-                                                  };$$ = new Node(v);}
+    | TSYMBOL                                     {QVariant v; if (!driver.resolve($1->val().toString(), v))YYABORT;$$ = new Node(v);}
     ;
 
-METHOD : METHOD_PREFIX RET_TYPE SYMBOL '(' PARAMETERS ')' METHOD_SUFFIX ';'
-                                                  {}
+METHOD : METHOD_HEADER RET_TYPE SYMBOL '(' PARAMETERS ')' METHOD_FOOTER ';'
+                                                  {$$ = Node::newMap(NODE_KEY_DTYPE, $2->val())->insert(NODE_KEY_SNAME, $3->val())->insert(NODE_KEY_PARAMS, $5->map().values());}
     ;
 
-METHOD_PREFIX : TONEWAY                           {driver.lastError = "Warning: unsupported oneway keyword";YYERROR;}
+METHOD_HEADER : TONEWAY                           {driver.lastError = "Warning: unsupported oneway keyword";YYERROR;}
     |                                             {}
     ;
 
-METHOD_SUFFIX : TRAISES '(' SYMBOL_LIST ')'
+METHOD_FOOTER : TRAISES '(' SYMBOL_LIST ')'
                                                   {driver.lastError = "exception raise not supported";YYABORT;}
     |                                             {}
     ;
 
-PARAMETERS : PARAMETERS PARAMETER                 {$$ = $1; $$->list().append($2->val());}
-    | PARAMETER                                   {$$ = Node::newList($1->val());}
-    | TVOID                                       {$$ = Node::newList();}
-    |                                             {$$ = Node::newList();}
+PARAMETERS : PARAMETERS PARAMETER                 {if (!param_add($$, $1, $2, driver.lastError)) YYABORT;}
+    | PARAMETER                                   {$$ = Node::newMap($1->map()[NODE_KEY_SNAME].toString(), $1->map());}
+    | TVOID                                       {$$ = Node::newMap();}
+    |                                             {$$ = Node::newMap();}
     ;
 
-PARAMETER : PARAMETER_DIR FIELD                   {$$ = $2; $$->map().insert(NODE_KEY_DIRECTION, $1->val());}
+PARAMETER : PARAMETER_DIR FIELD                   {$$ = $2->insert(NODE_KEY_DIRECTION, $1->val());}
     ; 
 
 PARAMETER_DIR : TIN                               {$$ = new Node('\x01');}

@@ -41,6 +41,8 @@ public:
 	QVariant &val();
 	QVariantMap &map();
 	QVariantList &list();
+	Node *insert(const QString &key, const QVariant &value);
+	Node *append(const QVariant &value);
 	static Node *newMap();
 	static Node *newMap(const QString &key, const QVariant &value);
 	static Node *newList();
@@ -67,6 +69,16 @@ inline QVariantList& Node::list() {
 
 inline QVariantMap& Node::map() {
 	return *((QVariantMap*)data);
+}
+
+inline Node *Node::append(const QVariant &value) {
+	((QVariantList*)data)->append(value);
+	return this;
+}
+
+inline Node *Node::insert(const QString &key, const QVariant &value) {
+	((QVariantMap*)data)->insert(key, value);
+	return this;
 }
 
 inline Node* Node::newList(const QVariant& value) {
@@ -180,6 +192,17 @@ inline Node* op_rest(const QVariant &op1, const QVariant &op2) {
 	} else {
 		return new Node(op1.toLongLong() % op1.toLongLong());
 	}
+}
+
+inline bool param_add(SharedPtr<Node> &ret, SharedPtr<Node> &list, SharedPtr<Node> &elt, QString &lastError) {
+	QString k = elt->map()["n"].toString();
+	if (list->map().contains(elt->map()["n"].toString())) {
+		lastError = "Dupplicate parameter " + k;
+		return false;
+	};
+	list->append(elt->map());
+	ret = list;
+	return true;
 }
 
 }
