@@ -124,10 +124,10 @@ MODULE_ELT : INTERFACE                            {}
     | EXCEPTION                                   {}
     ;
 
-MODULE_BEGIN : TMODULE TSYMBOL '{'                {driver.packagePush($2->toString());}
+MODULE_BEGIN : TMODULE TSYMBOL '{'                {driver.blockBegin($2->toString());}
     ;
 
-MODULE : MODULE_BEGIN MODULE_ELTS '}' ';'         {driver.packagePop();}
+MODULE : MODULE_BEGIN MODULE_ELTS '}' ';'         {driver.blockEnd();}
     ;
 
 ENUM : TENUM TSYMBOL '{' SYMBOL_LIST '}' ';'      {driver.lastError = "enum definition not supported yet";YYABORT;}
@@ -177,32 +177,32 @@ SEQUENCE : TSEQUENCE '<' TYPE '>'                 {driver.lastError = "sequence 
     ;
 
 RET_TYPE : TYPE                                   {$$ = $1;}
-    | TVOID                                       {$$ = new Node(TYPE_VOID);}
+    | TVOID                                       {$$ = new Node(VTYPE_VOID);}
     ;
 
-TYPE : TOBJECT                                    {$$ = new Node(TYPE_ANY);}
-    | TANY                                        {$$ = new Node(TYPE_ANY);}
-    | TBOOLEAN                                    {$$ = new Node(TYPE_BOOLEAN);}
-    | TOCTET                                      {$$ = new Node(TYPE_BYTE);}
-    | TCHAR                                       {$$ = new Node(TYPE_BYTE);}
-    | TWCHAR                                      {$$ = new Node(TYPE_BYTE);}
-    | TUNSIGNED TSHORT                            {$$ = new Node(TYPE_UINT32);}
-    | TSHORT                                      {$$ = new Node(TYPE_INT32);}
-    | TUNSIGNED TLONG                             {$$ = new Node(TYPE_UINT32);}
-    | TLONG                                       {$$ = new Node(TYPE_INT32);}
-    | TUNSIGNED TLONG TLONG                       {$$ = new Node(TYPE_UINT64);}
-    | TLONG TLONG                                 {$$ = new Node(TYPE_INT64);}
-    | TFLOAT                                      {$$ = new Node(TYPE_DOUBLE);}
-    | TDOUBLE                                     {$$ = new Node(TYPE_DOUBLE);}
-    | TSTRING                                     {$$ = new Node(TYPE_STRING);}
-    | TOCTET '[' ']'                              {$$ = new Node(TYPE_BYTEARRAY);}
-    | TDATETIME                                   {$$ = new Node(TYPE_DATETIME);}
-    | SEQUENCE                                    {driver.lastError = "sequence not supported yet";YYABORT;}
+TYPE : TOBJECT                                    {$$ = new Node(VTYPE_ANY);}
+    | TANY                                        {$$ = new Node(VTYPE_ANY);}
+    | TBOOLEAN                                    {$$ = new Node(VTYPE_BOOLEAN);}
+    | TOCTET                                      {$$ = new Node(VTYPE_BYTE);}
+    | TCHAR                                       {$$ = new Node(VTYPE_BYTE);}
+    | TWCHAR                                      {$$ = new Node(VTYPE_BYTE);}
+    | TUNSIGNED TSHORT                            {$$ = new Node(VTYPE_UINT32);}
+    | TSHORT                                      {$$ = new Node(VTYPE_INT32);}
+    | TUNSIGNED TLONG                             {$$ = new Node(VTYPE_UINT32);}
+    | TLONG                                       {$$ = new Node(VTYPE_INT32);}
+    | TUNSIGNED TLONG TLONG                       {$$ = new Node(VTYPE_UINT64);}
+    | TLONG TLONG                                 {$$ = new Node(VTYPE_INT64);}
+    | TFLOAT                                      {$$ = new Node(VTYPE_DOUBLE);}
+    | TDOUBLE                                     {$$ = new Node(VTYPE_DOUBLE);}
+    | TSTRING                                     {$$ = new Node(VTYPE_STRING);}
+    | TOCTET '[' ']'                              {$$ = new Node(VTYPE_BYTEARRAY);}
+    | TDATETIME                                   {$$ = new Node(VTYPE_DATETIME);}
+    | SEQUENCE                                    {driver.lastError = "Warning: sequence not supported yet";YYERROR;}
     ;
 
-FIELD : TYPE SYMBOL '<' TNUMBER '>'               {driver.lastError = "array definition not supported";YYABORT;}
-    | TYPE SYMBOL '[' TNUMBER ']'                 {driver.lastError = "array definition not supported";YYABORT;}
-    | TYPE SYMBOL '[' ']'                         {driver.lastError = "array definition not supported";YYABORT;}
+FIELD : TYPE SYMBOL '<' TNUMBER '>'               {driver.lastError = "Error: array definition not supported";YYABORT;}
+    | TYPE SYMBOL '[' TNUMBER ']'                 {driver.lastError = "Error: array definition not supported";YYABORT;}
+    | TYPE SYMBOL '[' ']'                         {driver.lastError = "Error: array definition not supported";YYABORT;}
     | TYPE SYMBOL                                 {$$ = Node::newMap(NODE_KEY_RET_TYPE, $1->val()); $$->map().insert("n", $2->val());}
     ;
 
@@ -226,14 +226,16 @@ EXPRESSION : '(' EXPRESSION ')'                   {$$ = $2;}
     ;
 
 VALUE : TVARIANT                                  {$$ = $1;}
-    | TSYMBOL                                     {driver.lastError = "symbol in expression not supported yet";YYABORT;}
+    | TSYMBOL                                     {QVariant v; if (!driver.resolve($1->val().toString(), v)) {
+                                                      driver.lastError = "Unresolved symbol " + $1->val().toString();YYABORT;
+                                                  };$$ = new Node(v);}
     ;
 
 METHOD : METHOD_PREFIX RET_TYPE SYMBOL '(' PARAMETERS ')' METHOD_SUFFIX ';'
                                                   {}
     ;
 
-METHOD_PREFIX : TONEWAY                           {driver.lastError = "unsupported oneway keyword";YYABORT;}
+METHOD_PREFIX : TONEWAY                           {driver.lastError = "Warning: unsupported oneway keyword";YYERROR;}
     |                                             {}
     ;
 

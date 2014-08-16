@@ -20,6 +20,8 @@
 #include <QVariant>
 #include <qt4/QtCore/QString>
 #include <qt4/QtCore/qstack.h>
+#include <qt4/QtCore/QVariant>
+#include <qt4/QtCore/QMap>
 
 #define NODE_KEY_TYPE      "T"
 #define NODE_KEY_RET_TYPE  "t"
@@ -28,18 +30,26 @@
 #define NODE_KEY_WRITABLE  "w"
 #define NODE_KEY_VALUE     "v"
 
-#define TYPE_VOID 'v'
-#define TYPE_ANY 'a'
-#define TYPE_BOOLEAN 'b'
-#define TYPE_BYTE 'o'
-#define TYPE_UINT32 'I'
-#define TYPE_INT32 'i'
-#define TYPE_UINT64 'L'
-#define TYPE_INT64 'l'
-#define TYPE_DOUBLE 'd' 
-#define TYPE_STRING 's'
-#define TYPE_BYTEARRAY 'O'
-#define TYPE_DATETIME 't'
+#define VTYPE_VOID         'v'
+#define VTYPE_ANY          'a'
+#define VTYPE_BOOLEAN      'b'
+#define VTYPE_BYTE         'o'
+#define VTYPE_UINT32       'I'
+#define VTYPE_INT32        'i'
+#define VTYPE_UINT64       'L'
+#define VTYPE_INT64        'l'
+#define VTYPE_DOUBLE       'd' 
+#define VTYPE_STRING       's'
+#define VTYPE_BYTEARRAY    'O'
+#define VTYPE_DATETIME     't'
+
+#define NTYPE_CONST        'C'
+#define NTYPE_ATTR         'A'
+#define NTYPE_INTERFACE    'I'
+#define NTYPE_METHOD       'M'
+#define NTYPE_ENUM         'E'
+#define NTYPE_STRUCT       'S'
+#define NTYPE_TYPEDEF      'T'
 
 namespace idlparser {
 
@@ -67,29 +77,51 @@ private:
 	Parser &parser;
 	QVariant result;
 	QStack<QString> packageStack;
-	void packagePush(const QVariant& value);
-	void packagePop();
-	QString absoluteName(const QVariant& value);
+	QVariantMap envGlobal;
+	QVariantMap envLocal;
+	void blockBegin(const QString& name);
+	void blockEnd();
+	void addLocal(const QString& name, const QVariant &node);
+	bool resolve(const QString& name, QVariant &value);
 };
 
-inline void Driver::packagePush(const QVariant& value) {
+inline void Driver::blockBegin(const QString& name) {
 	if (packageStack.isEmpty()) {
-		packageStack.push(value.toString());
+		packageStack.push(name);
 	} else {
-		packageStack.push(packageStack.top() + "::" + value.toString());
+		packageStack.push(packageStack.top() + "::" + name);
 	}
 }
 
-inline void Driver::packagePop() {
+inline void Driver::blockEnd() {
+	QString prefix;
+	if (!packageStack.isEmpty()) {
+		prefix = packageStack.top() + "::";
+	}
+	for (auto it = envLocal.begin(); it != envLocal.end(); it++) {
+		envGlobal.insert(prefix + it.key(), it.value());
+	}
 	packageStack.pop();
 }
 
-inline QString Driver::absoluteName(const QVariant& value) {
-	if (packageStack.isEmpty()) {
-		return value.toString();
+inline void Driver::addLocal(const QString& name, const QVariant &node) {
+	envLocal.insert(name, node);
+}
+
+inline bool Driver::resolve(const QString& name, QVariant &value) {
+	QVariantMap field;
+	if (envLocal.contains(name)) {
+		field = envLocal[name].toMap();
+	} else if (envGlobal.contains(name)) {
+		field = envGlobal[name].toMap();
 	} else {
-		return packageStack.top() + "::" + value.toString();
+		return false;
 	}
+	if (field.value(NODE_KEY_TYPE).toChar() != NTYPE_CONST) {
+		return false;
+	}
+	value = field.value(NODE_KEY_VALUE);
+	return true;
 }
 
 }
