@@ -34,7 +34,7 @@ SharedPtr< StdPeer > StdPeer::get(const QString& uid) {
 	return m_stdPeers.value(uid);
 }
 
-StdPeer::StdPeer(SocketChannelPtr socket, DataFormat format)
+StdPeer::StdPeer(SocketChannelPtr socket, FileFormat format)
 : Peer(socket), m_parser(socket, format), m_serializer(socket, format), m_synchronize(QMutex::Recursive) {
 }
 

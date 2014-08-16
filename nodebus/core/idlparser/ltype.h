@@ -21,7 +21,6 @@
 
 #include <QVariant>
 #include <QString>
-#include <qt4/QtCore/QVariant>
 #include <nodebus/core/shareddata.h>
 #include <nodebus/core/sharedptr.h>
 
@@ -34,14 +33,21 @@ class Driver;
 class Node: public SharedData {
 private:
 	void *data;
+	Node();
 public:
 	Node(const QVariant &variant);
 	~Node();
 	QString toString();
-	QVariant &variant();
-	QVariantMap &variantMap();
-	QVariantList &variantList();
+	QVariant &val();
+	QVariantMap &map();
+	QVariantList &list();
+	static Node *newMap();
+	static Node *newMap(const QString &key, const QVariant &value);
+	static Node *newList();
+	static Node *newList(const QVariant &value);
 };
+
+inline Node::Node() {}
 
 inline Node::Node(const QVariant& variant) {
 	data = new QVariant(variant);
@@ -51,16 +57,42 @@ inline QString Node::toString() {
 	return ((QVariant*)data)->toString();
 }
 
-inline QVariant& Node::variant() {
+inline QVariant& Node::val() {
 	return *((QVariant*)data);
 }
 
-inline QVariantList& Node::variantList() {
+inline QVariantList& Node::list() {
 	return *((QVariantList*)data);
 }
 
-inline QVariantMap& Node::variantMap() {
+inline QVariantMap& Node::map() {
 	return *((QVariantMap*)data);
+}
+
+inline Node* Node::newList(const QVariant& value) {
+	Node *node = new Node();
+	node->data = new QVariantList();
+	node->list().append(value);
+	return node;
+}
+
+inline Node* Node::newList() {
+	Node *node = new Node();
+	node->data = new QVariantList();
+	return node;
+}
+
+inline Node* Node::newMap(const QString& key, const QVariant& value) {
+	Node *node = new Node();
+	node->data = new QVariantMap();
+	node->map().insert(key, value);
+	return node;
+}
+
+inline Node* Node::newMap() {
+	Node *node = new Node();
+	node->data = new QVariantMap();
+	return node;
 }
 
 inline Node::~Node() {

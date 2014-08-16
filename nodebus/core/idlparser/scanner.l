@@ -37,13 +37,13 @@ using namespace std;
 
 #define VARIANT_TXT2(_type_)\
 	yylval->node  = new Node(yytext);\
-	yylval->node->variant().convert(QVariant::_type_)
+	yylval->node->val().convert(QVariant::_type_)
 
 #define VARIANT_NUMBER()\
 	yylval->node  = new Node(yytext);\
-	yylval->node->variant().convert(QVariant::LongLong);\
-	if ((yylval->node->variant().toLongLong() & 0xFFFFFFFF00000000) == 0)\
-	yylval->node->variant().convert(QVariant::Int)
+	yylval->node->val().convert(QVariant::LongLong);\
+	if ((yylval->node->val().toLongLong() & 0xFFFFFFFF00000000) == 0)\
+	yylval->node->val().convert(QVariant::Int)
 
 #define VARIANT_NULL()\
 	yylval->node  = new Node(QVariant())
@@ -96,6 +96,7 @@ kw_short                short
 kw_octet                octet
 kw_string               string
 kw_object               Object
+kw_datetime             DateTime
 kw_any                  any
 
 kw_unsigned             unsigned
@@ -218,6 +219,7 @@ comment_line            \/\/.*$
 <INITIAL>{kw_octet}                       {BEGIN INITIAL; RETURN_TOKEN(TOCTET);}
 <INITIAL>{kw_string}                      {BEGIN INITIAL; RETURN_TOKEN(TSTRING);}
 <INITIAL>{kw_object}                      {BEGIN INITIAL; RETURN_TOKEN(TOBJECT);}
+<INITIAL>{kw_datetime}                    {BEGIN INITIAL; RETURN_TOKEN(TDATETIME);}
 <INITIAL>{kw_any}                         {BEGIN INITIAL; RETURN_TOKEN(TANY);}
 
 <INITIAL>{kw_unsigned}                    {BEGIN INITIAL; RETURN_TOKEN(TUNSIGNED);}

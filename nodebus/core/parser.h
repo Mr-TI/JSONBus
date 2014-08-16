@@ -50,13 +50,13 @@ public:
 	 * @brief Parser constructor.
 	 * @param channel Channel pointer
 	 */
-	Parser(fGetc_t getChar, void *ptr, DataFormat format = JSON);
+	Parser(fGetc_t getChar, void *ptr, FileFormat format = JSON);
 	
 	/**
 	 * @brief Parser constructor.
 	 * @param channel Channel pointer
 	 */
-	Parser(SharedPtr<StreamChannel> channel, DataFormat format = JSON);
+	Parser(SharedPtr<StreamChannel> channel, FileFormat format = JSON);
 	
 	/**
 	 * @brief Parser destructor.
@@ -75,21 +75,21 @@ public:
 	 * @return QVariant object
 	 * @throw ParserException on parsing error
 	 */
-	static QVariant parse(const char *data, uint len, DataFormat format = JSON);
+	static QVariant parse(const char *data, uint len, FileFormat format = JSON);
 	
 	/**
 	 * @brief Parse a BCON data from a byte array
 	 * @return QVariant object
 	 * @throw ParserException on parsing error
 	 */
-	static QVariant parse(const QByteArray &data, DataFormat format = JSON);
+	static QVariant parse(const QByteArray &data, FileFormat format = JSON);
 	
 private:
 	bool parseBCON(QVariant &res, QString* key);
 	char getc();
 	uint32_t read32();
 	uint64_t read64();
-	DataFormat m_format;
+	FileFormat m_format;
 	SharedPtr<StreamChannel> m_channel;
 	fGetc_t m_getChar;
 	void *m_ptr;

@@ -43,6 +43,7 @@
 %token              TOCTET          "octet"
 %token              TSTRING         "string"
 %token              TOBJECT         "Object"
+%token              TDATETIME       "DateTime"
 %token              TANY            "any"
 
 %token              TUNSIGNED       "unsigned"
@@ -81,8 +82,8 @@
 
 %type <node>        DOCUMENT DOCUMENT_ELTS DOCUMENT_ELT MODULE_ELTS MODULE_ELT MODULE_BEGIN MODULE ENUM STRUCT EXCEPTION
 %type <node>        STRUCT_ELTS TYPEDEF SYMBOL_LIST SYMBOL INTERFACE INTERFACE_ELTS INTERFACE_ELT SEQUENCE RET_TYPE TYPE
-%type <node>        FIELD ATTRIBUTE CONSTANT EXPRESSION METHOD METHOD_PREFIX METHOD_SUFFIX PARAMETERS PARAMETER PARAMETER_INOUT
-%type <node>        VALUE
+%type <node>        FIELD ATTRIBUTE CONSTANT EXPRESSION METHOD METHOD_PREFIX METHOD_SUFFIX PARAMETERS PARAMETER PARAMETER_DIR
+%type <node>        VALUE ATTRIBUTE_QUAL INTERFACE_PARENT
 
 %left	'+' '-'
 %left   '*' '/' '%'
@@ -126,41 +127,40 @@ MODULE_ELT : INTERFACE                            {}
 MODULE_BEGIN : TMODULE TSYMBOL '{'                {driver.packagePush($2->toString());}
     ;
 
-MODULE : MODULE_BEGIN MODULE_ELTS '}' ';'
-                                                  {driver.packagePop();}
+MODULE : MODULE_BEGIN MODULE_ELTS '}' ';'         {driver.packagePop();}
     ;
 
-ENUM : TENUM TSYMBOL '{' SYMBOL_LIST '}' ';'
-                                                  {driver.lastError = "enum definition not supported yet";YYABORT;}
+ENUM : TENUM TSYMBOL '{' SYMBOL_LIST '}' ';'      {driver.lastError = "enum definition not supported yet";YYABORT;}
     ;
 
-STRUCT : TSTRUCT TSYMBOL '{' STRUCT_ELTS '}' ';'
-                                                  {driver.lastError = "struct definition not supported yet";YYABORT;}
+STRUCT : TSTRUCT TSYMBOL '{' STRUCT_ELTS '}' ';'  {driver.lastError = "struct definition not supported yet";YYABORT;}
     ;
 
 EXCEPTION : TEXCEPTION TSYMBOL '{' STRUCT_ELTS '}' ';'
                                                   {driver.lastError = "exception definition not supported yet";YYABORT;}
     ;
 
-STRUCT_ELTS : STRUCT_ELTS FIELD                   {}
-    | FIELD                                       {}
+STRUCT_ELTS : STRUCT_ELTS FIELD                   {$$ = $1; $$->list().append($2->map());}
+    | FIELD                                       {$$ = Node::newList($1->map());}
     ;
 
-TYPEDEF : TYPE TSYMBOL                            {driver.lastError = "typedef definition not supported yet";YYABORT;}
+TYPEDEF : TTYPEDEF TYPE TSYMBOL                   {driver.lastError = "typedef definition not supported yet";YYABORT;}
     ;
 
-SYMBOL_LIST : SYMBOL_LIST ',' SYMBOL              {}
-    | SYMBOL                                      {}
+SYMBOL_LIST : SYMBOL_LIST ',' SYMBOL              {$$ = $1; $$->list().append($3->val());}
+    | SYMBOL                                      {$$ = Node::newList($1->val());}
     ;
 
-SYMBOL : SYMBOL ':' ':' TSYMBOL                   {$$ = new Node(QVariant($1->toString() + "::" + $4->toString()));}
+SYMBOL : SYMBOL ':' ':' TSYMBOL                   {$$ = new Node($1->toString() + "::" + $4->toString());}
     | TSYMBOL                                     {$$ = $1;}
     ;
 
-INTERFACE : TINTERFACE SYMBOL ':' SYMBOL_LIST '{' INTERFACE_ELTS '}' ';'
+INTERFACE : TINTERFACE SYMBOL INTERFACE_PARENT '{' INTERFACE_ELTS '}' ';'
                                                   {}
-    | TINTERFACE SYMBOL '{' INTERFACE_ELTS '}' ';'
-                                                  {}
+    ;
+
+INTERFACE_PARENT : ':' SYMBOL_LIST                {$$ = $2;}
+    |                                             {$$ = Node::newList();}
     ;
 
 INTERFACE_ELTS : INTERFACE_ELTS INTERFACE_ELT     {}
@@ -177,44 +177,51 @@ SEQUENCE : TSEQUENCE '<' TYPE '>'                 {driver.lastError = "sequence 
     ;
 
 RET_TYPE : TYPE                                   {$$ = $1;}
-    | TVOID                                       {$$ = new Node(char(-1));}
+    | TVOID                                       {$$ = new Node(TYPE_VOID);}
     ;
 
-TYPE : TOBJECT                                    {$$ = new Node(char(0));}
-    | TANY                                        {$$ = new Node(char(0));}
-    | TBOOLEAN                                    {$$ = new Node(char(1));}
-    | TCHAR                                       {$$ = new Node(char(2));}
-    | TWCHAR                                      {$$ = new Node(char(2));}
-    | TUNSIGNED TSHORT                            {$$ = new Node(char(3));}
-    | TSHORT                                      {$$ = new Node(char(4));}
-    | TUNSIGNED TLONG                             {$$ = new Node(char(3));}
-    | TLONG                                       {$$ = new Node(char(4));}
-    | TUNSIGNED TLONG TLONG                       {$$ = new Node(char(5));}
-    | TLONG TLONG                                 {$$ = new Node(char(6));}
-    | TFLOAT                                      {$$ = new Node(char(7));}
-    | TDOUBLE                                     {$$ = new Node(char(7));}
-    | TSTRING                                     {$$ = new Node(char(8));}
+TYPE : TOBJECT                                    {$$ = new Node(TYPE_ANY);}
+    | TANY                                        {$$ = new Node(TYPE_ANY);}
+    | TBOOLEAN                                    {$$ = new Node(TYPE_BOOLEAN);}
+    | TOCTET                                      {$$ = new Node(TYPE_BYTE);}
+    | TCHAR                                       {$$ = new Node(TYPE_BYTE);}
+    | TWCHAR                                      {$$ = new Node(TYPE_BYTE);}
+    | TUNSIGNED TSHORT                            {$$ = new Node(TYPE_UINT32);}
+    | TSHORT                                      {$$ = new Node(TYPE_INT32);}
+    | TUNSIGNED TLONG                             {$$ = new Node(TYPE_UINT32);}
+    | TLONG                                       {$$ = new Node(TYPE_INT32);}
+    | TUNSIGNED TLONG TLONG                       {$$ = new Node(TYPE_UINT64);}
+    | TLONG TLONG                                 {$$ = new Node(TYPE_INT64);}
+    | TFLOAT                                      {$$ = new Node(TYPE_DOUBLE);}
+    | TDOUBLE                                     {$$ = new Node(TYPE_DOUBLE);}
+    | TSTRING                                     {$$ = new Node(TYPE_STRING);}
+    | TOCTET '[' ']'                              {$$ = new Node(TYPE_BYTEARRAY);}
+    | TDATETIME                                   {$$ = new Node(TYPE_DATETIME);}
     | SEQUENCE                                    {driver.lastError = "sequence not supported yet";YYABORT;}
     ;
 
-FIELD : TYPE SYMBOL                               {}
+FIELD : TYPE SYMBOL '<' TNUMBER '>'               {driver.lastError = "array definition not supported";YYABORT;}
     | TYPE SYMBOL '[' TNUMBER ']'                 {driver.lastError = "array definition not supported";YYABORT;}
-    | TYPE SYMBOL '<' TNUMBER '>'                 {driver.lastError = "array definition not supported";YYABORT;}
+    | TYPE SYMBOL '[' ']'                         {driver.lastError = "array definition not supported";YYABORT;}
+    | TYPE SYMBOL                                 {$$ = Node::newMap(NODE_KEY_RET_TYPE, $1->val()); $$->map().insert("n", $2->val());}
     ;
 
-ATTRIBUTE : TATTRIBUTE FIELD ';'                  {}
-    | TREADONLY TATTRIBUTE FIELD ';'              {}
+ATTRIBUTE : ATTRIBUTE_QUAL TATTRIBUTE FIELD ';'   {$$ = $3; $$->map().insert(NODE_KEY_WRITABLE, $1->val());}
     ;
 
-CONSTANT : TCONST FIELD '=' EXPRESSION ';'        {}
+ATTRIBUTE_QUAL : TREADONLY                        {$$ = new Node(false);}
+    |                                             {$$ = new Node(true);}
+    ;
+
+CONSTANT : TCONST FIELD '=' EXPRESSION ';'        {$$ = $2; $$->map().insert(NODE_KEY_VALUE, $4->val());}
     ;
 
 EXPRESSION : '(' EXPRESSION ')'                   {$$ = $2;}
-    | EXPRESSION '+' EXPRESSION                   {$$ = op_plus($1->variant(), $3->variant());}
-    | EXPRESSION '-' EXPRESSION                   {$$ = op_minus($1->variant(), $3->variant());}
-    | EXPRESSION '*' EXPRESSION                   {$$ = op_mult($1->variant(), $3->variant());}
-    | EXPRESSION '/' EXPRESSION                   {$$ = op_divid($1->variant(), $3->variant());}
-    | EXPRESSION '%' EXPRESSION                   {$$ = op_rest($1->variant(), $3->variant());}
+    | EXPRESSION '+' EXPRESSION                   {$$ = op_plus($1->val(), $3->val());}
+    | EXPRESSION '-' EXPRESSION                   {$$ = op_minus($1->val(), $3->val());}
+    | EXPRESSION '*' EXPRESSION                   {$$ = op_mult($1->val(), $3->val());}
+    | EXPRESSION '/' EXPRESSION                   {$$ = op_divid($1->val(), $3->val());}
+    | EXPRESSION '%' EXPRESSION                   {$$ = op_rest($1->val(), $3->val());}
     | VALUE                                       {$$ = $1;}
     ;
 
@@ -226,7 +233,7 @@ METHOD : METHOD_PREFIX RET_TYPE SYMBOL '(' PARAMETERS ')' METHOD_SUFFIX ';'
                                                   {}
     ;
 
-METHOD_PREFIX : TONEWAY                           {}
+METHOD_PREFIX : TONEWAY                           {driver.lastError = "unsupported oneway keyword";YYABORT;}
     |                                             {}
     ;
 
@@ -235,19 +242,19 @@ METHOD_SUFFIX : TRAISES '(' SYMBOL_LIST ')'
     |                                             {}
     ;
 
-PARAMETERS : PARAMETERS PARAMETER                 {}
-    | PARAMETER                                   {}
-    | TVOID                                       {}
-    |                                             {}
+PARAMETERS : PARAMETERS PARAMETER                 {$$ = $1; $$->list().append($2->val());}
+    | PARAMETER                                   {$$ = Node::newList($1->val());}
+    | TVOID                                       {$$ = Node::newList();}
+    |                                             {$$ = Node::newList();}
     ;
 
-PARAMETER : PARAMETER_INOUT FIELD                 {}
+PARAMETER : PARAMETER_DIR FIELD                   {$$ = $2; $$->map().insert(NODE_KEY_DIRECTION, $1->val());}
     ; 
 
-PARAMETER_INOUT : TIN                             {$$ = new Node(char(1));}
-    | TOUT                                        {$$ = new Node(char(2));}
-    | TINOUT                                      {$$ = new Node(char(3));}
-    |                                             {$$ = new Node(char(1));}
+PARAMETER_DIR : TIN                               {$$ = new Node('\x01');}
+    | TOUT                                        {$$ = new Node('\x02');}
+    | TINOUT                                      {$$ = new Node('\x03');}
+    |                                             {$$ = new Node('\x01');}
     ;
 
 

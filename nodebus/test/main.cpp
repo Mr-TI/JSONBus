@@ -102,21 +102,21 @@ void testSelect() {
 }
 
 void testBCONParser() {
-	QVariant v = Parser(new FileChannel("test.json", 0), DataFormat::JSON).parse();
+	QVariant v = Parser(new FileChannel("test.json", 0), FileFormat::JSON).parse();
 // 	logFiner() << Logger::dump(v);
-	Serializer(new FileChannel("test.cson", O_CREAT | O_TRUNC | O_WRONLY), DataFormat::BCON).serialize(v);
-	v = Parser(new FileChannel("test.cson", 0), DataFormat::BCON).parse();
+	Serializer(new FileChannel("test.cson", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::BCON).serialize(v);
+	v = Parser(new FileChannel("test.cson", 0), FileFormat::BCON).parse();
 // 	logFiner() << Logger::dump(v);
-	Serializer(new FileChannel("test_BCON.json", O_CREAT | O_TRUNC | O_WRONLY), DataFormat::JSON).serialize(v);
+	Serializer(new FileChannel("test_BCON.json", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::JSON).serialize(v);
 }
 
 void testBSONParser() {
-	QVariant v = Parser(new FileChannel("test.json", 0), DataFormat::JSON).parse();
+	QVariant v = Parser(new FileChannel("test.json", 0), FileFormat::JSON).parse();
 // 	logFiner() << Logger::dump(v);
-	Serializer(new FileChannel("test.bson", O_CREAT | O_TRUNC | O_WRONLY), DataFormat::BSON).serialize(v);
-	v = Parser(new FileChannel("test.bson", 0), DataFormat::BSON).parse();
+	Serializer(new FileChannel("test.bson", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::BSON).serialize(v);
+	v = Parser(new FileChannel("test.bson", 0), FileFormat::BSON).parse();
 // 	logFiner() << Logger::dump(v);
-	Serializer(new FileChannel("test_BSON.json", O_CREAT | O_TRUNC | O_WRONLY), DataFormat::JSON).serialize(v);
+	Serializer(new FileChannel("test_BSON.json", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::JSON).serialize(v);
 }
 
 int main(int argc, char **argv) {

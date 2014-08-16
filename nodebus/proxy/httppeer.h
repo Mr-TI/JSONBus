@@ -61,7 +61,7 @@ private:
 	bool m_processDone;
 	SharedPtr<StdPeer> m_stdPeer;
 	QString m_reqUid;
-	DataFormat m_format;
+	FileFormat m_format;
 };
 
 inline SharedPtr< Peer > HttpPeer::Factory::build(SocketChannelPtr channel) {

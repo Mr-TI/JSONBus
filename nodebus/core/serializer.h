@@ -83,19 +83,19 @@ public:
 	 * @brief Serializer constructor.
 	 * @param stream A reference to the std output stream
 	 */
-	Serializer(StreamChannelPtr channel, DataFormat format=JSON);
+	Serializer(StreamChannelPtr channel, FileFormat format=JSON);
 	
 	/**
 	 * @brief Serializer constructor.
 	 * @param data Byte array reference
 	 */
-	Serializer(QByteArray &data, DataFormat format=JSON);
+	Serializer(QByteArray &data, FileFormat format=JSON);
 	
 	/**
 	 * @brief Serializer constructor.
 	 * @param stream A reference to the output stream
 	 */
-	Serializer(OutputStream &stream, DataFormat format=JSON);
+	Serializer(OutputStream &stream, FileFormat format=JSON);
 	
 	/**
 	 * @brief Serializer destructor.
@@ -124,7 +124,7 @@ private:
 	void write64(QByteArray& output, uint64_t value);
 	SharedPtr<OutputStream> m_streamPtr;
 	OutputStream &m_stream;
-	DataFormat m_format;
+	FileFormat m_format;
 };
 
 inline Serializer::OutputStream::OutputStream() {

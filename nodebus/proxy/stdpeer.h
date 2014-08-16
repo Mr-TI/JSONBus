@@ -41,9 +41,9 @@ public:
 	
 	class Factory: public Peer::Factory {
 	private:
-		DataFormat m_format;
+		FileFormat m_format;
 	public:
-		Factory(DataFormat format);
+		Factory(FileFormat format);
 		virtual ~Factory();
 		virtual SharedPtr<Peer> build(SocketChannelPtr socket);
 	};
@@ -52,7 +52,7 @@ public:
 	 * @brief MainClient constructor.
 	 * @param socket
 	 */
-	StdPeer(SocketChannelPtr socket, DataFormat format);
+	StdPeer(SocketChannelPtr socket, FileFormat format);
 	
 	virtual ~StdPeer();
 	
@@ -79,7 +79,7 @@ private:
 	QMap<QString, SharedPtr<HttpPeer> > m_httpPeers;
 };
 
-inline StdPeer::Factory::Factory(DataFormat format): m_format(format) {
+inline StdPeer::Factory::Factory(FileFormat format): m_format(format) {
 }
 
 inline StdPeer::Factory::~Factory() {

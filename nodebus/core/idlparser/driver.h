@@ -21,6 +21,26 @@
 #include <qt4/QtCore/QString>
 #include <qt4/QtCore/qstack.h>
 
+#define NODE_KEY_TYPE      "T"
+#define NODE_KEY_RET_TYPE  "t"
+#define NODE_KEY_SYN_NAME  "n"
+#define NODE_KEY_DIRECTION "d"
+#define NODE_KEY_WRITABLE  "w"
+#define NODE_KEY_VALUE     "v"
+
+#define TYPE_VOID 'v'
+#define TYPE_ANY 'a'
+#define TYPE_BOOLEAN 'b'
+#define TYPE_BYTE 'o'
+#define TYPE_UINT32 'I'
+#define TYPE_INT32 'i'
+#define TYPE_UINT64 'L'
+#define TYPE_INT64 'l'
+#define TYPE_DOUBLE 'd' 
+#define TYPE_STRING 's'
+#define TYPE_BYTEARRAY 'O'
+#define TYPE_DATETIME 't'
+
 namespace idlparser {
 
 class Parser;

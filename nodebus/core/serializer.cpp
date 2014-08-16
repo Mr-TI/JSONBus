@@ -189,16 +189,16 @@ QString Serializer::toJSONString(const QVariant& variant) {
 	return QString::fromLocal8Bit(data);
 }
 
-Serializer::Serializer(StreamChannelPtr channel, DataFormat format)
+Serializer::Serializer(StreamChannelPtr channel, FileFormat format)
 : m_streamPtr(new SerializerChannelOutputStream(channel)), m_stream(*m_streamPtr), m_format(format) {
 	
 }
 
-Serializer::Serializer(QByteArray& data, DataFormat format)
+Serializer::Serializer(QByteArray& data, FileFormat format)
 : m_streamPtr(new SerializerByteArrayOutputStream(data)), m_stream(*m_streamPtr), m_format(format) {
 }
 
-Serializer::Serializer(Serializer::OutputStream& stream, DataFormat format)
+Serializer::Serializer(Serializer::OutputStream& stream, FileFormat format)
 : m_stream(stream), m_format(format) {
 	
 }
@@ -208,15 +208,17 @@ Serializer::~Serializer() {
 
 void Serializer::serialize(const QVariant& variant) {
 	switch (m_format) {
-		case DataFormat::BCON:
+		case FileFormat::BCON:
 			serializeBCON(variant);
 			break;
-		case DataFormat::BSON:
+		case FileFormat::BSON:
 			m_stream << serializeBSONDocument(variant);
 			break;
-		case DataFormat::JSON:
+		case FileFormat::JSON:
 			serializeJSON(variant);
 			break;
+		case FileFormat::IDL:
+			throw Exception("Unsupported IDL format");
 	}
 }
 

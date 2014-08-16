@@ -44,13 +44,15 @@
 #endif
 
 /// @brief Format
-enum DataFormat {
+enum FileFormat {
 	/// @brief JSON format
 	JSON,
 	/// @brief BCON format
 	BCON,
 	/// @brief BSON format
-	BSON
+	BSON,
+	/// @brief IDL format
+	IDL
 };
 
 #endif

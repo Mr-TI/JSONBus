@@ -19,6 +19,7 @@
 #include "streamchannel.h"
 #include "jsonparser/driver.h"
 #include "logger.h"
+#include "idlparser/driver.h"
 #include <qt4/QtCore/QVariant>
 #include <qt4/QtCore/QDate>
 
@@ -76,34 +77,34 @@ static char __parser_channel_getc(void* stream) {
 	return ((StreamChannel*)stream)->get();
 }
 
-Parser::Parser(fGetc_t getChar, void* ptr, DataFormat format)
+Parser::Parser(fGetc_t getChar, void* ptr, FileFormat format)
 	: m_format(format), m_getChar(getChar), m_ptr(ptr) {
-	if (format == DataFormat::JSON) {
+	if (format == FileFormat::JSON) {
 		m_ptr = new jsonparser::Driver(getChar, ptr);
 	}
 }
 
-QVariant Parser::parse(const QByteArray& data, DataFormat format) {
+QVariant Parser::parse(const QByteArray& data, FileFormat format) {
 	__data_buffer_t buf = {data.constData(), data.constData() + data.length()};
 	Parser parser(__parser_datastream_getc, &buf, format);
 	return parser.parse();
 }
 
-QVariant Parser::parse(const char* data, uint len, DataFormat format) {
+QVariant Parser::parse(const char* data, uint len, FileFormat format) {
 	__data_buffer_t buf = {data, data + len};
 	Parser parser(__parser_datastream_getc, &buf, format);
 	return parser.parse();
 }
 
-Parser::Parser(StreamChannelPtr channel, DataFormat format)
+Parser::Parser(StreamChannelPtr channel, FileFormat format)
 	: m_format(format), m_channel(channel), m_getChar(__parser_channel_getc), m_ptr(channel.data()) {
-	if (format == DataFormat::JSON) {
+	if (format == FileFormat::JSON) {
 		m_ptr = new jsonparser::Driver(m_getChar, m_ptr);
 	}
 }
 
 Parser::~Parser() {
-	if (m_format == DataFormat::JSON) {
+	if (m_format == FileFormat::JSON) {
 		delete (jsonparser::Driver*)m_ptr;
 	}
 }
@@ -111,14 +112,17 @@ Parser::~Parser() {
 QVariant Parser::parse() {
 	QVariant res;
 	switch (m_format) {
-		case DataFormat::BCON:
+		case FileFormat::BCON:
 			parseBCON(res, NULL);
 			break;
-		case DataFormat::BSON:
+		case FileFormat::BSON:
 			res = parseBSONDocument();
 			break;
-		case DataFormat::JSON:
+		case FileFormat::JSON:
 			res = ((jsonparser::Driver*)(m_ptr))->parse();
+			break;
+		case FileFormat::IDL:
+			res = ((idlparser::Driver*)(m_ptr))->parse();
 			break;
 	}
 	return res;
