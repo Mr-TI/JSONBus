@@ -23,6 +23,7 @@
 #include <QString>
 #include <nodebus/core/shareddata.h>
 #include <nodebus/core/sharedptr.h>
+#include <logger.h>
 
 using namespace NodeBus;
 
@@ -145,53 +146,62 @@ inline LType& LType::operator=(const LType& other) {
 	return *this;
 }
 
-inline Node* op_plus(const QVariant &op1, const QVariant &op2) {
-	if (!op1.canConvert(QVariant::Double) || !op2.canConvert(QVariant::Double)) {
-		return NULL;
+inline bool opexec(SharedPtr<Node> &res, char op, SharedPtr<Node> &op1_n, SharedPtr<Node> &op2_n, QString &lastError) {
+	QVariant &op1 = op1_n->val();
+	QVariant &op2 = op2_n->val();
+	if (op1.type() == QVariant::String || op2.type() == QVariant::String) {
+		res = Node::newList(op)->append(op1)->append(op2);
+	} else if (!op1.canConvert(QVariant::Double)) {
+		lastError = "Error: invalid operand " + Logger::dump(op1) ;
+		return false;
+	} else if (!op2.canConvert(QVariant::Double)) {
+		lastError = "Error: invalid operand " + Logger::dump(op2) ;
+		return false;
 	} else if (op1.type() == QVariant::Double || op2.type() == QVariant::Double) {
-		return new Node(op1.toDouble() + op1.toDouble());
+		switch (op) {
+			case '+':
+				res = new Node(op1.toDouble() + op1.toDouble());
+				break;
+			case '-':
+				res = new Node(op1.toDouble() + op1.toDouble());
+				break;
+			case '*':
+				res = new Node(op1.toDouble() + op1.toDouble());
+				break;
+			case '/':
+				res = new Node(op1.toDouble() + op1.toDouble());
+				break;
+			case '%':
+				res = new Node(op1.toLongLong() % op1.toLongLong());
+				break;
+			default:
+				lastError = "Error: invalid operator " + char(op) ;
+				return false;
+		}
+		
 	} else {
-		return new Node(op1.toLongLong() + op1.toLongLong());
+		switch (op) {
+			case '+':
+				res = new Node(op1.toLongLong() + op1.toLongLong());
+				break;
+			case '-':
+				res = new Node(op1.toLongLong() + op1.toLongLong());
+				break;
+			case '*':
+				res = new Node(op1.toLongLong() + op1.toLongLong());
+				break;
+			case '/':
+				res = new Node(op1.toLongLong() + op1.toLongLong());
+				break;
+			case '%':
+				res = new Node(op1.toLongLong() % op1.toLongLong());
+				break;
+			default:
+				lastError = "Error: invalid operator " + char(op) ;
+				return false;
+		}
 	}
-}
-
-inline Node* op_minus(const QVariant &op1, const QVariant &op2) {
-	if (!op1.canConvert(QVariant::Double) || !op2.canConvert(QVariant::Double)) {
-		return NULL;
-	} else if (op1.type() == QVariant::Double || op2.type() == QVariant::Double) {
-		return new Node(op1.toDouble() - op1.toDouble());
-	} else {
-		return new Node(op1.toLongLong() - op1.toLongLong());
-	}
-}
-
-inline Node* op_mult(const QVariant &op1, const QVariant &op2) {
-	if (!op1.canConvert(QVariant::Double) || !op2.canConvert(QVariant::Double)) {
-		return NULL;
-	} else if (op1.type() == QVariant::Double || op2.type() == QVariant::Double) {
-		return new Node(op1.toDouble() * op1.toDouble());
-	} else {
-		return new Node(op1.toLongLong() * op1.toLongLong());
-	}
-}
-
-inline Node* op_divid(const QVariant &op1, const QVariant &op2) {
-	if (!op1.canConvert(QVariant::Double) || !op2.canConvert(QVariant::Double)) {
-		return NULL;
-	} else if (op1.type() == QVariant::Double || op2.type() == QVariant::Double) {
-		return new Node(op1.toDouble() / op1.toDouble());
-	} else {
-		return new Node(op1.toLongLong() / op1.toLongLong());
-	}
-}
-
-inline Node* op_rest(const QVariant &op1, const QVariant &op2) {
-	if (!op1.canConvert(QVariant::Double) || !op2.canConvert(QVariant::Double)
-		|| op1.type() == QVariant::Double || op2.type() == QVariant::Double) {
-		return NULL;
-	} else {
-		return new Node(op1.toLongLong() % op1.toLongLong());
-	}
+	return true;
 }
 
 inline bool param_add(SharedPtr<Node> &ret, SharedPtr<Node> &list, SharedPtr<Node> &elt, QString &lastError) {

@@ -23,13 +23,13 @@
 #include <qt4/QtCore/QVariant>
 #include <qt4/QtCore/QMap>
 
-#define NODE_KEY_TYPE      "T"
-#define NODE_KEY_DTYPE     "t"
-#define NODE_KEY_SNAME     "n"
-#define NODE_KEY_DIRECTION "d"
-#define NODE_KEY_WRITABLE  "w"
-#define NODE_KEY_VALUE     "v"
-#define NODE_KEY_PARAMS    "p"
+#define KNODE_TYPE      "T"
+#define KNODE_DTYPE     "t"
+#define KNODE_SNAME     "n"
+#define KNODE_DIRECTION "d"
+#define KNODE_WRITABLE  "w"
+#define KNODE_VALUE     "v"
+#define KNODE_PARAMS    "p"
 
 #define VTYPE_VOID         'v'
 #define VTYPE_ANY          'a'
@@ -44,6 +44,7 @@
 #define VTYPE_BYTEARRAY    'O'
 #define VTYPE_DATETIME     't'
 
+#define NTYPE_DOCUMENT     'D'
 #define NTYPE_CONST        'C'
 #define NTYPE_ATTR         'A'
 #define NTYPE_INTERFACE    'I'
@@ -51,6 +52,11 @@
 #define NTYPE_ENUM         'E'
 #define NTYPE_STRUCT       'S'
 #define NTYPE_TYPEDEF      'T'
+#define NTYPE_INCLUDE      'L'
+
+#define PDIR_IN            'i'
+#define PDIR_OUT           'o'
+#define PDIR_INOUT         'b'
 
 namespace idlparser {
 
@@ -83,7 +89,6 @@ private:
 	void blockBegin(const QString& name);
 	void blockEnd();
 	void addLocal(const QString& name, const QVariant &node);
-	bool resolve(const QString& name, QVariant &value);
 };
 
 inline void Driver::blockBegin(const QString& name) {
@@ -107,24 +112,6 @@ inline void Driver::blockEnd() {
 
 inline void Driver::addLocal(const QString& name, const QVariant &node) {
 	envLocal.insert(name, node);
-}
-
-inline bool Driver::resolve(const QString& name, QVariant &value) {
-	QVariantMap field;
-	if (envLocal.contains(name)) {
-		field = envLocal[name].toMap();
-	} else if (envGlobal.contains(name)) {
-		field = envGlobal[name].toMap();
-	} else {
-		lastError = "Unresolved symbol " + name;
-		return false;
-	}
-	if (field.value(NODE_KEY_TYPE).toChar() != NTYPE_CONST) {
-		lastError = "Unresolved symbol " + name;
-		return false;
-	}
-	value = field.value(NODE_KEY_VALUE);
-	return true;
 }
 
 }

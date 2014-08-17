@@ -18,7 +18,7 @@
 #define IDLSCANNER_H
 
 #ifndef YY_DECL
-#define YY_DECL idlparser::Parser::token_type \
+#define YY_DECL int \
     idlparser::Scanner::yylex(idlparser::Parser::semantic_type* yylval)
 #endif
 
@@ -50,7 +50,7 @@ public:
 
 	virtual ~Scanner();
 
-	virtual Parser::token_type yylex(Parser::semantic_type *yylval);
+	virtual int yylex(Parser::semantic_type *yylval);
 	
 	virtual void resetPos();
 

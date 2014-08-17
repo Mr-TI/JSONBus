@@ -39,6 +39,24 @@ using namespace std;
 	yylval->node  = new Node(yytext);\
 	yylval->node->val().convert(QVariant::_type_)
 
+#define VARIANT_HEXNUM()\
+	yylval->node  = new Node(QString(yytext + 2).toInt(0, 16));\
+	yylval->node->val().convert(QVariant::LongLong);\
+	if ((yylval->node->val().toLongLong() & 0xFFFFFFFF00000000) == 0)\
+	yylval->node->val().convert(QVariant::Int)
+
+#define VARIANT_OCTNUM()\
+	yylval->node  = new Node(QString(yytext + 1).toInt(0, 8));\
+	yylval->node->val().convert(QVariant::LongLong);\
+	if ((yylval->node->val().toLongLong() & 0xFFFFFFFF00000000) == 0)\
+	yylval->node->val().convert(QVariant::Int)
+
+#define VARIANT_BINNUM()\
+	yylval->node  = new Node(QString(yytext + 2).toInt(0, 2));\
+	yylval->node->val().convert(QVariant::LongLong);\
+	if ((yylval->node->val().toLongLong() & 0xFFFFFFFF00000000) == 0)\
+	yylval->node->val().convert(QVariant::Int)
+
 #define VARIANT_NUMBER()\
 	yylval->node  = new Node(yytext);\
 	yylval->node->val().convert(QVariant::LongLong);\
@@ -123,22 +141,15 @@ kw_typedef              typedef
 integer                 [[:digit:]]+
 number                  \-?[[:digit:]]+(e[\-\+]?[[:digit:]]+)?
 float                   \-?[[:digit:]]+(\.[[:digit:]]+)?(e[\-\+]?[[:digit:]]+)?
+hexnum                  \-?0[xX][0-9a-fA-F]+
+octnum                  \-?0[0-7]+
+binnum                  \-?0[bB][01]+
 
 symbol                  [a-zA-Z_][a-zA-Z0-9_]+
 
-coma                    ,
-colon                   :
-semicolon               ;
 dblcote                 \"
-square_bracket_open     \[
-square_bracket_close    \]
-curly_bracket_open      \{
-curly_bracket_close     \}
-parenthesis_open        \(
-parenthesis_close       \)
 less_than               <
 greater_than            >
-sharp                   #
 
 value_unicode           [0-9a-f]{4}
 
@@ -201,6 +212,9 @@ comment_line            \/\/.*$
 <INITIAL>{kw_true}                        {BEGIN INITIAL; VARIANT_FROM(true); RETURN_TOKEN(TVARIANT);}
 <INITIAL>{kw_false}                       {BEGIN INITIAL; VARIANT_FROM(false); RETURN_TOKEN(TVARIANT);}
 
+<INITIAL>{hexnum}                         {BEGIN INITIAL; VARIANT_HEXNUM(); RETURN_TOKEN(TINTVAL);}
+<INITIAL>{octnum}                         {BEGIN INITIAL; VARIANT_OCTNUM(); RETURN_TOKEN(TINTVAL);}
+<INITIAL>{binnum}                         {BEGIN INITIAL; VARIANT_BINNUM(); RETURN_TOKEN(TINTVAL);}
 <INITIAL>{integer}                        {BEGIN INITIAL; VARIANT_NUMBER(); RETURN_TOKEN(TNUMBER);}
 <INITIAL>{number}                         {BEGIN INITIAL; VARIANT_NUMBER(); RETURN_TOKEN(TINTVAL);}
 <INITIAL>{float}                          {BEGIN INITIAL; VARIANT_TXT2(Double); RETURN_TOKEN(TFLOATVAL);}
@@ -252,6 +266,6 @@ comment_line            \/\/.*$
 
 <INITIAL>{symbol}                         {BEGIN INITIAL; VARIANT_STRING(); RETURN_TOKEN(TVARIANT);}
 
-<INITIAL>.                                {BEGIN INITIAL; return (idlparser::Parser::token_type)yytext[0];}
+<INITIAL>.                                {BEGIN INITIAL; return yytext[0];}
 
 %%

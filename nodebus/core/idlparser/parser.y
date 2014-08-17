@@ -85,7 +85,7 @@
 %type <node>        FIELD ATTRIBUTE CONSTANT EXPRESSION METHOD METHOD_HEADER METHOD_FOOTER PARAMETERS PARAMETER PARAMETER_DIR
 %type <node>        VALUE ATTRIBUTE_QUAL INTERFACE_PARENT INTERFACE_HEADER
 
-%left	'+' '-'
+%left   '+' '-'
 %left   '*' '/' '%'
 
 %language "C++"
@@ -176,8 +176,8 @@ INTERFACE_ELT : ATTRIBUTE                         {}
     | CONSTANT                                    {}
     ;
 
-SEQUENCE : TSEQUENCE '<' TYPE '>'                 {driver.lastError = "sequence not supported yet";YYABORT;}
-    | TSEQUENCE '<' TYPE ',' TNUMBER '>'          {driver.lastError = "sequence not supported yet";YYABORT;}
+SEQUENCE : TSEQUENCE '<' TYPE '>'                 {driver.lastError = "sequence not supported";YYABORT;}
+    | TSEQUENCE '<' TYPE ',' TNUMBER '>'          {driver.lastError = "sequence not supported";YYABORT;}
     ;
 
 RET_TYPE : TYPE                                   {$$ = $1;}
@@ -207,58 +207,58 @@ TYPE : TOBJECT                                    {$$ = new Node(VTYPE_ANY);}
 FIELD : TYPE SYMBOL '<' TNUMBER '>'               {driver.lastError = "Error: array definition not supported";YYABORT;}
     | TYPE SYMBOL '[' TNUMBER ']'                 {driver.lastError = "Error: array definition not supported";YYABORT;}
     | TYPE SYMBOL '[' ']'                         {driver.lastError = "Error: array definition not supported";YYABORT;}
-    | TYPE SYMBOL                                 {$$ = Node::newMap(NODE_KEY_DTYPE, $1->val())->insert(NODE_KEY_SNAME, $2->val());}
+    | TYPE SYMBOL                                 {$$ = Node::newMap(KNODE_DTYPE, $1->val())->insert(KNODE_SNAME, $2->val());}
     ;
 
-ATTRIBUTE : ATTRIBUTE_QUAL TATTRIBUTE FIELD ';'   {$$ = $3->insert(NODE_KEY_WRITABLE, $1->val())->insert(NODE_KEY_TYPE, NTYPE_ATTR);}
+ATTRIBUTE : ATTRIBUTE_QUAL TATTRIBUTE FIELD ';'   {$$ = $3->insert(KNODE_WRITABLE, $1->val())->insert(KNODE_TYPE, NTYPE_ATTR);}
     ;
 
 ATTRIBUTE_QUAL : TREADONLY                        {$$ = new Node(false);}
     |                                             {$$ = new Node(true);}
     ;
 
-CONSTANT : TCONST FIELD '=' EXPRESSION ';'        {$$ = $2; $$->insert(NODE_KEY_VALUE, $4->val());}
+CONSTANT : TCONST FIELD '=' EXPRESSION ';'        {$$ = $2; $$->insert(KNODE_VALUE, $4->val());}
     ;
 
 EXPRESSION : '(' EXPRESSION ')'                   {$$ = $2;}
-    | EXPRESSION '+' EXPRESSION                   {$$ = op_plus($1->val(), $3->val());}
-    | EXPRESSION '-' EXPRESSION                   {$$ = op_minus($1->val(), $3->val());}
-    | EXPRESSION '*' EXPRESSION                   {$$ = op_mult($1->val(), $3->val());}
-    | EXPRESSION '/' EXPRESSION                   {$$ = op_divid($1->val(), $3->val());}
-    | EXPRESSION '%' EXPRESSION                   {$$ = op_rest($1->val(), $3->val());}
+    | EXPRESSION '+' EXPRESSION                   {if (!opexec($$, '+', $1, $3, driver.lastError))YYABORT;}
+    | EXPRESSION '-' EXPRESSION                   {if (!opexec($$, '-', $1, $3, driver.lastError))YYABORT;}
+    | EXPRESSION '*' EXPRESSION                   {if (!opexec($$, '*', $1, $3, driver.lastError))YYABORT;}
+    | EXPRESSION '/' EXPRESSION                   {if (!opexec($$, '/', $1, $3, driver.lastError))YYABORT;}
+    | EXPRESSION '%' EXPRESSION                   {if (!opexec($$, '%', $1, $3, driver.lastError))YYABORT;}
     | VALUE                                       {$$ = $1;}
     ;
 
 VALUE : TVARIANT                                  {$$ = $1;}
-    | TSYMBOL                                     {QVariant v; if (!driver.resolve($1->val().toString(), v))YYABORT;$$ = new Node(v);}
+    | TSYMBOL                                     {$$ = $1;}
     ;
 
 METHOD : METHOD_HEADER RET_TYPE SYMBOL '(' PARAMETERS ')' METHOD_FOOTER ';'
-                                                  {$$ = Node::newMap(NODE_KEY_DTYPE, $2->val())->insert(NODE_KEY_SNAME, $3->val())->insert(NODE_KEY_PARAMS, $5->map().values());}
+                                                  {$$ = Node::newMap(KNODE_DTYPE, $2->val())->insert(KNODE_SNAME, $3->val())->insert(KNODE_PARAMS, $5->map().values());}
     ;
 
-METHOD_HEADER : TONEWAY                           {driver.lastError = "Warning: unsupported oneway keyword";YYERROR;}
+METHOD_HEADER : TONEWAY                           {driver.lastError = "Warning: unsupported oneway keyword and will be ignored";YYERROR;}
     |                                             {}
     ;
 
 METHOD_FOOTER : TRAISES '(' SYMBOL_LIST ')'
-                                                  {driver.lastError = "exception raise not supported";YYABORT;}
+                                                  {driver.lastError = "Warning: exception raise not supported and will be ignored";YYERROR;}
     |                                             {}
     ;
 
 PARAMETERS : PARAMETERS PARAMETER                 {if (!param_add($$, $1, $2, driver.lastError)) YYABORT;}
-    | PARAMETER                                   {$$ = Node::newMap($1->map()[NODE_KEY_SNAME].toString(), $1->map());}
+    | PARAMETER                                   {$$ = Node::newMap($1->map()[KNODE_SNAME].toString(), $1->map());}
     | TVOID                                       {$$ = Node::newMap();}
     |                                             {$$ = Node::newMap();}
     ;
 
-PARAMETER : PARAMETER_DIR FIELD                   {$$ = $2->insert(NODE_KEY_DIRECTION, $1->val());}
+PARAMETER : PARAMETER_DIR FIELD                   {$$ = $2->insert(KNODE_DIRECTION, $1->val());}
     ; 
 
-PARAMETER_DIR : TIN                               {$$ = new Node('\x01');}
-    | TOUT                                        {$$ = new Node('\x02');}
-    | TINOUT                                      {$$ = new Node('\x03');}
-    |                                             {$$ = new Node('\x01');}
+PARAMETER_DIR : TIN                               {$$ = new Node(PDIR_IN);}
+    | TOUT                                        {$$ = new Node(PDIR_OUT);}
+    | TINOUT                                      {$$ = new Node(PDIR_INOUT);}
+    |                                             {$$ = new Node(PDIR_IN);}
     ;
 
 
