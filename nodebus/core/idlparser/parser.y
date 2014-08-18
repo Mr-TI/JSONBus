@@ -112,22 +112,22 @@ DOCUMENT_ELT : MODULE_ELT                         {}
     | TINCLUDE                                    {}
     ;
 
-MODULE : MODULE_HEADER '{' MODULE_ELTS '}' ';'    {driver.blockEnd();}
+MODULE : MODULE_HEADER '{' MODULE_ELTS '}' ';'    {}
     ;
 
-MODULE_HEADER : TMODULE TSYMBOL                   {driver.blockBegin($2->toString());}
+MODULE_HEADER : TMODULE TSYMBOL                   {}
     ;
 
 MODULE_ELTS : MODULE_ELTS MODULE_ELT              {}
     | MODULE_ELT                                  {}
     ;
 
-MODULE_ELT : INTERFACE                            {}
-    | MODULE                                      {}
-    | ENUM                                        {}
-    | STRUCT                                      {}
-    | TYPEDEF                                     {}
-    | EXCEPTION                                   {}
+MODULE_ELT : INTERFACE                            {$$ = $1;}
+    | MODULE                                      {$$ = $1;}
+    | ENUM                                        {$$ = $1;}
+    | STRUCT                                      {$$ = $1;}
+    | TYPEDEF                                     {$$ = $1;}
+    | EXCEPTION                                   {$$ = $1;}
     ;
 
 ENUM : TENUM TSYMBOL '{' SYMBOL_LIST '}' ';'      {driver.lastError = "enum definition not supported yet";YYABORT;}
@@ -156,11 +156,11 @@ SYMBOL : SYMBOL ':' ':' TSYMBOL                   {$$ = new Node($1->toString() 
     ;
 
 INTERFACE : INTERFACE_HEADER '{' INTERFACE_ELTS '}' ';'
-                                                  {driver.blockEnd();}
+                                                  {}
     ;
 
 INTERFACE_HEADER : TINTERFACE SYMBOL INTERFACE_PARENT
-                                                  {driver.blockBegin($2->toString());}
+                                                  {}
     ;
 
 INTERFACE_PARENT : ':' SYMBOL_LIST                {$$ = $2;}
@@ -234,7 +234,7 @@ VALUE : TVARIANT                                  {$$ = $1;}
     ;
 
 METHOD : METHOD_HEADER RET_TYPE SYMBOL '(' PARAMETERS ')' METHOD_FOOTER ';'
-                                                  {$$ = Node::newMap(KNODE_DTYPE, $2->val())->insert(KNODE_SNAME, $3->val())->insert(KNODE_PARAMS, $5->map().values());}
+                                                  {$$ = Node::newMap(KNODE_DTYPE, $2->val())->insert(KNODE_SNAME, $3->val())->insert(KNODE_PARAMS, $5->map());}
     ;
 
 METHOD_HEADER : TONEWAY                           {driver.lastError = "Warning: unsupported oneway keyword and will be ignored";YYERROR;}
@@ -246,10 +246,10 @@ METHOD_FOOTER : TRAISES '(' SYMBOL_LIST ')'
     |                                             {}
     ;
 
-PARAMETERS : PARAMETERS PARAMETER                 {if (!param_add($$, $1, $2, driver.lastError)) YYABORT;}
-    | PARAMETER                                   {$$ = Node::newMap($1->map()[KNODE_SNAME].toString(), $1->map());}
-    | TVOID                                       {$$ = Node::newMap();}
-    |                                             {$$ = Node::newMap();}
+PARAMETERS : PARAMETERS PARAMETER                 {$$ = $1->append($2->map());}
+    | PARAMETER                                   {$$ = Node::newList($1->map());}
+    | TVOID                                       {$$ = Node::newList();}
+    |                                             {$$ = Node::newList();}
     ;
 
 PARAMETER : PARAMETER_DIR FIELD                   {$$ = $2->insert(KNODE_DIRECTION, $1->val());}

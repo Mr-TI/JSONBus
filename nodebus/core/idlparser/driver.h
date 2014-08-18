@@ -18,18 +18,16 @@
 #define IDLPARSER_DRIVER_H
 
 #include <QVariant>
-#include <qt4/QtCore/QString>
-#include <qt4/QtCore/qstack.h>
-#include <qt4/QtCore/QVariant>
-#include <qt4/QtCore/QMap>
+#include <QStack>
+#include <QMap>
 
-#define KNODE_TYPE      "T"
-#define KNODE_DTYPE     "t"
-#define KNODE_SNAME     "n"
-#define KNODE_DIRECTION "d"
-#define KNODE_WRITABLE  "w"
-#define KNODE_VALUE     "v"
-#define KNODE_PARAMS    "p"
+#define KNODE_TYPE         "T"
+#define KNODE_DTYPE        "t"
+#define KNODE_SNAME        "n"
+#define KNODE_DIRECTION    "d"
+#define KNODE_WRITABLE     "w"
+#define KNODE_VALUE        "v"
+#define KNODE_PARAMS       "p"
 
 #define VTYPE_VOID         'v'
 #define VTYPE_ANY          'a'
@@ -52,7 +50,7 @@
 #define NTYPE_ENUM         'E'
 #define NTYPE_STRUCT       'S'
 #define NTYPE_TYPEDEF      'T'
-#define NTYPE_INCLUDE      'L'
+#define NTYPE_PACKAGE      'P'
 
 #define PDIR_IN            'i'
 #define PDIR_OUT           'o'
@@ -73,7 +71,7 @@ class Scanner;
 class Driver {
 public:
 	typedef char (*getc_t)(void *);
-	Driver(getc_t getc, void *stream);
+	Driver(const QString &filename);
 	~Driver();
 	QVariant parse();
 private:
@@ -83,36 +81,8 @@ private:
 	Scanner &scanner;
 	Parser &parser;
 	QVariant result;
-	QStack<QString> packageStack;
-	QVariantMap envGlobal;
-	QVariantMap envLocal;
-	void blockBegin(const QString& name);
-	void blockEnd();
-	void addLocal(const QString& name, const QVariant &node);
+	FILE *m_stream;
 };
-
-inline void Driver::blockBegin(const QString& name) {
-	if (packageStack.isEmpty()) {
-		packageStack.push(name);
-	} else {
-		packageStack.push(packageStack.top() + "::" + name);
-	}
-}
-
-inline void Driver::blockEnd() {
-	QString prefix;
-	if (!packageStack.isEmpty()) {
-		prefix = packageStack.top() + "::";
-		for (auto it = envLocal.begin(); it != envLocal.end(); it++) {
-			envGlobal.insert(prefix + it.key(), it.value());
-		}
-	}
-	packageStack.pop();
-}
-
-inline void Driver::addLocal(const QString& name, const QVariant &node) {
-	envLocal.insert(name, node);
-}
 
 }
 
