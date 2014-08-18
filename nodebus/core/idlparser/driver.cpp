@@ -18,7 +18,6 @@
 #include <parser.hh>
 #include "scanner.h"
 #include "driver.h"
-#include <stdio.h>
 
 #include <nodebus/core/parser.h>
 #define ErrorException ErrorParserException
@@ -31,7 +30,7 @@ static FILE *__idlparser_fopen(const QString& filename) {
 }
 
 Driver::Driver(const QString& filename)
-		: m_stream(__idlparser_fopen(filename)), scanner(*new Scanner(fgetc, m_stream)),
+		: m_stream(__idlparser_fopen(filename)), scanner(*new Scanner(filename)),
 		parser(*new Parser(*this)){
 }
 

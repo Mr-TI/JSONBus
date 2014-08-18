@@ -17,23 +17,27 @@
 #include <ltype.h>
 #include <scanner.h>
 #include <logger.h>
+#include <stdio.h>
+
+#define THROW_IOEXP_ON_NULL(exp) \
+	if ((exp) == NULL) throw IOException(QString() + __FILE__ + ":" + QString::number(__LINE__) + ": " + QString::fromLocal8Bit(strerror(errno)))
+
+#define THROW_IOEXP_ON_ERR(exp) \
+	if ((exp) == -1) throw IOException(QString() + __FILE__ + ":" + QString::number(__LINE__) + ": " + QString::fromLocal8Bit(strerror(errno)))
 
 namespace idlparser {
 
-Scanner::Scanner(Scanner::getc_t getc, void* stream)
-        : idlparserFlexLexer(nullptr, nullptr), m_getc(getc), m_stream(stream) {
+Scanner::Scanner(const QString& filename)
+        : idlparserFlexLexer(nullptr, nullptr), m_stream(fopen(filename.toLocal8Bit().constData(), "r")) {
+	THROW_IOEXP_ON_NULL(m_stream);
 }
 
 Scanner::~Scanner() {
+	fclose(m_stream);
 }
 
 int Scanner::LexerInput( char* buf, int max_size ) {
-	try {
-		buf[0] = m_getc(m_stream);
-		return 1;
-	} catch (...) {
-		return 0;
-	}
+	return fread(buf, 1,max_size,  m_stream);
 }
 
 }

@@ -20,6 +20,7 @@
 #include <QVariant>
 #include <QStack>
 #include <QMap>
+#include <stdio.h>
 
 #define KNODE_TYPE         "T"
 #define KNODE_DTYPE        "t"
@@ -78,10 +79,10 @@ private:
 	friend class Parser;
 	friend class Scanner;
 	QString lastError;
+	FILE *m_stream;
 	Scanner &scanner;
 	Parser &parser;
 	QVariant result;
-	FILE *m_stream;
 };
 
 }

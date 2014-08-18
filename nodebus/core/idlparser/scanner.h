@@ -44,9 +44,7 @@ namespace idlparser {
  */
 class Scanner : public idlparserFlexLexer {
 public:
-	typedef char (*getc_t)(void *);
-	
-	Scanner(getc_t getc, void *stream);
+	Scanner(const QString& filename);
 
 	virtual ~Scanner();
 
@@ -60,8 +58,7 @@ protected:
 	virtual int LexerInput( char* buf, int max_size );
 	
 private:
-	getc_t m_getc;
-	void *m_stream;
+	FILE *m_stream;
 };
 
 inline void Scanner::set_debug(bool b) {
