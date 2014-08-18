@@ -83,7 +83,36 @@ private:
 	Scanner &scanner;
 	Parser &parser;
 	QVariant result;
+	QStack<QString> packageStack;
+	QVariantMap envGlobal;
+	QVariantMap envLocal;
+	void blockBegin(const QString& name);
+	void blockEnd();
+	void addLocal(const QString& name, const QVariant &node);
 };
+
+inline void Driver::blockBegin(const QString& name) {
+	if (packageStack.isEmpty()) {
+		packageStack.push(name);
+	} else {
+		packageStack.push(packageStack.top() + "::" + name);
+	}
+}
+
+inline void Driver::blockEnd() {
+	QString prefix;
+	if (!packageStack.isEmpty()) {
+		prefix = packageStack.top() + "::";
+		for (auto it = envLocal.begin(); it != envLocal.end(); it++) {
+			envGlobal.insert(prefix + it.key(), it.value());
+		}
+	}
+	packageStack.pop();
+}
+
+inline void Driver::addLocal(const QString& name, const QVariant &node) {
+	envLocal.insert(name, node);
+}
 
 }
 

@@ -37,7 +37,7 @@ private:
 	Node();
 public:
 	Node(const QVariant &variant);
-	~Node();
+	virtual ~Node();
 	QString toString();
 	QVariant &val();
 	QVariantMap &map();
@@ -122,7 +122,7 @@ class LType: public SharedData {
 public:
 	LType();
 	LType(const LType& other);
-	~LType();
+	virtual ~LType();
 	SharedPtr<Node> node;
 	QString *str;
 	LType& operator= (const LType& other);
@@ -146,12 +146,18 @@ inline LType& LType::operator=(const LType& other) {
 	return *this;
 }
 
+class BlockCtx: public SharedData {
+public:
+	BlockCtx(SharedPtr<BlockCtx> variant);
+	virtual ~BlockCtx();
+	QString name;
+	QVariantMap symTbl;
+};
+
 inline bool opexec(SharedPtr<Node> &res, char op, SharedPtr<Node> &op1_n, SharedPtr<Node> &op2_n, QString &lastError) {
 	QVariant &op1 = op1_n->val();
 	QVariant &op2 = op2_n->val();
-	if (op1.type() == QVariant::String || op2.type() == QVariant::String) {
-		res = Node::newList(op)->append(op1)->append(op2);
-	} else if (!op1.canConvert(QVariant::Double)) {
+	if (!op1.canConvert(QVariant::Double)) {
 		lastError = "Error: invalid operand " + Logger::dump(op1) ;
 		return false;
 	} else if (!op2.canConvert(QVariant::Double)) {
@@ -204,14 +210,19 @@ inline bool opexec(SharedPtr<Node> &res, char op, SharedPtr<Node> &op1_n, Shared
 	return true;
 }
 
-inline bool param_add(SharedPtr<Node> &ret, SharedPtr<Node> &list, SharedPtr<Node> &elt, QString &lastError) {
-	QString k = elt->map()["n"].toString();
-	if (list->map().contains(elt->map()["n"].toString())) {
-		lastError = "Dupplicate parameter " + k;
-		return false;
-	};
-	list->append(elt->map());
-	ret = list;
+inline bool checkParamList(SharedPtr<Node> &pRet, SharedPtr<Node> &pList, QString &lastError) {
+	QVariantList &list = pRet->list();
+	QHash<QString, bool> params;
+	for (auto it = list.begin(); it != list.end(); it++) {
+		QVariantMap elt = it->toMap();
+		QString k = elt["n"].toString();
+		if (params.contains(k)) {
+			lastError = "Dupplicate parameter " + k;
+			return false;
+		}
+		params[k] = true;
+	}
+	pRet = pList;
 	return true;
 }
 

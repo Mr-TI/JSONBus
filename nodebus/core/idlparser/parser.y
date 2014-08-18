@@ -112,10 +112,10 @@ DOCUMENT_ELT : MODULE_ELT                         {}
     | TINCLUDE                                    {}
     ;
 
-MODULE : MODULE_HEADER '{' MODULE_ELTS '}' ';'    {}
+MODULE : MODULE_HEADER '{' MODULE_ELTS '}' ';'    {driver.blockEnd();}
     ;
 
-MODULE_HEADER : TMODULE TSYMBOL                   {}
+MODULE_HEADER : TMODULE TSYMBOL                   {driver.blockBegin($2->toString());}
     ;
 
 MODULE_ELTS : MODULE_ELTS MODULE_ELT              {}
@@ -156,11 +156,11 @@ SYMBOL : SYMBOL ':' ':' TSYMBOL                   {$$ = new Node($1->toString() 
     ;
 
 INTERFACE : INTERFACE_HEADER '{' INTERFACE_ELTS '}' ';'
-                                                  {}
+                                                  {driver.blockEnd();}
     ;
 
 INTERFACE_HEADER : TINTERFACE SYMBOL INTERFACE_PARENT
-                                                  {}
+                                                  {driver.blockBegin($2->toString());}
     ;
 
 INTERFACE_PARENT : ':' SYMBOL_LIST                {$$ = $2;}

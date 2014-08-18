@@ -165,6 +165,9 @@ public:
 	
 	template<class X>
 	bool instanceof ();
+	
+	template<class X>
+	X* cast ();
 };
 
 /// @brief Generic pointer type
@@ -325,6 +328,16 @@ template<class T>
 template<class X>
 inline bool SharedPtr<T>::instanceof () {
 	return dynamic_cast<X*>(m_data) != nullptr;
+}
+
+template<class T>
+template<class X>
+inline X *SharedPtr<T>::cast () {
+	X *x = dynamic_cast<X*>(m_data);
+	if (x == nullptr) {
+		__raise_InvalidClassException();
+	}
+	return x;
 }
 
 }
