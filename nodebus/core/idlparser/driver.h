@@ -20,6 +20,7 @@
 #include <QVariant>
 #include <QStack>
 #include <QMap>
+#include <qstringlist.h>
 #include <stdio.h>
 
 #define KNODE_TYPE         "T"
@@ -61,6 +62,8 @@ namespace idlparser {
 
 class Parser;
 class Scanner;
+class Context;
+typedef SharedPtr<Context> ContextPtr;
 
 /**
  * @brief IDL parser driver
@@ -75,44 +78,64 @@ public:
 	Driver(const QString &filename);
 	~Driver();
 	QVariant parse();
+	bool appendError(const QString &message);
 private:
 	friend class Parser;
 	friend class Scanner;
-	QString lastError;
+	QStringList m_errors;
 	FILE *m_stream;
+	QString m_filename;
 	Scanner &scanner;
 	Parser &parser;
 	QVariant result;
-	QStack<QString> packageStack;
-	QVariantMap envGlobal;
-	QVariantMap envLocal;
+	QStack<ContextPtr> stack;
+	ContextPtr context;
+	QVariantMap symTbl;
 	void blockBegin(const QString& name);
 	void blockEnd();
-	void addLocal(const QString& name, const QVariant &node);
+	bool addSym(const QVariant& symbol, const QVariant &node);
+};
+
+class Context: public SharedData {
+public:
+	Context(ContextPtr &ctx, const QString& name);
+	virtual ~Context();
+	QString name;
+	QString shortName;
+	QVariantMap symTbl;
 };
 
 inline void Driver::blockBegin(const QString& name) {
-	if (packageStack.isEmpty()) {
-		packageStack.push(name);
-	} else {
-		packageStack.push(packageStack.top() + "::" + name);
-	}
+	stack.push(context);
+	context = new Context(context, name);
 }
 
 inline void Driver::blockEnd() {
-	QString prefix;
-	if (!packageStack.isEmpty()) {
-		prefix = packageStack.top() + "::";
-		for (auto it = envLocal.begin(); it != envLocal.end(); it++) {
-			envGlobal.insert(prefix + it.key(), it.value());
-		}
-	}
-	packageStack.pop();
+	context = stack.pop();
 }
 
-inline void Driver::addLocal(const QString& name, const QVariant &node) {
-	envLocal.insert(name, node);
+inline bool Driver::addSym(const QVariant& symbol, const QVariant &node) {
+	QString shortName = symbol.toString();
+	QString name = (context == nullptr ? "" : context->name + "::") + shortName;
+	if (symTbl.contains(name)) {
+		return appendError("Dupplicate symbol " + name);
+	}
+	if (context != nullptr) {
+		context->symTbl.insert(shortName, node);
+	}
+	symTbl.insert(name, node);
+	return true;
 }
+
+inline Context::Context(ContextPtr& ctx, const QString& shortName)
+: name(shortName), shortName(ctx == nullptr ? shortName : ctx->name + "::" + shortName) {
+	
+}
+
+inline Context::~Context() {
+	
+}
+
 
 }
 

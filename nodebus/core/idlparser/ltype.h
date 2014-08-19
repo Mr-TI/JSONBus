@@ -24,6 +24,7 @@
 #include <nodebus/core/shareddata.h>
 #include <nodebus/core/sharedptr.h>
 #include <logger.h>
+#include "driver.h"
 
 using namespace NodeBus;
 
@@ -42,7 +43,7 @@ public:
 	virtual QVariantList &list();
 	virtual Node *insert(const QString &key, const QVariant &value);
 	virtual Node *append(const QVariant &value);
-	virtual bool appendParam(SharedPtr<Node> &pElt, QString &lastError);
+	virtual bool appendParam(SharedPtr<Node> &pElt, Driver &driver);
 };
 
 inline Node::Node() {}
@@ -73,7 +74,7 @@ inline Node *Node::insert(const QString &key, const QVariant &value) {
 	throw Exception("Fatal: Illegal call to Node *Node::insert(const QString &, const QVariant &)");
 }
 
-inline bool Node::appendParam(SharedPtr<Node> &pElt, QString &lastError) {
+inline bool Node::appendParam(SharedPtr<Node> &pElt, Driver &driver) {
 	throw Exception("Fatal: Illegal call to bool Node::appendParam(SharedPtr<Node> &, QString &)");
 }
 
@@ -137,14 +138,14 @@ private :
 	QVariantList m_list;
 public:
 	virtual QVariantList &list();
-	virtual bool appendParam(SharedPtr<Node> &pElt, QString &lastError);
+	virtual bool appendParam(SharedPtr<Node> &pElt, Driver &driver);
 };
 
-inline bool NodeParams::appendParam(SharedPtr<Node> &pElt, QString &lastError) {
+inline bool NodeParams::appendParam(SharedPtr<Node> &pElt, Driver &driver) {
 	QVariantMap &param = pElt->map();
 	QString k = param["n"].toString();
 	if (params.contains(k)) {
-		lastError = "Dupplicate parameter " + k;
+		driver.appendError("Dupplicate parameter " + k);
 		return false;
 	}
 	params[k] = true;
@@ -155,14 +156,6 @@ inline bool NodeParams::appendParam(SharedPtr<Node> &pElt, QString &lastError) {
 inline QVariantList& NodeParams::list() {
 	return m_list;
 }
-
-class BlockCtx: public SharedData {
-public:
-	BlockCtx(SharedPtr<BlockCtx> variant);
-	virtual ~BlockCtx();
-	QString name;
-	QVariantMap symTbl;
-};
 
 class LType: public SharedData {
 public:
@@ -192,15 +185,13 @@ inline LType& LType::operator=(const LType& other) {
 	return *this;
 }
 
-inline bool opexec(SharedPtr<Node> &res, char op, SharedPtr<Node> &op1_n, SharedPtr<Node> &op2_n, QString &lastError) {
+inline bool opexec(SharedPtr<Node> &res, char op, SharedPtr<Node> &op1_n, SharedPtr<Node> &op2_n, Driver &driver) {
 	QVariant &op1 = op1_n->val();
 	QVariant &op2 = op2_n->val();
 	if (!op1.canConvert(QVariant::Double)) {
-		lastError = "Error: invalid operand " + Logger::dump(op1) ;
-		return false;
+		return driver.appendError("Error: invalid operand " + Logger::dump(op1));
 	} else if (!op2.canConvert(QVariant::Double)) {
-		lastError = "Error: invalid operand " + Logger::dump(op2) ;
-		return false;
+		return driver.appendError("Error: invalid operand " + Logger::dump(op2));
 	} else if (op1.type() == QVariant::Double || op2.type() == QVariant::Double) {
 		switch (op) {
 			case '+':
@@ -219,8 +210,7 @@ inline bool opexec(SharedPtr<Node> &res, char op, SharedPtr<Node> &op1_n, Shared
 				res = new NodeVariant(op1.toLongLong() % op1.toLongLong());
 				break;
 			default:
-				lastError = "Error: invalid operator " + char(op) ;
-				return false;
+				return driver.appendError("Error: invalid operator " + char(op));
 		}
 		
 	} else {
@@ -241,26 +231,9 @@ inline bool opexec(SharedPtr<Node> &res, char op, SharedPtr<Node> &op1_n, Shared
 				res = new NodeVariant(op1.toLongLong() % op1.toLongLong());
 				break;
 			default:
-				lastError = "Error: invalid operator " + char(op) ;
-				return false;
+				return driver.appendError("Error: invalid operator " + char(op));
 		}
 	}
-	return true;
-}
-
-inline bool checkParamList(SharedPtr<Node> &pRet, SharedPtr<Node> &pList, QString &lastError) {
-	QVariantList &list = pRet->list();
-	QHash<QString, bool> params;
-	for (auto it = list.begin(); it != list.end(); it++) {
-		QVariantMap elt = it->toMap();
-		QString k = elt["n"].toString();
-		if (params.contains(k)) {
-			lastError = "Dupplicate parameter " + k;
-			return false;
-		}
-		params[k] = true;
-	}
-	pRet = pList;
 	return true;
 }
 

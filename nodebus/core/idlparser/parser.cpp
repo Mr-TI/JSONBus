@@ -22,11 +22,11 @@ namespace idlparser {
 
 #ifdef GNU_BISON_V2
 void Parser::error(const Parser::location_type& l, const std::string& m) {
-	driver.lastError = QString::fromStdString(m.c_str());
+	driver.appendError(QString::fromStdString(m.c_str()));
 }
 #else
 void Parser::error(const std::string& m) {
-	driver.lastError = QString::fromStdString(m.c_str());
+	driver.appendError(QString::fromStdString(m.c_str()));
 }
 #endif
 

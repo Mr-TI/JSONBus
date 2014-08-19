@@ -130,21 +130,21 @@ MODULE_ELT : INTERFACE                            {$$ = $1;}
     | EXCEPTION                                   {$$ = $1;}
     ;
 
-ENUM : TENUM TSYMBOL '{' SYMBOL_LIST '}' ';'      {driver.lastError = "enum definition not supported yet";YYABORT;}
+ENUM : TENUM TSYMBOL '{' SYMBOL_LIST '}' ';'      {if (!driver.appendError("enum definition not supported yet")) YYABORT;}
     ;
 
-STRUCT : TSTRUCT TSYMBOL '{' STRUCT_ELTS '}' ';'  {driver.lastError = "struct definition not supported yet";YYABORT;}
+STRUCT : TSTRUCT TSYMBOL '{' STRUCT_ELTS '}' ';'  {if (!driver.appendError("struct definition not supported yet")) YYABORT;}
     ;
 
 STRUCT_ELTS : STRUCT_ELTS FIELD                   {$$ = $1; $$->append($2->map());}
     | FIELD                                       {$$ = (new NodeList())->append($1->map());}
     ;
 
-TYPEDEF : TTYPEDEF TYPE TSYMBOL                   {driver.lastError = "typedef definition not supported yet";YYABORT;}
+TYPEDEF : TTYPEDEF TYPE TSYMBOL                   {if (!driver.appendError("typedef definition not supported yet")) YYABORT;}
     ;
 
 EXCEPTION : TEXCEPTION TSYMBOL '{' STRUCT_ELTS '}' ';'
-                                                  {driver.lastError = "exception definition not supported yet";YYABORT;}
+                                                  {if (!driver.appendError("exception definition not supported yet")) YYABORT;}
     ;
 
 SYMBOL_LIST : SYMBOL_LIST ',' SYMBOL              {$$ = $1; $$->append($3->val());}
@@ -176,8 +176,8 @@ INTERFACE_ELT : ATTRIBUTE                         {}
     | CONSTANT                                    {}
     ;
 
-SEQUENCE : TSEQUENCE '<' TYPE '>'                 {driver.lastError = "sequence not supported";YYABORT;}
-    | TSEQUENCE '<' TYPE ',' TNUMBER '>'          {driver.lastError = "sequence not supported";YYABORT;}
+SEQUENCE : TSEQUENCE '<' TYPE '>'                 {if (!driver.appendError("sequence not supported")) YYABORT;}
+    | TSEQUENCE '<' TYPE ',' TNUMBER '>'          {if (!driver.appendError("sequence not supported")) YYABORT;}
     ;
 
 RET_TYPE : TYPE                                   {$$ = $1;}
@@ -201,12 +201,12 @@ TYPE : TOBJECT                                    {$$ = new NodeVariant(VTYPE_AN
     | TSTRING                                     {$$ = new NodeVariant(VTYPE_STRING);}
     | TOCTET '[' ']'                              {$$ = new NodeVariant(VTYPE_BYTEARRAY);}
     | TDATETIME                                   {$$ = new NodeVariant(VTYPE_DATETIME);}
-    | SEQUENCE                                    {driver.lastError = "Warning: sequence not supported yet";YYERROR;}
+    | SEQUENCE                                    {if (!driver.appendError("Warning: sequence not supported yet")) YYABORT;}
     ;
 
-FIELD : TYPE SYMBOL '<' TNUMBER '>'               {driver.lastError = "Error: array definition not supported";YYABORT;}
-    | TYPE SYMBOL '[' TNUMBER ']'                 {driver.lastError = "Error: array definition not supported";YYABORT;}
-    | TYPE SYMBOL '[' ']'                         {driver.lastError = "Error: array definition not supported";YYABORT;}
+FIELD : TYPE SYMBOL '<' TNUMBER '>'               {if (!driver.appendError("Error: array definition not supported")) YYABORT;}
+    | TYPE SYMBOL '[' TNUMBER ']'                 {if (!driver.appendError("Error: array definition not supported")) YYABORT;}
+    | TYPE SYMBOL '[' ']'                         {if (!driver.appendError("Error: array definition not supported")) YYABORT;}
     | TYPE SYMBOL                                 {$$ = (new NodeMap())->insert(KNODE_DTYPE, $1->val())->insert(KNODE_SNAME, $2->val());}
     ;
 
@@ -221,11 +221,11 @@ CONSTANT : TCONST FIELD '=' EXPRESSION ';'        {$$ = $2; $$->insert(KNODE_VAL
     ;
 
 EXPRESSION : '(' EXPRESSION ')'                   {$$ = $2;}
-    | EXPRESSION '+' EXPRESSION                   {if (!opexec($$, '+', $1, $3, driver.lastError))YYABORT;}
-    | EXPRESSION '-' EXPRESSION                   {if (!opexec($$, '-', $1, $3, driver.lastError))YYABORT;}
-    | EXPRESSION '*' EXPRESSION                   {if (!opexec($$, '*', $1, $3, driver.lastError))YYABORT;}
-    | EXPRESSION '/' EXPRESSION                   {if (!opexec($$, '/', $1, $3, driver.lastError))YYABORT;}
-    | EXPRESSION '%' EXPRESSION                   {if (!opexec($$, '%', $1, $3, driver.lastError))YYABORT;}
+    | EXPRESSION '+' EXPRESSION                   {if (!opexec($$, '+', $1, $3, driver)) YYABORT;}
+    | EXPRESSION '-' EXPRESSION                   {if (!opexec($$, '-', $1, $3, driver)) YYABORT;}
+    | EXPRESSION '*' EXPRESSION                   {if (!opexec($$, '*', $1, $3, driver)) YYABORT;}
+    | EXPRESSION '/' EXPRESSION                   {if (!opexec($$, '/', $1, $3, driver)) YYABORT;}
+    | EXPRESSION '%' EXPRESSION                   {if (!opexec($$, '%', $1, $3, driver)) YYABORT;}
     | VALUE                                       {$$ = $1;}
     ;
 
@@ -237,17 +237,17 @@ METHOD : METHOD_HEADER RET_TYPE SYMBOL '(' PARAMETERS ')' METHOD_FOOTER ';'
                                                   {$$ = (new NodeMap())->insert(KNODE_DTYPE, $2->val())->insert(KNODE_SNAME, $3->val())->insert(KNODE_PARAMS, $5->map());}
     ;
 
-METHOD_HEADER : TONEWAY                           {driver.lastError = "Warning: unsupported oneway keyword and will be ignored";YYERROR;}
+METHOD_HEADER : TONEWAY                           {if (!driver.appendError("Warning: unsupported oneway keyword and will be ignored")) YYABORT;}
     |                                             {}
     ;
 
 METHOD_FOOTER : TRAISES '(' SYMBOL_LIST ')'
-                                                  {driver.lastError = "Warning: exception raise not supported and will be ignored";YYERROR;}
+                                                  {if (!driver.appendError("Warning: exception raise not supported and will be ignored")) YYABORT;}
     |                                             {}
     ;
 
-PARAMETERS : PARAMETERS PARAMETER                 {if ($1->appendParam($2, driver.lastError)) YYABORT; $$ = $1;}
-    | PARAMETER                                   {$$ = new NodeParams(); $$->appendParam($1, driver.lastError);}
+PARAMETERS : PARAMETERS PARAMETER                 {if (!$1->appendParam($2, driver)) YYABORT; $$ = $1;}
+    | PARAMETER                                   {$$ = new NodeParams(); if (!$$->appendParam($1, driver)) YYABORT;}
     | TVOID                                       {$$ = new NodeParams();}
     |                                             {$$ = new NodeParams();}
     ;

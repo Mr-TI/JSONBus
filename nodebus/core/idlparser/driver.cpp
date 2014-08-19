@@ -20,7 +20,6 @@
 #include "driver.h"
 
 #include <nodebus/core/parser.h>
-#define ErrorException ErrorParserException
 using namespace NodeBus;
 
 namespace idlparser {
@@ -39,11 +38,19 @@ Driver::~Driver() {
 	delete &scanner;
 }
 
+bool Driver::appendError(const QString& message) {
+	m_errors.append("File: " + m_filename + ", line: " + 
+		QString::number(scanner.lineno()) + ", column: " + 
+		QString::number(scanner.YYLeng()) + ", " + message);
+	return m_errors.size() < 20;
+}
+
 QVariant Driver::parse() {
 	result = QVariant();
 	scanner.resetPos();
-	if (parser.parse() != 0) {
-		throw ErrorException(QString("Line: ") + QString::number(scanner.lineno()) + ", column: " + QString::number(scanner.YYLeng()) + ", " + lastError);
+	parser.parse();
+	if (!m_errors.isEmpty()) {
+		throw ErrorParserException(m_errors.join("\n"));
 	}
 	return result;
 }
