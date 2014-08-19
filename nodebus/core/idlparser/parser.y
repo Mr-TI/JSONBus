@@ -137,7 +137,7 @@ STRUCT : TSTRUCT TSYMBOL '{' STRUCT_ELTS '}' ';'  {driver.lastError = "struct de
     ;
 
 STRUCT_ELTS : STRUCT_ELTS FIELD                   {$$ = $1; $$->append($2->map());}
-    | FIELD                                       {$$ = Node::newList($1->map());}
+    | FIELD                                       {$$ = (new NodeList())->append($1->map());}
     ;
 
 TYPEDEF : TTYPEDEF TYPE TSYMBOL                   {driver.lastError = "typedef definition not supported yet";YYABORT;}
@@ -148,10 +148,10 @@ EXCEPTION : TEXCEPTION TSYMBOL '{' STRUCT_ELTS '}' ';'
     ;
 
 SYMBOL_LIST : SYMBOL_LIST ',' SYMBOL              {$$ = $1; $$->append($3->val());}
-    | SYMBOL                                      {$$ = Node::newList($1->val());}
+    | SYMBOL                                      {$$ = (new NodeList())->append($1->val());}
     ;
 
-SYMBOL : SYMBOL ':' ':' TSYMBOL                   {$$ = new Node($1->toString() + "::" + $4->toString());}
+SYMBOL : SYMBOL ':' ':' TSYMBOL                   {$$ = new NodeVariant($1->toString() + "::" + $4->toString());}
     | TSYMBOL                                     {$$ = $1;}
     ;
 
@@ -164,7 +164,7 @@ INTERFACE_HEADER : TINTERFACE SYMBOL INTERFACE_PARENT
     ;
 
 INTERFACE_PARENT : ':' SYMBOL_LIST                {$$ = $2;}
-    |                                             {$$ = Node::newList();}
+    |                                             {$$ = (new NodeList());}
     ;
 
 INTERFACE_ELTS : INTERFACE_ELTS INTERFACE_ELT     {}
@@ -181,40 +181,40 @@ SEQUENCE : TSEQUENCE '<' TYPE '>'                 {driver.lastError = "sequence 
     ;
 
 RET_TYPE : TYPE                                   {$$ = $1;}
-    | TVOID                                       {$$ = new Node(VTYPE_VOID);}
+    | TVOID                                       {$$ = new NodeVariant(VTYPE_VOID);}
     ;
 
-TYPE : TOBJECT                                    {$$ = new Node(VTYPE_ANY);}
-    | TANY                                        {$$ = new Node(VTYPE_ANY);}
-    | TBOOLEAN                                    {$$ = new Node(VTYPE_BOOLEAN);}
-    | TOCTET                                      {$$ = new Node(VTYPE_BYTE);}
-    | TCHAR                                       {$$ = new Node(VTYPE_BYTE);}
-    | TWCHAR                                      {$$ = new Node(VTYPE_BYTE);}
-    | TUNSIGNED TSHORT                            {$$ = new Node(VTYPE_UINT32);}
-    | TSHORT                                      {$$ = new Node(VTYPE_INT32);}
-    | TUNSIGNED TLONG                             {$$ = new Node(VTYPE_UINT32);}
-    | TLONG                                       {$$ = new Node(VTYPE_INT32);}
-    | TUNSIGNED TLONG TLONG                       {$$ = new Node(VTYPE_UINT64);}
-    | TLONG TLONG                                 {$$ = new Node(VTYPE_INT64);}
-    | TFLOAT                                      {$$ = new Node(VTYPE_DOUBLE);}
-    | TDOUBLE                                     {$$ = new Node(VTYPE_DOUBLE);}
-    | TSTRING                                     {$$ = new Node(VTYPE_STRING);}
-    | TOCTET '[' ']'                              {$$ = new Node(VTYPE_BYTEARRAY);}
-    | TDATETIME                                   {$$ = new Node(VTYPE_DATETIME);}
+TYPE : TOBJECT                                    {$$ = new NodeVariant(VTYPE_ANY);}
+    | TANY                                        {$$ = new NodeVariant(VTYPE_ANY);}
+    | TBOOLEAN                                    {$$ = new NodeVariant(VTYPE_BOOLEAN);}
+    | TOCTET                                      {$$ = new NodeVariant(VTYPE_BYTE);}
+    | TCHAR                                       {$$ = new NodeVariant(VTYPE_BYTE);}
+    | TWCHAR                                      {$$ = new NodeVariant(VTYPE_BYTE);}
+    | TUNSIGNED TSHORT                            {$$ = new NodeVariant(VTYPE_UINT32);}
+    | TSHORT                                      {$$ = new NodeVariant(VTYPE_INT32);}
+    | TUNSIGNED TLONG                             {$$ = new NodeVariant(VTYPE_UINT32);}
+    | TLONG                                       {$$ = new NodeVariant(VTYPE_INT32);}
+    | TUNSIGNED TLONG TLONG                       {$$ = new NodeVariant(VTYPE_UINT64);}
+    | TLONG TLONG                                 {$$ = new NodeVariant(VTYPE_INT64);}
+    | TFLOAT                                      {$$ = new NodeVariant(VTYPE_DOUBLE);}
+    | TDOUBLE                                     {$$ = new NodeVariant(VTYPE_DOUBLE);}
+    | TSTRING                                     {$$ = new NodeVariant(VTYPE_STRING);}
+    | TOCTET '[' ']'                              {$$ = new NodeVariant(VTYPE_BYTEARRAY);}
+    | TDATETIME                                   {$$ = new NodeVariant(VTYPE_DATETIME);}
     | SEQUENCE                                    {driver.lastError = "Warning: sequence not supported yet";YYERROR;}
     ;
 
 FIELD : TYPE SYMBOL '<' TNUMBER '>'               {driver.lastError = "Error: array definition not supported";YYABORT;}
     | TYPE SYMBOL '[' TNUMBER ']'                 {driver.lastError = "Error: array definition not supported";YYABORT;}
     | TYPE SYMBOL '[' ']'                         {driver.lastError = "Error: array definition not supported";YYABORT;}
-    | TYPE SYMBOL                                 {$$ = Node::newMap(KNODE_DTYPE, $1->val())->insert(KNODE_SNAME, $2->val());}
+    | TYPE SYMBOL                                 {$$ = (new NodeMap())->insert(KNODE_DTYPE, $1->val())->insert(KNODE_SNAME, $2->val());}
     ;
 
 ATTRIBUTE : ATTRIBUTE_QUAL TATTRIBUTE FIELD ';'   {$$ = $3->insert(KNODE_WRITABLE, $1->val())->insert(KNODE_TYPE, NTYPE_ATTR);}
     ;
 
-ATTRIBUTE_QUAL : TREADONLY                        {$$ = new Node(false);}
-    |                                             {$$ = new Node(true);}
+ATTRIBUTE_QUAL : TREADONLY                        {$$ = new NodeVariant(false);}
+    |                                             {$$ = new NodeVariant(true);}
     ;
 
 CONSTANT : TCONST FIELD '=' EXPRESSION ';'        {$$ = $2; $$->insert(KNODE_VALUE, $4->val());}
@@ -234,7 +234,7 @@ VALUE : TVARIANT                                  {$$ = $1;}
     ;
 
 METHOD : METHOD_HEADER RET_TYPE SYMBOL '(' PARAMETERS ')' METHOD_FOOTER ';'
-                                                  {$$ = Node::newMap(KNODE_DTYPE, $2->val())->insert(KNODE_SNAME, $3->val())->insert(KNODE_PARAMS, $5->map());}
+                                                  {$$ = (new NodeMap())->insert(KNODE_DTYPE, $2->val())->insert(KNODE_SNAME, $3->val())->insert(KNODE_PARAMS, $5->map());}
     ;
 
 METHOD_HEADER : TONEWAY                           {driver.lastError = "Warning: unsupported oneway keyword and will be ignored";YYERROR;}
@@ -246,19 +246,19 @@ METHOD_FOOTER : TRAISES '(' SYMBOL_LIST ')'
     |                                             {}
     ;
 
-PARAMETERS : PARAMETERS PARAMETER                 {$$ = $1->append($2->map());}
-    | PARAMETER                                   {$$ = new ParamNode()->insert();;}
-    | TVOID                                       {$$ = new ParamNode();}
-    |                                             {$$ = new ParamNode();}
+PARAMETERS : PARAMETERS PARAMETER                 {if ($1->appendParam($2, driver.lastError)) YYABORT; $$ = $1;}
+    | PARAMETER                                   {$$ = new NodeParams(); $$->appendParam($1, driver.lastError);}
+    | TVOID                                       {$$ = new NodeParams();}
+    |                                             {$$ = new NodeParams();}
     ;
 
 PARAMETER : PARAMETER_DIR FIELD                   {$$ = $2->insert(KNODE_DIRECTION, $1->val());}
     ; 
 
-PARAMETER_DIR : TIN                               {$$ = new Node(PDIR_IN);}
-    | TOUT                                        {$$ = new Node(PDIR_OUT);}
-    | TINOUT                                      {$$ = new Node(PDIR_INOUT);}
-    |                                             {$$ = new Node(PDIR_IN);}
+PARAMETER_DIR : TIN                               {$$ = new NodeVariant(PDIR_IN);}
+    | TOUT                                        {$$ = new NodeVariant(PDIR_OUT);}
+    | TINOUT                                      {$$ = new NodeVariant(PDIR_INOUT);}
+    |                                             {$$ = new NodeVariant(PDIR_IN);}
     ;
 
 

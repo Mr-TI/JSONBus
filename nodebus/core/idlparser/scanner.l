@@ -33,41 +33,41 @@ using namespace std;
 #include <scanner.h>
 
 #define VARIANT_STRING()\
-	yylval->node  = new Node(yytext);
+	yylval->node  = new NodeVariant(yytext);
 
 #define VARIANT_TXT2(_type_)\
-	yylval->node  = new Node(yytext);\
+	yylval->node  = new NodeVariant(yytext);\
 	yylval->node->val().convert(QVariant::_type_)
 
 #define VARIANT_HEXNUM()\
-	yylval->node  = new Node(QString(yytext + 2).toInt(0, 16));\
+	yylval->node  = new NodeVariant(QString(yytext + 2).toInt(0, 16));\
 	yylval->node->val().convert(QVariant::LongLong);\
 	if ((yylval->node->val().toLongLong() & 0xFFFFFFFF00000000) == 0)\
 	yylval->node->val().convert(QVariant::Int)
 
 #define VARIANT_OCTNUM()\
-	yylval->node  = new Node(QString(yytext + 1).toInt(0, 8));\
+	yylval->node  = new NodeVariant(QString(yytext + 1).toInt(0, 8));\
 	yylval->node->val().convert(QVariant::LongLong);\
 	if ((yylval->node->val().toLongLong() & 0xFFFFFFFF00000000) == 0)\
 	yylval->node->val().convert(QVariant::Int)
 
 #define VARIANT_BINNUM()\
-	yylval->node  = new Node(QString(yytext + 2).toInt(0, 2));\
+	yylval->node  = new NodeVariant(QString(yytext + 2).toInt(0, 2));\
 	yylval->node->val().convert(QVariant::LongLong);\
 	if ((yylval->node->val().toLongLong() & 0xFFFFFFFF00000000) == 0)\
 	yylval->node->val().convert(QVariant::Int)
 
 #define VARIANT_NUMBER()\
-	yylval->node  = new Node(yytext);\
+	yylval->node  = new NodeVariant(yytext);\
 	yylval->node->val().convert(QVariant::LongLong);\
 	if ((yylval->node->val().toLongLong() & 0xFFFFFFFF00000000) == 0)\
 	yylval->node->val().convert(QVariant::Int)
 
 #define VARIANT_NULL()\
-	yylval->node  = new Node(QVariant())
+	yylval->node  = new NodeVariant(QVariant())
 
 #define VARIANT_FROM(_value_)\
-	yylval->node  = new Node(_value_)
+	yylval->node  = new NodeVariant(_value_)
 
 #define STRING_BEGIN()\
 	yylval->str = new QString()

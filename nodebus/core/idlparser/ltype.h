@@ -47,9 +47,7 @@ public:
 
 inline Node::Node() {}
 
-inline Node::Node(const QVariant& variant) {
-	data = new QVariant(variant);
-}
+inline Node::~Node() {}
 
 inline QString Node::toString() {
 	throw Exception("Fatal: Illegal call to QString Node::toString()");
@@ -72,23 +70,24 @@ inline Node *Node::append(const QVariant &value) {
 }
 
 inline Node *Node::insert(const QString &key, const QVariant &value) {
-	throw Exception("Fatal: Illegal call to Node::()");
+	throw Exception("Fatal: Illegal call to Node *Node::insert(const QString &, const QVariant &)");
+}
+
+inline bool Node::appendParam(SharedPtr<Node> &pElt, QString &lastError) {
+	throw Exception("Fatal: Illegal call to bool Node::appendParam(SharedPtr<Node> &, QString &)");
 }
 
 class NodeVariant: public Node {
 private:
 	QVariant m_var;
 public:
-	Node();
-	virtual ~Node();
+	NodeVariant(const QVariant &value);
 	virtual QString toString();
 	virtual QVariant &val();
-	virtual QVariantMap &map();
-	virtual QVariantList &list();
-	virtual Node *insert(const QString &key, const QVariant &value);
-	virtual Node *append(const QVariant &value);
-	virtual bool appendParam(SharedPtr<Node> &pElt, QString &lastError);
 };
+
+inline NodeVariant::NodeVariant(const QVariant& value): m_var(value) {
+}
 
 inline QString NodeVariant::toString() {
 	return m_var.toString();
@@ -102,8 +101,6 @@ class NodeList: public Node {
 private:
 	QVariantList m_list;
 public:
-	Node();
-	virtual ~Node();
 	virtual QVariantList &list();
 	virtual Node *append(const QVariant &value);
 };
@@ -113,15 +110,14 @@ inline QVariantList& NodeList::list() {
 }
 
 inline Node *NodeList::append(const QVariant &value) {
-	m_list->append(value);
+	m_list.append(value);
 	return this;
 }
 
 class NodeMap: public Node {
 private:
-	QVariantList m_map;
+	QVariantMap m_map;
 public:
-	Node();
 	virtual QVariantMap &map();
 	virtual Node *insert(const QString &key, const QVariant &value);
 };
@@ -140,13 +136,9 @@ private :
 	QHash<QString, bool> params;
 	QVariantList m_list;
 public:
-	NodeParams();
-	bool appendParam(SharedPtr<Node> &pElt, QString &lastError);
+	virtual QVariantList &list();
+	virtual bool appendParam(SharedPtr<Node> &pElt, QString &lastError);
 };
-
-inline NodeParams::NodeParams() {
-	data = new QVariantList();
-}
 
 inline bool NodeParams::appendParam(SharedPtr<Node> &pElt, QString &lastError) {
 	QVariantMap &param = pElt->map();
@@ -156,11 +148,11 @@ inline bool NodeParams::appendParam(SharedPtr<Node> &pElt, QString &lastError) {
 		return false;
 	}
 	params[k] = true;
-	m_list->append(param);
+	m_list.append(param);
 	return true;
 }
 
-inline QVariantList& NodeList::list() {
+inline QVariantList& NodeParams::list() {
 	return m_list;
 }
 
@@ -212,19 +204,19 @@ inline bool opexec(SharedPtr<Node> &res, char op, SharedPtr<Node> &op1_n, Shared
 	} else if (op1.type() == QVariant::Double || op2.type() == QVariant::Double) {
 		switch (op) {
 			case '+':
-				res = new Node(op1.toDouble() + op1.toDouble());
+				res = new NodeVariant(op1.toDouble() + op1.toDouble());
 				break;
 			case '-':
-				res = new Node(op1.toDouble() + op1.toDouble());
+				res = new NodeVariant(op1.toDouble() + op1.toDouble());
 				break;
 			case '*':
-				res = new Node(op1.toDouble() + op1.toDouble());
+				res = new NodeVariant(op1.toDouble() + op1.toDouble());
 				break;
 			case '/':
-				res = new Node(op1.toDouble() + op1.toDouble());
+				res = new NodeVariant(op1.toDouble() + op1.toDouble());
 				break;
 			case '%':
-				res = new Node(op1.toLongLong() % op1.toLongLong());
+				res = new NodeVariant(op1.toLongLong() % op1.toLongLong());
 				break;
 			default:
 				lastError = "Error: invalid operator " + char(op) ;
@@ -234,19 +226,19 @@ inline bool opexec(SharedPtr<Node> &res, char op, SharedPtr<Node> &op1_n, Shared
 	} else {
 		switch (op) {
 			case '+':
-				res = new Node(op1.toLongLong() + op1.toLongLong());
+				res = new NodeVariant(op1.toLongLong() + op1.toLongLong());
 				break;
 			case '-':
-				res = new Node(op1.toLongLong() + op1.toLongLong());
+				res = new NodeVariant(op1.toLongLong() + op1.toLongLong());
 				break;
 			case '*':
-				res = new Node(op1.toLongLong() + op1.toLongLong());
+				res = new NodeVariant(op1.toLongLong() + op1.toLongLong());
 				break;
 			case '/':
-				res = new Node(op1.toLongLong() + op1.toLongLong());
+				res = new NodeVariant(op1.toLongLong() + op1.toLongLong());
 				break;
 			case '%':
-				res = new Node(op1.toLongLong() % op1.toLongLong());
+				res = new NodeVariant(op1.toLongLong() % op1.toLongLong());
 				break;
 			default:
 				lastError = "Error: invalid operator " + char(op) ;
