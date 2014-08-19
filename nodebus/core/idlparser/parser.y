@@ -247,9 +247,9 @@ METHOD_FOOTER : TRAISES '(' SYMBOL_LIST ')'
     ;
 
 PARAMETERS : PARAMETERS PARAMETER                 {$$ = $1->append($2->map());}
-    | PARAMETER                                   {$$ = Node::newList($1->map());}
-    | TVOID                                       {$$ = Node::newList();}
-    |                                             {$$ = Node::newList();}
+    | PARAMETER                                   {$$ = new ParamNode()->insert();;}
+    | TVOID                                       {$$ = new ParamNode();}
+    |                                             {$$ = new ParamNode();}
     ;
 
 PARAMETER : PARAMETER_DIR FIELD                   {$$ = $2->insert(KNODE_DIRECTION, $1->val());}

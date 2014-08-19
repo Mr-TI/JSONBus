@@ -32,22 +32,17 @@ namespace idlparser {
 class Driver;
 
 class Node: public SharedData {
-private:
-	void *data;
+protected:
 	Node();
 public:
-	Node(const QVariant &variant);
 	virtual ~Node();
-	QString toString();
-	QVariant &val();
-	QVariantMap &map();
-	QVariantList &list();
-	Node *insert(const QString &key, const QVariant &value);
-	Node *append(const QVariant &value);
-	static Node *newMap();
-	static Node *newMap(const QString &key, const QVariant &value);
-	static Node *newList();
-	static Node *newList(const QVariant &value);
+	virtual QString toString();
+	virtual QVariant &val();
+	virtual QVariantMap &map();
+	virtual QVariantList &list();
+	virtual Node *insert(const QString &key, const QVariant &value);
+	virtual Node *append(const QVariant &value);
+	virtual bool appendParam(SharedPtr<Node> &pElt, QString &lastError);
 };
 
 inline Node::Node() {}
@@ -57,66 +52,125 @@ inline Node::Node(const QVariant& variant) {
 }
 
 inline QString Node::toString() {
-	return ((QVariant*)data)->toString();
+	throw Exception("Fatal: Illegal call to QString Node::toString()");
 }
 
 inline QVariant& Node::val() {
-	return *((QVariant*)data);
+	throw Exception("Fatal: Illegal call to QVariant &Node::val()");
 }
 
 inline QVariantList& Node::list() {
-	return *((QVariantList*)data);
+	throw Exception("Fatal: Illegal call to QVariantList &Node::list()");
 }
 
 inline QVariantMap& Node::map() {
-	return *((QVariantMap*)data);
+	throw Exception("Fatal: Illegal call to QVariantMap &Node::map()");
 }
 
 inline Node *Node::append(const QVariant &value) {
-	((QVariantList*)data)->append(value);
-	return this;
+	throw Exception("Fatal: Illegal call to Node *Node::append(const QVariant &)");
 }
 
 inline Node *Node::insert(const QString &key, const QVariant &value) {
-	((QVariantMap*)data)->insert(key, value);
+	throw Exception("Fatal: Illegal call to Node::()");
+}
+
+class NodeVariant: public Node {
+private:
+	QVariant m_var;
+public:
+	Node();
+	virtual ~Node();
+	virtual QString toString();
+	virtual QVariant &val();
+	virtual QVariantMap &map();
+	virtual QVariantList &list();
+	virtual Node *insert(const QString &key, const QVariant &value);
+	virtual Node *append(const QVariant &value);
+	virtual bool appendParam(SharedPtr<Node> &pElt, QString &lastError);
+};
+
+inline QString NodeVariant::toString() {
+	return m_var.toString();
+}
+
+inline QVariant& NodeVariant::val() {
+	return m_var;
+}
+
+class NodeList: public Node {
+private:
+	QVariantList m_list;
+public:
+	Node();
+	virtual ~Node();
+	virtual QVariantList &list();
+	virtual Node *append(const QVariant &value);
+};
+
+inline QVariantList& NodeList::list() {
+	return m_list;
+}
+
+inline Node *NodeList::append(const QVariant &value) {
+	m_list->append(value);
 	return this;
 }
 
-inline Node* Node::newList(const QVariant& value) {
-	Node *node = new Node();
-	node->data = new QVariantList();
-	node->list().append(value);
-	return node;
+class NodeMap: public Node {
+private:
+	QVariantList m_map;
+public:
+	Node();
+	virtual QVariantMap &map();
+	virtual Node *insert(const QString &key, const QVariant &value);
+};
+
+inline QVariantMap& NodeMap::map() {
+	return m_map;
 }
 
-inline Node* Node::newList() {
-	Node *node = new Node();
-	node->data = new QVariantList();
-	return node;
+inline Node *NodeMap::insert(const QString &key, const QVariant &value) {
+	m_map.insert(key, value);
+	return this;
 }
 
-inline Node* Node::newMap(const QString& key, const QVariant& value) {
-	Node *node = new Node();
-	node->data = new QVariantMap();
-	node->map().insert(key, value);
-	return node;
+class NodeParams: public Node {
+private :
+	QHash<QString, bool> params;
+	QVariantList m_list;
+public:
+	NodeParams();
+	bool appendParam(SharedPtr<Node> &pElt, QString &lastError);
+};
+
+inline NodeParams::NodeParams() {
+	data = new QVariantList();
 }
 
-inline Node* Node::newMap() {
-	Node *node = new Node();
-	node->data = new QVariantMap();
-	return node;
-}
-
-inline Node::~Node() {
-	if (dynamic_cast<QVariant*>((QObject*)data)) {
-		delete (QVariant*)data;
-	} else if (dynamic_cast<QVariantMap*>((QObject*)data)) {
-		delete (QVariantMap*)data;
-	} else if (dynamic_cast<QVariantList*>((QObject*)data)) {
-		delete (QVariantList*)data;
+inline bool NodeParams::appendParam(SharedPtr<Node> &pElt, QString &lastError) {
+	QVariantMap &param = pElt->map();
+	QString k = param["n"].toString();
+	if (params.contains(k)) {
+		lastError = "Dupplicate parameter " + k;
+		return false;
 	}
+	params[k] = true;
+	m_list->append(param);
+	return true;
 }
+
+inline QVariantList& NodeList::list() {
+	return m_list;
+}
+
+class BlockCtx: public SharedData {
+public:
+	BlockCtx(SharedPtr<BlockCtx> variant);
+	virtual ~BlockCtx();
+	QString name;
+	QVariantMap symTbl;
+};
 
 class LType: public SharedData {
 public:
@@ -145,14 +199,6 @@ inline LType& LType::operator=(const LType& other) {
 	if (other.str) str = new QString(*(other.str));
 	return *this;
 }
-
-class BlockCtx: public SharedData {
-public:
-	BlockCtx(SharedPtr<BlockCtx> variant);
-	virtual ~BlockCtx();
-	QString name;
-	QVariantMap symTbl;
-};
 
 inline bool opexec(SharedPtr<Node> &res, char op, SharedPtr<Node> &op1_n, SharedPtr<Node> &op2_n, QString &lastError) {
 	QVariant &op1 = op1_n->val();
