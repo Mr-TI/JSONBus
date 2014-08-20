@@ -80,7 +80,7 @@
 
 %start DOCUMENT
 
-%type <node>        DOCUMENT DOCUMENT_START DOCUMENT_ELTS DOCUMENT_ELT MODULE_ELTS MODULE_ELT MODULE_HEADER MODULE ENUM STRUCT
+%type <node>        DOCUMENT DOCUMENT_ELTS DOCUMENT_ELT MODULE_ELTS MODULE_ELT MODULE_HEADER MODULE ENUM STRUCT
 %type <node>        EXCEPTION STRUCT_ELTS TYPEDEF SYMBOL_LIST SYMBOL INTERFACE INTERFACE_ELTS INTERFACE_ELT SEQUENCE RET_TYPE
 %type <node>        FIELD ATTRIBUTE CONSTANT EXPRESSION METHOD METHOD_HEADER METHOD_FOOTER PARAMETERS PARAMETER PARAMETER_DIR
 %type <node>        VALUE ATTRIBUTE_QUAL INTERFACE_PARENT INTERFACE_HEADER TYPE
@@ -104,30 +104,30 @@
 DOCUMENT : DOCUMENT_ELTS TEND                     {YYACCEPT;}
     ;
 
-DOCUMENT_ELTS : DOCUMENT_ELTS DOCUMENT_ELT        {}
-    | DOCUMENT_ELT                                {}
+DOCUMENT_ELTS : DOCUMENT_ELTS DOCUMENT_ELT        {/* NOTHING TO DO */}
+    | DOCUMENT_ELT                                {/* NOTHING TO DO */}
     ;
 
-DOCUMENT_ELT : MODULE_ELT                         {}
-    | TINCLUDE                                    {}
+DOCUMENT_ELT : MODULE_ELT                         {/* NOTHING TO DO */}
+    | TINCLUDE                                    {driver.include($1->toString());}
     ;
 
-MODULE : MODULE_HEADER '{' MODULE_ELTS '}' ';'    {driver.moduleEnd();}
+MODULE : MODULE_HEADER '{' MODULE_ELTS '}' ';'    {driver.pop();}
     ;
 
-MODULE_HEADER : TMODULE TSYMBOL                   {driver.moduleBegin($2->toString());}
+MODULE_HEADER : TMODULE TSYMBOL                   {driver.push(new NodeModule(driver, $2));}
     ;
 
-MODULE_ELTS : MODULE_ELTS MODULE_ELT              {}
-    | MODULE_ELT                                  {}
+MODULE_ELTS : MODULE_ELTS MODULE_ELT              {/* NOTHING TO DO */}
+    | MODULE_ELT                                  {/* NOTHING TO DO */}
     ;
 
-MODULE_ELT : INTERFACE                            {$$ = $1;}
-    | MODULE                                      {$$ = $1;}
-    | ENUM                                        {$$ = $1;}
-    | STRUCT                                      {$$ = $1;}
-    | TYPEDEF                                     {$$ = $1;}
-    | EXCEPTION                                   {$$ = $1;}
+MODULE_ELT : INTERFACE                            {/* NOTHING TO DO */}
+    | MODULE                                      {/* NOTHING TO DO */}
+    | ENUM                                        {/* NOTHING TO DO */}
+    | STRUCT                                      {/* NOTHING TO DO */}
+    | TYPEDEF                                     {/* NOTHING TO DO */}
+    | EXCEPTION                                   {/* NOTHING TO DO */}
     ;
 
 ENUM : TENUM TSYMBOL '{' SYMBOL_LIST '}' ';'      {if (!driver.appendError("enum definition not supported yet")) YYABORT;}
@@ -136,8 +136,8 @@ ENUM : TENUM TSYMBOL '{' SYMBOL_LIST '}' ';'      {if (!driver.appendError("enum
 STRUCT : TSTRUCT TSYMBOL '{' STRUCT_ELTS '}' ';'  {if (!driver.appendError("struct definition not supported yet")) YYABORT;}
     ;
 
-STRUCT_ELTS : STRUCT_ELTS FIELD                   {$$ = $1; $$->append($2->map());}
-    | FIELD                                       {$$ = (new NodeList())->append($1->map());}
+STRUCT_ELTS : STRUCT_ELTS FIELD                   {/* NOTHING TO DO */}
+    | FIELD                                       {/* NOTHING TO DO */}
     ;
 
 TYPEDEF : TTYPEDEF TYPE TSYMBOL                   {if (!driver.appendError("typedef definition not supported yet")) YYABORT;}
@@ -156,24 +156,24 @@ SYMBOL : SYMBOL ':' ':' TSYMBOL                   {$$ = new NodeVariant($1->toSt
     ;
 
 INTERFACE : INTERFACE_HEADER '{' INTERFACE_ELTS '}' ';'
-                                                  {driver.intfEnd();}
+                                                  {driver.pop();}
     ;
 
 INTERFACE_HEADER : TINTERFACE SYMBOL INTERFACE_PARENT
-                                                  {driver.intfBegin($2->toString());}
+                                                  {driver.push(new NodeIntf(driver, $2, $3));}
     ;
 
 INTERFACE_PARENT : ':' SYMBOL_LIST                {$$ = $2;}
-    |                                             {$$ = (new NodeList());}
+    |                                             {$$ = new NodeList();}
     ;
 
-INTERFACE_ELTS : INTERFACE_ELTS INTERFACE_ELT     {}
-    | INTERFACE_ELT                               {}
+INTERFACE_ELTS : INTERFACE_ELTS INTERFACE_ELT     {/* NOTHING TO DO */}
+    | INTERFACE_ELT                               {/* NOTHING TO DO */}
     ;
 
-INTERFACE_ELT : ATTRIBUTE                         {$$ = $1;}
-    | METHOD                                      {$$ = $1;}
-    | CONSTANT                                    {$$ = $1;}
+INTERFACE_ELT : ATTRIBUTE                         {/* NOTHING TO DO */}
+    | METHOD                                      {/* NOTHING TO DO */}
+    | CONSTANT                                    {/* NOTHING TO DO */}
     ;
 
 SEQUENCE : TSEQUENCE '<' TYPE '>'                 {if (!driver.appendError("sequence not supported")) YYABORT;}
@@ -238,18 +238,18 @@ METHOD : METHOD_HEADER RET_TYPE SYMBOL '(' PARAMETERS ')' METHOD_FOOTER ';'
     ;
 
 METHOD_HEADER : TONEWAY                           {if (!driver.appendError("Warning: unsupported oneway keyword and will be ignored")) YYABORT;}
-    |                                             {}
+    |                                             {/* NOTHING TO DO */}
     ;
 
 METHOD_FOOTER : TRAISES '(' SYMBOL_LIST ')'
                                                   {if (!driver.appendError("Warning: exception raise not supported and will be ignored")) YYABORT;}
-    |                                             {}
+    |                                             {/* NOTHING TO DO */}
     ;
 
-PARAMETERS : PARAMETERS PARAMETER                 {if (!$1->appendParam($2, driver)) YYABORT; $$ = $1;}
-    | PARAMETER                                   {$$ = new NodeParams(); if (!$$->appendParam($1, driver)) YYABORT;}
-    | TVOID                                       {$$ = new NodeParams();}
-    |                                             {$$ = new NodeParams();}
+PARAMETERS : PARAMETERS PARAMETER                 {if (!$1->append($2)) YYABORT; $$ = $1;}
+    | PARAMETER                                   {$$ = new NodeParams(driver); if (!$$->append($1)) YYABORT;}
+    | TVOID                                       {$$ = new NodeParams(driver);}
+    |                                             {$$ = new NodeParams(driver);}
     ;
 
 PARAMETER : PARAMETER_DIR FIELD                   {$$ = $2->insert(KNODE_DIRECTION, $1->val());}

@@ -28,7 +28,7 @@ static FILE *__idlparser_fopen(const QString& filename) {
 	return NULL;
 }
 
-Driver::Driver(const QString& filename)
+Driver::Driver(const QString& filename, NodePtr shared)
 		: m_stream(__idlparser_fopen(filename)), scanner(*new Scanner(filename)),
 		parser(*new Parser(*this)){
 }
@@ -53,6 +53,18 @@ QVariant Driver::parse() {
 		throw ErrorParserException(m_errors.join("\n"));
 	}
 	return result;
+}
+
+void Driver::pop() {
+
+}
+
+void Driver::push(NodePtr node) {
+
+}
+
+bool Driver::include(const QString& filename) {
+	return false;
 }
 
 }

@@ -23,7 +23,7 @@
 #include <QString>
 #include <nodebus/core/shareddata.h>
 #include <nodebus/core/sharedptr.h>
-#include <logger.h>
+#include <nodebus/core/logger.h>
 #include "driver.h"
 
 #define KNODE_TYPE         "T"
@@ -96,33 +96,38 @@ class NodeParams: public Node {
 private :
 	QHash<QString, bool> params;
 	QVariantList m_list;
+	Driver &m_driver;
 public:
+	NodeParams(Driver &driver);
 	virtual QVariantList &list();
-	virtual bool appendParam(SharedPtr<Node> &pElt, Driver &driver);
+	virtual bool append(SharedPtr<Node> &pElt);
 };
 
 class NodeModule: public Node {
+private :
+	Driver &m_driver;
 public:
-	Context(NodePtr &ctx, const QString& name);
-	virtual ~Context();
+	NodeModule(Driver &driver, NodePtr &pSym);
 	QString name;
 	QString shortName;
 	QVariantMap symTbl;
 };
 
 class NodeIntf: public Node {
+private :
+	Driver &m_driver;
 public:
-	Context(NodePtr &ctx, const QString& name);
-	virtual ~Context();
+	NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents);
 	QString name;
 	QString shortName;
 	QVariantMap symTbl;
 };
 
 class NodeRoot: public Node {
+private :
+	Driver &m_driver;
 public:
-	Context(NodePtr &ctx, const QString& name);
-	virtual ~Context();
+	NodeRoot(Driver &driver);
 	QString name;
 	QString shortName;
 	QVariantMap symTbl;
@@ -236,7 +241,7 @@ inline Node *Node::insert(const QString &key, const QVariant &value) {
 	throw Exception("Fatal: Illegal call to Node *Node::insert(const QString &, const QVariant &)");
 }
 
-inline bool Node::appendParam(SharedPtr<Node> &pElt, Driver &driver) {
+inline bool Node::append(SharedPtr<Node> &pElt) {
 	throw Exception("Fatal: Illegal call to bool Node::appendParam(SharedPtr<Node> &, QString &)");
 }
 
@@ -269,11 +274,15 @@ inline Node *NodeMap::insert(const QString &key, const QVariant &value) {
 	return this;
 }
 
-inline bool NodeParams::appendParam(SharedPtr<Node> &pElt, Driver &driver) {
+inline NodeParams::NodeParams(Driver& driver): m_driver(driver) {
+
+}
+
+inline bool NodeParams::append(SharedPtr<Node> &pElt) {
 	QVariantMap &param = pElt->map();
 	QString k = param["n"].toString();
 	if (params.contains(k)) {
-		driver.appendError("Dupplicate parameter " + k);
+		m_driver.appendError("Dupplicate parameter " + k);
 		return false;
 	}
 	params[k] = true;
@@ -285,13 +294,16 @@ inline QVariantList& NodeParams::list() {
 	return m_list;
 }
 
-inline Context::Context(NodePtr& ctx, const QString& shortName)
-: name(shortName), shortName(ctx == nullptr ? shortName : ctx->name + "::" + shortName) {
-	
+inline NodeIntf::NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents): m_driver(driver) {
+
 }
 
-inline Context::~Context() {
-	
+inline NodeModule::NodeModule(Driver &driver, NodePtr &pSym): m_driver(driver) {
+
+}
+
+inline NodeRoot::NodeRoot(Driver& driver): m_driver(driver) {
+
 }
 
 }

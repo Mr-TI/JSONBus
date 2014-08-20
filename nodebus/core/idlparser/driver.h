@@ -40,7 +40,7 @@ public:
 	virtual QVariantList &list();
 	virtual Node *insert(const QString &key, const QVariant &value);
 	virtual Node *append(const QVariant &value);
-	virtual bool appendParam(SharedPtr<Node> &pElt, Driver &driver);
+	virtual bool append(SharedPtr<Node> &pElt);
 };
 
 typedef SharedPtr<Node> NodePtr;
@@ -54,10 +54,11 @@ typedef SharedPtr<Node> NodePtr;
  */
 class Driver {
 public:
-	Driver(const QString &filename, NodePtr shared);
+	Driver(const QString &filename, NodePtr shared=nullptr);
 	~Driver();
 	QVariant parse();
 	bool appendError(const QString &message);
+	bool include(const QString &filename);
 private:
 	friend class Parser;
 	friend class Scanner;
@@ -75,42 +76,6 @@ private:
 	void pop();
 	bool addSym(const QVariant &node);
 };
-
-inline void Driver::intfBegin(const QString& name) {
-	stack.push(context);
-	context = new Context(context, name);
-}
-
-inline QVariantMap Driver::intfEnd() {
-	QVariantMap node;
-	node.insert("n", context->shortName);
-	node.insert("m", context->symTbl.values());
-	context = stack.pop();
-	return node;
-}
-
-inline void Driver::moduleBegin(const QString& name) {
-	stack.push(context);
-	context = new Context(context, name);
-}
-
-inline void Driver::moduleEnd() {
-	context = stack.pop();
-}
-
-inline bool Driver::addSym(const QVariant& symbol, const QVariant &node) {
-	QString shortName = symbol.toString();
-	QString name = (context == nullptr ? "" : context->name + "::") + shortName;
-	if (symTbl.contains(name)) {
-		return appendError("Dupplicate symbol " + name);
-	}
-	if (context != nullptr) {
-		context->symTbl.insert(shortName, node);
-	}
-	symTbl.insert(name, node);
-	return true;
-}
-
 
 }
 
