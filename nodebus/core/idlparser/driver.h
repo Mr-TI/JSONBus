@@ -20,50 +20,30 @@
 #include <QVariant>
 #include <QStack>
 #include <QMap>
-#include <qstringlist.h>
+#include <QStringList>
 #include <stdio.h>
-
-#define KNODE_TYPE         "T"
-#define KNODE_DTYPE        "t"
-#define KNODE_SNAME        "n"
-#define KNODE_DIRECTION    "d"
-#define KNODE_WRITABLE     "w"
-#define KNODE_VALUE        "v"
-#define KNODE_PARAMS       "p"
-
-#define VTYPE_VOID         'v'
-#define VTYPE_ANY          'a'
-#define VTYPE_BOOLEAN      'b'
-#define VTYPE_BYTE         'o'
-#define VTYPE_UINT32       'I'
-#define VTYPE_INT32        'i'
-#define VTYPE_UINT64       'L'
-#define VTYPE_INT64        'l'
-#define VTYPE_DOUBLE       'd' 
-#define VTYPE_STRING       's'
-#define VTYPE_BYTEARRAY    'O'
-#define VTYPE_DATETIME     't'
-
-#define NTYPE_DOCUMENT     'D'
-#define NTYPE_CONST        'C'
-#define NTYPE_ATTR         'A'
-#define NTYPE_INTERFACE    'I'
-#define NTYPE_METHOD       'M'
-#define NTYPE_ENUM         'E'
-#define NTYPE_STRUCT       'S'
-#define NTYPE_TYPEDEF      'T'
-#define NTYPE_PACKAGE      'P'
-
-#define PDIR_IN            'i'
-#define PDIR_OUT           'o'
-#define PDIR_INOUT         'b'
 
 namespace idlparser {
 
 class Parser;
 class Scanner;
-class Context;
-typedef SharedPtr<Context> ContextPtr;
+class Driver;
+
+class Node: public SharedData {
+protected:
+	Node();
+public:
+	virtual ~Node();
+	virtual QString toString();
+	virtual QVariant &val();
+	virtual QVariantMap &map();
+	virtual QVariantList &list();
+	virtual Node *insert(const QString &key, const QVariant &value);
+	virtual Node *append(const QVariant &value);
+	virtual bool appendParam(SharedPtr<Node> &pElt, Driver &driver);
+};
+
+typedef SharedPtr<Node> NodePtr;
 
 /**
  * @brief IDL parser driver
@@ -74,8 +54,7 @@ typedef SharedPtr<Context> ContextPtr;
  */
 class Driver {
 public:
-	typedef char (*getc_t)(void *);
-	Driver(const QString &filename);
+	Driver(const QString &filename, NodePtr shared);
 	~Driver();
 	QVariant parse();
 	bool appendError(const QString &message);
@@ -88,29 +67,34 @@ private:
 	Scanner &scanner;
 	Parser &parser;
 	QVariant result;
-	QStack<ContextPtr> stack;
-	ContextPtr context;
-	QVariantMap symTbl;
-	void blockBegin(const QString& name);
-	void blockEnd();
-	bool addSym(const QVariant& symbol, const QVariant &node);
+	NodePtr shared;
+	NodePtr context;
+	QStack<NodePtr> nodeStack;
+	QVariantMap synTbl;
+	void push(NodePtr node);
+	void pop();
+	bool addSym(const QVariant &node);
 };
 
-class Context: public SharedData {
-public:
-	Context(ContextPtr &ctx, const QString& name);
-	virtual ~Context();
-	QString name;
-	QString shortName;
-	QVariantMap symTbl;
-};
-
-inline void Driver::blockBegin(const QString& name) {
+inline void Driver::intfBegin(const QString& name) {
 	stack.push(context);
 	context = new Context(context, name);
 }
 
-inline void Driver::blockEnd() {
+inline QVariantMap Driver::intfEnd() {
+	QVariantMap node;
+	node.insert("n", context->shortName);
+	node.insert("m", context->symTbl.values());
+	context = stack.pop();
+	return node;
+}
+
+inline void Driver::moduleBegin(const QString& name) {
+	stack.push(context);
+	context = new Context(context, name);
+}
+
+inline void Driver::moduleEnd() {
 	context = stack.pop();
 }
 
@@ -125,15 +109,6 @@ inline bool Driver::addSym(const QVariant& symbol, const QVariant &node) {
 	}
 	symTbl.insert(name, node);
 	return true;
-}
-
-inline Context::Context(ContextPtr& ctx, const QString& shortName)
-: name(shortName), shortName(ctx == nullptr ? shortName : ctx->name + "::" + shortName) {
-	
-}
-
-inline Context::~Context() {
-	
 }
 
 

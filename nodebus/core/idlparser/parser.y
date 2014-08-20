@@ -80,10 +80,10 @@
 
 %start DOCUMENT
 
-%type <node>        DOCUMENT DOCUMENT_ELTS DOCUMENT_ELT MODULE_ELTS MODULE_ELT MODULE_HEADER MODULE ENUM STRUCT EXCEPTION
-%type <node>        STRUCT_ELTS TYPEDEF SYMBOL_LIST SYMBOL INTERFACE INTERFACE_ELTS INTERFACE_ELT SEQUENCE RET_TYPE TYPE
+%type <node>        DOCUMENT DOCUMENT_START DOCUMENT_ELTS DOCUMENT_ELT MODULE_ELTS MODULE_ELT MODULE_HEADER MODULE ENUM STRUCT
+%type <node>        EXCEPTION STRUCT_ELTS TYPEDEF SYMBOL_LIST SYMBOL INTERFACE INTERFACE_ELTS INTERFACE_ELT SEQUENCE RET_TYPE
 %type <node>        FIELD ATTRIBUTE CONSTANT EXPRESSION METHOD METHOD_HEADER METHOD_FOOTER PARAMETERS PARAMETER PARAMETER_DIR
-%type <node>        VALUE ATTRIBUTE_QUAL INTERFACE_PARENT INTERFACE_HEADER
+%type <node>        VALUE ATTRIBUTE_QUAL INTERFACE_PARENT INTERFACE_HEADER TYPE
 
 %left   '+' '-'
 %left   '*' '/' '%'
@@ -112,10 +112,10 @@ DOCUMENT_ELT : MODULE_ELT                         {}
     | TINCLUDE                                    {}
     ;
 
-MODULE : MODULE_HEADER '{' MODULE_ELTS '}' ';'    {driver.blockEnd();}
+MODULE : MODULE_HEADER '{' MODULE_ELTS '}' ';'    {driver.moduleEnd();}
     ;
 
-MODULE_HEADER : TMODULE TSYMBOL                   {driver.blockBegin($2->toString());}
+MODULE_HEADER : TMODULE TSYMBOL                   {driver.moduleBegin($2->toString());}
     ;
 
 MODULE_ELTS : MODULE_ELTS MODULE_ELT              {}
@@ -156,11 +156,11 @@ SYMBOL : SYMBOL ':' ':' TSYMBOL                   {$$ = new NodeVariant($1->toSt
     ;
 
 INTERFACE : INTERFACE_HEADER '{' INTERFACE_ELTS '}' ';'
-                                                  {driver.blockEnd();}
+                                                  {driver.intfEnd();}
     ;
 
 INTERFACE_HEADER : TINTERFACE SYMBOL INTERFACE_PARENT
-                                                  {driver.blockBegin($2->toString());}
+                                                  {driver.intfBegin($2->toString());}
     ;
 
 INTERFACE_PARENT : ':' SYMBOL_LIST                {$$ = $2;}
@@ -171,9 +171,9 @@ INTERFACE_ELTS : INTERFACE_ELTS INTERFACE_ELT     {}
     | INTERFACE_ELT                               {}
     ;
 
-INTERFACE_ELT : ATTRIBUTE                         {}
-    | METHOD                                      {}
-    | CONSTANT                                    {}
+INTERFACE_ELT : ATTRIBUTE                         {$$ = $1;}
+    | METHOD                                      {$$ = $1;}
+    | CONSTANT                                    {$$ = $1;}
     ;
 
 SEQUENCE : TSEQUENCE '<' TYPE '>'                 {if (!driver.appendError("sequence not supported")) YYABORT;}
