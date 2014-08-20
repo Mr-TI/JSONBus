@@ -24,7 +24,7 @@ using namespace NodeBus;
 
 namespace idlparser {
 
-static FILE *__idlparser_fopen(const QString& filename) {
+inline FILE *__idlparser_fopen(const QString& filename) {
 	return NULL;
 }
 
