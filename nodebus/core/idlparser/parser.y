@@ -21,7 +21,7 @@
 #include "scanner.h"
 #include "driver.h"
 #include <qt4/QtCore/QVariant>
-#define yylex driver.scanner.yylex
+#define yylex driver.m_scanner.yylex
 
 %}
 
@@ -109,7 +109,7 @@ DOCUMENT_ELTS : DOCUMENT_ELTS DOCUMENT_ELT        {/* NOTHING TO DO */}
     ;
 
 DOCUMENT_ELT : MODULE_ELT                         {/* NOTHING TO DO */}
-    | TINCLUDE                                    {driver.include($1->toString());}
+    | TINCLUDE                                    {driver.include($1->str());}
     ;
 
 MODULE : MODULE_HEADER '{' MODULE_ELTS '}' ';'    {driver.pop();}
@@ -151,7 +151,7 @@ SYMBOL_LIST : SYMBOL_LIST ',' SYMBOL              {$$ = $1; $$->append($3->val()
     | SYMBOL                                      {$$ = (new NodeList())->append($1->val());}
     ;
 
-SYMBOL : SYMBOL ':' ':' TSYMBOL                   {$$ = new NodeVariant($1->toString() + "::" + $4->toString());}
+SYMBOL : SYMBOL ':' ':' TSYMBOL                   {$$ = new NodeVariant($1->str() + "::" + $4->str());}
     | TSYMBOL                                     {$$ = $1;}
     ;
 

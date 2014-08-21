@@ -46,13 +46,12 @@ bool Driver::appendError(const QString& message) {
 }
 
 QVariant Driver::parse() {
-	result = QVariant();
 	m_scanner.resetPos();
 	m_parser.parse();
 	if (!m_errors.isEmpty()) {
 		throw ErrorParserException(m_errors.join("\n"));
 	}
-	return result;
+	return 0;
 }
 
 void Driver::pop() {

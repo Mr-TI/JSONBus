@@ -28,20 +28,7 @@ namespace idlparser {
 class Parser;
 class Scanner;
 class Driver;
-
-class Node: public SharedData {
-protected:
-	Node();
-public:
-	virtual ~Node();
-	virtual QString toString();
-	virtual QVariant &val();
-	virtual QVariantMap &map();
-	virtual QVariantList &list();
-	virtual Node *insert(const QString &key, const QVariant &value);
-	virtual Node *append(const QVariant &value);
-	virtual bool append(SharedPtr<Node> &pElt);
-};
+class Node;
 
 typedef SharedPtr<Node> NodePtr;
 
@@ -59,6 +46,7 @@ public:
 	QVariant parse();
 	bool appendError(const QString &message);
 	bool include(const QString &filename);
+	NodePtr &shared();
 private:
 	friend class Parser;
 	friend class Scanner;
@@ -74,6 +62,10 @@ private:
 	void pop();
 	bool addSym(const QVariant &node);
 };
+
+inline NodePtr &Driver::shared() {
+	return m_shared;
+}
 
 }
 

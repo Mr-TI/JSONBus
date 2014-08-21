@@ -67,12 +67,26 @@ namespace idlparser {
 	
 class Driver;
 
+class Node: public SharedData {
+protected:
+	Node();
+public:
+	virtual ~Node();
+	virtual QString str();
+	virtual QVariant &val();
+	virtual QVariantMap &map();
+	virtual QVariantList &list();
+	virtual Node *insert(const QString &key, const QVariant &value);
+	virtual Node *append(const QVariant &value);
+	virtual bool append(SharedPtr<Node> &pElt);
+};
+
 class NodeVariant: public Node {
 private:
 	QVariant m_var;
 public:
 	NodeVariant(const QVariant &value);
-	virtual QString toString();
+	virtual QString str();
 	virtual QVariant &val();
 };
 
@@ -109,7 +123,7 @@ private :
 public:
 	NodeModule(Driver &driver, NodePtr &pSym);
 	virtual bool append(SharedPtr<Node> &pElt);
-	virtual QString toString();
+	virtual QString str();
 	QString m_prefix;
 	QVariantMap m_symTbl;
 };
@@ -120,8 +134,8 @@ private :
 public:
 	NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents);
 	virtual bool append(SharedPtr<Node> &pElt);
-	virtual QString toString();
-	QString m_shortName;
+	virtual QString str();
+	QString m_name;
 	QString m_prefix;
 	QVariantMap m_symTbl;
 };
@@ -132,7 +146,7 @@ private :
 public:
 	NodeRoot(Driver &driver);
 	virtual bool append(SharedPtr<Node> &pElt);
-	virtual QString toString();
+	virtual QString str();
 	QString m_prefix;
 	QVariantMap m_symTbl;
 };
@@ -221,12 +235,8 @@ inline Node::Node() {}
 
 inline Node::~Node() {}
 
-inline QString Node::toString() {
-	throw Exception("Fatal: Illegal call to QString Node::toString()");
-}
-
-inline QString Node::prefix() {
-	throw Exception("Fatal: Illegal call to QString Node::prefix()");
+inline QString Node::str() {
+	throw Exception("Fatal: Illegal call to QString Node::str()");
 }
 
 inline QVariant& Node::val() {
@@ -256,7 +266,7 @@ inline bool Node::append(SharedPtr<Node> &pElt) {
 inline NodeVariant::NodeVariant(const QVariant& value): m_var(value) {
 }
 
-inline QString NodeVariant::toString() {
+inline QString NodeVariant::str() {
 	return m_var.toString();
 }
 
@@ -303,7 +313,7 @@ inline QVariantList& NodeParams::list() {
 }
 
 inline NodeIntf::NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents)
-: m_driver(driver), name(pParents) {
+: m_driver(driver), m_name(pSym->str()), m_prefix(driver.shared()->str() + m_name + "::") {
 	
 }
 
@@ -312,11 +322,12 @@ inline bool NodeIntf::append(SharedPtr<Node> &pElt) {
 	return true;
 }
 
-inline QString NodeIntf::prefix() {
-	return name + "::";
+inline QString NodeIntf::str() {
+	return m_prefix;
 }
 
-inline NodeModule::NodeModule(Driver &driver, NodePtr &pSym): m_driver(driver) {
+inline NodeModule::NodeModule(Driver &driver, NodePtr &pSym)
+: m_driver(driver), m_prefix(driver.shared()->str() + pSym->str() + "::") {
 
 }
 
@@ -325,8 +336,8 @@ inline bool NodeModule::append(SharedPtr<Node> &pElt) {
 	return true;
 }
 
-inline QString NodeIntf::prefix() {
-	return name + "::";
+inline QString NodeModule::str() {
+	return m_prefix;
 }
 
 inline NodeRoot::NodeRoot(Driver& driver): m_driver(driver) {
@@ -338,8 +349,8 @@ inline bool NodeRoot::append(SharedPtr<Node> &pElt) {
 	return true;
 }
 
-inline QString NodeIntf::prefix() {
-	return name;
+inline QString NodeRoot::str() {
+	return m_prefix;
 }
 
 }
