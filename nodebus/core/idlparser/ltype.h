@@ -94,7 +94,7 @@ public:
 
 class NodeParams: public Node {
 private :
-	QHash<QString, bool> params;
+	QHash<QString, bool> m_params;
 	QVariantList m_list;
 	Driver &m_driver;
 public:
@@ -108,9 +108,10 @@ private :
 	Driver &m_driver;
 public:
 	NodeModule(Driver &driver, NodePtr &pSym);
-	QString name;
-	QString shortName;
-	QVariantMap symTbl;
+	virtual bool append(SharedPtr<Node> &pElt);
+	virtual QString toString();
+	QString m_prefix;
+	QVariantMap m_symTbl;
 };
 
 class NodeIntf: public Node {
@@ -118,9 +119,11 @@ private :
 	Driver &m_driver;
 public:
 	NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents);
-	QString name;
-	QString shortName;
-	QVariantMap symTbl;
+	virtual bool append(SharedPtr<Node> &pElt);
+	virtual QString toString();
+	QString m_shortName;
+	QString m_prefix;
+	QVariantMap m_symTbl;
 };
 
 class NodeRoot: public Node {
@@ -128,9 +131,10 @@ private :
 	Driver &m_driver;
 public:
 	NodeRoot(Driver &driver);
-	QString name;
-	QString shortName;
-	QVariantMap symTbl;
+	virtual bool append(SharedPtr<Node> &pElt);
+	virtual QString toString();
+	QString m_prefix;
+	QVariantMap m_symTbl;
 };
 
 class LType: public SharedData {
@@ -221,6 +225,10 @@ inline QString Node::toString() {
 	throw Exception("Fatal: Illegal call to QString Node::toString()");
 }
 
+inline QString Node::prefix() {
+	throw Exception("Fatal: Illegal call to QString Node::prefix()");
+}
+
 inline QVariant& Node::val() {
 	throw Exception("Fatal: Illegal call to QVariant &Node::val()");
 }
@@ -281,11 +289,11 @@ inline NodeParams::NodeParams(Driver& driver): m_driver(driver) {
 inline bool NodeParams::append(SharedPtr<Node> &pElt) {
 	QVariantMap &param = pElt->map();
 	QString k = param["n"].toString();
-	if (params.contains(k)) {
+	if (m_params.contains(k)) {
 		m_driver.appendError("Dupplicate parameter " + k);
 		return false;
 	}
-	params[k] = true;
+	m_params[k] = true;
 	m_list.append(param);
 	return true;
 }
@@ -294,16 +302,44 @@ inline QVariantList& NodeParams::list() {
 	return m_list;
 }
 
-inline NodeIntf::NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents): m_driver(driver) {
+inline NodeIntf::NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents)
+: m_driver(driver), name(pParents) {
+	
+}
 
+inline bool NodeIntf::append(SharedPtr<Node> &pElt) {
+	
+	return true;
+}
+
+inline QString NodeIntf::prefix() {
+	return name + "::";
 }
 
 inline NodeModule::NodeModule(Driver &driver, NodePtr &pSym): m_driver(driver) {
 
 }
 
+inline bool NodeModule::append(SharedPtr<Node> &pElt) {
+	
+	return true;
+}
+
+inline QString NodeIntf::prefix() {
+	return name + "::";
+}
+
 inline NodeRoot::NodeRoot(Driver& driver): m_driver(driver) {
 
+}
+
+inline bool NodeRoot::append(SharedPtr<Node> &pElt) {
+	
+	return true;
+}
+
+inline QString NodeIntf::prefix() {
+	return name;
 }
 
 }

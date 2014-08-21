@@ -29,26 +29,26 @@ inline FILE *__idlparser_fopen(const QString& filename) {
 }
 
 Driver::Driver(const QString& filename, NodePtr shared)
-		: m_stream(__idlparser_fopen(filename)), scanner(*new Scanner(filename)),
-		parser(*new Parser(*this)){
+		: m_stream(__idlparser_fopen(filename)), m_scanner(*new Scanner(filename)),
+		m_parser(*new Parser(*this)){
 }
 
 Driver::~Driver() {
-	delete &parser;
-	delete &scanner;
+	delete &m_parser;
+	delete &m_scanner;
 }
 
 bool Driver::appendError(const QString& message) {
 	m_errors.append("File: " + m_filename + ", line: " + 
-		QString::number(scanner.lineno()) + ", column: " + 
-		QString::number(scanner.YYLeng()) + ", " + message);
+		QString::number(m_scanner.lineno()) + ", column: " + 
+		QString::number(m_scanner.YYLeng()) + ", " + message);
 	return m_errors.size() < 20;
 }
 
 QVariant Driver::parse() {
 	result = QVariant();
-	scanner.resetPos();
-	parser.parse();
+	m_scanner.resetPos();
+	m_parser.parse();
 	if (!m_errors.isEmpty()) {
 		throw ErrorParserException(m_errors.join("\n"));
 	}

@@ -65,13 +65,11 @@ private:
 	QStringList m_errors;
 	FILE *m_stream;
 	QString m_filename;
-	Scanner &scanner;
-	Parser &parser;
-	QVariant result;
-	NodePtr shared;
-	NodePtr context;
-	QStack<NodePtr> nodeStack;
-	QVariantMap synTbl;
+	Scanner &m_scanner;
+	Parser &m_parser;
+	NodePtr m_shared;
+	NodePtr m_context;
+	QStack<NodePtr> m_nodeStack;
 	void push(NodePtr node);
 	void pop();
 	bool addSym(const QVariant &node);
