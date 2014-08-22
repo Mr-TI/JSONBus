@@ -24,18 +24,11 @@ using namespace NodeBus;
 
 namespace idlparser {
 
-inline FILE *__idlparser_fopen(const QString& filename) {
-	return NULL;
-}
-
-Driver::Driver(const QString& filename, NodePtr shared)
-		: m_stream(__idlparser_fopen(filename)), m_scanner(*new Scanner(filename)),
-		m_parser(*new Parser(*this)){
+Driver::Driver(const QString &filename, Scanner &scanner, NodePtr shared)
+		: m_filename(filename), m_scanner(scanner), m_shared(shared) {
 }
 
 Driver::~Driver() {
-	delete &m_parser;
-	delete &m_scanner;
 }
 
 bool Driver::appendError(const QString& message) {
@@ -45,11 +38,13 @@ bool Driver::appendError(const QString& message) {
 	return m_errors.size() < 20;
 }
 
-QVariant Driver::parse() {
-	m_scanner.resetPos();
-	m_parser.parse();
-	if (!m_errors.isEmpty()) {
-		throw ErrorParserException(m_errors.join("\n"));
+QVariant Driver::parse(const QString &filename, NodePtr shared) {
+	Scanner scanner(filename);
+	Driver driver(filename, scanner, shared);
+	Parser parser(driver);
+	parser.parse();
+	if (!driver.m_errors.isEmpty()) {
+		throw ErrorParserException(driver.m_errors.join("\n"));
 	}
 	return 0;
 }

@@ -122,8 +122,8 @@ QVariant Parser::parse() {
 			res = ((jsonparser::Driver*)(m_ptr))->parse();
 			break;
 		case FileFormat::IDL:
-			res = ((idlparser::Driver*)(m_ptr))->parse();
-			break;
+			throw Exception("Unsupported IDL format");
+// 			break;
 	}
 	return res;
 }

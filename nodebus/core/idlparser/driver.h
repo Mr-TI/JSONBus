@@ -41,20 +41,19 @@ typedef SharedPtr<Node> NodePtr;
  */
 class Driver {
 public:
-	Driver(const QString &filename, NodePtr shared=nullptr);
 	~Driver();
-	QVariant parse();
 	bool appendError(const QString &message);
 	bool include(const QString &filename);
 	NodePtr &shared();
+	static QVariant parse(const QString &filename, NodePtr shared=nullptr);
 private:
+	Driver(const QString &filename, Scanner &scanner, NodePtr shared);
 	friend class Parser;
 	friend class Scanner;
 	QStringList m_errors;
 	FILE *m_stream;
 	QString m_filename;
 	Scanner &m_scanner;
-	Parser &m_parser;
 	NodePtr m_shared;
 	NodePtr m_context;
 	QStack<NodePtr> m_nodeStack;
