@@ -178,9 +178,9 @@ INTERFACE_ELTS : INTERFACE_ELTS INTERFACE_ELT     {/* NOTHING TO DO */}
     | INTERFACE_ELT                               {/* NOTHING TO DO */}
     ;
 
-INTERFACE_ELT : ATTRIBUTE                         {driver.m_context->append($1);}
-    | METHOD                                      {driver.m_context->append($1);}
-    | CONSTANT                                    {driver.m_context->append($1);}
+INTERFACE_ELT : ATTRIBUTE                         {driver.m_curCtx->append($1);}
+    | METHOD                                      {driver.m_curCtx->append($1);}
+    | CONSTANT                                    {driver.m_curCtx->append($1);}
     ;
 
 SEQUENCE : TSEQUENCE '<' TYPE '>'                 {if (!driver.appendError("sequence not supported")) YYABORT;}
@@ -237,7 +237,7 @@ EXPRESSION : '(' EXPRESSION ')'                   {$$ = $2;}
     ;
 
 VALUE : TVARIANT                                  {$$ = $1;}
-    | TSYMBOL                                     {$$ = driver.m_context->resolve($1, NTYPE_CONST);}
+    | TSYMBOL                                     {$$ = driver.m_curCtx->resolve($1, NTYPE_CONST);}
     ;
 
 METHOD : METHOD_HEADER RET_TYPE SYMBOL '(' PARAMETERS ')' METHOD_FOOTER ';'
