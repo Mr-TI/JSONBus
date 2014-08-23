@@ -44,7 +44,7 @@ public:
 	~Driver();
 	bool appendError(const QString &message);
 	bool include(const QString &filename);
-	NodePtr &shared();
+	NodePtr shared();
 	static QVariant parse(const QString &filename, NodePtr shared=nullptr);
 private:
 	Driver(const QString &filename, Scanner &scanner, NodePtr shared);
@@ -61,10 +61,6 @@ private:
 	void pop();
 	bool addSym(const QVariant &node);
 };
-
-inline NodePtr &Driver::shared() {
-	return m_shared;
-}
 
 }
 

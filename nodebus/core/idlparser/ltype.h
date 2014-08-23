@@ -25,6 +25,7 @@
 #include <nodebus/core/sharedptr.h>
 #include <nodebus/core/logger.h>
 #include "driver.h"
+#include "nodevariant.h"
 
 #define KNODE_TYPE         "T"
 #define KNODE_DTYPE        "t"
@@ -67,96 +68,12 @@ namespace idlparser {
 	
 class Driver;
 
-class Node: public SharedData {
-protected:
-	Node();
-public:
-	virtual ~Node();
-	virtual QString str();
-	virtual QVariant &val();
-	virtual QVariantMap &map();
-	virtual QVariantList &list();
-	virtual Node *insert(const QString &key, const QVariant &value);
-	virtual Node *append(const QVariant &value);
-	virtual bool append(SharedPtr<Node> &pElt);
-};
-
-class NodeVariant: public Node {
-private:
-	QVariant m_var;
-public:
-	NodeVariant(const QVariant &value);
-	virtual QString str();
-	virtual QVariant &val();
-};
-
-class NodeList: public Node {
-private:
-	QVariantList m_list;
-public:
-	virtual QVariantList &list();
-	virtual Node *append(const QVariant &value);
-};
-
-class NodeMap: public Node {
-private:
-	QVariantMap m_map;
-public:
-	virtual QVariantMap &map();
-	virtual Node *insert(const QString &key, const QVariant &value);
-};
-
-class NodeParams: public Node {
-private :
-	QHash<QString, bool> m_params;
-	QVariantList m_list;
-	Driver &m_driver;
-public:
-	NodeParams(Driver &driver);
-	virtual QVariantList &list();
-	virtual bool append(SharedPtr<Node> &pElt);
-};
-
-class NodeModule: public Node {
-private :
-	Driver &m_driver;
-public:
-	NodeModule(Driver &driver, NodePtr &pSym);
-	virtual bool append(SharedPtr<Node> &pElt);
-	virtual QString str();
-	QString m_prefix;
-	QVariantMap m_symTbl;
-};
-
-class NodeIntf: public Node {
-private :
-	Driver &m_driver;
-public:
-	NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents);
-	virtual bool append(SharedPtr<Node> &pElt);
-	virtual QString str();
-	QString m_name;
-	QString m_prefix;
-	QVariantMap m_symTbl;
-};
-
-class NodeRoot: public Node {
-private :
-	Driver &m_driver;
-public:
-	NodeRoot(Driver &driver);
-	virtual bool append(SharedPtr<Node> &pElt);
-	virtual QString str();
-	QString m_prefix;
-	QVariantMap m_symTbl;
-};
-
 class LType: public SharedData {
 public:
 	LType();
 	LType(const LType& other);
 	virtual ~LType();
-	SharedPtr<Node> node;
+	NodePtr node;
 	QString *str;
 	LType& operator= (const LType& other);
 };
@@ -179,7 +96,7 @@ inline LType& LType::operator=(const LType& other) {
 	return *this;
 }
 
-inline bool opexec(SharedPtr<Node> &res, char op, SharedPtr<Node> &op1_n, SharedPtr<Node> &op2_n, Driver &driver) {
+inline bool opexec(NodePtr &res, char op, NodePtr &op1_n, NodePtr &op2_n, Driver &driver) {
 	QVariant &op1 = op1_n->val();
 	QVariant &op2 = op2_n->val();
 	if (!op1.canConvert(QVariant::Double)) {
@@ -231,126 +148,8 @@ inline bool opexec(SharedPtr<Node> &res, char op, SharedPtr<Node> &op1_n, Shared
 	return true;
 }
 
-inline Node::Node() {}
-
-inline Node::~Node() {}
-
-inline QString Node::str() {
-	throw Exception("Fatal: Illegal call to QString Node::str()");
-}
-
-inline QVariant& Node::val() {
-	throw Exception("Fatal: Illegal call to QVariant &Node::val()");
-}
-
-inline QVariantList& Node::list() {
-	throw Exception("Fatal: Illegal call to QVariantList &Node::list()");
-}
-
-inline QVariantMap& Node::map() {
-	throw Exception("Fatal: Illegal call to QVariantMap &Node::map()");
-}
-
-inline Node *Node::append(const QVariant &value) {
-	throw Exception("Fatal: Illegal call to Node *Node::append(const QVariant &)");
-}
-
-inline Node *Node::insert(const QString &key, const QVariant &value) {
-	throw Exception("Fatal: Illegal call to Node *Node::insert(const QString &, const QVariant &)");
-}
-
-inline bool Node::append(SharedPtr<Node> &pElt) {
-	throw Exception("Fatal: Illegal call to bool Node::appendParam(SharedPtr<Node> &, QString &)");
-}
-
-inline NodeVariant::NodeVariant(const QVariant& value): m_var(value) {
-}
-
-inline QString NodeVariant::str() {
-	return m_var.toString();
-}
-
-inline QVariant& NodeVariant::val() {
-	return m_var;
-}
-
-inline QVariantList& NodeList::list() {
-	return m_list;
-}
-
-inline Node *NodeList::append(const QVariant &value) {
-	m_list.append(value);
-	return this;
-}
-
-inline QVariantMap& NodeMap::map() {
-	return m_map;
-}
-
-inline Node *NodeMap::insert(const QString &key, const QVariant &value) {
-	m_map.insert(key, value);
-	return this;
-}
-
-inline NodeParams::NodeParams(Driver& driver): m_driver(driver) {
-
-}
-
-inline bool NodeParams::append(SharedPtr<Node> &pElt) {
-	QVariantMap &param = pElt->map();
-	QString k = param["n"].toString();
-	if (m_params.contains(k)) {
-		m_driver.appendError("Dupplicate parameter " + k);
-		return false;
-	}
-	m_params[k] = true;
-	m_list.append(param);
-	return true;
-}
-
-inline QVariantList& NodeParams::list() {
-	return m_list;
-}
-
-inline NodeIntf::NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents)
-: m_driver(driver), m_name(pSym->str()), m_prefix(driver.shared()->str() + m_name + "::") {
-	
-}
-
-inline bool NodeIntf::append(SharedPtr<Node> &pElt) {
-	
-	return true;
-}
-
-inline QString NodeIntf::str() {
-	return m_prefix;
-}
-
-inline NodeModule::NodeModule(Driver &driver, NodePtr &pSym)
-: m_driver(driver), m_prefix(driver.shared()->str() + pSym->str() + "::") {
-
-}
-
-inline bool NodeModule::append(SharedPtr<Node> &pElt) {
-	
-	return true;
-}
-
-inline QString NodeModule::str() {
-	return m_prefix;
-}
-
-inline NodeRoot::NodeRoot(Driver& driver): m_driver(driver) {
-
-}
-
-inline bool NodeRoot::append(SharedPtr<Node> &pElt) {
-	
-	return true;
-}
-
-inline QString NodeRoot::str() {
-	return m_prefix;
+inline NodePtr Driver::shared() {
+	return m_shared;
 }
 
 }

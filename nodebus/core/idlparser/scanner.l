@@ -28,6 +28,7 @@ using namespace std;
 #define YY_READ_BUF_SIZE 1
 
 #include "ltype.h"
+#include "nodevariant.h"
 #include <parser.hh>
 #include <string>
 #include <scanner.h>

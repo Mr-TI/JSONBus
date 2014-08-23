@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-#include "ltype.h"
+#include "noderoot.h"
 #include <parser.hh>
 #include "scanner.h"
 #include "driver.h"
@@ -25,7 +25,8 @@ using namespace NodeBus;
 namespace idlparser {
 
 Driver::Driver(const QString &filename, Scanner &scanner, NodePtr shared)
-		: m_filename(filename), m_scanner(scanner), m_shared(shared) {
+: m_filename(filename), m_scanner(scanner), 
+m_shared(shared == nullptr ? new NodeRoot(*this): shared) {
 }
 
 Driver::~Driver() {

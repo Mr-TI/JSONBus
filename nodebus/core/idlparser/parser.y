@@ -17,6 +17,13 @@
 %{
 
 #include "ltype.h"
+#include "nodevariant.h"
+#include "nodelist.h"
+#include "nodemap.h"
+#include "nodemodule.h"
+#include "nodeintf.h"
+#include "noderoot.h"
+#include "nodeparams.h"
 #include <parser.hh>
 #include "scanner.h"
 #include "driver.h"
@@ -122,12 +129,12 @@ MODULE_ELTS : MODULE_ELTS MODULE_ELT              {/* NOTHING TO DO */}
     | MODULE_ELT                                  {/* NOTHING TO DO */}
     ;
 
-MODULE_ELT : INTERFACE                            {/* NOTHING TO DO */}
-    | MODULE                                      {/* NOTHING TO DO */}
-    | ENUM                                        {/* NOTHING TO DO */}
-    | STRUCT                                      {/* NOTHING TO DO */}
-    | TYPEDEF                                     {/* NOTHING TO DO */}
-    | EXCEPTION                                   {/* NOTHING TO DO */}
+MODULE_ELT : INTERFACE                            {$$ = $1;}
+    | MODULE                                      {$$ = $1;}
+    | ENUM                                        {$$ = $1;}
+    | STRUCT                                      {$$ = $1;}
+    | TYPEDEF                                     {$$ = $1;}
+    | EXCEPTION                                   {$$ = $1;}
     ;
 
 ENUM : TENUM TSYMBOL '{' SYMBOL_LIST '}' ';'      {if (!driver.appendError("enum definition not supported yet")) YYABORT;}
@@ -171,9 +178,9 @@ INTERFACE_ELTS : INTERFACE_ELTS INTERFACE_ELT     {/* NOTHING TO DO */}
     | INTERFACE_ELT                               {/* NOTHING TO DO */}
     ;
 
-INTERFACE_ELT : ATTRIBUTE                         {/* NOTHING TO DO */}
-    | METHOD                                      {/* NOTHING TO DO */}
-    | CONSTANT                                    {/* NOTHING TO DO */}
+INTERFACE_ELT : ATTRIBUTE                         {driver.m_context->append($1);}
+    | METHOD                                      {driver.m_context->append($1);}
+    | CONSTANT                                    {driver.m_context->append($1);}
     ;
 
 SEQUENCE : TSEQUENCE '<' TYPE '>'                 {if (!driver.appendError("sequence not supported")) YYABORT;}
@@ -230,7 +237,7 @@ EXPRESSION : '(' EXPRESSION ')'                   {$$ = $2;}
     ;
 
 VALUE : TVARIANT                                  {$$ = $1;}
-    | TSYMBOL                                     {$$ = $1;}
+    | TSYMBOL                                     {$$ = driver.m_context->resolve($1, NTYPE_CONST);}
     ;
 
 METHOD : METHOD_HEADER RET_TYPE SYMBOL '(' PARAMETERS ')' METHOD_FOOTER ';'
