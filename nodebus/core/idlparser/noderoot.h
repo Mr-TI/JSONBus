@@ -32,6 +32,7 @@ public:
 	virtual bool append(NodePtr &pElt);
 	virtual QString str();
 	QVariantMap m_symTbl;
+	QStringList m_errors;
 };
 
 inline NodeRoot::NodeRoot(Driver& driver): m_driver(driver) {

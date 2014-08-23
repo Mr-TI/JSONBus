@@ -18,27 +18,19 @@
 #define IDLPARSER_NODEINTF_H
 
 #include "ltype.h"
-#include "node.h"
-#include "nodevariant.h"
-#include "noderoot.h"
+#include "nodemodule.h"
 
 namespace idlparser {
 
-class NodeIntf: public Node {
-private :
-	Driver &m_driver;
+class NodeIntf: public NodeModule {
 public:
 	NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents);
-	virtual NodePtr resolve(NodePtr &pSym, char type);
 	virtual bool append(NodePtr &pElt);
-	virtual QString str();
 	QString m_name;
-	QString m_prefix;
-	QVariantMap m_symTbl;
 };
 
 inline NodeIntf::NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents)
-: m_driver(driver), m_name(pSym->str()), m_prefix(driver.shared()->str() + m_name + "::") {
+: NodeModule(driver, pSym), m_name(pSym->str()) {
 	
 }
 
@@ -51,30 +43,6 @@ inline bool NodeIntf::append(NodePtr &pElt) {
 	}
 	m_symTbl.insert(name, elt);
 	return true;
-}
-
-inline QString NodeIntf::str() {
-	return m_prefix;
-}
-
-inline NodePtr NodeIntf::resolve(NodePtr &pSym, char type) {
-	QString name = pSym->str();
-	QVariant result;
-	if (m_symTbl.contains(name)) {
-		result = m_symTbl[name];
-	} else if (m_driver.shared().cast<NodeRoot>()->m_symTbl.contains(name)) {
-		result = m_driver.shared().cast<NodeRoot>()->m_symTbl[name]/*.toMap()[KNODE_VALUE]*/;
-	} else {
-		m_driver.appendError("Undefined symbol " + name);
-		return new NodeVariant(0);
-	}
-	QVariantMap mNode = result.toMap();
-	if (mNode[KNODE_TYPE].toChar() == type) {
-		return new NodeVariant(mNode[KNODE_VALUE]);
-	} else {
-		m_driver.appendError("Invalid symbol " + name);
-		return new NodeVariant(0);
-	}
 }
 
 }

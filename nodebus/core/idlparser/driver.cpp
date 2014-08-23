@@ -24,42 +24,49 @@ using namespace NodeBus;
 
 namespace idlparser {
 
-Driver::Driver(const QString &filename, Scanner &scanner, NodePtr shared)
-: m_filename(filename), m_scanner(scanner), 
-m_shared(shared == nullptr ? new NodeRoot(*this): shared) {
+Driver::Driver(const QString &filename, Scanner &scanner, SharedPtr<NodeRoot> shared)
+: m_filename(filename), m_filedir(QFileInfo(filename).dir()), m_scanner(scanner), 
+m_rootCtx(shared == nullptr ? new NodeRoot(*this): shared), m_curCtx(m_rootCtx) {
 }
 
 Driver::~Driver() {
 }
 
 bool Driver::appendError(const QString& message) {
-	m_errors.append("File: " + m_filename + ", line: " + 
+	m_rootCtx->m_errors.append("File: " + m_filename + ", line: " + 
 		QString::number(m_scanner.lineno()) + ", column: " + 
 		QString::number(m_scanner.YYLeng()) + ", " + message);
-	return m_errors.size() < 20;
+	return m_rootCtx->m_errors.size() < 20;
 }
 
-QVariant Driver::parse(const QString &filename, NodePtr shared) {
+QVariant Driver::parse(const QString &filename) {
+	QString filePath = QDir::current().absoluteFilePath(filename);
 	Scanner scanner(filename);
-	Driver driver(filename, scanner, shared);
+	Driver driver(filename, scanner);
 	Parser parser(driver);
 	parser.parse();
-	if (!driver.m_errors.isEmpty()) {
-		throw ErrorParserException(driver.m_errors.join("\n"));
+	if (!driver.rootCtx()->m_errors.isEmpty()) {
+		throw ErrorParserException(driver.rootCtx()->m_errors.join("\n"));
 	}
 	return 0;
 }
 
 void Driver::pop() {
-
+	m_curCtx = m_nodeStack.pop();
 }
 
 void Driver::push(NodePtr node) {
-
+	m_nodeStack.push(m_curCtx);
+	m_curCtx = node;
 }
 
 bool Driver::include(const QString& filename) {
-	return false;
+	QString filePath = m_filedir.absoluteFilePath(filename);
+	Scanner scanner(filename);
+	Driver driver(filename, scanner, m_rootCtx);
+	Parser parser(driver);
+	parser.parse();
+	return m_rootCtx->m_errors.isEmpty();
 }
 
 }

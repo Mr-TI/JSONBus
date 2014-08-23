@@ -248,8 +248,7 @@ METHOD_HEADER : TONEWAY                           {if (!driver.appendError("Warn
     |                                             {/* NOTHING TO DO */}
     ;
 
-METHOD_FOOTER : TRAISES '(' SYMBOL_LIST ')'
-                                                  {if (!driver.appendError("Warning: exception raise not supported and will be ignored")) YYABORT;}
+METHOD_FOOTER : TRAISES '(' SYMBOL_LIST ')'       {if (!driver.appendError("Warning: exception raise not supported and will be ignored")) YYABORT;}
     |                                             {/* NOTHING TO DO */}
     ;
 

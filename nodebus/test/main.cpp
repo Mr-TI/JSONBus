@@ -121,8 +121,9 @@ void testBSONParser() {
 
 int main(int argc, char **argv) {
 	try {
-		testBSONParser();
-		testBCONParser();
+// 		testBSONParser();
+// 		testBCONParser();
+		logInfo() << QFileInfo("/etc/resolv.conf").dir().absoluteFilePath("resolv.conf");
 	} catch (Exception &e) {
 		logCrit() << "terminate called after throwing an instance of " << e;
 	}

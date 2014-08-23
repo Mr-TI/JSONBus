@@ -19,14 +19,6 @@
 
 #define YYSTYPE idlparser::LType
 
-#include <QVariant>
-#include <QString>
-#include <nodebus/core/shareddata.h>
-#include <nodebus/core/sharedptr.h>
-#include <nodebus/core/logger.h>
-#include "driver.h"
-#include "nodevariant.h"
-
 #define KNODE_TYPE         "T"
 #define KNODE_DTYPE        "t"
 #define KNODE_SNAME        "n"
@@ -61,6 +53,15 @@
 #define PDIR_IN            'i'
 #define PDIR_OUT           'o'
 #define PDIR_INOUT         'b'
+
+#include <QVariant>
+#include <QString>
+#include <nodebus/core/shareddata.h>
+#include <nodebus/core/sharedptr.h>
+#include <nodebus/core/logger.h>
+#include "driver.h"
+#include "nodevariant.h"
+#include "noderoot.h"
 
 using namespace NodeBus;
 
@@ -148,8 +149,8 @@ inline bool opexec(NodePtr &res, char op, NodePtr &op1_n, NodePtr &op2_n, Driver
 	return true;
 }
 
-inline NodePtr Driver::shared() {
-	return m_shared;
+inline SharedPtr<NodeRoot> Driver::rootCtx() {
+	return m_rootCtx;
 }
 
 }

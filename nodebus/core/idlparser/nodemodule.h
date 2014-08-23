@@ -24,7 +24,7 @@
 namespace idlparser {
 
 class NodeModule: public Node {
-private :
+protected :
 	Driver &m_driver;
 public:
 	NodeModule(Driver &driver, NodePtr &pSym);
@@ -36,12 +36,18 @@ public:
 };
 
 inline NodeModule::NodeModule(Driver &driver, NodePtr &pSym)
-: m_driver(driver), m_prefix(driver.shared()->str() + pSym->str() + "::") {
+: m_driver(driver), m_prefix(driver.rootCtx()->str() + pSym->str() + "::") {
 
 }
 
 inline bool NodeModule::append(NodePtr &pElt) {
-	
+	QVariantMap elt = pElt->map();
+	QString name = elt[KNODE_SNAME].toString();
+	if (m_symTbl.contains(name)) {
+		m_driver.appendError("Dupplicate symbol " + name);
+		return false;
+	}
+	m_symTbl.insert(name, elt);
 	return true;
 }
 
@@ -54,8 +60,8 @@ inline NodePtr NodeModule::resolve(NodePtr &pSym, char type) {
 	QVariant result;
 	if (m_symTbl.contains(name)) {
 		result = m_symTbl[name];
-	} else if (m_driver.shared().cast<NodeRoot>()->m_symTbl.contains(name)) {
-		result = m_driver.shared().cast<NodeRoot>()->m_symTbl[name]/*.toMap()[KNODE_VALUE]*/;
+	} else if (m_driver.rootCtx()->m_symTbl.contains(name)) {
+		result = m_driver.rootCtx()->m_symTbl[name];
 	} else {
 		m_driver.appendError("Undefined symbol " + name);
 		return new NodeVariant(0);

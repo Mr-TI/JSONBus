@@ -18,9 +18,11 @@
 #define IDLPARSER_DRIVER_H
 
 #include <QVariant>
+#include <QDir>
 #include <QStack>
 #include <QMap>
 #include <QStringList>
+#include <QString>
 #include <stdio.h>
 
 namespace idlparser {
@@ -29,6 +31,7 @@ class Parser;
 class Scanner;
 class Driver;
 class Node;
+class NodeRoot;
 
 typedef SharedPtr<Node> NodePtr;
 
@@ -44,18 +47,18 @@ public:
 	~Driver();
 	bool appendError(const QString &message);
 	bool include(const QString &filename);
-	NodePtr shared();
-	static QVariant parse(const QString &filename, NodePtr shared=nullptr);
+	SharedPtr<NodeRoot> rootCtx();
+	static QVariant parse(const QString &filename);
 private:
-	Driver(const QString &filename, Scanner &scanner, NodePtr shared);
+	Driver(const QString &filename, Scanner &scanner, SharedPtr<NodeRoot> shared = nullptr);
 	friend class Parser;
 	friend class Scanner;
-	QStringList m_errors;
 	FILE *m_stream;
 	QString m_filename;
+	QDir m_filedir;
 	Scanner &m_scanner;
-	NodePtr m_shared;
-	NodePtr m_context;
+	SharedPtr<NodeRoot> m_rootCtx;
+	NodePtr m_curCtx;
 	QStack<NodePtr> m_nodeStack;
 	void push(NodePtr node);
 	void pop();
