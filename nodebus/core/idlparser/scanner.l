@@ -95,7 +95,7 @@ typedef idlparser::Parser::token_type token_type;
 space                   [\t\n\r ]
 newline                 \n
 
-kw_include              ^[\t\n\r ]*#[\t\n\r ]*include[\t\n\r ]*<
+kw_include              ^[\t\n\r ]*#[\t\n\r ]*include[\t\n\r ]*<[\t\n\r ]*
 
 kw_null                 null
 kw_true                 true
@@ -146,7 +146,7 @@ hexnum                  \-?0[xX][0-9a-fA-F]+
 octnum                  \-?0[0-7]+
 binnum                  \-?0[bB][01]+
 
-symbol                  [a-zA-Z_][a-zA-Z0-9_]+
+symbol                  [a-zA-Z_][a-zA-Z0-9_]*
 
 dblcote                 \"
 less_than               <
@@ -164,9 +164,9 @@ escape_newline          n
 escape_car_ret          r
 escape_horiz_tab        t
 escape_prefix           \\
-comment_open            \/\*
-comment_end             \*\/
-comment_line            \/\/.*$
+comment_open            "/*"
+comment_end             "*/"
+comment_line            "//".*$
 
 %s STRING STRING_ESCAPE STRING_ESCAPE_UNICODE INCLUDE COMMENT
 
@@ -186,11 +186,12 @@ comment_line            \/\/.*$
 <STRING>{escape_prefix}                   {BEGIN STRING_ESCAPE;}
 <STRING>.                                 {BEGIN STRING; STRING_APPEND(yytext[0]);}
 
-<INCLUDE>{greater_than}                   {BEGIN INITIAL; RETURN_TOKEN(TINCLUDE);}
+<INCLUDE>[^\n]*{greater_than}             {BEGIN INITIAL; yytext[yyleng - 1] = '\0';VARIANT_STRING(); RETURN_TOKEN(TINCLUDE);}
 <INCLUDE>{newline}                        {BEGIN INITIAL; RETURN_TOKEN(TSYNERR);}
-<INCLUDE>.                                {BEGIN INCLUDE; STRING_APPEND(yytext[0]);}
+<INCLUDE>.                                {BEGIN INCLUDE;}
 
 <COMMENT>{comment_end}                    {BEGIN INITIAL;}
+<COMMENT>{space}                          {BEGIN COMMENT;}
 <COMMENT>.                                {BEGIN COMMENT;}
 
 <STRING_ESCAPE>{escape_unicode}           {BEGIN STRING_ESCAPE_UNICODE; }
@@ -207,7 +208,7 @@ comment_line            \/\/.*$
 <STRING_ESCAPE_UNICODE>{value_unicode}    {BEGIN STRING; STRING_APPEND_UNICODE();}
 <STRING_ESCAPE_UNICODE>.                  {BEGIN INITIAL; RETURN_TOKEN(TSYNERRUNI);}
 
-<INITIAL>{kw_include}                     {BEGIN INITIAL; RETURN_TOKEN(TINCLUDE);}
+<INITIAL>{kw_include}                     {BEGIN INCLUDE; }
 
 <INITIAL>{kw_null}                        {BEGIN INITIAL; VARIANT_NULL(); RETURN_TOKEN(TVARIANT);}
 <INITIAL>{kw_true}                        {BEGIN INITIAL; VARIANT_FROM(true); RETURN_TOKEN(TVARIANT);}
@@ -265,8 +266,8 @@ comment_line            \/\/.*$
 <INITIAL>{comment_line}                   {BEGIN INITIAL;}
 <INITIAL>{space}                          {BEGIN INITIAL;}
 
-<INITIAL>{symbol}                         {BEGIN INITIAL; VARIANT_STRING(); RETURN_TOKEN(TVARIANT);}
+<INITIAL>{symbol}                         {BEGIN INITIAL; VARIANT_STRING(); RETURN_TOKEN(TSYMBOL);}
 
-<INITIAL>.                                {BEGIN INITIAL; return yytext[0];}
+<INITIAL>.                                {BEGIN INITIAL; /*cout << "<<<" << yytext[0] << ">>>" << endl;*/ return yytext[0];}
 
 %%

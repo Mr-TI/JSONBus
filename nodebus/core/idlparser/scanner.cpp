@@ -38,6 +38,9 @@ Scanner::~Scanner() {
 
 int Scanner::LexerInput( char* buf, int max_size ) {
 	return fread(buf, 1,max_size,  m_stream);
+// 	size_t n = fread(buf, 1, 1,  m_stream);
+// 	std::cout << "C=" << buf[0] << std::endl;
+// 	return n;
 }
 
 }

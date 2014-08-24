@@ -23,15 +23,24 @@
 namespace idlparser {
 
 class NodeIntf: public NodeModule {
+private:
+	QVariantMap m_infos;
 public:
 	NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents);
 	virtual bool append(NodePtr &pElt);
+	virtual QVariantMap &map();
 	QString m_name;
 };
 
 inline NodeIntf::NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents)
 : NodeModule(driver, pSym), m_name(pSym->str()) {
-	
+	QString fullName = driver.rootCtx()->str() + pSym->str();
+	if (driver.rootCtx()->m_symTbl.contains(fullName)) {
+		m_driver.appendError("Dupplicate symbol " + fullName);
+	}
+	QVariantList parents = pParents->list();
+	// TODO: parrent check...
+	m_infos.insert(KNODE_PARENTS, parents);
 }
 
 inline bool NodeIntf::append(NodePtr &pElt) {
@@ -44,6 +53,13 @@ inline bool NodeIntf::append(NodePtr &pElt) {
 	m_symTbl.insert(name, elt);
 	return true;
 }
+
+inline QVariantMap& NodeIntf::map() {
+	m_infos.insert(KNODE_MEMBERS, m_symTbl.values());
+	m_infos.insert(KNODE_TYPE, NTYPE_INTERFACE);
+	return m_infos;
+}
+
 
 }
 

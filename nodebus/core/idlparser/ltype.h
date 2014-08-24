@@ -26,33 +26,35 @@
 #define KNODE_WRITABLE     "w"
 #define KNODE_VALUE        "v"
 #define KNODE_PARAMS       "p"
+#define KNODE_PARENTS      "P"
+#define KNODE_MEMBERS      "m"
 
-#define VTYPE_VOID         'v'
-#define VTYPE_ANY          'a'
-#define VTYPE_BOOLEAN      'b'
-#define VTYPE_BYTE         'o'
-#define VTYPE_UINT32       'I'
-#define VTYPE_INT32        'i'
-#define VTYPE_UINT64       'L'
-#define VTYPE_INT64        'l'
-#define VTYPE_DOUBLE       'd' 
-#define VTYPE_STRING       's'
-#define VTYPE_BYTEARRAY    'O'
-#define VTYPE_DATETIME     't'
+#define VTYPE_VOID         "v"
+#define VTYPE_ANY          "a"
+#define VTYPE_BOOLEAN      "b"
+#define VTYPE_BYTE         "o"
+#define VTYPE_UINT32       "I"
+#define VTYPE_INT32        "i"
+#define VTYPE_UINT64       "L"
+#define VTYPE_INT64        "l"
+#define VTYPE_DOUBLE       "d" 
+#define VTYPE_STRING       "s"
+#define VTYPE_BYTEARRAY    "O"
+#define VTYPE_DATETIME     "t"
 
-#define NTYPE_DOCUMENT     'D'
-#define NTYPE_CONST        'C'
-#define NTYPE_ATTR         'A'
-#define NTYPE_INTERFACE    'I'
-#define NTYPE_METHOD       'M'
-#define NTYPE_ENUM         'E'
-#define NTYPE_STRUCT       'S'
-#define NTYPE_TYPEDEF      'T'
-#define NTYPE_PACKAGE      'P'
+#define NTYPE_DOCUMENT     "D"
+#define NTYPE_CONST        "C"
+#define NTYPE_ATTR         "A"
+#define NTYPE_INTERFACE    "I"
+#define NTYPE_METHOD       "M"
+#define NTYPE_ENUM         "E"
+#define NTYPE_STRUCT       "S"
+#define NTYPE_TYPEDEF      "T"
+#define NTYPE_PACKAGE      "P"
 
-#define PDIR_IN            'i'
-#define PDIR_OUT           'o'
-#define PDIR_INOUT         'b'
+#define PDIR_IN            "i"
+#define PDIR_OUT           "o"
+#define PDIR_INOUT         "b"
 
 #include <QVariant>
 #include <QString>
@@ -82,7 +84,7 @@ public:
 inline LType::LType(): str(NULL) {
 }
 
-inline LType::LType(const LType& other) {
+inline LType::LType(const LType& other): str(NULL) {
 	node = other.node;
 	if (other.str) str = new QString(*(other.str));
 }
@@ -100,10 +102,24 @@ inline LType& LType::operator=(const LType& other) {
 inline bool opexec(NodePtr &res, char op, NodePtr &op1_n, NodePtr &op2_n, Driver &driver) {
 	QVariant &op1 = op1_n->val();
 	QVariant &op2 = op2_n->val();
-	if (!op1.canConvert(QVariant::Double)) {
+	if (!op1.canConvert(QVariant::Double) && !op1.type() != QVariant::String) {
 		return driver.appendError("Error: invalid operand " + Logger::dump(op1));
-	} else if (!op2.canConvert(QVariant::Double)) {
+	} else if (!op2.canConvert(QVariant::Double) && !op1.type() != QVariant::String) {
 		return driver.appendError("Error: invalid operand " + Logger::dump(op2));
+	} else if (op1.type() == QVariant::String || op2.type() == QVariant::String) {
+		switch (op) {
+			case '+':
+				res = new NodeVariant(op1.toString() + op1.toString());
+				break;
+			case '-':
+			case '*':
+			case '/':
+			case '%':
+				return driver.appendError("Error: invalid operator fot string value: " + char(op));
+				break;
+			default:
+				return driver.appendError("Error: invalid operator " + char(op));
+		}
 	} else if (op1.type() == QVariant::Double || op2.type() == QVariant::Double) {
 		switch (op) {
 			case '+':

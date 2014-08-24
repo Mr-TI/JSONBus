@@ -53,6 +53,7 @@ private:
 	Driver(const QString &filename, Scanner &scanner, SharedPtr<NodeRoot> shared = nullptr);
 	friend class Parser;
 	friend class Scanner;
+	QVariantList m_localElts;
 	FILE *m_stream;
 	QString m_filename;
 	QDir m_filedir;

@@ -28,7 +28,7 @@ protected :
 	Driver &m_driver;
 public:
 	NodeModule(Driver &driver, NodePtr &pSym);
-	virtual NodePtr resolve(NodePtr &pSym, char type);
+	virtual NodePtr resolve(NodePtr &pSym, const char *type);
 	virtual bool append(NodePtr &pElt);
 	virtual QString str();
 	QString m_prefix;
@@ -55,7 +55,7 @@ inline QString NodeModule::str() {
 	return m_prefix;
 }
 
-inline NodePtr NodeModule::resolve(NodePtr &pSym, char type) {
+inline NodePtr NodeModule::resolve(NodePtr &pSym, const char *type) {
 	QString name = pSym->str();
 	QVariant result;
 	if (m_symTbl.contains(name)) {
@@ -67,7 +67,7 @@ inline NodePtr NodeModule::resolve(NodePtr &pSym, char type) {
 		return new NodeVariant(0);
 	}
 	QVariantMap mNode = result.toMap();
-	if (mNode[KNODE_TYPE].toChar() == type) {
+	if (mNode[KNODE_TYPE].toString().at(0) == type[0]) {
 		return new NodeVariant(mNode[KNODE_VALUE]);
 	} else {
 		m_driver.appendError("Invalid symbol " + name);

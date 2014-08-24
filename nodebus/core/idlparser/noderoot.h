@@ -28,9 +28,10 @@ private :
 	static QString emptyStr;
 public:
 	NodeRoot(Driver &driver);
-	virtual NodePtr resolve(NodePtr &pSym);
+	virtual NodePtr resolve(NodePtr &pSym, const char *type);
 	virtual bool append(NodePtr &pElt);
 	virtual QString str();
+	QMap<QString, bool> m_fileList;
 	QVariantMap m_symTbl;
 	QStringList m_errors;
 };
@@ -51,11 +52,25 @@ inline bool NodeRoot::append(NodePtr &pElt) {
 }
 
 inline QString NodeRoot::str() {
-	return emptyStr;
+	return emptyStr; // empty prefix
 }
 
-inline NodePtr NodeRoot::resolve(NodePtr &pSym) {
-	throw Exception("Assert: Illegal call to NodePtr Node::resolve(NodePtr &)");
+inline NodePtr NodeRoot::resolve(NodePtr &pSym, const char *type) {
+	QString name = pSym->str();
+	QVariant result;
+	if (m_symTbl.contains(name)) {
+		result = m_symTbl[name];
+	} else {
+		m_driver.appendError("Undefined symbol " + name);
+		return new NodeVariant(0);
+	}
+	QVariantMap mNode = result.toMap();
+	if (mNode[KNODE_TYPE].toString().at(0) == type[0]) {
+		return new NodeVariant(mNode[KNODE_VALUE]);
+	} else {
+		m_driver.appendError("Invalid symbol " + name);
+		return new NodeVariant(0);
+	}
 }
 
 }

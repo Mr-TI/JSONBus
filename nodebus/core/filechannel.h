@@ -41,7 +41,7 @@ public:
 	 * @param fd a valid file descriptor
 	 * @throw IOException on error
 	 */
-	FileChannel(const char *path, int flags, int mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+	FileChannel(const QString &path, int flags, int mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	
 	/**
 	 * @brief AbstractChannel destructor

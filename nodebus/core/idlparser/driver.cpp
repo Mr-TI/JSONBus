@@ -18,8 +18,10 @@
 #include <parser.hh>
 #include "scanner.h"
 #include "driver.h"
+#include "nodeintf.h"
 
 #include <nodebus/core/parser.h>
+#include <logger.h>
 using namespace NodeBus;
 
 namespace idlparser {
@@ -27,31 +29,36 @@ namespace idlparser {
 Driver::Driver(const QString &filename, Scanner &scanner, SharedPtr<NodeRoot> shared)
 : m_filename(filename), m_filedir(QFileInfo(filename).dir()), m_scanner(scanner), 
 m_rootCtx(shared == nullptr ? new NodeRoot(*this): shared), m_curCtx(m_rootCtx) {
+	m_rootCtx->m_fileList.insert(filename, true);
 }
 
 Driver::~Driver() {
 }
 
+QString NodeRoot::emptyStr;
+
 bool Driver::appendError(const QString& message) {
-	m_rootCtx->m_errors.append("File: " + m_filename + ", line: " + 
-		QString::number(m_scanner.lineno()) + ", column: " + 
-		QString::number(m_scanner.YYLeng()) + ", " + message);
+	m_rootCtx->m_errors.append(m_filename + ":" + 
+		QString::number(m_scanner.lineno()) + ": " + message);
 	return m_rootCtx->m_errors.size() < 20;
 }
 
 QVariant Driver::parse(const QString &filename) {
-	QString filePath = QDir::current().absoluteFilePath(filename);
-	Scanner scanner(filename);
-	Driver driver(filename, scanner);
+	QString filePath = QFileInfo(filename).absoluteFilePath();
+	Scanner scanner(filePath);
+	Driver driver(filePath, scanner);
 	Parser parser(driver);
 	parser.parse();
 	if (!driver.rootCtx()->m_errors.isEmpty()) {
 		throw ErrorParserException(driver.rootCtx()->m_errors.join("\n"));
 	}
-	return 0;
+	return driver.m_localElts;
 }
 
 void Driver::pop() {
+	if (m_curCtx.instanceof<NodeIntf>()) {
+		m_localElts.append(m_curCtx->map());
+	}
 	m_curCtx = m_nodeStack.pop();
 }
 
@@ -62,8 +69,12 @@ void Driver::push(NodePtr node) {
 
 bool Driver::include(const QString& filename) {
 	QString filePath = m_filedir.absoluteFilePath(filename);
-	Scanner scanner(filename);
-	Driver driver(filename, scanner, m_rootCtx);
+	if (m_rootCtx->m_fileList.contains(filename)) {
+		// already parsed
+		return true;
+	}
+	Scanner scanner(filePath);
+	Driver driver(filePath, scanner, m_rootCtx);
 	Parser parser(driver);
 	parser.parse();
 	return m_rootCtx->m_errors.isEmpty();

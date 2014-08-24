@@ -15,6 +15,7 @@
  */
 
 %{
+#define YYDEBUG 1
 
 #include "ltype.h"
 #include "nodevariant.h"
@@ -90,7 +91,7 @@
 %type <node>        DOCUMENT DOCUMENT_ELTS DOCUMENT_ELT MODULE_ELTS MODULE_ELT MODULE_HEADER MODULE ENUM STRUCT
 %type <node>        EXCEPTION STRUCT_ELTS TYPEDEF SYMBOL_LIST SYMBOL INTERFACE INTERFACE_ELTS INTERFACE_ELT SEQUENCE RET_TYPE
 %type <node>        FIELD ATTRIBUTE CONSTANT EXPRESSION METHOD METHOD_HEADER METHOD_FOOTER PARAMETERS PARAMETER PARAMETER_DIR
-%type <node>        VALUE ATTRIBUTE_QUAL INTERFACE_PARENT INTERFACE_HEADER TYPE
+%type <node>        VALUE ATTRIBUTE_QUAL INTERFACE_PARENT INTERFACE_HEADER TYPE ARRAYOF UNION CASES CASE
 
 %left   '+' '-'
 %left   '*' '/' '%'
@@ -105,6 +106,7 @@
 %parse-param {idlparser::Driver &driver}
 
 %error-verbose
+%debug
 
 %%
 
@@ -132,26 +134,39 @@ MODULE_ELTS : MODULE_ELTS MODULE_ELT              {/* NOTHING TO DO */}
 MODULE_ELT : INTERFACE                            {$$ = $1;}
     | MODULE                                      {$$ = $1;}
     | ENUM                                        {$$ = $1;}
+    | UNION                                       {$$ = $1;}
     | STRUCT                                      {$$ = $1;}
     | TYPEDEF                                     {$$ = $1;}
     | EXCEPTION                                   {$$ = $1;}
     ;
 
-ENUM : TENUM TSYMBOL '{' SYMBOL_LIST '}' ';'      {if (!driver.appendError("enum definition not supported yet")) YYABORT;}
+ENUM : TENUM TSYMBOL '{' SYMBOL_LIST '}' ';'      {if (!driver.appendError("Error: enum definition not supported")) YYABORT;}
     ;
 
-STRUCT : TSTRUCT TSYMBOL '{' STRUCT_ELTS '}' ';'  {if (!driver.appendError("struct definition not supported yet")) YYABORT;}
+STRUCT : TSTRUCT TSYMBOL '{' STRUCT_ELTS '}' ';'  {if (!driver.appendError("Error: struct definition not supported")) YYABORT;}
     ;
 
-STRUCT_ELTS : STRUCT_ELTS FIELD                   {/* NOTHING TO DO */}
-    | FIELD                                       {/* NOTHING TO DO */}
+STRUCT_ELTS : STRUCT_ELTS FIELD ';'               {/* NOTHING TO DO */}
+    | FIELD ';'                                   {/* NOTHING TO DO */}
     ;
 
-TYPEDEF : TTYPEDEF TYPE TSYMBOL                   {if (!driver.appendError("typedef definition not supported yet")) YYABORT;}
+TYPEDEF : TTYPEDEF TYPE TSYMBOL ';'               {if (!driver.appendError("Error: typedef definition not supported")) YYABORT;}
+    | TTYPEDEF TYPE TSYMBOL '[' TNUMBER ']' ';'   {if (!driver.appendError("Error: typedef definition not supported")) YYABORT;}
+    ;
+
+UNION : TUNION TSYMBOL TSWITCH '(' TYPE ')' '{' CASES '}' ';'
+                                                  {if (!driver.appendError("Error: union not supported")) YYABORT;}
+    ;
+
+CASES : CASES CASE                                {/* NOTHING TO DO */}
+    | CASE                                        {/* NOTHING TO DO */}
+    ;
+
+CASE : TCASE TSYMBOL ':' STRUCT_ELTS              {/* NOTHING TO DO */}
     ;
 
 EXCEPTION : TEXCEPTION TSYMBOL '{' STRUCT_ELTS '}' ';'
-                                                  {if (!driver.appendError("exception definition not supported yet")) YYABORT;}
+                                                  {if (!driver.appendError("Error: exception definition not supported")) YYABORT;}
     ;
 
 SYMBOL_LIST : SYMBOL_LIST ',' SYMBOL              {$$ = $1; $$->append($3->val());}
@@ -183,8 +198,12 @@ INTERFACE_ELT : ATTRIBUTE                         {driver.m_curCtx->append($1);}
     | CONSTANT                                    {driver.m_curCtx->append($1);}
     ;
 
-SEQUENCE : TSEQUENCE '<' TYPE '>'                 {if (!driver.appendError("sequence not supported")) YYABORT;}
-    | TSEQUENCE '<' TYPE ',' TNUMBER '>'          {if (!driver.appendError("sequence not supported")) YYABORT;}
+SEQUENCE : TSEQUENCE '<' TYPE '>'                 {if (!driver.appendError("Error: sequence not supported")) YYABORT;}
+    | TSEQUENCE '<' TYPE ',' TNUMBER '>'          {if (!driver.appendError("Error: sequence not supported")) YYABORT;}
+    ;
+
+ARRAYOF : TYPE '[' ']'                            {if (!driver.appendError("Error: array other than octet[] not supported")) YYABORT;}
+    | TYPE '[' TNUMBER ']'                        {if (!driver.appendError("Error: array with fixed size not supported")) YYABORT;}
     ;
 
 RET_TYPE : TYPE                                   {$$ = $1;}
@@ -208,7 +227,9 @@ TYPE : TOBJECT                                    {$$ = new NodeVariant(VTYPE_AN
     | TSTRING                                     {$$ = new NodeVariant(VTYPE_STRING);}
     | TOCTET '[' ']'                              {$$ = new NodeVariant(VTYPE_BYTEARRAY);}
     | TDATETIME                                   {$$ = new NodeVariant(VTYPE_DATETIME);}
-    | SEQUENCE                                    {if (!driver.appendError("Warning: sequence not supported yet")) YYABORT;}
+    | SEQUENCE                                    {if (!driver.appendError("Error: sequence not supported")) YYABORT;}
+    | TSYMBOL                                     {if (!driver.appendError("Error: Complex/user defined type not supported")) YYABORT;}
+    | ARRAYOF                                     {$$ = new NodeVariant("");}
     ;
 
 FIELD : TYPE SYMBOL '<' TNUMBER '>'               {if (!driver.appendError("Error: array definition not supported")) YYABORT;}
@@ -224,7 +245,7 @@ ATTRIBUTE_QUAL : TREADONLY                        {$$ = new NodeVariant(false);}
     |                                             {$$ = new NodeVariant(true);}
     ;
 
-CONSTANT : TCONST FIELD '=' EXPRESSION ';'        {$$ = $2; $$->insert(KNODE_VALUE, $4->val());}
+CONSTANT : TCONST FIELD '=' EXPRESSION ';'        {$$ = $2; $$->insert(KNODE_TYPE, NTYPE_CONST)->insert(KNODE_VALUE, $4->val());}
     ;
 
 EXPRESSION : '(' EXPRESSION ')'                   {$$ = $2;}
@@ -237,22 +258,24 @@ EXPRESSION : '(' EXPRESSION ')'                   {$$ = $2;}
     ;
 
 VALUE : TVARIANT                                  {$$ = $1;}
+    | TINTVAL                                     {$$ = $1;}
+    | TNUMBER                                     {$$ = $1;}
     | TSYMBOL                                     {$$ = driver.m_curCtx->resolve($1, NTYPE_CONST);}
     ;
 
 METHOD : METHOD_HEADER RET_TYPE SYMBOL '(' PARAMETERS ')' METHOD_FOOTER ';'
-                                                  {$$ = (new NodeMap())->insert(KNODE_DTYPE, $2->val())->insert(KNODE_SNAME, $3->val())->insert(KNODE_PARAMS, $5->map());}
+                                                  {$$ = (new NodeMap())->insert(KNODE_TYPE, NTYPE_METHOD)->insert(KNODE_DTYPE, $2->val())->insert(KNODE_SNAME, $3->val())->insert(KNODE_PARAMS, $5->list());}
     ;
 
-METHOD_HEADER : TONEWAY                           {if (!driver.appendError("Warning: unsupported oneway keyword and will be ignored")) YYABORT;}
+METHOD_HEADER : TONEWAY                           {if (!driver.appendError("Error: unsupported oneway keyword")) YYABORT;}
     |                                             {/* NOTHING TO DO */}
     ;
 
-METHOD_FOOTER : TRAISES '(' SYMBOL_LIST ')'       {if (!driver.appendError("Warning: exception raise not supported and will be ignored")) YYABORT;}
+METHOD_FOOTER : TRAISES '(' SYMBOL_LIST ')'       {if (!driver.appendError("Error: exception raise not supported")) YYABORT;}
     |                                             {/* NOTHING TO DO */}
     ;
 
-PARAMETERS : PARAMETERS PARAMETER                 {if (!$1->append($2)) YYABORT; $$ = $1;}
+PARAMETERS : PARAMETERS ',' PARAMETER             {if (!$1->append($3)) YYABORT; $$ = $1;}
     | PARAMETER                                   {$$ = new NodeParams(driver); if (!$$->append($1)) YYABORT;}
     | TVOID                                       {$$ = new NodeParams(driver);}
     |                                             {$$ = new NodeParams(driver);}

@@ -23,6 +23,7 @@
 #include <nodebus/core/parser.h>
 #include <nodebus/core/serializer.h>
 #include <nodebus/core/filechannel.h>
+#include <nodebus/core/idlparser/driver.h>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -104,8 +105,8 @@ void testSelect() {
 void testBCONParser() {
 	QVariant v = Parser(new FileChannel("test.json", 0), FileFormat::JSON).parse();
 // 	logFiner() << Logger::dump(v);
-	Serializer(new FileChannel("test.cson", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::BCON).serialize(v);
-	v = Parser(new FileChannel("test.cson", 0), FileFormat::BCON).parse();
+	Serializer(new FileChannel("test.bcon", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::BCON).serialize(v);
+	v = Parser(new FileChannel("test.bcon", 0), FileFormat::BCON).parse();
 // 	logFiner() << Logger::dump(v);
 	Serializer(new FileChannel("test_BCON.json", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::JSON).serialize(v);
 }
@@ -119,11 +120,23 @@ void testBSONParser() {
 	Serializer(new FileChannel("test_BSON.json", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::JSON).serialize(v);
 }
 
+void testIDLCompile(const char *filename) {
+	QString name(filename);
+	try {
+		QVariant v = idlparser::Driver::parse(name);
+		Serializer(new FileChannel(name + ".json", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::JSON).serialize(v);
+		Serializer(new FileChannel(name + ".bcon", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::BCON).serialize(v);
+	} catch (Exception &e) {
+		logCrit() << "Compilation failed:\n" << e.message();
+	}
+}
+
 int main(int argc, char **argv) {
 	try {
-// 		testBSONParser();
-// 		testBCONParser();
-		logInfo() << QFileInfo("/etc/resolv.conf").dir().absoluteFilePath("resolv.conf");
+		if (argc != 2) {
+			throw Exception("Missing filename");
+		}
+		testIDLCompile(argv[1]);
 	} catch (Exception &e) {
 		logCrit() << "terminate called after throwing an instance of " << e;
 	}
