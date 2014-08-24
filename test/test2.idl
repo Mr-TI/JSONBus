@@ -1,0 +1,15 @@
+module GestImpr {
+
+    interface Imprimante {
+      short printDocument ( in string n,
+          out long t);
+    };
+    interface AdminImprimante {
+       attribute long etat;
+    };
+    interface  ImprimantePlus : Imprimante, AdminImprimante {
+      any tachesEnCours();
+       readonly attribute short tacheCour;
+       void envoiRapide ( in string n);
+    };
+};
