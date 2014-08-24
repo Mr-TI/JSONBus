@@ -169,6 +169,10 @@ inline SharedPtr<NodeRoot> Driver::rootCtx() {
 	return m_rootCtx;
 }
 
+inline NodePtr Driver::curCtx() {
+	return m_curCtx;
+}
+
 }
 
 #endif // IDLLTYPE_H

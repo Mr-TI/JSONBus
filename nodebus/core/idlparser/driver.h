@@ -48,6 +48,7 @@ public:
 	bool appendError(const QString &message);
 	bool include(const QString &filename);
 	SharedPtr<NodeRoot> rootCtx();
+	NodePtr curCtx();
 	static QVariant parse(const QString &filename);
 private:
 	Driver(const QString &filename, Scanner &scanner, SharedPtr<NodeRoot> shared = nullptr);

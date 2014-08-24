@@ -36,7 +36,7 @@ public:
 };
 
 inline NodeModule::NodeModule(Driver &driver, NodePtr &pSym)
-: m_driver(driver), m_prefix(driver.rootCtx()->str() + pSym->str() + "::") {
+: m_driver(driver), m_prefix(driver.curCtx()->str() + pSym->str() + "::") {
 
 }
 

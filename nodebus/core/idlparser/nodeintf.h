@@ -34,12 +34,13 @@ public:
 
 inline NodeIntf::NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents)
 : NodeModule(driver, pSym), m_name(pSym->str()) {
-	QString fullName = driver.rootCtx()->str() + pSym->str();
+	QString fullName = driver.curCtx()->str() + pSym->str();
 	if (driver.rootCtx()->m_symTbl.contains(fullName)) {
 		m_driver.appendError("Dupplicate symbol " + fullName);
 	}
 	QVariantList parents = pParents->list();
 	// TODO: parrent check...
+	m_infos.insert(KNODE_SNAME, fullName);
 	m_infos.insert(KNODE_PARENTS, parents);
 }
 
