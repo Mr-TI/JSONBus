@@ -23,7 +23,6 @@ void __raise_InvalidClassException() {
 }
 
 void __raise_NullPointerException() {
-	abort();
 	throw NullPointerException();
 }
 
