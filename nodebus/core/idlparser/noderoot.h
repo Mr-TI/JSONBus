@@ -25,10 +25,9 @@ namespace idlparser {
 class NodeRoot: public Node {
 private :
 	Driver &m_driver;
-	static QString emptyStr;
 public:
 	NodeRoot(Driver &driver);
-	virtual NodePtr resolve(NodePtr &pSym, const char *type);
+	virtual const QVariant &resolve(const QString symbol, const char *type);
 	virtual bool append(NodePtr &pElt);
 	virtual QString str();
 	QMap<QString, bool> m_fileList;
@@ -52,24 +51,25 @@ inline bool NodeRoot::append(NodePtr &pElt) {
 }
 
 inline QString NodeRoot::str() {
-	return emptyStr; // empty prefix
+	static const QString empty;
+	return empty; // empty prefix
 }
 
-inline NodePtr NodeRoot::resolve(NodePtr &pSym, const char *type) {
-	QString name = pSym->str();
+inline const QVariant &NodeRoot::resolve(const QString symbol, const char *type) {
+	static QVariant __node_zero;
 	QVariant result;
-	if (m_symTbl.contains(name)) {
-		result = m_symTbl[name];
+	if (m_symTbl.contains(symbol)) {
+		result = m_symTbl[symbol];
 	} else {
-		m_driver.appendError("Undefined symbol " + name);
-		return new NodeVariant(0);
+		m_driver.appendError("Undefined symbol " + symbol);
+		return __node_zero;
 	}
 	QVariantMap mNode = result.toMap();
 	if (mNode[KNODE_TYPE].toString().at(0) == type[0]) {
-		return new NodeVariant(mNode[KNODE_VALUE]);
+		return mNode[KNODE_VALUE];
 	} else {
-		m_driver.appendError("Invalid symbol " + name);
-		return new NodeVariant(0);
+		m_driver.appendError("Invalid symbol " + symbol);
+		return __node_zero;
 	}
 }
 

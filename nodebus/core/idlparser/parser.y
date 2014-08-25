@@ -260,7 +260,7 @@ EXPRESSION : '(' EXPRESSION ')'                   {$$ = $2;}
 VALUE : TVARIANT                                  {$$ = $1;}
     | TINTVAL                                     {$$ = $1;}
     | TNUMBER                                     {$$ = $1;}
-    | TSYMBOL                                     {$$ = driver.m_curCtx->resolve($1, NTYPE_CONST);}
+    | TSYMBOL                                     {$$ = new NodeVariant(driver.m_curCtx->resolve($1->str(), NTYPE_CONST));}
     ;
 
 METHOD : METHOD_HEADER RET_TYPE SYMBOL '(' PARAMETERS ')' METHOD_FOOTER ';'

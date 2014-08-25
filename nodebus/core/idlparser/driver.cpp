@@ -35,8 +35,6 @@ m_rootCtx(shared == nullptr ? new NodeRoot(*this): shared), m_curCtx(m_rootCtx) 
 Driver::~Driver() {
 }
 
-QString NodeRoot::emptyStr;
-
 bool Driver::appendError(const QString& message) {
 	m_rootCtx->m_errors.append(m_filename + ":" + 
 		QString::number(m_scanner.lineno()) + ": " + message);

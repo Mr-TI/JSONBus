@@ -38,7 +38,11 @@ inline NodeIntf::NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents)
 	if (driver.rootCtx()->m_symTbl.contains(fullName)) {
 		m_driver.appendError("Dupplicate symbol " + fullName);
 	}
-	QVariantList parents = pParents->list();
+	QVariantList parentList = pParents->list();
+	QVariantList parents;
+	for (auto it = parentList.begin(); it != parentList.end(); it++) {
+		parents.append(resolve((*it).toString(), NTYPE_INTERFACE).toMap()[KNODE_SNAME]);
+	}
 	// TODO: parrent check...
 	m_infos.insert(KNODE_SNAME, fullName);
 	m_infos.insert(KNODE_PARENTS, parents);

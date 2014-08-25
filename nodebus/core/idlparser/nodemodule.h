@@ -28,7 +28,7 @@ protected :
 	Driver &m_driver;
 public:
 	NodeModule(Driver &driver, NodePtr &pSym);
-	virtual NodePtr resolve(NodePtr &pSym, const char *type);
+	virtual const QVariant &resolve(const QString symbol, const char *type);
 	virtual bool append(NodePtr &pElt);
 	virtual QString str();
 	QString m_prefix;
@@ -41,37 +41,30 @@ inline NodeModule::NodeModule(Driver &driver, NodePtr &pSym)
 }
 
 inline bool NodeModule::append(NodePtr &pElt) {
-	QVariantMap elt = pElt->map();
-	QString name = elt[KNODE_SNAME].toString();
-	if (m_symTbl.contains(name)) {
-		m_driver.appendError("Dupplicate symbol " + name);
-		return false;
-	}
-	m_symTbl.insert(name, elt);
-	return true;
+	return m_driver.rootCtx()->append(pElt);
 }
 
 inline QString NodeModule::str() {
 	return m_prefix;
 }
 
-inline NodePtr NodeModule::resolve(NodePtr &pSym, const char *type) {
-	QString name = pSym->str();
+inline const QVariant &NodeModule::resolve(const QString symbol, const char *type) {
+	static const QVariant zero;
 	QVariant result;
-	if (m_symTbl.contains(name)) {
-		result = m_symTbl[name];
-	} else if (m_driver.rootCtx()->m_symTbl.contains(name)) {
-		result = m_driver.rootCtx()->m_symTbl[name];
+	if (m_symTbl.contains(symbol)) {
+		result = m_symTbl[symbol];
+	} else if (m_driver.rootCtx()->m_symTbl.contains(symbol)) {
+		result = m_driver.rootCtx()->m_symTbl[symbol];
 	} else {
-		m_driver.appendError("Undefined symbol " + name);
-		return new NodeVariant(0);
+		m_driver.appendError("Undefined symbol " + symbol);
+		return zero;
 	}
 	QVariantMap mNode = result.toMap();
 	if (mNode[KNODE_TYPE].toString().at(0) == type[0]) {
-		return new NodeVariant(mNode[KNODE_VALUE]);
+		return mNode[KNODE_VALUE];
 	} else {
-		m_driver.appendError("Invalid symbol " + name);
-		return new NodeVariant(0);
+		m_driver.appendError("Incompatible symbol " + symbol);
+		return zero;
 	}
 }
 
