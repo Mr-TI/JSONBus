@@ -163,9 +163,19 @@ public:
 	template<class X>
 	bool operator!= (const SharedPtr<X>& other) const;
 	
+	/**
+	 * @brief Test if a class instance of a given type
+	 * 
+	 * @return true if the class instance of a given type
+	 */
 	template<class X>
 	bool instanceof ();
 	
+	/**
+	 * @brief Cast this pointer to a given type
+	 * 
+	 * @return a pointer as given type
+	 */
 	template<class X>
 	X* cast ();
 };
@@ -178,8 +188,13 @@ extern void __raise_NullPointerException();
 void __log_data_ref_init(void* data);
 void __log_data_ref_delete(void* data);
 
+#ifdef NODEBUS_SHAREDPTR_DEBUG
 #define __NODEBUS_SHAREDPTR_DEBUG_NEW() if (m_data->ptrNbRef == 0) __log_data_ref_init(m_data)
 #define __NODEBUS_SHAREDPTR_DEBUG_DEL() __log_data_ref_delete(m_data)
+#else
+#define __NODEBUS_SHAREDPTR_DEBUG_NEW()
+#define __NODEBUS_SHAREDPTR_DEBUG_DEL()
+#endif
 
 template <typename T>
 inline SharedPtr<T>::SharedPtr(): m_data(nullptr) {}
