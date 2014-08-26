@@ -54,9 +54,6 @@ QVariant Driver::parse(const QString &filename) {
 }
 
 void Driver::pop() {
-	if (m_curCtx.instanceof<NodeIntf>()) {
-		m_localElts.append(m_curCtx->map());
-	}
 	m_curCtx = m_nodeStack.pop();
 }
 

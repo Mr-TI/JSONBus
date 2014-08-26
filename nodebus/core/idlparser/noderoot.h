@@ -27,7 +27,7 @@ private :
 	Driver &m_driver;
 public:
 	NodeRoot(Driver &driver);
-	virtual const QVariant &resolve(const QString symbol, const char *type);
+	virtual QVariant resolve(const QString symbol, const char *type);
 	virtual bool append(NodePtr &pElt);
 	virtual QString str();
 	QMap<QString, bool> m_fileList;
@@ -55,22 +55,18 @@ inline QString NodeRoot::str() {
 	return empty; // empty prefix
 }
 
-inline const QVariant &NodeRoot::resolve(const QString symbol, const char *type) {
-	static QVariant __node_zero;
-	QVariant result;
-	if (m_symTbl.contains(symbol)) {
-		result = m_symTbl[symbol];
-	} else {
+inline QVariant NodeRoot::resolve(const QString symbol, const char *type) {
+	static QVariant zero;
+	if (!m_symTbl.contains(symbol)) {
 		m_driver.appendError("Undefined symbol " + symbol);
-		return __node_zero;
+		return zero;
 	}
-	QVariantMap mNode = result.toMap();
-	if (mNode[KNODE_TYPE].toString().at(0) == type[0]) {
-		return mNode[KNODE_VALUE];
-	} else {
+	const QVariant &result = m_symTbl[symbol];
+	if (result.toMap()[KNODE_TYPE].toString().at(0) != type[0]) {
 		m_driver.appendError("Invalid symbol " + symbol);
-		return __node_zero;
+		return zero;
 	}
+	return result;
 }
 
 }

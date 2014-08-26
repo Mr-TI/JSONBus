@@ -79,6 +79,9 @@ using namespace std;
 #define STRING_APPEND_UNICODE()\
 	yylval->str->append(QChar(QString(yytext).toInt(0, 16)));
 
+#define STRING_END()\
+	yylval->node  = new NodeVariant(*(yylval->str))
+
 #define STRING_CLEAR()\
 	delete yylval->str;yylval->str = NULL;
 
@@ -174,7 +177,7 @@ comment_line            "//".*$
 /*%option batch never-interactive*/
 %option prefix="idlparser"
 %option align
-%option case-insensitive
+%option case-sensitive
 
 %option nounput debug
 
@@ -182,7 +185,7 @@ comment_line            "//".*$
 
 <<EOF>>                                   {BEGIN INITIAL; RETURN_TOKEN(TEND);}
 
-<STRING>{dblcote}                         {BEGIN INITIAL; RETURN_TOKEN(TSTRING);}
+<STRING>{dblcote}                         {BEGIN INITIAL; STRING_END(); RETURN_TOKEN(TSTRINGVAL);}
 <STRING>{escape_prefix}                   {BEGIN STRING_ESCAPE;}
 <STRING>.                                 {BEGIN STRING; STRING_APPEND(yytext[0]);}
 

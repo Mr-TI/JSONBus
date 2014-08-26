@@ -109,7 +109,7 @@ inline bool opexec(NodePtr &res, char op, NodePtr &op1_n, NodePtr &op2_n, Driver
 	} else if (op1.type() == QVariant::String || op2.type() == QVariant::String) {
 		switch (op) {
 			case '+':
-				res = new NodeVariant(op1.toString() + op1.toString());
+				res = new NodeVariant(op1.toString() + op2.toString());
 				break;
 			case '-':
 			case '*':
@@ -123,19 +123,19 @@ inline bool opexec(NodePtr &res, char op, NodePtr &op1_n, NodePtr &op2_n, Driver
 	} else if (op1.type() == QVariant::Double || op2.type() == QVariant::Double) {
 		switch (op) {
 			case '+':
-				res = new NodeVariant(op1.toDouble() + op1.toDouble());
+				res = new NodeVariant(op1.toDouble() + op2.toDouble());
 				break;
 			case '-':
-				res = new NodeVariant(op1.toDouble() + op1.toDouble());
+				res = new NodeVariant(op1.toDouble() + op2.toDouble());
 				break;
 			case '*':
-				res = new NodeVariant(op1.toDouble() + op1.toDouble());
+				res = new NodeVariant(op1.toDouble() + op2.toDouble());
 				break;
 			case '/':
-				res = new NodeVariant(op1.toDouble() + op1.toDouble());
+				res = new NodeVariant(op1.toDouble() + op2.toDouble());
 				break;
 			case '%':
-				res = new NodeVariant(op1.toLongLong() % op1.toLongLong());
+				res = new NodeVariant(op1.toLongLong() % op2.toLongLong());
 				break;
 			default:
 				return driver.appendError("Error: invalid operator " + char(op));
@@ -144,19 +144,19 @@ inline bool opexec(NodePtr &res, char op, NodePtr &op1_n, NodePtr &op2_n, Driver
 	} else {
 		switch (op) {
 			case '+':
-				res = new NodeVariant(op1.toLongLong() + op1.toLongLong());
+				res = new NodeVariant(op1.toLongLong() + op2.toLongLong());
 				break;
 			case '-':
-				res = new NodeVariant(op1.toLongLong() + op1.toLongLong());
+				res = new NodeVariant(op1.toLongLong() + op2.toLongLong());
 				break;
 			case '*':
-				res = new NodeVariant(op1.toLongLong() + op1.toLongLong());
+				res = new NodeVariant(op1.toLongLong() + op2.toLongLong());
 				break;
 			case '/':
-				res = new NodeVariant(op1.toLongLong() + op1.toLongLong());
+				res = new NodeVariant(op1.toLongLong() + op2.toLongLong());
 				break;
 			case '%':
-				res = new NodeVariant(op1.toLongLong() % op1.toLongLong());
+				res = new NodeVariant(op1.toLongLong() % op2.toLongLong());
 				break;
 			default:
 				return driver.appendError("Error: invalid operator " + char(op));

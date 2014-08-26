@@ -8,6 +8,10 @@ module GestImpr {
        attribute long etat;
     };
     interface  ImprimantePlus : Imprimante, AdminImprimante {
+	const octet constval1 = 0x0A;
+	const octet constval2 = 0x0b;
+	const long constval3 = constval1 + constval2 * 2;
+	const string constval4 = "constval1 = " + constval1;
       any tachesEnCours();
        readonly attribute short tacheCour;
        void envoiRapide ( in string n);

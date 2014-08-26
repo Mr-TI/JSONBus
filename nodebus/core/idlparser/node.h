@@ -32,7 +32,7 @@ public:
 	virtual QVariant &val();
 	virtual QVariantMap &map();
 	virtual QVariantList &list();
-	virtual const QVariant &resolve(const QString symbol, const char *type);
+	virtual QVariant resolve(const QString symbol, const char *type);
 	virtual Node *insert(const QString &key, const QVariant &value);
 	virtual Node *append(const QVariant &value);
 	virtual bool append(NodePtr &pElt);
@@ -77,7 +77,7 @@ inline bool Node::append(NodePtr &pElt) {
 	throw 0;
 }
 
-inline const QVariant &Node::resolve(const QString symbol, const char *type) {
+inline QVariant Node::resolve(const QString symbol, const char *type) {
 	qt_assert("Assert: Illegal call to NodePtr Node::resolve(NodePtr &)", __FILE__, __LINE__);
 	throw 0;
 }

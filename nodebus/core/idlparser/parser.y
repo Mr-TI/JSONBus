@@ -178,7 +178,7 @@ SYMBOL : SYMBOL ':' ':' TSYMBOL                   {$$ = new NodeVariant($1->str(
     ;
 
 INTERFACE : INTERFACE_HEADER '{' INTERFACE_ELTS '}' ';'
-                                                  {driver.pop();}
+                                                  {$$ = driver.curCtx(); driver.m_localElts.append($$->map()); driver.pop(); driver.curCtx()->append($$);}
     ;
 
 INTERFACE_HEADER : TINTERFACE SYMBOL INTERFACE_PARENT
@@ -193,9 +193,9 @@ INTERFACE_ELTS : INTERFACE_ELTS INTERFACE_ELT     {/* NOTHING TO DO */}
     | INTERFACE_ELT                               {/* NOTHING TO DO */}
     ;
 
-INTERFACE_ELT : ATTRIBUTE                         {driver.m_curCtx->append($1);}
-    | METHOD                                      {driver.m_curCtx->append($1);}
-    | CONSTANT                                    {driver.m_curCtx->append($1);}
+INTERFACE_ELT : ATTRIBUTE                         {driver.curCtx()->append($1);}
+    | METHOD                                      {driver.curCtx()->append($1);}
+    | CONSTANT                                    {driver.curCtx()->append($1);}
     ;
 
 SEQUENCE : TSEQUENCE '<' TYPE '>'                 {if (!driver.appendError("Error: sequence not supported")) YYABORT;}
@@ -260,7 +260,8 @@ EXPRESSION : '(' EXPRESSION ')'                   {$$ = $2;}
 VALUE : TVARIANT                                  {$$ = $1;}
     | TINTVAL                                     {$$ = $1;}
     | TNUMBER                                     {$$ = $1;}
-    | TSYMBOL                                     {$$ = new NodeVariant(driver.m_curCtx->resolve($1->str(), NTYPE_CONST));}
+    | TSTRINGVAL                                  {$$ = $1;}
+    | TSYMBOL                                     {$$ = new NodeVariant(driver.curCtx()->resolve($1->str(), NTYPE_CONST).toMap()[KNODE_VALUE]);}
     ;
 
 METHOD : METHOD_HEADER RET_TYPE SYMBOL '(' PARAMETERS ')' METHOD_FOOTER ';'
