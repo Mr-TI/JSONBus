@@ -91,7 +91,7 @@
 %type <node>        DOCUMENT DOCUMENT_ELTS DOCUMENT_ELT MODULE_ELTS MODULE_ELT MODULE_HEADER MODULE ENUM STRUCT
 %type <node>        EXCEPTION STRUCT_ELTS TYPEDEF SYMBOL_LIST SYMBOL INTERFACE INTERFACE_ELTS INTERFACE_ELT SEQUENCE RET_TYPE
 %type <node>        FIELD ATTRIBUTE CONSTANT EXPRESSION METHOD METHOD_HEADER METHOD_FOOTER PARAMETERS PARAMETER PARAMETER_DIR
-%type <node>        VALUE ATTRIBUTE_QUAL INTERFACE_PARENT INTERFACE_HEADER TYPE ARRAYOF UNION CASES CASE
+%type <node>        VALUE ATTRIBUTE_QUAL INTERFACE_PARENT INTERFACE_HEADER TYPE ARRAYOF UNION CASES CASE CONSTANT_LEFT_OP
 
 %left   '+' '-'
 %left   '*' '/' '%'
@@ -245,15 +245,18 @@ ATTRIBUTE_QUAL : TREADONLY                        {$$ = new NodeVariant(false);}
     |                                             {$$ = new NodeVariant(true);}
     ;
 
-CONSTANT : TCONST FIELD '=' EXPRESSION ';'        {$$ = $2; $$->insert(KNODE_TYPE, NTYPE_CONST)->insert(KNODE_VALUE, $4->val());}
+CONSTANT_LEFT_OP : TCONST FIELD                   {$$ = $2; driver.switchOpType($2->map()[KNODE_DTYPE].toString()[0].toAscii());}
+    ;
+
+CONSTANT : CONSTANT_LEFT_OP '=' EXPRESSION ';'    {$$ = $1; $$->insert(KNODE_TYPE, NTYPE_CONST)->insert(KNODE_VALUE, $3->val());}
     ;
 
 EXPRESSION : '(' EXPRESSION ')'                   {$$ = $2;}
-    | EXPRESSION '+' EXPRESSION                   {if (!opexec($$, '+', $1, $3, driver)) YYABORT;}
-    | EXPRESSION '-' EXPRESSION                   {if (!opexec($$, '-', $1, $3, driver)) YYABORT;}
-    | EXPRESSION '*' EXPRESSION                   {if (!opexec($$, '*', $1, $3, driver)) YYABORT;}
-    | EXPRESSION '/' EXPRESSION                   {if (!opexec($$, '/', $1, $3, driver)) YYABORT;}
-    | EXPRESSION '%' EXPRESSION                   {if (!opexec($$, '%', $1, $3, driver)) YYABORT;}
+    | EXPRESSION '+' EXPRESSION                   {if (!driver.opexec($$, '+', $1, $3)) YYABORT;}
+    | EXPRESSION '-' EXPRESSION                   {if (!driver.opexec($$, '-', $1, $3)) YYABORT;}
+    | EXPRESSION '*' EXPRESSION                   {if (!driver.opexec($$, '*', $1, $3)) YYABORT;}
+    | EXPRESSION '/' EXPRESSION                   {if (!driver.opexec($$, '/', $1, $3)) YYABORT;}
+    | EXPRESSION '%' EXPRESSION                   {if (!driver.opexec($$, '%', $1, $3)) YYABORT;}
     | VALUE                                       {$$ = $1;}
     ;
 

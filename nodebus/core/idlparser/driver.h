@@ -52,6 +52,9 @@ public:
 	static QVariant parse(const QString &filename);
 private:
 	Driver(const QString &filename, Scanner &scanner, SharedPtr<NodeRoot> shared = nullptr);
+	void switchOpType(char op);
+	bool opexec(NodePtr &res, char op, NodePtr &op1_n, NodePtr &op2_n);
+	QVariant::Type m_opDataType;
 	friend class Parser;
 	friend class Scanner;
 	QVariantList m_localElts;

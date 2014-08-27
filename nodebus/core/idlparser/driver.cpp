@@ -75,5 +75,115 @@ bool Driver::include(const QString& filename) {
 	return m_rootCtx->m_errors.isEmpty();
 }
 
+void Driver::switchOpType(char op) {
+	switch (op) {
+		case VTYPE_VOID[0]:
+			m_opDataType = QVariant::Invalid;
+			break;
+		case VTYPE_ANY[0]:
+			m_opDataType = QVariant::Invalid;
+			break;
+		case VTYPE_BOOLEAN[0]:
+			m_opDataType = QVariant::Bool;
+			break;
+		case VTYPE_BYTE[0]:
+			m_opDataType = QVariant::Char;
+			break;
+		case VTYPE_UINT32[0]:
+			m_opDataType = QVariant::UInt;
+			break;
+		case VTYPE_INT32[0]:
+			m_opDataType = QVariant::Int;
+			break;
+		case VTYPE_UINT64[0]:
+			m_opDataType = QVariant::ULongLong;
+			break;
+		case VTYPE_INT64[0]:
+			m_opDataType = QVariant::LongLong;
+			break;
+		case VTYPE_DOUBLE[0]:
+			m_opDataType = QVariant::Double;
+			break;
+		case VTYPE_STRING[0]:
+			m_opDataType = QVariant::String;
+			break;
+		case VTYPE_BYTEARRAY[0]:
+			m_opDataType = QVariant::BitArray;
+			break;
+		case VTYPE_DATETIME[0]:
+			m_opDataType = QVariant::DateTime;
+			break;
+		default:
+			m_opDataType = QVariant::Invalid;
+			break;
+	}
+}
+
+bool Driver::opexec(NodePtr &res, char op, NodePtr &op1_n, NodePtr &op2_n) {
+	QVariant &op1 = op1_n->val();
+	QVariant &op2 = op2_n->val();
+	if (!op1.canConvert(QVariant::Double) && !op1.type() != QVariant::String) {
+		return appendError("Error: invalid operand " + Logger::dump(op1));
+	} else if (!op2.canConvert(QVariant::Double) && !op1.type() != QVariant::String) {
+		return appendError("Error: invalid operand " + Logger::dump(op2));
+	} else if (op1.type() == QVariant::String || op2.type() == QVariant::String) {
+		switch (op) {
+			case '+':
+				res = new NodeVariant(op1.toString() + op2.toString());
+				break;
+			case '-':
+			case '*':
+			case '/':
+			case '%':
+				return appendError("Error: invalid operator fot string value: " + char(op));
+				break;
+			default:
+				return appendError("Error: invalid operator " + char(op));
+		}
+	} else if (op1.type() == QVariant::Double || op2.type() == QVariant::Double) {
+		switch (op) {
+			case '+':
+				res = new NodeVariant(op1.toDouble() + op2.toDouble());
+				break;
+			case '-':
+				res = new NodeVariant(op1.toDouble() + op2.toDouble());
+				break;
+			case '*':
+				res = new NodeVariant(op1.toDouble() + op2.toDouble());
+				break;
+			case '/':
+				res = new NodeVariant(op1.toDouble() + op2.toDouble());
+				break;
+			case '%':
+				res = new NodeVariant(op1.toLongLong() % op2.toLongLong());
+				break;
+			default:
+				return appendError("Error: invalid operator " + char(op));
+		}
+		
+	} else {
+		switch (op) {
+			case '+':
+				res = new NodeVariant(op1.toLongLong() + op2.toLongLong());
+				break;
+			case '-':
+				res = new NodeVariant(op1.toLongLong() + op2.toLongLong());
+				break;
+			case '*':
+				res = new NodeVariant(op1.toLongLong() + op2.toLongLong());
+				break;
+			case '/':
+				res = new NodeVariant(op1.toLongLong() + op2.toLongLong());
+				break;
+			case '%':
+				res = new NodeVariant(op1.toLongLong() % op2.toLongLong());
+				break;
+			default:
+				return appendError("Error: invalid operator " + char(op));
+		}
+	}
+	return true;
+}
+
 }
 
