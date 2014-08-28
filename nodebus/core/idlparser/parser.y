@@ -91,7 +91,7 @@
 %type <node>        DOCUMENT DOCUMENT_ELTS DOCUMENT_ELT MODULE_ELTS MODULE_ELT MODULE_HEADER MODULE ENUM STRUCT
 %type <node>        EXCEPTION STRUCT_ELTS TYPEDEF SYMBOL_LIST SYMBOL INTERFACE INTERFACE_ELTS INTERFACE_ELT SEQUENCE RET_TYPE
 %type <node>        FIELD ATTRIBUTE CONSTANT EXPRESSION METHOD METHOD_HEADER METHOD_FOOTER PARAMETERS PARAMETER PARAMETER_DIR
-%type <node>        VALUE ATTRIBUTE_QUAL INTERFACE_PARENT INTERFACE_HEADER TYPE ARRAYOF UNION CASES CASE CONSTANT_LEFT_OP
+%type <node>        VALUE ATTRIBUTE_QUAL INTERFACE_PARENT INTERFACE_HEADER TYPE ARRAYOF UNION CASES CASE
 
 %left   '+' '-'
 %left   '*' '/' '%'
@@ -245,10 +245,7 @@ ATTRIBUTE_QUAL : TREADONLY                        {$$ = new NodeVariant(false);}
     |                                             {$$ = new NodeVariant(true);}
     ;
 
-CONSTANT_LEFT_OP : TCONST FIELD                   {$$ = $2; driver.switchOpType($2->map()[KNODE_DTYPE].toString()[0].toAscii());}
-    ;
-
-CONSTANT : CONSTANT_LEFT_OP '=' EXPRESSION ';'    {$$ = $1; $$->insert(KNODE_TYPE, NTYPE_CONST)->insert(KNODE_VALUE, $3->val());}
+CONSTANT : TCONST FIELD '=' EXPRESSION ';'        {$$ = $2; $$->insert(KNODE_TYPE, NTYPE_CONST); if (!driver.setOpResult($$, $4)) YYABORT;}
     ;
 
 EXPRESSION : '(' EXPRESSION ')'                   {$$ = $2;}

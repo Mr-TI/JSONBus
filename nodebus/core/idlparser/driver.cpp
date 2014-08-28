@@ -75,56 +75,93 @@ bool Driver::include(const QString& filename) {
 	return m_rootCtx->m_errors.isEmpty();
 }
 
-void Driver::switchOpType(char op) {
-	switch (op) {
+inline QString type2str(QVariant::Type type) {
+	switch (type) {
+		case QVariant::Invalid:
+			return "invalid";
+		case QVariant::Bool:
+			return "boolean";
+		case QVariant::Char:
+			return "octet/byte";
+		case QVariant::UInt:
+			return "usigned 32 bits integer";
+		case QVariant::Int:
+			return "signed 32 bits integer";
+		case QVariant::ULongLong:
+			return "usigned 64 bits integer";
+		case QVariant::LongLong:
+			return "signed 64 bits integer";
+		case QVariant::Double:
+			return "double presision float";
+		case QVariant::String:
+			return "string";
+		case QVariant::BitArray:
+			return "octet/byte array";
+		case QVariant::DateTime:
+			return "date/time";
+		default:
+			return "unknow";
+	}
+}
+
+bool Driver::setOpResult(NodePtr &pVar, NodePtr &pRes) {
+	QVariant &res = pRes->val();
+	QVariantMap &var = pVar->map();
+	QVariant::Type opDataType;
+	QString opDataTypeStr;
+	switch (var[KNODE_DTYPE].toString()[0].toAscii()) {
 		case VTYPE_VOID[0]:
-			m_opDataType = QVariant::Invalid;
-			break;
+			return appendError("Error: invalid variable type void");
 		case VTYPE_ANY[0]:
-			m_opDataType = QVariant::Invalid;
+			opDataType = QVariant::Invalid;
 			break;
 		case VTYPE_BOOLEAN[0]:
-			m_opDataType = QVariant::Bool;
+			opDataType = QVariant::Bool;
 			break;
 		case VTYPE_BYTE[0]:
-			m_opDataType = QVariant::Char;
+			opDataType = QVariant::Char;
 			break;
 		case VTYPE_UINT32[0]:
-			m_opDataType = QVariant::UInt;
+			opDataType = QVariant::UInt;
 			break;
 		case VTYPE_INT32[0]:
-			m_opDataType = QVariant::Int;
+			opDataType = QVariant::Int;
 			break;
 		case VTYPE_UINT64[0]:
-			m_opDataType = QVariant::ULongLong;
+			opDataType = QVariant::ULongLong;
 			break;
 		case VTYPE_INT64[0]:
-			m_opDataType = QVariant::LongLong;
+			opDataType = QVariant::LongLong;
 			break;
 		case VTYPE_DOUBLE[0]:
-			m_opDataType = QVariant::Double;
+			opDataType = QVariant::Double;
 			break;
 		case VTYPE_STRING[0]:
-			m_opDataType = QVariant::String;
+			opDataType = QVariant::String;
 			break;
 		case VTYPE_BYTEARRAY[0]:
-			m_opDataType = QVariant::BitArray;
+			opDataType = QVariant::BitArray;
 			break;
 		case VTYPE_DATETIME[0]:
-			m_opDataType = QVariant::DateTime;
+			opDataType = QVariant::DateTime;
 			break;
 		default:
-			m_opDataType = QVariant::Invalid;
+			return appendError("Error: invalid variable type");
 			break;
 	}
+	if (!res.convert(opDataType)) {
+		return appendError("Error: the result cannot be converted to a " + type2str(opDataType));
+	}
+	var.insert(KNODE_VALUE, res);
+	return true;
 }
 
 bool Driver::opexec(NodePtr &res, char op, NodePtr &op1_n, NodePtr &op2_n) {
 	QVariant &op1 = op1_n->val();
 	QVariant &op2 = op2_n->val();
-	if (!op1.canConvert(QVariant::Double) && !op1.type() != QVariant::String) {
+	if (!op1.canConvert(QVariant::Double) && op1.type() != QVariant::String && op1.type() != QVariant::Char) {
 		return appendError("Error: invalid operand " + Logger::dump(op1));
-	} else if (!op2.canConvert(QVariant::Double) && !op1.type() != QVariant::String) {
+	} else if (!op2.canConvert(QVariant::Double) && op1.type() != QVariant::String && op1.type() != QVariant::Char) {
 		return appendError("Error: invalid operand " + Logger::dump(op2));
 	} else if (op1.type() == QVariant::String || op2.type() == QVariant::String) {
 		switch (op) {

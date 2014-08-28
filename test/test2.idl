@@ -8,6 +8,7 @@ module GestImpr {
        attribute long etat;
     };
     interface  ImprimantePlus : Imprimante, AdminImprimante {
+	const boolean boolval = false;
 	const octet constval1 = 0x0A;
 	const octet constval2 = 0x0b;
 	const long constval3 = constval1 + constval2 * 2;
