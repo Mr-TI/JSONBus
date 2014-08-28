@@ -159,9 +159,9 @@ bool Driver::setOpResult(NodePtr &pVar, NodePtr &pRes) {
 bool Driver::opexec(NodePtr &res, char op, NodePtr &op1_n, NodePtr &op2_n) {
 	QVariant &op1 = op1_n->val();
 	QVariant &op2 = op2_n->val();
-	if (!op1.canConvert(QVariant::Double) && op1.type() != QVariant::String && op1.type() != QVariant::Char) {
+	if (!op1.canConvert(QVariant::Double) && !op1.canConvert(QVariant::Int) && op1.type() != QVariant::String) {
 		return appendError("Error: invalid operand " + Logger::dump(op1));
-	} else if (!op2.canConvert(QVariant::Double) && op1.type() != QVariant::String && op1.type() != QVariant::Char) {
+	} else if (!op2.canConvert(QVariant::Double) && !op2.canConvert(QVariant::Int) && op1.type() != QVariant::String) {
 		return appendError("Error: invalid operand " + Logger::dump(op2));
 	} else if (op1.type() == QVariant::String || op2.type() == QVariant::String) {
 		switch (op) {
