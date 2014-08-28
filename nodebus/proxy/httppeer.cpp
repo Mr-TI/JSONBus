@@ -138,7 +138,7 @@ void HttpPeer::process() {
 		} catch (Exception &e) {
 			throw HTTPException(400, "Data parse error: " + e.message());
 		}
-		logFiner() << Serializer::toJSONString(message, Serializer::INDENT(4));
+		logFiner() << Serializer::toJSONString(message, Serializer::INDENT(2));
 		QString uid = httpHeader.path().section('/', 1);
 		if (!uid.isEmpty()) {
 			m_stdPeer = StdPeer::get(uid);

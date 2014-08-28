@@ -61,7 +61,7 @@ void StdPeer::writeError(const QString &object, const QString &message, const QS
 	res["object"] = QVariant(object);
 	res["status"] = QVariant("failure");
 	res["error-message"] = QVariant(message);
-	logFiner() << "Peer << " << Serializer::toJSONString(res, Serializer::INDENT(4));
+	logFiner() << "Peer << " << Serializer::toJSONString(res, Serializer::INDENT(2));
 	m_serializer.serialize(res);
 	m_socket->write("\n", 1);
 }
@@ -72,7 +72,7 @@ void StdPeer::writeResponse(const QString &object, const QVariant &data) {
 	res["object"] = QVariant(object);
 	res["status"] = QVariant("success");
 	res["data"] = data;
-	logFiner() << "Peer << " << Serializer::toJSONString(res, Serializer::INDENT(4));
+	logFiner() << "Peer << " << Serializer::toJSONString(res, Serializer::INDENT(2));
 	m_serializer.serialize(res);
 	m_socket->write("\n", 1);
 }
@@ -87,7 +87,7 @@ QString StdPeer::send(QVariantMap &request, SharedPtr<HttpPeer> peer) {
 		request["uid"] = uid;
 	}
 	m_httpPeers[uid] = peer;
-	logFiner() << "Peer << " << Serializer::toJSONString(request, Serializer::INDENT(4));
+	logFiner() << "Peer << " << Serializer::toJSONString(request, Serializer::INDENT(2));
 	m_serializer.serialize(request);
 	m_socket->write("\n", 1);
 	return uid;
@@ -109,7 +109,7 @@ void StdPeer::process() {
 		}
 		m_socket->setDeadLine(QDateTime::currentMSecsSinceEpoch() + 30000);
 		QVariantMap message = m_parser.parse().toMap();
-		logFiner() << "Peer >> " << Serializer::toJSONString(message, Serializer::INDENT(4));
+		logFiner() << "Peer >> " << Serializer::toJSONString(message, Serializer::INDENT(2));
 		QString object = message["object"].toString();
 		if (object.isEmpty()) {
 			writeError("Proxy", "Malformed message, missing 'object' field");
