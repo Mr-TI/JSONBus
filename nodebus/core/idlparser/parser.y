@@ -91,7 +91,7 @@
 %type <node>        DOCUMENT DOCUMENT_ELTS DOCUMENT_ELT MODULE_ELTS MODULE_ELT MODULE_HEADER MODULE ENUM STRUCT
 %type <node>        EXCEPTION STRUCT_ELTS TYPEDEF SYMBOL_LIST SYMBOL INTERFACE INTERFACE_ELTS INTERFACE_ELT SEQUENCE RET_TYPE
 %type <node>        FIELD ATTRIBUTE CONSTANT EXPRESSION METHOD METHOD_HEADER METHOD_FOOTER PARAMETERS PARAMETER PARAMETER_DIR
-%type <node>        VALUE ATTRIBUTE_QUAL INTERFACE_PARENT INTERFACE_HEADER TYPE ARRAYOF UNION CASES CASE
+%type <node>        VALUE ATTRIBUTE_QUAL INTERFACE_PARENT INTERFACE_HEADER TYPE ARRAYOF UNION CASES CASE FACTOR
 
 %left   '+' '-'
 %left   '*' '/' '%'
@@ -248,18 +248,22 @@ ATTRIBUTE_QUAL : TREADONLY                        {$$ = new NodeVariant(false);}
 CONSTANT : TCONST FIELD '=' EXPRESSION ';'        {$$ = $2; $$->insert(KNODE_TYPE, NTYPE_CONST); if (!driver.setOpResult($$, $4)) YYABORT;}
     ;
 
-EXPRESSION : '(' EXPRESSION ')'                   {$$ = $2;}
-    | EXPRESSION '+' EXPRESSION                   {if (!driver.opexec($$, '+', $1, $3)) YYABORT;}
+EXPRESSION : EXPRESSION '+' EXPRESSION            {if (!driver.opexec($$, '+', $1, $3)) YYABORT;}
     | EXPRESSION '-' EXPRESSION                   {if (!driver.opexec($$, '-', $1, $3)) YYABORT;}
-    | EXPRESSION '*' EXPRESSION                   {if (!driver.opexec($$, '*', $1, $3)) YYABORT;}
-    | EXPRESSION '/' EXPRESSION                   {if (!driver.opexec($$, '/', $1, $3)) YYABORT;}
-    | EXPRESSION '%' EXPRESSION                   {if (!driver.opexec($$, '%', $1, $3)) YYABORT;}
+    | FACTOR                                      {$$ = $1;}
+    ;
+
+FACTOR : '(' EXPRESSION ')'                       {$$ = $2;}
+    | FACTOR '*' FACTOR                           {if (!driver.opexec($$, '*', $1, $3)) YYABORT;}
+    | FACTOR '/' FACTOR                           {if (!driver.opexec($$, '/', $1, $3)) YYABORT;}
+    | FACTOR '%' FACTOR                           {if (!driver.opexec($$, '%', $1, $3)) YYABORT;}
     | VALUE                                       {$$ = $1;}
     ;
 
 VALUE : TVARIANT                                  {$$ = $1;}
     | TINTVAL                                     {$$ = $1;}
     | TNUMBER                                     {$$ = $1;}
+    | TFLOATVAL                                   {$$ = $1;}
     | TSTRINGVAL                                  {$$ = $1;}
     | TSYMBOL                                     {$$ = new NodeVariant(driver.curCtx()->resolve($1->str(), NTYPE_CONST).toMap()[KNODE_VALUE]);}
     ;

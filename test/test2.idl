@@ -9,10 +9,11 @@ module GestImpr {
     };
     interface  ImprimantePlus : Imprimante, AdminImprimante {
 	const boolean boolval = false;
-	const octet constval1 = 0x0A;
+	const long constval1 = 0x0A;
 	const octet constval2 = 0x0b;
-	const long constval3 = constval1 + constval2 * 2;
-	const string constval4 = "constval1 = " + constval1;
+	const long constval3 = constval1 + constval2 * 2; // must give 32
+	const string constval4 = "constval1 = " + constval1; // must give "constval1 = 10"
+	const float factor = (10.0 - 6.5) * 3.91; // must give 13.685
       any tachesEnCours();
        readonly attribute short tacheCour;
        void envoiRapide ( in string n);

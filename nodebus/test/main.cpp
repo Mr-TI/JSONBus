@@ -127,7 +127,7 @@ void testIDLCompile(const char *filename) {
 		Serializer(new FileChannel(name + ".json", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::JSON).serialize(v);
 		Serializer(new FileChannel(name + ".bcon", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::BCON).serialize(v);
 		Serializer(new FileChannel(name + ".bson", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::BSON).serialize(v);
-		logInfo() << Serializer::toJSONString(v, Serializer::INDENT(4));
+		logInfo() << Serializer::toJSONString(v, Serializer::INDENT(2));
 // 	} catch (Exception &e) {
 // 		logCrit() << "Compilation failed:\n" << e.message();
 // 	}

@@ -183,13 +183,13 @@ bool Driver::opexec(NodePtr &res, char op, NodePtr &op1_n, NodePtr &op2_n) {
 				res = new NodeVariant(op1.toDouble() + op2.toDouble());
 				break;
 			case '-':
-				res = new NodeVariant(op1.toDouble() + op2.toDouble());
+				res = new NodeVariant(op1.toDouble() - op2.toDouble());
 				break;
 			case '*':
-				res = new NodeVariant(op1.toDouble() + op2.toDouble());
+				res = new NodeVariant(op1.toDouble() * op2.toDouble());
 				break;
 			case '/':
-				res = new NodeVariant(op1.toDouble() + op2.toDouble());
+				res = new NodeVariant(op1.toDouble() / op2.toDouble());
 				break;
 			case '%':
 				res = new NodeVariant(op1.toLongLong() % op2.toLongLong());
@@ -204,13 +204,13 @@ bool Driver::opexec(NodePtr &res, char op, NodePtr &op1_n, NodePtr &op2_n) {
 				res = new NodeVariant(op1.toLongLong() + op2.toLongLong());
 				break;
 			case '-':
-				res = new NodeVariant(op1.toLongLong() + op2.toLongLong());
+				res = new NodeVariant(op1.toLongLong() - op2.toLongLong());
 				break;
 			case '*':
-				res = new NodeVariant(op1.toLongLong() + op2.toLongLong());
+				res = new NodeVariant(op1.toLongLong() * op2.toLongLong());
 				break;
 			case '/':
-				res = new NodeVariant(op1.toLongLong() + op2.toLongLong());
+				res = new NodeVariant(op1.toLongLong() / op2.toLongLong());
 				break;
 			case '%':
 				res = new NodeVariant(op1.toLongLong() % op2.toLongLong());
