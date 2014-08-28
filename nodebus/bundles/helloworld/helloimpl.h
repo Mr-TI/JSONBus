@@ -1,5 +1,5 @@
 /*
- *   Copyright 2014 Emeric Verschuur <emericv@openihs.org>
+ *   Copyright 2014 Emeric Verschuur <emericv@mbedsys.org>
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 
 #include <nodebus/service/hello/hello.h>
 
-using namespace org::openihs;
+using namespace org::mbedsys;
 
 class HelloImpl : public Hello {
 

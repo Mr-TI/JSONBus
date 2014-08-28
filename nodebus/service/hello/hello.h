@@ -1,5 +1,5 @@
 /*
- *   Copyright 2014 Emeric Verschuur <emericv@openihs.org>
+ *   Copyright 2014 Emeric Verschuur <emericv@mbedsys.org>
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 #define HELLOWORLDSERVICE_H
 #include <QObject>
 
-namespace org { namespace openihs {
+namespace org { namespace mbedsys {
 
 
 class Hello: public QObject {

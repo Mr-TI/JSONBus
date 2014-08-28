@@ -1,5 +1,5 @@
 /*
- *   Copyright 2012-2014 Emeric Verschuur <emericv@openihs.org>
+ *   Copyright 2012-2014 Emeric Verschuur <emericv@mbedsys.org>
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /**
  * @brief NodeBus : Commuon
  * 
- * @author <a href="mailto:emericv@openihs.org">Emeric Verschuur</a>
+ * @author <a href="mailto:emericv@mbedsys.org">Emeric Verschuur</a>
  * @date 2014
  * @copyright Apache License, Version 2.0
  */
@@ -42,7 +42,7 @@
 #define NODEBUS_DEFAULT_PIDFILE "/var/run/nodebusd.pid"
 #endif
 #define NODEBUS_DEFAULT_PLUGIN_DIR_PATH NODEBUS_DEFAULT_BASEDIR "/bundles"
-#define NODEBUS_DEFAULT_REGISTRY_SERVICE_NAME "org.openihs.registry.Registry"
+#define NODEBUS_DEFAULT_REGISTRY_SERVICE_NAME "org.mbedsys.registry.Registry"
 
 namespace NodeBus {
 

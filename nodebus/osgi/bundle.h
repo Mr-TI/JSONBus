@@ -1,5 +1,5 @@
 /*
- *   Copyright 2012-2014 Emeric Verschuur <emericv@openihs.org>
+ *   Copyright 2012-2014 Emeric Verschuur <emericv@mbedsys.org>
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 /**
  * @brief NodeBus : Bundle management.
  * 
- * @author <a href="mailto:emericv@openihs.org">Emeric Verschuur</a>
+ * @author <a href="mailto:emericv@mbedsys.org">Emeric Verschuur</a>
  * @date 2014
  * @copyright Apache License, Version 2.0
  */
@@ -44,7 +44,7 @@ nodebus_declare_exception(BundleException, Exception);
 /**
  * @brief Bundle management.
  * 
- * @author <a href="mailto:emericv@openihs.org">Emeric Verschuur</a>
+ * @author <a href="mailto:emericv@mbedsys.org">Emeric Verschuur</a>
  * @date 2014
  * @copyright Apache License, Version 2.0
  */

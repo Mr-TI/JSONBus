@@ -1,5 +1,5 @@
 /*
- *   Copyright 2012-2014 Emeric Verschuur <emericv@openihs.org>
+ *   Copyright 2012-2014 Emeric Verschuur <emericv@mbedsys.org>
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ void Master::onInit() {
 void Master::onStart() {
 	CliArguments &args = CliArguments::getInstance();
 #ifdef WIN32
-	m_settings = new Settings("OpenIHS.org", "NodeBus", QSettings::NativeFormat);
+	m_settings = new Settings("mbedsys.org", "NodeBus", QSettings::NativeFormat);
 #else
 	m_settings = new Settings(args.getValue("config").toString(), QSettings::NativeFormat);
 #endif
