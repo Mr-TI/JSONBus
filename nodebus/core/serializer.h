@@ -79,6 +79,9 @@ public:
 		virtual OutputStream& operator << (const QString &data) = 0;
 	};
 	
+	static uint32_t FORMAT_COMPACT;
+	static uint8_t INDENT(uint8_t size);
+	
 	/**
 	 * @brief Serializer constructor.
 	 * @param stream A reference to the std output stream
@@ -106,16 +109,16 @@ public:
 	 * @brief Serialize an object in BSON format
 	 * @param variant object to serialize
 	 */
-	void serialize(const QVariant &variant);
+	void serialize(const QVariant &variant, uint32_t flags = FORMAT_COMPACT);
 	
 	/**
 	 * @brief Serialize an object in BSON format
 	 * @param variant object to serialize
 	 */
-	static QString toJSONString(const QVariant &variant);
+	static QString toJSONString(const QVariant &variant, uint32_t flags);
 private:
 	void serializeBCON(const QVariant &variant, const QString *key=NULL);
-	void serializeJSON(const QVariant &variant);
+	void serializeJSON(const QVariant &variant, uint32_t flags);
 	QByteArray serializeBSONDocument(const QVariant &variant);
 	QByteArray serializeBSONElt(const QVariant& variant, const QString &key);
 	void write32(char type, uint32_t value);
@@ -126,6 +129,10 @@ private:
 	OutputStream &m_stream;
 	FileFormat m_format;
 };
+
+inline uint8_t Serializer::INDENT(uint8_t size) {
+	return size & 0x1Fu;
+}
 
 inline Serializer::OutputStream::OutputStream() {
 }

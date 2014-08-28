@@ -183,9 +183,12 @@ Serializer::OutputStream& SerializerByteArrayOutputStream::operator<<(const QStr
 	return *this; 
 }
 
-QString Serializer::toJSONString(const QVariant& variant) {
+uint32_t Serializer::FORMAT_COMPACT = 0x00000020u;
+
+
+QString Serializer::toJSONString(const QVariant& variant, uint32_t flags) {
 	QByteArray data;
-	Serializer(data).serialize(variant);
+	Serializer(data).serialize(variant, flags);
 	return QString::fromLocal8Bit(data);
 }
 
@@ -206,7 +209,7 @@ Serializer::Serializer(Serializer::OutputStream& stream, FileFormat format)
 Serializer::~Serializer() {
 }
 
-void Serializer::serialize(const QVariant& variant) {
+void Serializer::serialize(const QVariant& variant, uint32_t flags) {
 	switch (m_format) {
 		case FileFormat::BCON:
 			serializeBCON(variant);
@@ -215,7 +218,7 @@ void Serializer::serialize(const QVariant& variant) {
 			m_stream << serializeBSONDocument(variant);
 			break;
 		case FileFormat::JSON:
-			serializeJSON(variant);
+			serializeJSON(variant, flags);
 			break;
 		case FileFormat::IDL:
 			throw Exception("Unsupported IDL format");
@@ -378,7 +381,7 @@ void Serializer::serializeBCON(const QVariant &variant, const QString *key) {
 	if (key) m_stream << *key << '\0';
 }
 
-void Serializer::serializeJSON(const QVariant &variant) {
+void Serializer::serializeJSON(const QVariant &variant, uint32_t flags) {
 	switch (variant.type()) {
 		case QVariant::Invalid:
 		{
@@ -392,35 +395,54 @@ void Serializer::serializeJSON(const QVariant &variant) {
 		}
 		case QVariant::Map: // Case of JSON object
 		{
+			bool compact = (flags & FORMAT_COMPACT) != 0;
+			uint8_t indentStep = INDENT(flags);
+			uint32_t indentOff = (flags >> 16) + indentStep;
+			flags = (flags & 0xFFFF) | (indentOff << 16);
 			m_stream << JSON_OBJECT_BEGIN;
 			const QVariantMap elements = variant.toMap();
 			auto it = elements.begin();
 			if (it != elements.end()) {
+				if (indentOff != 0) m_stream << '\n' << QString(indentOff, ' ');
 				m_stream << sanitizeString(it.key()) << JSON_MEMBER_SEP;
-				serializeJSON(it.value());
+				if (!compact) m_stream << ' ';
+				serializeJSON(it.value(), flags);
 				it++;
-			}
-			while (it != elements.end()) {
-				m_stream << JSON_ELEMENT_SEP << sanitizeString(it.key()) << JSON_MEMBER_SEP;
-				serializeJSON(it.value());
-				it++;
+				while (it != elements.end()) {
+					m_stream << JSON_ELEMENT_SEP;
+					if (indentOff != 0) m_stream << '\n' << QString(indentOff, ' ');
+					else if (!compact) m_stream << ' ';
+					m_stream << sanitizeString(it.key()) << JSON_MEMBER_SEP;
+					if (!compact) m_stream << ' ';
+					serializeJSON(it.value(), flags);
+					it++;
+				}
+				if (indentOff != 0) m_stream << '\n' << QString(indentOff - indentStep, ' ');
 			}
 			m_stream << JSON_OBJECT_END;
 			break;
 		}
 		case QVariant::List: // Case of JSON array
 		{
+			bool compact = (flags & FORMAT_COMPACT) != 0;
+			uint8_t indentStep = INDENT(flags);
+			uint32_t indentOff = (flags >> 16) + indentStep;
+			flags = (flags & 0xFFFF) | (indentOff << 16);
 			m_stream << JSON_ARRAY_BEGIN;
 			const QVariantList elements = variant.toList();
 			auto it = elements.begin();
 			if (it != elements.end()) {
-				serializeJSON(*it);
+				if (indentOff != 0) m_stream << '\n' << QString(indentOff, ' ');
+				serializeJSON(*it, flags);
 				it++;
-			}
-			while (it != elements.end()) {
-				m_stream << JSON_ELEMENT_SEP;
-				serializeJSON(*it);
-				it++;
+				while (it != elements.end()) {
+					m_stream << JSON_ELEMENT_SEP;
+					if (indentOff != 0) m_stream << '\n' << QString(indentOff, ' ');
+					else if (!compact) m_stream << ' ';
+					serializeJSON(*it, flags);
+					it++;
+				}
+				if (indentOff != 0) m_stream << '\n' << QString(indentOff - indentStep, ' ');
 			}
 			m_stream << JSON_ARRAY_END;
 			break;
@@ -514,6 +536,7 @@ QByteArray Serializer::serializeBSONElt(const QVariant& variant, const QString &
 			break;
 		case QVariant::UInt:
 		case QVariant::Int:
+		case QVariant::Char:
 		{
 			ret.append(BSON_TOKEN_INT32);
 			ret.append(key.toLocal8Bit());
