@@ -122,15 +122,15 @@ void testBSONParser() {
 
 void testIDLCompile(const char *filename) {
 	QString name(filename);
-// 	try {
+	try {
 		QVariant v = idlparser::Driver::parse(name);
-		Serializer(new FileChannel(name + ".json", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::JSON).serialize(v);
-		Serializer(new FileChannel(name + ".bcon", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::BCON).serialize(v);
-		Serializer(new FileChannel(name + ".bson", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::BSON).serialize(v);
+// 		Serializer(new FileChannel(name + ".json", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::JSON).serialize(v);
+// 		Serializer(new FileChannel(name + ".bcon", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::BCON).serialize(v);
+// 		Serializer(new FileChannel(name + ".bson", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::BSON).serialize(v);
 		logInfo() << Serializer::toJSONString(v, Serializer::INDENT(2));
-// 	} catch (Exception &e) {
-// 		logCrit() << "Compilation failed:\n" << e.message();
-// 	}
+	} catch (Exception &e) {
+		logCrit() << "Compilation failed:\n" << e.message();
+	}
 }
 
 int main(int argc, char **argv) {
@@ -138,9 +138,9 @@ int main(int argc, char **argv) {
 		if (argc != 2) {
 			throw Exception("Missing filename");
 		}
+		testIDLCompile(argv[1]);
 	} catch (Exception &e) {
 		logCrit() << "terminate called after throwing an instance of " << e;
 	}
-		testIDLCompile(argv[1]);
 	return 0;
 }
