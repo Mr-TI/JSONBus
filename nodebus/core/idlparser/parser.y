@@ -129,6 +129,7 @@ MODULE_HEADER : TMODULE TSYMBOL                   {driver.push(new NodeModule(dr
 
 MODULE_ELTS : MODULE_ELTS MODULE_ELT              {/* NOTHING TO DO */}
     | MODULE_ELT                                  {/* NOTHING TO DO */}
+    |                                             {/* NOTHING TO DO */}
     ;
 
 MODULE_ELT : INTERFACE                            {$$ = $1;}
@@ -191,6 +192,7 @@ INTERFACE_PARENT : ':' SYMBOL_LIST                {$$ = $2;}
 
 INTERFACE_ELTS : INTERFACE_ELTS INTERFACE_ELT     {/* NOTHING TO DO */}
     | INTERFACE_ELT                               {/* NOTHING TO DO */}
+    |                                             {/* NOTHING TO DO */}
     ;
 
 INTERFACE_ELT : ATTRIBUTE                         {driver.curCtx()->append($1);}

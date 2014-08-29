@@ -78,29 +78,29 @@ bool Driver::include(const QString& filename) {
 inline QString type2str(QVariant::Type type) {
 	switch (type) {
 		case QVariant::Invalid:
-			return "invalid";
+			return "an invalid/unspecified type";
 		case QVariant::Bool:
-			return "boolean";
+			return "a boolean";
 		case QVariant::Char:
-			return "octet/byte";
+			return "an octet/byte";
 		case QVariant::UInt:
-			return "usigned 32 bits integer";
+			return "an usigned 32 bits integer";
 		case QVariant::Int:
-			return "signed 32 bits integer";
+			return "a signed 32 bits integer";
 		case QVariant::ULongLong:
-			return "usigned 64 bits integer";
+			return "an usigned 64 bits integer";
 		case QVariant::LongLong:
-			return "signed 64 bits integer";
+			return "a signed 64 bits integer";
 		case QVariant::Double:
-			return "double presision float";
+			return "a double presision float";
 		case QVariant::String:
-			return "string";
+			return "a string";
 		case QVariant::BitArray:
-			return "octet/byte array";
+			return "an octet/byte array";
 		case QVariant::DateTime:
-			return "date/time";
+			return "a date/time";
 		default:
-			return "unknow";
+			return "an unknow";
 	}
 }
 
@@ -150,7 +150,7 @@ bool Driver::setOpResult(NodePtr &pVar, NodePtr &pRes) {
 			break;
 	}
 	if (!res.convert(opDataType)) {
-		return appendError("Error: the result cannot be converted to a " + type2str(opDataType));
+		return appendError("Error: the result cannot be converted to " + type2str(opDataType));
 	}
 	var.insert(KNODE_VALUE, res);
 	return true;

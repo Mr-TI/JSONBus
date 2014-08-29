@@ -1,21 +1,33 @@
-module GestImpr {
 
-    interface Imprimante {
-      short printDocument ( in string n,
-          out long t);
-    };
-    interface AdminImprimante {
-       attribute long etat;
-    };
-    interface  ImprimantePlus : Imprimante, AdminImprimante {
-	const boolean boolval = false;
-	const long constval1 = 0x0A;
-	const octet constval2 = 0x0b;
-	const long constval3 = constval1 + constval2 * 2; // must give 32
-	const string constval4 = "constval1 = " + constval1; // must give "constval1 = 10"
-	const float factor = (10.0 - 6.5) * 3.91; // must give 13.685
-      any tachesEnCours();
-       readonly attribute short tacheCour;
-       void envoiRapide ( in string n);
-    };
+module Module0 {};
+
+module Module1 {
+	interface Interface0 {
+		
+	};
+};
+
+module Module2 {
+	interface InterfaceA {
+		short methodA ( in string n,
+		out long t);
+	};
+	interface InterfaceB {
+		attribute long attrB;
+	};
+	interface InterfaceC : Module1::Interface0, InterfaceA, Module2::InterfaceB {
+		const boolean boolval = false;
+		const long longval = 0x0A;
+		const octet octetval = 0x0b;
+		const long mixval = longval + octetval * 2; // will give 32
+		const string concatval = "longval = " + longval; // will give "constval1 = 10"
+		const long addVal = "11" + 22; // will give 1122
+		const float factor = (10.0 - 6.5) * 3.91; // will give 13.685
+// 		const long invalidval = "invalid";
+		const long str2int = "1234"; // will give 1234
+		const string int2str = 4321; // will give "4321"
+		any methodC1();
+		readonly attribute short shortAttr;
+		void methodC2 ( in string n);
+	};
 };
