@@ -42,7 +42,7 @@ bool Driver::appendError(const QString& message) {
 }
 
 QVariant Driver::parse(const QString &filename) {
-	QString filePath = QFileInfo(filename).absoluteFilePath();
+	QString filePath = QFileInfo(filename).canonicalFilePath();
 	Scanner scanner(filePath);
 	Driver driver(filePath, scanner);
 	Parser parser(driver);
@@ -63,15 +63,19 @@ void Driver::push(NodePtr node) {
 }
 
 bool Driver::include(const QString& filename) {
-	QString filePath = m_filedir.absoluteFilePath(filename);
-	if (m_rootCtx->m_fileList.contains(filename)) {
+	QString filePath = QFileInfo(m_filedir.absoluteFilePath(filename)).canonicalFilePath();
+	if (m_rootCtx->m_fileList.contains(filePath)) {
 		// already parsed
 		return true;
 	}
-	Scanner scanner(filePath);
-	Driver driver(filePath, scanner, m_rootCtx);
-	Parser parser(driver);
-	parser.parse();
+	try {
+		Scanner scanner(filePath);
+		Driver driver(filePath, scanner, m_rootCtx);
+		Parser parser(driver);
+		parser.parse();
+	} catch(IOException &e) {
+		appendError(e.message());
+	}
 	return m_rootCtx->m_errors.isEmpty();
 }
 

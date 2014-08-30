@@ -1,0 +1,30 @@
+module GestImpr {
+    exception TacheRefusee {
+      string reason;
+    };
+     struct Tache {
+      short no;
+      string fichier;
+    };
+    typedef  sequence <Tache> ListeTaches;
+    typedef Tache TabTaches [10];
+     enum Etat { arret, marche };
+    enum SecuritePolitique { normal, protege };
+     union AdminId switch (SecuritePolitique) {
+      case normal : string nom ;
+      case protege : string nom; string motPasse;
+    };
+
+    interface Imprimante {
+      short printDocument ( in string toto,
+          out long tutu) raises( TacheRefusee) ;
+    };
+    interface AdminImprimante {
+       attribute Etat etat;
+    };
+    interface  ImprimantePlus : Imprimante, AdminImprimante {
+      ListeTaches tachesEnCours();
+       readonly attribute short tacheCour;
+       oneway void envoiRapide ( in string n);
+    };
+};

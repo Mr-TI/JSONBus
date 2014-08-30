@@ -1,0 +1,8 @@
+
+#include <../test.idl>
+
+module Module1 {
+	interface Interface1 {
+		
+	};
+};

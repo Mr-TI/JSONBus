@@ -1,30 +1,35 @@
-module GestImpr {
-    exception TacheRefusee {
-      string reason;
-    };
-     struct Tache {
-      short no;
-      string fichier;
-    };
-    typedef  sequence <Tache> ListeTaches;
-    typedef Tache TabTaches [10];
-     enum Etat { arret, marche };
-    enum SecuritePolitique { normal, protege };
-     union AdminId switch (SecuritePolitique) {
-      case normal : string nom ;
-      case protege : string nom; string motPasse;
-    };
 
-    interface Imprimante {
-      short printDocument ( in string toto,
-          out long tutu) raises( TacheRefusee) ;
-    };
-    interface AdminImprimante {
-       attribute Etat etat;
-    };
-    interface  ImprimantePlus : Imprimante, AdminImprimante {
-      ListeTaches tachesEnCours();
-       readonly attribute short tacheCour;
-       oneway void envoiRapide ( in string n);
-    };
+#include <sub/test.idl>
+
+module Module0 {};
+
+module Module1 {
+	interface Interface0 {
+		
+	};
+};
+
+module Module2 {
+	interface InterfaceA {
+		short methodA ( in string n,
+		out long t/*, inout boolean n*/);
+	};
+	interface InterfaceB {
+		attribute long attrB;
+	};
+	interface InterfaceC : Module1::Interface0, InterfaceA, Module2::InterfaceB {
+		const boolean boolval = false;
+		const long longval = 0x0A;
+		const octet octetval = 0x0b;
+		const long mixval = longval + octetval * 2; // will give 32
+		const string concatval = "longval = " + longval; // will give "constval1 = 10"
+		const long addVal = "11" + 22; // will give 1122
+		const float factor = (10.0 - 6.5) * 3.91; // will give 13.685
+// 		const long invalidval = "invalid";
+		const long str2int = "1234"; // will give 1234
+		const string int2str = 4321; // will give "4321"
+		any methodC1();
+		readonly attribute short shortAttr;
+		void methodC2 ( in string n);
+	};
 };
