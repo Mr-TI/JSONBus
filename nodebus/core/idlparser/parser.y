@@ -267,7 +267,7 @@ VALUE : TVARIANT                                  {$$ = $1;}
     | TNUMBER                                     {$$ = $1;}
     | TFLOATVAL                                   {$$ = $1;}
     | TSTRINGVAL                                  {$$ = $1;}
-    | TSYMBOL                                     {$$ = new NodeVariant(driver.curCtx()->resolve($1->str(), NTYPE_CONST).toMap()[KNODE_VALUE]);}
+    | TSYMBOL                                     {$$ = driver.relolveConsVal($1);}
     ;
 
 METHOD : METHOD_HEADER RET_TYPE SYMBOL '(' PARAMETERS ')' METHOD_FOOTER ';'

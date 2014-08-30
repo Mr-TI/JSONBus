@@ -56,6 +56,8 @@
 #define PDIR_OUT           "o"
 #define PDIR_INOUT         "b"
 
+#define NAMESPACE_SEP      "::"
+
 #include <QVariant>
 #include <QString>
 #include <nodebus/core/shareddata.h>
@@ -105,6 +107,12 @@ inline SharedPtr<NodeRoot> Driver::rootCtx() {
 
 inline NodePtr Driver::curCtx() {
 	return m_curCtx;
+}
+
+inline NodePtr Driver::relolveConsVal(NodePtr pSyn) {
+	NodePtr ret = m_curCtx->resolve(pSyn->str(), NTYPE_CONST);
+	if (ret == nullptr) return new NodeVariant(0);
+	return new NodeVariant(ret->map()[KNODE_VALUE]);
 }
 
 }

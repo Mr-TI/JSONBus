@@ -37,12 +37,15 @@ inline NodeIntf::NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents)
 : NodeModule(driver, pSym), m_name(pSym->str()) {
 	QString fullName = driver.curCtx()->str() + pSym->str();
 	if (driver.rootCtx()->m_symTbl.contains(fullName)) {
-		m_driver.appendError("Dupplicate symbol " + fullName);
+		m_driver.appendError("Dupplicated symbol " + fullName);
 	}
 	QVariantList parentList = pParents->list();
 	QVariantList parents;
 	for (auto it = parentList.begin(); it != parentList.end(); it++) {
-		parents.append(driver.curCtx()->resolve((*it).toString(), NTYPE_INTERFACE).toMap()[KNODE_SNAME]);
+		NodePtr pIntf = driver.curCtx()->resolve((*it).toString(), NTYPE_INTERFACE);
+		if (pIntf != nullptr) {
+			parents.append(pIntf->map()[KNODE_SNAME]);
+		}
 	}
 	// TODO: parrent check...
 	m_infos.insert(KNODE_SNAME, fullName);
@@ -53,10 +56,10 @@ inline bool NodeIntf::append(NodePtr &pElt) {
 	QVariantMap elt = pElt->map();
 	QString name = m_prefix + elt[KNODE_SNAME].toString();
 	if (m_driver.rootCtx()->m_symTbl.contains(name)) {
-		m_driver.appendError("Dupplicate symbol " + name);
+		m_driver.appendError("Dupplicated symbol " + name);
 		return false;
 	}
-	m_driver.rootCtx()->m_symTbl.insert(name, elt);
+	m_driver.rootCtx()->m_symTbl.insert(name, pElt);
 	m_members.append(elt);
 	return true;
 }

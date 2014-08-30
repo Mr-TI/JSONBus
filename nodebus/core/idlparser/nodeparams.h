@@ -40,7 +40,7 @@ inline bool NodeParams::append(SharedPtr<Node> &pElt) {
 	QVariantMap &param = pElt->map();
 	QString k = param[KNODE_SNAME].toString();
 	if (m_params.contains(k)) {
-		m_driver.appendError("Dupplicate parameter " + k);
+		m_driver.appendError("Dupplicated parameter " + k);
 		return false;
 	}
 	m_params.insert(k, true);

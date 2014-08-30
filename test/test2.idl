@@ -10,7 +10,7 @@ module Module1 {
 module Module2 {
 	interface InterfaceA {
 		short methodA ( in string n,
-		out long t);
+		out long t/*, inout boolean n*/);
 	};
 	interface InterfaceB {
 		attribute long attrB;

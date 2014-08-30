@@ -20,7 +20,7 @@
 #include "ltype.h"
 #include "noderoot.h"
 #include "nodevariant.h"
-#include <serializer.h>
+#include "nodemap.h"
 
 namespace idlparser {
 
@@ -29,14 +29,14 @@ protected :
 	Driver &m_driver;
 public:
 	NodeModule(Driver &driver, NodePtr &pSym);
-	virtual QVariant resolve(const QString symbol, const char *type);
+	virtual NodePtr resolve(const QString symbol, const char *type);
 	virtual bool append(NodePtr &pElt);
 	virtual QString str();
 	QString m_prefix;
 };
 
 inline NodeModule::NodeModule(Driver &driver, NodePtr &pSym)
-: m_driver(driver), m_prefix(driver.curCtx()->str() + pSym->str() + "::") {
+: m_driver(driver), m_prefix(driver.curCtx()->str() + pSym->str() + NAMESPACE_SEP) {
 
 }
 
@@ -44,10 +44,10 @@ inline bool NodeModule::append(NodePtr &pElt) {
 	QVariantMap elt = pElt->map();
 	QString name = elt[KNODE_SNAME].toString();
 	if (m_driver.rootCtx()->m_symTbl.contains(name)) {
-		m_driver.appendError("Dupplicate symbol " + name);
+		m_driver.appendError("Dupplicated symbol " + name);
 		return false;
 	}
-	m_driver.rootCtx()->m_symTbl.insert(name, elt);
+	m_driver.rootCtx()->m_symTbl.insert(name, pElt);
 	return true;
 }
 
@@ -55,9 +55,8 @@ inline QString NodeModule::str() {
 	return m_prefix;
 }
 
-inline QVariant NodeModule::resolve(const QString symbol, const char *type) {
-	static QVariant zero;
-	const QVariantMap &symTbl = m_driver.rootCtx()->m_symTbl;
+inline NodePtr NodeModule::resolve(const QString symbol, const char *type) {
+	auto &symTbl = m_driver.rootCtx()->m_symTbl;
 	QString symName;
 	
 	if (symTbl.contains(m_prefix + symbol)) {
@@ -66,12 +65,12 @@ inline QVariant NodeModule::resolve(const QString symbol, const char *type) {
 		symName = symbol;
 	} else {		
 		m_driver.appendError("Undefined symbol " + symbol);
-		return zero;
+		return nullptr;
 	}
-	const QVariant &result = symTbl[symName];
-	if (result.toMap()[KNODE_TYPE].toString().at(0) != type[0]) {
+	NodePtr result = symTbl[symName];
+	if (result->map()[KNODE_TYPE].toString().at(0) != type[0]) {
 		m_driver.appendError("Invalid symbol " + symName);
-		return zero;
+		return nullptr;
 	}
 	return result;
 }

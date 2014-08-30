@@ -50,6 +50,7 @@ public:
 	SharedPtr<NodeRoot> rootCtx();
 	NodePtr curCtx();
 	static QVariant parse(const QString &filename);
+	NodePtr relolveConsVal(NodePtr pSyn);
 private:
 	Driver(const QString &filename, Scanner &scanner, SharedPtr<NodeRoot> shared = nullptr);
 	bool setOpResult(NodePtr &pVar, NodePtr &pRes);

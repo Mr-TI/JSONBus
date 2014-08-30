@@ -27,11 +27,11 @@ private :
 	Driver &m_driver;
 public:
 	NodeRoot(Driver &driver);
-	virtual QVariant resolve(const QString symbol, const char *type);
+	virtual NodePtr resolve(const QString symbol, const char *type);
 	virtual bool append(NodePtr &pElt);
 	virtual QString str();
 	QMap<QString, bool> m_fileList;
-	QVariantMap m_symTbl;
+	QMap<QString, NodePtr> m_symTbl;
 	QStringList m_errors;
 };
 
@@ -43,10 +43,10 @@ inline bool NodeRoot::append(NodePtr &pElt) {
 	QVariantMap elt = pElt->map();
 	QString name = elt[KNODE_SNAME].toString();
 	if (m_symTbl.contains(name)) {
-		m_driver.appendError("Dupplicate symbol " + name);
+		m_driver.appendError("Dupplicated symbol " + name);
 		return false;
 	}
-	m_symTbl.insert(name, elt);
+	m_symTbl.insert(name, pElt);
 	return true;
 }
 
@@ -55,16 +55,15 @@ inline QString NodeRoot::str() {
 	return empty; // empty prefix
 }
 
-inline QVariant NodeRoot::resolve(const QString symbol, const char *type) {
-	static QVariant zero;
-	if (!m_symTbl.contains(symbol)) {
+inline NodePtr NodeRoot::resolve(const QString symbol, const char *type) {
+	NodePtr result = m_symTbl.value(symbol);
+	if (result == nullptr) {
 		m_driver.appendError("Undefined symbol " + symbol);
-		return zero;
+		return result;
 	}
-	const QVariant &result = m_symTbl[symbol];
-	if (result.toMap()[KNODE_TYPE].toString().at(0) != type[0]) {
+	if (result->map()[KNODE_TYPE].toString().at(0) != type[0]) {
 		m_driver.appendError("Invalid symbol " + symbol);
-		return zero;
+		return nullptr;
 	}
 	return result;
 }
