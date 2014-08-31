@@ -121,6 +121,7 @@ private:
 	void serializeJSON(const QVariant &variant, uint32_t flags);
 	QByteArray serializeBSONDocument(const QVariant &variant);
 	QByteArray serializeBSONElt(const QVariant& variant, const QString &key);
+	void write16(char type, uint16_t value);
 	void write32(char type, uint32_t value);
 	void write64(char type, uint64_t value);
 	void write32(QByteArray& output, uint32_t value);

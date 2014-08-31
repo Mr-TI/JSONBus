@@ -14,9 +14,11 @@ BCON format Description
     		|	TTRUE
     		|	TFALSE
     		|	TBYTE int8
+    		|	TINT16 int16
+    		|	TUINT16 int16
     		|	TINT32 int32
-    		|	TINT64 int64
     		|	TUINT32 uint32
+    		|	TINT64 int64
     		|	TUINT64 uint64
     		|	TDOUBLE double
     		|	TTIMESTAMP int64
@@ -35,12 +37,14 @@ BCON format Description
     		|	TTRUE KEY
     		|	TFALSE KEY
     		|	TBYTE int8 KEY
+    		|	TINT16 int16 KEY
+    		|	TUINT16 int16 KEY
     		|	TINT32 int32 KEY
-    		|	TINT64 int64 KEY
     		|	TUINT32 uint32 KEY
+    		|	TINT64 int64 KEY
     		|	TUINT64 uint64 KEY
     		|	TDOUBLE double KEY
-    		|	TTIMESTAMP int64 KEY
+    		|	TDATETIME int64 KEY
     		|	TLIST LIST TEND KEY
     		|	TMAP MAP TEND KEY
     		|	TDATA6 byte* KEY
@@ -59,14 +63,16 @@ BCON format Description
     TTRUE		::=	"\x02" (0b00000010)	True boolean
     TFALSE		::=	"\x03" (0b00000011)	False boolean
     TBYTE		::=	"\x04" (0b00000100)	byte value (int8, on 1 byte)
-    TINT32		::=	"\x05" (0b00000101)	integer value (int32, on 4 bytes)
-    TINT64		::=	"\x06" (0b00000110)	long value (int64, on 8 bytes)
-    TUINT32		::=	"\x07" (0b00000111)	unsigned integer value (uint32 on 4 bytes)
-    TUINT64		::=	"\x08" (0b00001000)	unsigned long value (int64 on 8 bytes)
-    TDOUBLE		::=	"\x0A" (0b00001010)	8 bytes (64-bit IEEE 754 floating point)
-    TTIMESTAMP	::=	"\x0B" (0b00001011)	Timestamp
-    TMAP		::=	"\x0C" (0b00001100)	Map begin
-    TLIST		::=	"\x0D" (0b00001101)	List begin
+    TINT16		::=	"\x05" (0b00000101)	integer value (int16, on 2 bytes)
+    TUINT16		::=	"\x06" (0b00000111)	unsigned integer value (uint16 on 2 bytes)
+    TINT32		::=	"\x07" (0b00000101)	integer value (int32, on 4 bytes)
+    TUINT32		::=	"\x08" (0b00000111)	unsigned integer value (uint32 on 4 bytes)
+    TINT64		::=	"\x09" (0b00000110)	long value (int64, on 8 bytes)
+    TUINT64		::=	"\x0A" (0b00001000)	unsigned long value (int64 on 8 bytes)
+    TDOUBLE		::=	"\x0B" (0b00001010)	8 bytes (64-bit IEEE 754 floating point)
+    TDATETIME	::=	"\x0C" (0b00001011)	Date and time
+    TLIST		::=	"\x0E" (0b00001101)	List begin
+    TMAP		::=	"\x0F" (0b00001100)	Map begin
     TDATA6		::=	"\xAX" (0b10XXXXXX)	data from 0 to 2^6-1 (63) bytes (the length is coded on bits 0-5)
     TSTRING6	::=	"\xBX" (0b11XXXXXX)	string from 0 to 2^6-1 (63) characters (the length is coded on bits 0-5)
     TDATA12		::=	"\x1X" (0b0001XXXX)	data from 2^6 (64) to 2^12-1 (4095) bytes (the length is coded on bits 0-3 and the following byte)

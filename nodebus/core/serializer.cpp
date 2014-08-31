@@ -23,14 +23,16 @@
 #define BCON_TOKEN_TRUE		((char)0x02)
 #define BCON_TOKEN_FALSE	((char)0x03)
 #define BCON_TOKEN_BYTE		((char)0x04)
-#define BCON_TOKEN_INT32	((char)0x05)
-#define BCON_TOKEN_INT64	((char)0x06)
-#define BCON_TOKEN_UINT32	((char)0x07)
-#define BCON_TOKEN_UINT64	((char)0x08)
-#define BCON_TOKEN_DOUBLE	((char)0x0A)
-#define BCON_TOKEN_DATETIME	((char)0x0B)
-#define BCON_TOKEN_MAP		((char)0x0C)
-#define BCON_TOKEN_LIST		((char)0x0D)
+#define BCON_TOKEN_INT16	((char)0x05)
+#define BCON_TOKEN_UINT16	((char)0x06)
+#define BCON_TOKEN_INT32	((char)0x07)
+#define BCON_TOKEN_UINT32	((char)0x08)
+#define BCON_TOKEN_INT64	((char)0x09)
+#define BCON_TOKEN_UINT64	((char)0x0A)
+#define BCON_TOKEN_DOUBLE	((char)0x0B)
+#define BCON_TOKEN_DATETIME	((char)0x0C)
+#define BCON_TOKEN_LIST		((char)0x0E)
+#define BCON_TOKEN_MAP		((char)0x0F)
 #define BCON_TOKEN_DATA6	((char)0xA0)
 #define BCON_TOKEN_STRING6	((char)0xC0)
 #define BCON_TOKEN_DATA12	((char)0x10)
@@ -236,6 +238,12 @@ static QString sanitizeString( QString str ) {
 	return QString( QLatin1String( "\"%1\"" ) ).arg( str );
 }
 
+inline void Serializer::write16(char type, uint16_t value) {
+	m_stream << type
+		<< ((char)((value & 0xFF)))
+		<< ((char)(((value >> 8) & 0xFF)));
+}
+
 inline void Serializer::write32(char type, uint32_t value) {
 	m_stream << type
 		<< ((char)((value & 0xFF)))
@@ -269,7 +277,11 @@ void Serializer::serializeBCON(const QVariant &variant, const QString *key) {
 					<< variant.toChar().toAscii();
 			break;
 		case QVariant::UInt: {
-			write32(BCON_TOKEN_UINT32, variant.toUInt());
+			uint32_t num = variant.toUInt();
+			if ((num & 0xFFFF0000u) != 0)
+				write32(BCON_TOKEN_UINT32, num);
+			else
+				write16(BCON_TOKEN_UINT16, num);
 			break;
 		}
 		case QVariant::ULongLong:
@@ -279,17 +291,25 @@ void Serializer::serializeBCON(const QVariant &variant, const QString *key) {
 		}
 		case QVariant::Int:
 		{
+			int32_t num = variant.toInt();
+			if ((num & 0x7FFFFF80) != 0)
+				m_stream << BCON_TOKEN_BYTE
+					<< variant.toChar().toAscii();
+			else if ((num & 0x7FFF8000) != 0)
+				write16(BCON_TOKEN_INT16, (uint32_t)num);
+			else
+				write32(BCON_TOKEN_INT32, (uint32_t)num);
 			write32(BCON_TOKEN_INT32, variant.toUInt());
 			break;
 		}
 		case QVariant::LongLong:
 		{
-			write64(BCON_TOKEN_INT64, variant.toUInt());
+			write64(BCON_TOKEN_INT64, (uint64_t)variant.toUInt());
 			break;
 		}
 		case QVariant::Double:
 		{
-			write64(BCON_TOKEN_DOUBLE, variant.toDouble());
+			write64(BCON_TOKEN_DOUBLE, (uint64_t)variant.toDouble());
 			break;
 		}
 		case QVariant::DateTime:

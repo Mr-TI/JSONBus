@@ -28,14 +28,16 @@
 #define BCON_TOKEN_TRUE		((char)0x02)
 #define BCON_TOKEN_FALSE	((char)0x03)
 #define BCON_TOKEN_BYTE		((char)0x04)
-#define BCON_TOKEN_INT32	((char)0x05)
-#define BCON_TOKEN_INT64	((char)0x06)
-#define BCON_TOKEN_UINT32	((char)0x07)
-#define BCON_TOKEN_UINT64	((char)0x08)
-#define BCON_TOKEN_DOUBLE	((char)0x0A)
-#define BCON_TOKEN_DATETIME	((char)0x0B)
-#define BCON_TOKEN_MAP		((char)0x0C)
-#define BCON_TOKEN_LIST		((char)0x0D)
+#define BCON_TOKEN_INT16	((char)0x05)
+#define BCON_TOKEN_UINT16	((char)0x06)
+#define BCON_TOKEN_INT32	((char)0x07)
+#define BCON_TOKEN_UINT32	((char)0x08)
+#define BCON_TOKEN_INT64	((char)0x09)
+#define BCON_TOKEN_UINT64	((char)0x0A)
+#define BCON_TOKEN_DOUBLE	((char)0x0B)
+#define BCON_TOKEN_DATETIME	((char)0x0C)
+#define BCON_TOKEN_LIST		((char)0x0E)
+#define BCON_TOKEN_MAP		((char)0x0F)
 
 #define BSON_TOKEN_END		((char)0x00)
 #define BSON_TOKEN_NULL		((char)0x0A)
@@ -132,6 +134,11 @@ inline char Parser::getc() {
 	return m_getChar(m_ptr);
 }
 
+inline uint16_t Parser::read16() {
+	return (getc() & 0xFF)
+		| ((getc() & 0xFF) << 8);
+}
+
 inline uint32_t Parser::read32() {
 	return (getc() & 0xFF)
 		| ((getc() & 0xFF) << 8)
@@ -200,14 +207,20 @@ bool Parser::parseBCON(QVariant &res, QString* key) {
 			case BCON_TOKEN_BYTE:
 				res = QVariant(getc());
 				break;
+			case BCON_TOKEN_INT16:
+				res = QVariant((int16_t)read16());
+				break;
+			case BCON_TOKEN_UINT16:
+				res = QVariant((uint16_t)read16());
+				break;
 			case BCON_TOKEN_INT32:
 				res = QVariant((int32_t)read32());
 				break;
-			case BCON_TOKEN_INT64:
-				res = QVariant((qlonglong)read64());
-				break;
 			case BCON_TOKEN_UINT32:
 				res = QVariant((uint32_t)read32());
+				break;
+			case BCON_TOKEN_INT64:
+				res = QVariant((qlonglong)read64());
 				break;
 			case BCON_TOKEN_UINT64:
 				res = QVariant((qulonglong)read64());

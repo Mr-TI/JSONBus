@@ -87,6 +87,7 @@ public:
 private:
 	bool parseBCON(QVariant &res, QString* key);
 	char getc();
+	uint16_t read16();
 	uint32_t read32();
 	uint64_t read64();
 	FileFormat m_format;
