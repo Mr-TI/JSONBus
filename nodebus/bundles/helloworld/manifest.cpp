@@ -14,7 +14,7 @@
  *   limitations under the License.
  */
 
-#include <nodebus/osgi/bundlemanifest.h>
+#include <nodebus/bundle/bundlemanifest.h>
 #include "helloworld.h"
 
 MANIFEST_BUNDLE_NAME			("Hello World");

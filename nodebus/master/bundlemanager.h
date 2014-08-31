@@ -19,7 +19,7 @@
 #include <QMap>
 #include <QString>
 #include <nodebus/core/common.h>
-#include <nodebus/osgi/bundle.h>
+#include <nodebus/bundle/bundle.h>
 
 class BundleManager {
 	QMap<QString, BundlePtr> m_bundles;

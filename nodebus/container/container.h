@@ -26,8 +26,8 @@
 #include <nodebus/core/sharedlib.h>
 #include <nodebus/core/serializer.h>
 #include <nodebus/core/slaveapplication.h>
-#include <nodebus/osgi/bundle.h>
-#include <nodebus/osgi/bundleactivator.h>
+#include <nodebus/bundle/bundle.h>
+#include <nodebus/bundle/bundleactivator.h>
 
 using namespace NodeBus;
 

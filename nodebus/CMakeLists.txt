@@ -18,7 +18,7 @@
 add_subdirectory(bundles)
 add_subdirectory(container)
 add_subdirectory(core)
-add_subdirectory(osgi)
+add_subdirectory(bundle)
 add_subdirectory(master)
 add_subdirectory(service)
 add_subdirectory(test)

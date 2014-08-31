@@ -26,7 +26,7 @@
 #define NODEBUS_MASTER_H
 
 #include <nodebus/core/application.h>
-#include <nodebus/osgi/bundle.h>
+#include <nodebus/bundle/bundle.h>
 
 using namespace NodeBus;
 

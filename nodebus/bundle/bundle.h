@@ -26,10 +26,10 @@
 #define NODEBUS_BUNDLE_H
 
 #include <nodebus/core/exception.h>
-#include <nodebus/osgi/bundlecontext.h>
+#include <nodebus/bundle/bundlecontext.h>
 #include <nodebus/core/sharedlib.h>
-#include <nodebus/osgi/bundleactivator.h>
-#include <nodebus/osgi/bundlemanifest.h>
+#include <nodebus/bundle/bundleactivator.h>
+#include <nodebus/bundle/bundlemanifest.h>
 
 #ifndef NODEBUS_EXPORT
 #define NODEBUS_EXPORT

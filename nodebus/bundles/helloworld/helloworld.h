@@ -26,7 +26,7 @@
 #define NODEBUS_BUNDLES_HELLOWORLD_H
 
 #include <nodebus/core/exception.h>
-#include <nodebus/osgi/bundleactivator.h>
+#include <nodebus/bundle/bundleactivator.h>
 
 using namespace NodeBus;
 

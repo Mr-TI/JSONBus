@@ -28,7 +28,7 @@
 #include <nodebus/core/exception.h>
 #include <nodebus/core/settings.h>
 #include <nodebus/core/sharedptr.h>
-#include <nodebus/osgi/bundlecontext.h>
+#include <nodebus/bundle/bundlecontext.h>
 
 #ifndef NODEBUS_EXPORT
 #define NODEBUS_EXPORT

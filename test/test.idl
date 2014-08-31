@@ -4,7 +4,7 @@
 module Module0 {};
 
 module Module1 {
-	interface Interface0 {
+	interface Interface0 : Interface1 {
 		
 	};
 };
