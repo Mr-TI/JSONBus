@@ -43,6 +43,24 @@
 #	define NODEBUS_UINT64_HEXA_FMT "%016llX"
 #endif
 
+#define COLOR_RED_HL "\033[1;41m\033[1;37m"
+#define COLOR_YEL_HL "\033[1;43m\033[1;37m"
+#define COLOR_GRE_HL "\033[1;42m\033[1;37m"
+#define COLOR_VIO_HL "\033[1;45m\033[1;37m"
+#define COLOR_BLU_HL "\033[1;44m\033[1;37m"
+#define COLOR_MAG_HL "\033[1;46m\033[1;37m"
+#define COLOR_WHI_HL "\033[1;45m\033[1;37m"
+
+#define COLOR_RED "\033[0m\033[1;31m"
+#define COLOR_YEL "\033[0m\033[1;33m"
+#define COLOR_GRE "\033[0m\033[1;32m"
+#define COLOR_VIO "\033[0m\033[1;35m"
+#define COLOR_BLU "\033[0m\033[1;34m"
+#define COLOR_MAG "\033[0m\033[1;36m"
+#define COLOR_WHI "\033[0m\033[1;37m"
+
+#define COLOR_RST "\033[0m"
+
 /// @brief Format
 enum FileFormat {
 	/// @brief JSON format

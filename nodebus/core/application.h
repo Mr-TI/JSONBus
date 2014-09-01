@@ -117,7 +117,7 @@ protected:
 	/**
 	 * @brief Method called during exec process
 	 * 
-	 * Can be overrided to change the default exec process is start -> event loop -> stop
+	 * Can be overrided to change the default exec process is onStart -> event loop -> onStop
 	 */
 	virtual void onExec();
 	

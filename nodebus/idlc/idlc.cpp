@@ -23,6 +23,8 @@
 #include <nodebus/core/ssliochannel.h>
 #include <nodebus/core/sslcontext.h>
 #include <nodebus/core/peeradmin.h>
+#include <nodebus/core/serializer.h>
+#include <nodebus/core/filechannel.h>
 #include "idlc.h"
 
 nodebus_declare_master_service(IDLc)
@@ -36,9 +38,34 @@ IDLc::~IDLc() {
 
 void IDLc::onInit() {
 	CliArguments &args = CliArguments::getInstance();
-	args.define("output-file", 'o', "Output file path");
+	args.define("output-file", 'o', "Output file path (default: out.<ext>)");
+// 	args.define("input-format", 'i', "Output format (IDL, JSON, BSON or BCON, default: automatically detected from the extention)");
 	args.define("output-format", 'f', "Output format (JSON, BSON or BCON, default: BCON)");
+	args.define("compile", 'c', "Compile but not link");
+	args.setExtraArgsLegend("<input file1>[ <input file1>[ <input file3>[...]]]");
 }
 
 void IDLc::onExec() {
+	CliArguments &args = CliArguments::getInstance();
+	const QStringList &files = args.extraArgs();
+	if (files.isEmpty())
+		throw ApplicationException("No input file");
+	QString formatStr = args.getValue("output-format").toString();
+	FileFormat format;
+	QString outName("out.");
+	if (formatStr == "BCON" || formatStr == "") {
+		format = BCON;
+		outName.append("bcon");
+	} else if (formatStr == "BSON") {
+		format = BSON;
+		outName.append("bson");
+	} else if (formatStr == "JSON") {
+		format = JSON;
+		outName.append("json");
+	}
+	QVariantList resList;
+	for (auto file: files) {
+		
+	}
+	Serializer(new FileChannel(outName, O_CREAT | O_TRUNC | O_WRONLY), format).serialize(resList);
 }

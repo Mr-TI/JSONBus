@@ -102,7 +102,11 @@ public:
 	/**
 	 * @brief Print use instruction
 	 */
-	void displayUseInstructions(const QString &addInfo="");
+	void displayUseInstructions();
+	
+	void setExtraArgsLegend(const QString &legend);
+	
+	void setExtraArgsDesc(const QString &desc);
 	
 	inline static CliArguments &getInstance() { return instance; };
 private:
@@ -129,10 +133,20 @@ private:
 	QMap<QString, Element> m_arguments;
 	QMap<char, QString> m_shortTagToName;
 	QStringList m_extraArgs;
+	QString m_extraArgsLegend;
+	QString m_extraArgsDesc;
 };
 
 inline const QStringList& CliArguments::extraArgs() {
 	return m_extraArgs;
+}
+
+inline void NodeBus::CliArguments::setExtraArgsLegend(const QString &legend) {
+	m_extraArgsLegend = legend;
+}
+
+inline void CliArguments::setExtraArgsDesc(const QString &desc) {
+	m_extraArgsDesc = desc;
 }
 
 

@@ -126,7 +126,7 @@ void CliArguments::parse(const QStringList &argList) {
 	}
 }
 
-void CliArguments::displayUseInstructions(const QString &addInfo) {
+void CliArguments::displayUseInstructions() {
 	QList<LineElement> list;
 	QString argName;
 	QVariant argValue;
@@ -136,18 +136,20 @@ void CliArguments::displayUseInstructions(const QString &addInfo) {
 		argName = "";
 		argValue = it.value().value;
 		if (it.value().shortTag) {
-			argName = " -" + QString(it.value().shortTag) + (argValue.type() == QVariant::String ? " <" + tr("value") + "> or" : " or");
+			argName = COLOR_VIO " -" + QString(it.value().shortTag) + (argValue.type() == QVariant::String ? " <" + tr("value") + "> " COLOR_YEL "or" : COLOR_YEL " or");
 		}
-		argName += " --" + it.value().name + (argValue.type() == QVariant::String ? "=<" + tr("value") + ">" : "");
+		argName += COLOR_VIO " --" + it.value().name + (argValue.type() == QVariant::String ? "=<" + tr("value") + ">" : "");
 		maxlen = qMax(maxlen, argName.length());
-		list.append(LineElement(argName, it.value().description + (argValue.type() == QVariant::String ? " (" + tr("value: ") + argValue.toString() + ")" : "")));
+		list.append(LineElement(argName, COLOR_WHI + it.value().description + (argValue.type() == QVariant::String ? " (" + tr("value: ") + argValue.toString() + ")" : "")));
 	}
-	logInfo() << tr("Use: ") << execName << tr(" <options>") << endl << endl << tr("Option list:");
+	std::cerr << COLOR_WHI "  " << tr("Use: ") << COLOR_GRE << execName << COLOR_VIO << 
+		tr(" <options>") << COLOR_MAG << " " << m_extraArgsLegend << std::endl << 
+		std::endl << COLOR_WHI << "  " << tr("Option list:") << COLOR_RST << std::endl;
 	foreach(LineElement pair, list) {
-		logInfo() << pair.first << QString(maxlen - pair.first.length() + 4, ' ') << pair.second;
+		std::cerr << "    " << pair.first << QString(maxlen - pair.first.length() + 4, ' ') << pair.second << std::endl;
 	}
-	if (!addInfo.isEmpty()) {
-		logInfo() << addInfo;
+	if (!m_extraArgsDesc.isEmpty()) {
+		std::cerr << std::endl << std::endl << m_extraArgsDesc;
 	}
 }
 

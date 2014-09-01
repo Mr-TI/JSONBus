@@ -23,13 +23,13 @@ namespace NodeBus {
 const char *Logger::LEVEL_HDRS[][8] = {
 	{
 		NULL,
-		"\n \033[1;41m\033[1;37m[ !! ]\033[0m\033[1;31m ",
-		"\n \033[1;43m\033[1;37m[ ## ]\033[0m\033[1;33m ",
-		"\n \033[1;42m\033[1;37m[ ii ]\033[0m\033[1;32m ",
-		"\n \033[1;45m\033[1;37m[ ** ]\033[0m\033[1;35m ",
-		"\n \033[1;44m\033[1;37m[ ++ ]\033[0m\033[1;34m ",
-		"\n \033[1;46m\033[1;37m[ == ]\033[0m\033[1;36m ",
-		"\n \033[1;47m\033[1;37m[ -- ]\033[0m\033[1;37m "
+		"\n " COLOR_RED_HL "[ !! ]" COLOR_RED " ",
+		"\n " COLOR_YEL_HL "[ ## ]" COLOR_YEL " ",
+		"\n " COLOR_GRE_HL "[ ii ]" COLOR_GRE " ",
+		"\n " COLOR_VIO_HL "[ ** ]" COLOR_VIO " ",
+		"\n " COLOR_BLU_HL "[ ++ ]" COLOR_BLU " ",
+		"\n " COLOR_MAG_HL "[ == ]" COLOR_MAG " ",
+		"\n " COLOR_WHI_HL "[ -- ]" COLOR_WHI " "
 	},
 	{
 		NULL,
@@ -44,7 +44,7 @@ const char *Logger::LEVEL_HDRS[][8] = {
 };
 
 const char *Logger::LEVEL_FOOT[] = {
-	"\033[0m",
+	COLOR_RST,
 	""
 };
 
