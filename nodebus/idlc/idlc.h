@@ -35,7 +35,7 @@ nodebus_declare_exception(MasterException, Exception);
 /**
  * @brief Dynamic library management.
  */
-class IDLc {
+class IDLc: public Application {
 private:
 	SettingsPtr m_settings;
 public:
@@ -49,11 +49,8 @@ public:
 	 */
 	~IDLc();
 	
-	void run();
-	
-private:
-	int m_argc;
-	char **m_argv;
+	virtual void onInit();
+	virtual void onExec();
 };
 
 #endif

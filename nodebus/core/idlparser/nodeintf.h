@@ -25,29 +25,35 @@ namespace idlparser {
 class NodeIntf: public NodeModule {
 private:
 	QVariantMap m_infos;
+	bool m_finalized;
 public:
 	NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents);
 	virtual QVariantMap &map();
 	virtual bool append(NodePtr &pElt);
 	QString m_name;
 	QVariantList m_members;
+	QMap<QString, SharedPtr<NodeIntf> > m_parents;
 };
 
 inline NodeIntf::NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents)
-: NodeModule(driver, pSym), m_name(pSym->str()) {
+: NodeModule(driver, pSym), m_finalized(false), m_name(pSym->str()) {
 	QString fullName = driver.curCtx()->str() + pSym->str();
 	if (driver.rootCtx()->m_symTbl.contains(fullName)) {
 		m_driver.appendError("Dupplicated symbol " + fullName);
 	}
 	QVariantList parentList = pParents->list();
 	QVariantList parents;
-	for (auto it = parentList.begin(); it != parentList.end(); it++) {
-		NodePtr pIntf = driver.curCtx()->resolve((*it).toString(), NTYPE_INTERFACE);
-		if (pIntf != nullptr) {
-			parents.append(pIntf->map()[KNODE_SNAME]);
+	for (auto itP = parentList.begin(); itP != parentList.end(); itP++) {
+		SharedPtr<NodeIntf> pIntf = driver.curCtx()->resolve((*itP).toString(), NTYPE_INTERFACE);
+		if (pIntf == nullptr) continue;
+		QString parentName = pIntf->map()[KNODE_SNAME].toString();
+		m_parents[parentName] = pIntf;
+		auto &gpMap = pIntf->m_parents;
+		for (auto itGP = gpMap.begin(); itGP != gpMap.end(); itGP++) {
+			m_parents.insert(itGP.key(), itGP.value());
 		}
+		parents.append(parentName);
 	}
-	// TODO: parrent check...
 	m_infos.insert(KNODE_SNAME, fullName);
 	m_infos.insert(KNODE_PARENTS, parents);
 }
@@ -63,13 +69,6 @@ inline bool NodeIntf::append(NodePtr &pElt) {
 	m_members.append(elt);
 	return true;
 }
-
-inline QVariantMap& NodeIntf::map() {
-	m_infos.insert(KNODE_MEMBERS, m_members);
-	m_infos.insert(KNODE_TYPE, NTYPE_INTERFACE);
-	return m_infos;
-}
-
 
 }
 

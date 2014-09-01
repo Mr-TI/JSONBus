@@ -63,6 +63,13 @@ void CliArguments::define(const QString& name, char shortTag, const QString& des
 	}
 }
 
+void CliArguments::parse(int argc, const char** argv) {
+	QStringList list;
+	for (int i = 1; i < argc; i++) {
+		list.append(argv[i]);
+	}
+}
+
 void CliArguments::parse(const QStringList &argList) {
 	QString argName = QString::null, argValue;
 	QRegExp patternArg("^--([\\w_-]+)(=(.*))?$");
@@ -114,12 +121,12 @@ void CliArguments::parse(const QStringList &argList) {
 				}
 			}
 		} else {
-			throw CliArgumentsException(tr("Unexpected argument %1").arg(*it));
+			m_extraArgs.append(*it);
 		}
 	}
 }
 
-void CliArguments::displayUseInstructions() {
+void CliArguments::displayUseInstructions(const QString &addInfo) {
 	QList<LineElement> list;
 	QString argName;
 	QVariant argValue;
@@ -138,6 +145,9 @@ void CliArguments::displayUseInstructions() {
 	logInfo() << tr("Use: ") << execName << tr(" <options>") << endl << endl << tr("Option list:");
 	foreach(LineElement pair, list) {
 		logInfo() << pair.first << QString(maxlen - pair.first.length() + 4, ' ') << pair.second;
+	}
+	if (!addInfo.isEmpty()) {
+		logInfo() << addInfo;
 	}
 }
 

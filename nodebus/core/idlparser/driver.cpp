@@ -226,5 +226,33 @@ bool Driver::opexec(NodePtr &res, char op, NodePtr &op1_n, NodePtr &op2_n) {
 	return true;
 }
 
+QVariantMap& NodeIntf::map() {
+	if (!m_finalized) {
+		m_infos.insert(KNODE_MEMBERS, m_members);
+		m_infos.insert(KNODE_TYPE, NTYPE_INTERFACE);
+		QMap<QString, QString> symMap;
+		QString nameI = m_infos[KNODE_SNAME].toString();
+		for (auto mIt = m_members.begin(); mIt != m_members.end(); mIt++) {
+			QString memberName = (*mIt).toMap()[KNODE_SNAME].toString();
+			symMap[memberName] = nameI;
+		}
+		for (auto it = m_parents.begin(); it != m_parents.end(); it++) {
+			QString nameP = it.key();
+			auto membersP = it.value()->m_members;
+			for (auto mIt = membersP.begin(); mIt != membersP.end(); mIt++) {
+				QString memberName = (*mIt).toMap()[KNODE_SNAME].toString();
+				if (symMap.contains(memberName)) {
+					m_driver.appendError("Interface " + nameI + ": conflict between the two symbols " +
+					symMap[memberName] + NAMESPACE_SEP + memberName + " and " + nameP + NAMESPACE_SEP + memberName);
+					continue;
+				}
+				symMap[memberName] = nameP;
+			}
+		}
+		m_finalized = true;
+	}
+	return m_infos;
+}
+
 }
 

@@ -3,6 +3,6 @@
 
 module Module1 {
 	interface Interface1 {
-		
+		attribute any attr0;
 	};
 };

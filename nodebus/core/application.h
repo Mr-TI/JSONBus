@@ -112,7 +112,14 @@ protected:
 	/**
 	 * @brief Method called during start process
 	 */
-	virtual void onStart() = 0;
+	virtual void onStart();
+	
+	/**
+	 * @brief Method called during exec process
+	 * 
+	 * Can be overrided to change the default exec process is start -> event loop -> stop
+	 */
+	virtual void onExec();
 	
 	/**
 	 * @brief Method called during start process
@@ -131,6 +138,9 @@ inline Application &Application::getInstance () {
 }
 inline void Application::runInstance() {
 	getInstance().run();
+}
+inline void Application::onStart() {
+
 }
 inline void Application::onStop() {
 

@@ -100,6 +100,17 @@ void Application::onAboutToQuit() {
 	QThreadPool::globalInstance()->waitForDone();
 }
 
+void Application::onExec() {
+	onStart();
+	signal(SIGINT, onQuit);
+	signal(SIGTERM, onQuit);
+	connect(this, SIGNAL(aboutToQuit()), this, SLOT(onAboutToQuit()), Qt::DirectConnection);
+	logInfo() << __demangle(typeid(*this).name()) << " started.";
+	exec();
+	logFiner() << __demangle(typeid(*this).name()) << " stopping...";
+	onStop();;
+}
+
 void Application::run() {
 	CliArguments &args = CliArguments::getInstance();
 	try {
@@ -110,14 +121,7 @@ void Application::run() {
 			args.displayUseInstructions();
 			throw ExitApplicationException();
 		}
-		onStart();
-		signal(SIGINT, onQuit);
-		signal(SIGTERM, onQuit);
-		connect(this, SIGNAL(aboutToQuit()), this, SLOT(onAboutToQuit()), Qt::DirectConnection);
-		logInfo() << __demangle(typeid(*this).name()) << " started.";
-		exec();
-		logFiner() << __demangle(typeid(*this).name()) << " stopping...";
-		onStop();;
+		onExec();
 	} catch (ExitApplicationException &e) {
 		
 	} catch (Exception &e) {

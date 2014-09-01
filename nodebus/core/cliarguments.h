@@ -86,9 +86,23 @@ public:
 	void parse(const QStringList &argList);
 
 	/**
+	 * @brief Parse the argument list
+	 * @param argc argument count
+	 * @param argv argument table
+	 * @throw CliArgumentsException on error
+	 */
+	void parse(int argc, const char **argv);
+
+	/**
+	 * @brief Get the extra argrgument list
+	 * @return List QString
+	 */
+	const QStringList &extraArgs();
+
+	/**
 	 * @brief Print use instruction
 	 */
-	void displayUseInstructions();
+	void displayUseInstructions(const QString &addInfo="");
 	
 	inline static CliArguments &getInstance() { return instance; };
 private:
@@ -114,7 +128,13 @@ private:
 
 	QMap<QString, Element> m_arguments;
 	QMap<char, QString> m_shortTagToName;
+	QStringList m_extraArgs;
 };
+
+inline const QStringList& CliArguments::extraArgs() {
+	return m_extraArgs;
+}
+
 
 }
 

@@ -28,14 +28,17 @@
 nodebus_declare_master_service(IDLc)
 
 IDLc::IDLc(int &argc, char **argv)
-	: m_argc(argc), m_argv(argv) {
+	: Application(argc, argv) {
 }
 
 IDLc::~IDLc() {
 }
 
-void IDLc::run() {
-	CliArguments args;
-	args.define("", 0, "");file:///home/emeric/src/NodeBus/nodebus/core/jsonparser/
+void IDLc::onInit() {
+	CliArguments &args = CliArguments::getInstance();
+	args.define("output-file", 'o', "Output file path");
+	args.define("output-format", 'f', "Output format (JSON, BSON or BCON, default: BCON)");
 }
 
+void IDLc::onExec() {
+}

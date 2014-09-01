@@ -10,7 +10,7 @@ module Module1 {
 };
 
 module Module2 {
-	interface InterfaceA {
+	interface InterfaceA : Module1::Interface1 {
 		short methodA ( in string n,
 		out long t/*, inout boolean n*/);
 	};
