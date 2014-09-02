@@ -47,9 +47,11 @@ void IDLc::onInit() {
 	args.setExtraArgsLegend("<input file1>[ <input file1>[ <input file3>[...]]]");
 }
 
-inline FileFormat formatStr2Fmt (QString fmtStr) {
+inline FileFormat formatFromString (QString fmtStr) {
 	fmtStr = fmtStr.toUpper();
-	if (fmtStr == "BCON") {
+	if (fmtStr == "IDL") {
+		return IDL;
+	} else if (fmtStr == "BCON") {
 		return BCON;
 	} else if (fmtStr == "BSON") {
 		return BSON;
@@ -70,22 +72,7 @@ int IDLc::onExec() {
 		FileFormat format;
 		QVariantList resList;
 		for (auto file: files) {
-			QFileInfo fileInfo(file);
-			QString ext = fileInfo.suffix();
-			FileFormat format;
-			if (ext == "idl")
-				format = FileFormat::IDL;
-			else if (ext == "bcon")
-				format = FileFormat::BCON;
-			else if (ext == "json")
-				format = FileFormat::JSON;
-			else if (ext == "bson")
-				format = FileFormat::BSON;
-			else
-				throw ApplicationException("No handled action for extention: " + ext);
-			QVariant ret = Parser::parseFile(file, format);
-			auto retList = ret.toList();
-			for (auto elt: retList) {
+			for (auto elt: Parser::parseFile(file, formatFromString(QFileInfo(file).suffix())).toList()) {
 				resList.append(elt);
 			}
 		}
@@ -95,10 +82,10 @@ int IDLc::onExec() {
 				outFile = "metadb.bcon";
 				format = BCON;
 			} else {
-				format = formatStr2Fmt(QFileInfo(outFile).suffix());
+				format = formatFromString(QFileInfo(outFile).suffix());
 			}
 		} else {
-			format = formatStr2Fmt(formatStr);
+			format = formatFromString(formatStr);
 			if (outFile.isEmpty()) {
 				outFile = "metadb." + formatStr.toLower();
 			}

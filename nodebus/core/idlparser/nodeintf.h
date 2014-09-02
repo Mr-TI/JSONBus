@@ -43,8 +43,8 @@ inline NodeIntf::NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents)
 	}
 	QVariantList parentList = pParents->list();
 	QVariantList parents;
-	for (auto itP = parentList.begin(); itP != parentList.end(); itP++) {
-		SharedPtr<NodeIntf> pIntf = driver.curCtx()->resolve((*itP).toString(), NTYPE_INTERFACE);
+	for (auto parent: pParents->list()) {
+		SharedPtr<NodeIntf> pIntf = driver.curCtx()->resolve(parent.toString(), NTYPE_INTERFACE);
 		if (pIntf == nullptr) continue;
 		QString parentName = pIntf->map()[KNODE_SNAME].toString();
 		m_parents[parentName] = pIntf;
