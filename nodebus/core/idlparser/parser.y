@@ -229,7 +229,7 @@ TYPE : TOBJECT                                    {$$ = new NodeVariant(VTYPE_AN
     | TSTRING                                     {$$ = new NodeVariant(VTYPE_STRING);}
     | TOCTET '[' ']'                              {$$ = new NodeVariant(VTYPE_BYTEARRAY);}
     | TDATETIME                                   {$$ = new NodeVariant(VTYPE_DATETIME);}
-    | SEQUENCE                                    {if (!driver.appendError("Error: sequence not supported")) YYABORT;}
+    | SEQUENCE                                    {$$ = new NodeVariant("");}
     | TSYMBOL                                     {if (!driver.appendError("Error: Complex/user defined type not supported")) YYABORT;}
     | ARRAYOF                                     {$$ = new NodeVariant("");}
     ;

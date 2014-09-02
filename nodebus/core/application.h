@@ -34,8 +34,7 @@
 
 #define nodebus_declare_application(_class_name_) \
 int main(int argc, char **argv) { \
-	_class_name_(argc, argv).run(); \
-	return 0; \
+	return _class_name_(argc, argv).run(); \
 }
 
 #ifdef WIN32
@@ -48,9 +47,9 @@ int main(int argc, char **argv) { \
 			clog << getMessageError(GetLastError()); \
 		} \
 	} else { \
-		service.run(); \
+		return service.run(); \
 	} \
-	return 0; \
+	return 1; \
 }
 #else
 #define nodebus_declare_master_service(_class_name_) nodebus_declare_application(_class_name_)
@@ -81,7 +80,7 @@ public:
 	 * @brief Run this application
 	 * @throw Exception on error
 	 */
-	void run();
+	int run();
 	
 	/**
 	 * @brief Get the container instance
@@ -119,7 +118,7 @@ protected:
 	 * 
 	 * Can be overrided to change the default exec process is onStart -> event loop -> onStop
 	 */
-	virtual void onExec();
+	virtual int onExec();
 	
 	/**
 	 * @brief Method called during start process

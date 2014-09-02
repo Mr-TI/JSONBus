@@ -50,7 +50,7 @@ public:
 	~IDLc();
 	
 	virtual void onInit();
-	virtual void onExec();
+	virtual int onExec();
 };
 
 #endif

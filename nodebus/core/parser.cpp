@@ -20,6 +20,7 @@
 #include "jsonparser/driver.h"
 #include "logger.h"
 #include "idlparser/driver.h"
+#include "filechannel.h"
 #include <qt4/QtCore/QVariant>
 #include <qt4/QtCore/QDate>
 
@@ -128,6 +129,18 @@ QVariant Parser::parse() {
 // 			break;
 	}
 	return res;
+}
+
+QVariant Parser::parseFile(const QString fileName, FileFormat format) {
+	switch (format) {
+		case FileFormat::BCON:
+		case FileFormat::BSON:
+		case FileFormat::JSON:
+			return Parser(new FileChannel(fileName, 0), format).parse();
+		case FileFormat::IDL:
+			return idlparser::Driver::parse(fileName);
+	}
+	throw ParserException();
 }
 
 inline char Parser::getc() {

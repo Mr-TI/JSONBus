@@ -26,6 +26,7 @@
 #include <nodebus/core/serializer.h>
 #include <nodebus/core/filechannel.h>
 #include <nodebus/core/idlparser/driver.h>
+#include <nodebus/core/parser.h>
 #include "idlc.h"
 
 nodebus_declare_master_service(IDLc)
@@ -39,14 +40,27 @@ IDLc::~IDLc() {
 
 void IDLc::onInit() {
 	CliArguments &args = CliArguments::getInstance();
-	args.define("output-file", 'o', "Output file path (default: out.<ext>)", "out");
+	args.define("output-file", 'o', "Output file path (default: metadb.<ext>)", "");
 // 	args.define("input-format", 'i', "Output format (IDL, JSON, BSON or BCON, default: automatically detected from the extention)");
-	args.define("output-format", 'f', "Output format (JSON, BSON or BCON, default: BCON)", "BCON");
+	args.define("output-format", 'f', "Output format (JSON, BSON or BCON, default: BCON)", "AUTO");
 	args.define("compile", 'c', "Compile but not link");
 	args.setExtraArgsLegend("<input file1>[ <input file1>[ <input file3>[...]]]");
 }
 
-void IDLc::onExec() {
+inline FileFormat formatStr2Fmt (QString fmtStr) {
+	fmtStr = fmtStr.toUpper();
+	if (fmtStr == "BCON") {
+		return BCON;
+	} else if (fmtStr == "BSON") {
+		return BSON;
+	} else if (fmtStr == "JSON") {
+		return JSON;
+	} else {
+		throw ApplicationException("Invalid format " + fmtStr);
+	}
+}
+
+int IDLc::onExec() {
 	try {
 		CliArguments &args = CliArguments::getInstance();
 		const QStringList &files = args.extraArgs();
@@ -54,29 +68,45 @@ void IDLc::onExec() {
 			throw ApplicationException("No input file");
 		QString formatStr = args.getValue("output-format").toString();
 		FileFormat format;
-		QString outName(args.getValue("output-file").toString());
-		if (formatStr == "BCON") {
-			format = BCON;
-			if (outName == "out") outName.append(".bcon");
-		} else if (formatStr == "BSON") {
-			format = BSON;
-			if (outName == "out") outName.append(".bson");
-		} else if (formatStr == "JSON") {
-			format = JSON;
-			if (outName == "out") outName.append(".json");
-		} else {
-			throw ApplicationException("Invalid format " + formatStr);
-		}
 		QVariantList resList;
 		for (auto file: files) {
-			QVariant ret = idlparser::Driver::parse(file);
+			QFileInfo fileInfo(file);
+			QString ext = fileInfo.suffix();
+			FileFormat format;
+			if (ext == "idl")
+				format = FileFormat::IDL;
+			else if (ext == "bcon")
+				format = FileFormat::BCON;
+			else if (ext == "json")
+				format = FileFormat::JSON;
+			else if (ext == "bson")
+				format = FileFormat::BSON;
+			else
+				throw ApplicationException("No handled action for extention: " + ext);
+			QVariant ret = Parser::parseFile(file, format);
 			auto retList = ret.toList();
 			for (auto elt: retList) {
 				resList.append(elt);
 			}
 		}
-		Serializer(new FileChannel(outName, O_CREAT | O_TRUNC | O_WRONLY), format).serialize(resList);
+		QString outFile(args.getValue("output-file").toString());
+		if (formatStr == "AUTO") {
+			if (outFile.isEmpty()) {
+				outFile = "metadb.bcon";
+				format = BCON;
+			} else {
+				format = formatStr2Fmt(QFileInfo(outFile).suffix());
+			}
+		} else {
+			format = formatStr2Fmt(formatStr);
+			if (outFile.isEmpty()) {
+				outFile = "metadb." + formatStr.toLower();
+			}
+		}
+		Serializer(new FileChannel(outFile, O_CREAT | O_TRUNC | O_WRONLY), format).serialize(resList);
+		return 0;
 	} catch (Exception &e) {
 		logCrit() << "Compilation failed:\n" << e.message();
 	}
+	return 1;
 }

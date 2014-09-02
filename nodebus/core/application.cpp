@@ -100,7 +100,7 @@ void Application::onAboutToQuit() {
 	QThreadPool::globalInstance()->waitForDone();
 }
 
-void Application::onExec() {
+int Application::onExec() {
 	onStart();
 	signal(SIGINT, onQuit);
 	signal(SIGTERM, onQuit);
@@ -108,10 +108,11 @@ void Application::onExec() {
 	logInfo() << __demangle(typeid(*this).name()) << " started.";
 	exec();
 	logFiner() << __demangle(typeid(*this).name()) << " stopping...";
-	onStop();;
+	onStop();
+	return 0;
 }
 
-void Application::run() {
+int Application::run() {
 	CliArguments &args = CliArguments::getInstance();
 	try {
 		args.define("help", 'h', tr("Display this help"));
@@ -121,12 +122,13 @@ void Application::run() {
 			args.displayUseInstructions();
 			throw ExitApplicationException();
 		}
-		onExec();
+		return onExec();
 	} catch (ExitApplicationException &e) {
-		
+		return 0;
 	} catch (Exception &e) {
 		logCrit() << __demangle(typeid(*this).name()) << " aborting start process after throwing an " << e;
 	}
+	return 1;
 }
 
 bool Application::notify(QObject *rec, QEvent *ev) {

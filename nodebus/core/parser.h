@@ -75,6 +75,13 @@ public:
 	 * @return QVariant object
 	 * @throw ParserException on parsing error
 	 */
+	static QVariant parseFile(const QString fileName, FileFormat format = JSON);
+	
+	/**
+	 * @brief Parse a BCON data from a byte array
+	 * @return QVariant object
+	 * @throw ParserException on parsing error
+	 */
 	static QVariant parse(const char *data, uint len, FileFormat format = JSON);
 	
 	/**
