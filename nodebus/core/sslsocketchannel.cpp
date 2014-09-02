@@ -20,7 +20,6 @@
 #include <sys/ioctl.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/epoll.h>
 #include <openssl/err.h>
 #include <QString>
 

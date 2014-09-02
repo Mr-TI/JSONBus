@@ -26,7 +26,16 @@
 
 namespace NodeBus {
 
-IOChannel::IOChannel(int fd, int flags) : m_fd(fd), m_closeOnDelete(flags & CLOSE_ON_DELETE), m_epfd(-1) {
+IOChannel::IOChannel(int fd, int flags) : m_fd(fd), m_closeOnDelete(flags & CLOSE_ON_DELETE)
+#ifdef WIN32
+	
+#else //WIN32
+, m_epfd(-1)
+#endif //WIN32
+{
+#ifdef WIN32
+	
+#else //WIN32
 	THROW_IOEXP_ON_ERR(m_epfd = epoll_create1(0));
 	bzero(&m_event, sizeof(epoll_event));
 	m_event.data.fd = m_fd;
@@ -34,13 +43,18 @@ IOChannel::IOChannel(int fd, int flags) : m_fd(fd), m_closeOnDelete(flags & CLOS
 	if (flags & READABLE) {
 		THROW_IOEXP_ON_ERR(epoll_ctl (m_epfd, EPOLL_CTL_ADD, m_fd, &m_event));
 	}
+#endif //WIN32
 }
 
 IOChannel::~IOChannel() {
 	if (m_closeOnDelete && isOpen()) {
 		close();
 	}
+#ifdef WIN32
+	
+#else //WIN32
 	::close(m_epfd);
+#endif //WIN32
 }
 
 size_t IOChannel::s_read(char *buffer, size_t maxlen) {
@@ -71,6 +85,9 @@ size_t IOChannel::s_available() {
 }
 
 bool IOChannel::s_waitForReadyRead(int timeout) {
+#ifdef WIN32
+	throw UnsupportedOperationException();
+#else //WIN32
 	int ret;
 	THROW_IOEXP_ON_ERR(ret = epoll_wait(m_epfd, m_events,1 ,timeout));
 	if (ret != 1) {
@@ -83,15 +100,20 @@ bool IOChannel::s_waitForReadyRead(int timeout) {
 		throw IOException(QString() + __FILE__ + ":" + __LINE__ + ": " + strerror(errno));
 	}
 	return m_events[0].events & EPOLLIN;
+#endif //WIN32
 }
 
 void IOChannel::updateStatus(int events) {
+#ifdef WIN32
+	
+#else //WIN32
 	if (events & EPOLLIN) {
 		int result;
 		if (::ioctl(m_fd, FIONREAD, &result) == -1 || result == 0) {
 			close();
 		}
 	}
+#endif //WIN32
 }
 
 }

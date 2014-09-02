@@ -17,7 +17,11 @@
 #ifndef JSONPARSER_IOCHANNEL_H
 #define JSONPARSER_IOCHANNEL_H
 
-#include <sys/epoll.h>
+#ifdef WIN32
+	
+#else //WIN32
+#	include <sys/epoll.h>
+#endif //WIN32
 #include <nodebus/core/shareddata.h>
 #include <nodebus/core/streamchannel.h>
 
@@ -64,9 +68,13 @@ protected:
 	bool m_closeOnDelete;
 
 private:
+#ifdef WIN32
+	
+#else //WIN32
 	int m_epfd;
 	epoll_event m_event;
 	epoll_event m_events[1];
+#endif //WIN32
 };
 
 inline int &IOChannel::fd() {

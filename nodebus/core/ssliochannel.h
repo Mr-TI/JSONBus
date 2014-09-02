@@ -17,7 +17,6 @@
 #ifndef JSONPARSER_SSLIOCHANNEL_H
 #define JSONPARSER_SSLIOCHANNEL_H
 
-#include <sys/epoll.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <nodebus/core/shareddata.h>

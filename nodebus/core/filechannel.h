@@ -17,7 +17,6 @@
 #ifndef JSONPARSER_FILECHANNEL_H
 #define JSONPARSER_FILECHANNEL_H
 
-#include <sys/epoll.h>
 #include <nodebus/core/shareddata.h>
 #include <nodebus/core/streamchannel.h>
 #include <fcntl.h>

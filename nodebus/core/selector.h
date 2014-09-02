@@ -19,7 +19,11 @@
 
 #include <nodebus/core/exception.h>
 #include <nodebus/core/sharedptr.h>
-#include <sys/epoll.h>
+#ifdef WIN32
+	
+#else //WIN32
+#	include <sys/epoll.h>
+#endif //WIN32
 #include <QMap>
 
 /**
@@ -83,9 +87,13 @@ private:
 	virtual void remove(const SharedPtr<SelectionKey> &key);
 	
 	bool m_enabled;
+#ifdef WIN32
+	
+#else //WIN32
 	int m_epfd;
 	epoll_event m_event;
 	epoll_event *m_events;
+#endif //WIN32
 	QMap<int, SharedPtr<SelectionKey> > m_keys;
 	QList<SharedPtr<SelectionKey> > m_pendingKeys;
 	QMutex m_synchronize;

@@ -20,7 +20,12 @@
 #include <nodebus/core/shareddata.h>
 #include <nodebus/core/exception.h>
 #include <nodebus/core/sharedptr.h>
-#include <sys/epoll.h>
+
+#ifdef WIN32
+
+#else //WIN32
+#	include <sys/epoll.h>
+#endif //WIN32
 
 /**
  * @namespace
@@ -42,8 +47,19 @@ class SelectionKey : public SharedData {
 	friend class Selector;
 public:
 	enum Flag {
-		OP_READ = EPOLLIN,
-		OP_WRITE = EPOLLOUT
+		OP_READ
+#ifdef WIN32
+
+#else //WIN32
+		= EPOLLIN
+#endif //WIN32
+		,
+		OP_WRITE
+#ifdef WIN32
+
+#else //WIN32
+		= EPOLLOUT
+#endif //WIN32
 	};
 	
 	/**

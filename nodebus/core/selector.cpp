@@ -31,8 +31,12 @@
 namespace NodeBus {
 
 Selector::Selector() : m_enabled(true), m_synchronize(QMutex::Recursive) {
+#ifdef WIN32
+	
+#else //WIN32
 	THROW_IOEXP_ON_ERR(m_epfd = epoll_create1(0));
 	m_events = new epoll_event[NODEBUS_SELECTOR_EPOLL_EVENT_SIZE];
+#endif //WIN32
 }
 
 Selector::~Selector() {
@@ -41,12 +45,19 @@ Selector::~Selector() {
 	for (auto it = list.begin(); it != list.end(); it++) {
 		(*it)->cancel();
 	}
+#ifdef WIN32
+	
+#else //WIN32
 	delete[] m_events;
 	::close(m_epfd);
+#endif //WIN32
 }
 
 bool Selector::select(int timeout) {
 	QMutexLocker locker(&m_synchronize);
+#ifdef WIN32
+	
+#else //WIN32
 	ssize_t ret = 0, fdc;
 	m_pendingKeys.clear();
 	locker.unlock();
@@ -77,6 +88,7 @@ bool Selector::select(int timeout) {
 		timeout--;
 		locker.unlock();
 	}
+#endif //WIN32
 	return false;
 }
 
@@ -88,17 +100,25 @@ QList< SelectionKeyPtr > Selector::selectedKeys() {
 
 void Selector::put(const SelectionKeyPtr& key, int events) {
 	QMutexLocker _(&m_synchronize);
+#ifdef WIN32
+	
+#else //WIN32
 	m_keys[key->channel()->fd()] = key;
 	bzero(&m_event, sizeof(epoll_event));
 	m_event.data.fd = key->channel()->fd();
 	m_event.events = events | EPOLLET;
 	THROW_IOEXP_ON_ERR(epoll_ctl (m_epfd, EPOLL_CTL_ADD, m_event.data.fd, &m_event));
+#endif //WIN32
 }
 
 void Selector::remove(const SelectionKeyPtr& key) {
 	QMutexLocker _(&m_synchronize);
+#ifdef WIN32
+	
+#else //WIN32
 	m_keys.remove(key->channel()->fd());
 	THROW_IOEXP_ON_ERR(epoll_ctl (m_epfd, EPOLL_CTL_DEL, key->channel()->fd(), NULL));
+#endif //WIN32
 }
 
 }
