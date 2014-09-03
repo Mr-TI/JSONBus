@@ -63,20 +63,20 @@ inline FileFormat formatFromString (QString fmtStr) {
 }
 
 int IDLc::onExec() {
+	CliArguments &args = CliArguments::getInstance();
+	const QStringList &files = args.extraArgs();
+	if (files.isEmpty())
+		throw ApplicationException("No input file");
+	QString formatStr = args.getValue("output-format").toString();
+	FileFormat format;
+	QVariantList resList;
+	QString outFile(args.getValue("output-file").toString());
 	try {
-		CliArguments &args = CliArguments::getInstance();
-		const QStringList &files = args.extraArgs();
-		if (files.isEmpty())
-			throw ApplicationException("No input file");
-		QString formatStr = args.getValue("output-format").toString();
-		FileFormat format;
-		QVariantList resList;
 		for (auto file: files) {
 			for (auto elt: Parser::parseFile(file, formatFromString(QFileInfo(file).suffix())).toList()) {
 				resList.append(elt);
 			}
 		}
-		QString outFile(args.getValue("output-file").toString());
 		if (formatStr == "AUTO") {
 			if (outFile.isEmpty()) {
 				outFile = "metadb.bcon";
@@ -90,10 +90,21 @@ int IDLc::onExec() {
 				outFile = "metadb." + formatStr.toLower();
 			}
 		}
-		Serializer(new FileChannel(outFile, O_CREAT | O_TRUNC | O_WRONLY), format).serialize(resList);
-		return 0;
+		if (!args.isEnabled("compile")) {
+			
+		}
 	} catch (Exception &e) {
 		logCrit() << "Compilation failed:\n" << e.message();
+		return 1;
 	}
-	return 1;
+	if (!args.isEnabled("compile")) {
+		try {
+			
+		} catch (Exception &e) {
+			logCrit() << "Link failed:\n" << e.message();
+			return 1;
+		}
+	}
+	Serializer(new FileChannel(outFile, O_CREAT | O_TRUNC | O_WRONLY), format).serialize(resList);
+	return 0;
 }

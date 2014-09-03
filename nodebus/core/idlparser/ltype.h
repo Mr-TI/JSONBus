@@ -14,49 +14,11 @@
  *   limitations under the License.
  */
 
-#ifndef IDLLTYPE_H
-#define IDLLTYPE_H
+#include "constants.h"
+#ifndef IDLPARSER_LTYPE_H
+#define IDLPARSER_LTYPE_H
 
 #define YYSTYPE idlparser::LType
-
-#define KNODE_TYPE         "T"
-#define KNODE_DTYPE        "t"
-#define KNODE_SNAME        "n"
-#define KNODE_DIRECTION    "d"
-#define KNODE_WRITABLE     "w"
-#define KNODE_VALUE        "v"
-#define KNODE_PARAMS       "p"
-#define KNODE_PARENTS      "P"
-#define KNODE_MEMBERS      "m"
-
-#define VTYPE_VOID         "v"
-#define VTYPE_ANY          "a"
-#define VTYPE_BOOLEAN      "b"
-#define VTYPE_BYTE         "o"
-#define VTYPE_UINT32       "I"
-#define VTYPE_INT32        "i"
-#define VTYPE_UINT64       "L"
-#define VTYPE_INT64        "l"
-#define VTYPE_DOUBLE       "d" 
-#define VTYPE_STRING       "s"
-#define VTYPE_BYTEARRAY    "O"
-#define VTYPE_DATETIME     "t"
-
-#define NTYPE_DOCUMENT     "D"
-#define NTYPE_CONST        "C"
-#define NTYPE_ATTR         "A"
-#define NTYPE_INTERFACE    "I"
-#define NTYPE_METHOD       "M"
-#define NTYPE_ENUM         "E"
-#define NTYPE_STRUCT       "S"
-#define NTYPE_TYPEDEF      "T"
-#define NTYPE_PACKAGE      "P"
-
-#define PDIR_IN            "i"
-#define PDIR_OUT           "o"
-#define PDIR_INOUT         "b"
-
-#define NAMESPACE_SEP      "::"
 
 #include <QVariant>
 #include <QString>
@@ -110,11 +72,11 @@ inline NodePtr Driver::curCtx() {
 }
 
 inline NodePtr Driver::relolveConsVal(NodePtr pSyn) {
-	NodePtr ret = m_curCtx->resolve(pSyn->str(), NTYPE_CONST);
+	NodePtr ret = m_curCtx->resolve(pSyn->str(), TYPE_NODE_CONST);
 	if (ret == nullptr) return new NodeVariant(0);
-	return new NodeVariant(ret->map()[KNODE_VALUE]);
+	return new NodeVariant(ret->map()[NODE_KEY_VALUE]);
 }
 
 }
 
-#endif // IDLLTYPE_H
+#endif // IDLPARSER_LTYPE_H

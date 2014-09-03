@@ -113,40 +113,40 @@ bool Driver::setOpResult(NodePtr &pVar, NodePtr &pRes) {
 	QVariantMap &var = pVar->map();
 	QVariant::Type opDataType;
 	QString opDataTypeStr;
-	switch (var[KNODE_DTYPE].toString()[0].toAscii()) {
-		case VTYPE_VOID[0]:
+	switch (var[NODE_KEY_DTYPE].toString()[0].toAscii()) {
+		case TYPE_VAL_VOID[0]:
 			return appendError("Error: invalid variable type void");
-		case VTYPE_ANY[0]:
+		case TYPE_VAL_ANY[0]:
 			opDataType = QVariant::Invalid;
 			break;
-		case VTYPE_BOOLEAN[0]:
+		case TYPE_VAL_BOOLEAN[0]:
 			opDataType = QVariant::Bool;
 			break;
-		case VTYPE_BYTE[0]:
+		case TYPE_VAL_BYTE[0]:
 			opDataType = QVariant::Char;
 			break;
-		case VTYPE_UINT32[0]:
+		case TYPE_VAL_UINT32[0]:
 			opDataType = QVariant::UInt;
 			break;
-		case VTYPE_INT32[0]:
+		case TYPE_VAL_INT32[0]:
 			opDataType = QVariant::Int;
 			break;
-		case VTYPE_UINT64[0]:
+		case TYPE_VAL_UINT64[0]:
 			opDataType = QVariant::ULongLong;
 			break;
-		case VTYPE_INT64[0]:
+		case TYPE_VAL_INT64[0]:
 			opDataType = QVariant::LongLong;
 			break;
-		case VTYPE_DOUBLE[0]:
+		case TYPE_VAL_DOUBLE[0]:
 			opDataType = QVariant::Double;
 			break;
-		case VTYPE_STRING[0]:
+		case TYPE_VAL_STRING[0]:
 			opDataType = QVariant::String;
 			break;
-		case VTYPE_BYTEARRAY[0]:
+		case TYPE_VAL_BYTEARRAY[0]:
 			opDataType = QVariant::BitArray;
 			break;
-		case VTYPE_DATETIME[0]:
+		case TYPE_VAL_DATETIME[0]:
 			opDataType = QVariant::DateTime;
 			break;
 		default:
@@ -156,7 +156,7 @@ bool Driver::setOpResult(NodePtr &pVar, NodePtr &pRes) {
 	if (!res.convert(opDataType)) {
 		return appendError("Error: the result cannot be converted to " + type2str(opDataType));
 	}
-	var.insert(KNODE_VALUE, res);
+	var.insert(NODE_KEY_VALUE, res);
 	return true;
 }
 
@@ -228,19 +228,19 @@ bool Driver::opexec(NodePtr &res, char op, NodePtr &op1_n, NodePtr &op2_n) {
 
 QVariantMap& NodeIntf::map() {
 	if (!m_finalized) {
-		m_infos.insert(KNODE_MEMBERS, m_members);
-		m_infos.insert(KNODE_TYPE, NTYPE_INTERFACE);
+		m_infos.insert(NODE_KEY_MEMBERS, m_members);
+		m_infos.insert(NODE_KEY_TYPE, TYPE_NODE_INTERFACE);
 		QMap<QString, QString> symMap;
-		QString nameI = m_infos[KNODE_SNAME].toString();
+		QString nameI = m_infos[NODE_KEY_SNAME].toString();
 		for (auto mIt = m_members.begin(); mIt != m_members.end(); mIt++) {
-			QString memberName = (*mIt).toMap()[KNODE_SNAME].toString();
+			QString memberName = (*mIt).toMap()[NODE_KEY_SNAME].toString();
 			symMap[memberName] = nameI;
 		}
 		for (auto it = m_parents.begin(); it != m_parents.end(); it++) {
 			QString nameP = it.key();
 			auto membersP = it.value()->m_members;
 			for (auto mIt = membersP.begin(); mIt != membersP.end(); mIt++) {
-				QString memberName = (*mIt).toMap()[KNODE_SNAME].toString();
+				QString memberName = (*mIt).toMap()[NODE_KEY_SNAME].toString();
 				if (symMap.contains(memberName)) {
 					m_driver.appendError("Interface " + nameI + ": conflict between the two symbols " +
 					symMap[memberName] + NAMESPACE_SEP + memberName + " and " + nameP + NAMESPACE_SEP + memberName);

@@ -44,9 +44,9 @@ inline NodeIntf::NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents)
 	QVariantList parentList = pParents->list();
 	QVariantList parents;
 	for (auto parent: pParents->list()) {
-		SharedPtr<NodeIntf> pIntf = driver.curCtx()->resolve(parent.toString(), NTYPE_INTERFACE);
+		SharedPtr<NodeIntf> pIntf = driver.curCtx()->resolve(parent.toString(), TYPE_NODE_INTERFACE);
 		if (pIntf == nullptr) continue;
-		QString parentName = pIntf->map()[KNODE_SNAME].toString();
+		QString parentName = pIntf->map()[NODE_KEY_SNAME].toString();
 		m_parents[parentName] = pIntf;
 		auto &gpMap = pIntf->m_parents;
 		for (auto itGP = gpMap.begin(); itGP != gpMap.end(); itGP++) {
@@ -54,13 +54,13 @@ inline NodeIntf::NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents)
 		}
 		parents.append(parentName);
 	}
-	m_infos.insert(KNODE_SNAME, fullName);
-	m_infos.insert(KNODE_PARENTS, parents);
+	m_infos.insert(NODE_KEY_SNAME, fullName);
+	m_infos.insert(NODE_KEY_PARENTS, parents);
 }
 
 inline bool NodeIntf::append(NodePtr &pElt) {
 	QVariantMap elt = pElt->map();
-	QString name = m_prefix + elt[KNODE_SNAME].toString();
+	QString name = m_prefix + elt[NODE_KEY_SNAME].toString();
 	if (m_driver.rootCtx()->m_symTbl.contains(name)) {
 		m_driver.appendError("Dupplicated symbol " + name);
 		return false;

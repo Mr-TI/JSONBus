@@ -38,7 +38,7 @@ inline NodeParams::NodeParams(Driver& driver): m_driver(driver) {
 
 inline bool NodeParams::append(SharedPtr<Node> &pElt) {
 	QVariantMap &param = pElt->map();
-	QString k = param[KNODE_SNAME].toString();
+	QString k = param[NODE_KEY_SNAME].toString();
 	if (m_params.contains(k)) {
 		m_driver.appendError("Dupplicated parameter " + k);
 		return false;

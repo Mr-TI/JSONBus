@@ -209,26 +209,26 @@ ARRAYOF : TYPE '[' ']'                            {if (!driver.appendError("Erro
     ;
 
 RET_TYPE : TYPE                                   {$$ = $1;}
-    | TVOID                                       {$$ = new NodeVariant(VTYPE_VOID);}
+    | TVOID                                       {$$ = new NodeVariant(TYPE_VAL_VOID);}
     ;
 
-TYPE : TOBJECT                                    {$$ = new NodeVariant(VTYPE_ANY);}
-    | TANY                                        {$$ = new NodeVariant(VTYPE_ANY);}
-    | TBOOLEAN                                    {$$ = new NodeVariant(VTYPE_BOOLEAN);}
-    | TOCTET                                      {$$ = new NodeVariant(VTYPE_BYTE);}
-    | TCHAR                                       {$$ = new NodeVariant(VTYPE_BYTE);}
-    | TWCHAR                                      {$$ = new NodeVariant(VTYPE_BYTE);}
-    | TUNSIGNED TSHORT                            {$$ = new NodeVariant(VTYPE_UINT32);}
-    | TSHORT                                      {$$ = new NodeVariant(VTYPE_INT32);}
-    | TUNSIGNED TLONG                             {$$ = new NodeVariant(VTYPE_UINT32);}
-    | TLONG                                       {$$ = new NodeVariant(VTYPE_INT32);}
-    | TUNSIGNED TLONG TLONG                       {$$ = new NodeVariant(VTYPE_UINT64);}
-    | TLONG TLONG                                 {$$ = new NodeVariant(VTYPE_INT64);}
-    | TFLOAT                                      {$$ = new NodeVariant(VTYPE_DOUBLE);}
-    | TDOUBLE                                     {$$ = new NodeVariant(VTYPE_DOUBLE);}
-    | TSTRING                                     {$$ = new NodeVariant(VTYPE_STRING);}
-    | TOCTET '[' ']'                              {$$ = new NodeVariant(VTYPE_BYTEARRAY);}
-    | TDATETIME                                   {$$ = new NodeVariant(VTYPE_DATETIME);}
+TYPE : TOBJECT                                    {$$ = new NodeVariant(TYPE_VAL_ANY);}
+    | TANY                                        {$$ = new NodeVariant(TYPE_VAL_ANY);}
+    | TBOOLEAN                                    {$$ = new NodeVariant(TYPE_VAL_BOOLEAN);}
+    | TOCTET                                      {$$ = new NodeVariant(TYPE_VAL_BYTE);}
+    | TCHAR                                       {$$ = new NodeVariant(TYPE_VAL_BYTE);}
+    | TWCHAR                                      {$$ = new NodeVariant(TYPE_VAL_BYTE);}
+    | TUNSIGNED TSHORT                            {$$ = new NodeVariant(TYPE_VAL_UINT32);}
+    | TSHORT                                      {$$ = new NodeVariant(TYPE_VAL_INT32);}
+    | TUNSIGNED TLONG                             {$$ = new NodeVariant(TYPE_VAL_UINT32);}
+    | TLONG                                       {$$ = new NodeVariant(TYPE_VAL_INT32);}
+    | TUNSIGNED TLONG TLONG                       {$$ = new NodeVariant(TYPE_VAL_UINT64);}
+    | TLONG TLONG                                 {$$ = new NodeVariant(TYPE_VAL_INT64);}
+    | TFLOAT                                      {$$ = new NodeVariant(TYPE_VAL_DOUBLE);}
+    | TDOUBLE                                     {$$ = new NodeVariant(TYPE_VAL_DOUBLE);}
+    | TSTRING                                     {$$ = new NodeVariant(TYPE_VAL_STRING);}
+    | TOCTET '[' ']'                              {$$ = new NodeVariant(TYPE_VAL_BYTEARRAY);}
+    | TDATETIME                                   {$$ = new NodeVariant(TYPE_VAL_DATETIME);}
     | SEQUENCE                                    {$$ = new NodeVariant("");}
     | TSYMBOL                                     {if (!driver.appendError("Error: Complex/user defined type not supported")) YYABORT;}
     | ARRAYOF                                     {$$ = new NodeVariant("");}
@@ -237,17 +237,17 @@ TYPE : TOBJECT                                    {$$ = new NodeVariant(VTYPE_AN
 FIELD : TYPE SYMBOL '<' TNUMBER '>'               {if (!driver.appendError("Error: array definition not supported")) YYABORT;}
     | TYPE SYMBOL '[' TNUMBER ']'                 {if (!driver.appendError("Error: array definition not supported")) YYABORT;}
     | TYPE SYMBOL '[' ']'                         {if (!driver.appendError("Error: array definition not supported")) YYABORT;}
-    | TYPE SYMBOL                                 {$$ = (new NodeMap())->insert(KNODE_DTYPE, $1->val())->insert(KNODE_SNAME, $2->val());}
+    | TYPE SYMBOL                                 {$$ = (new NodeMap())->insert(NODE_KEY_DTYPE, $1->val())->insert(NODE_KEY_SNAME, $2->val());}
     ;
 
-ATTRIBUTE : ATTRIBUTE_QUAL TATTRIBUTE FIELD ';'   {$$ = $3->insert(KNODE_WRITABLE, $1->val())->insert(KNODE_TYPE, NTYPE_ATTR);}
+ATTRIBUTE : ATTRIBUTE_QUAL TATTRIBUTE FIELD ';'   {$$ = $3->insert(NODE_KEY_WRITABLE, $1->val())->insert(NODE_KEY_TYPE, TYPE_NODE_ATTR);}
     ;
 
 ATTRIBUTE_QUAL : TREADONLY                        {$$ = new NodeVariant(false);}
     |                                             {$$ = new NodeVariant(true);}
     ;
 
-CONSTANT : TCONST FIELD '=' EXPRESSION ';'        {$$ = $2; $$->insert(KNODE_TYPE, NTYPE_CONST); if (!driver.setOpResult($$, $4)) YYABORT;}
+CONSTANT : TCONST FIELD '=' EXPRESSION ';'        {$$ = $2; $$->insert(NODE_KEY_TYPE, TYPE_NODE_CONST); if (!driver.setOpResult($$, $4)) YYABORT;}
     ;
 
 EXPRESSION : EXPRESSION '+' EXPRESSION            {if (!driver.opexec($$, '+', $1, $3)) YYABORT;}
@@ -271,7 +271,7 @@ VALUE : TVARIANT                                  {$$ = $1;}
     ;
 
 METHOD : METHOD_HEADER RET_TYPE SYMBOL '(' PARAMETERS ')' METHOD_FOOTER ';'
-                                                  {$$ = (new NodeMap())->insert(KNODE_TYPE, NTYPE_METHOD)->insert(KNODE_DTYPE, $2->val())->insert(KNODE_SNAME, $3->val())->insert(KNODE_PARAMS, $5->list());}
+                                                  {$$ = (new NodeMap())->insert(NODE_KEY_TYPE, TYPE_NODE_METHOD)->insert(NODE_KEY_DTYPE, $2->val())->insert(NODE_KEY_SNAME, $3->val())->insert(NODE_KEY_PARAMS, $5->list());}
     ;
 
 METHOD_HEADER : TONEWAY                           {if (!driver.appendError("Error: unsupported oneway keyword")) YYABORT;}
@@ -288,13 +288,13 @@ PARAMETERS : PARAMETERS ',' PARAMETER             {if (!$1->append($3)) YYABORT;
     |                                             {$$ = new NodeParams(driver);}
     ;
 
-PARAMETER : PARAMETER_DIR FIELD                   {$$ = $2->insert(KNODE_DIRECTION, $1->val());}
+PARAMETER : PARAMETER_DIR FIELD                   {$$ = $2->insert(NODE_KEY_DIRECTION, $1->val());}
     ; 
 
-PARAMETER_DIR : TIN                               {$$ = new NodeVariant(PDIR_IN);}
-    | TOUT                                        {$$ = new NodeVariant(PDIR_OUT);}
-    | TINOUT                                      {$$ = new NodeVariant(PDIR_INOUT);}
-    |                                             {$$ = new NodeVariant(PDIR_IN);}
+PARAMETER_DIR : TIN                               {$$ = new NodeVariant(PARAM_DIR_IN);}
+    | TOUT                                        {$$ = new NodeVariant(PARAM_DIR_OUT);}
+    | TINOUT                                      {$$ = new NodeVariant(PARAM_DIR_INOUT);}
+    |                                             {$$ = new NodeVariant(PARAM_DIR_IN);}
     ;
 
 

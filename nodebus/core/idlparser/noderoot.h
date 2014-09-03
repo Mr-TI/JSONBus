@@ -41,7 +41,7 @@ inline NodeRoot::NodeRoot(Driver& driver): m_driver(driver) {
 
 inline bool NodeRoot::append(NodePtr &pElt) {
 	QVariantMap elt = pElt->map();
-	QString name = elt[KNODE_SNAME].toString();
+	QString name = elt[NODE_KEY_SNAME].toString();
 	if (m_symTbl.contains(name)) {
 		m_driver.appendError("Dupplicated symbol " + name);
 		return false;
@@ -61,7 +61,7 @@ inline NodePtr NodeRoot::resolve(const QString symbol, const char *type) {
 		m_driver.appendError("Undefined symbol " + symbol);
 		return result;
 	}
-	if (result->map()[KNODE_TYPE].toString().at(0) != type[0]) {
+	if (result->map()[NODE_KEY_TYPE].toString().at(0) != type[0]) {
 		m_driver.appendError("Invalid symbol " + symbol);
 		return nullptr;
 	}
