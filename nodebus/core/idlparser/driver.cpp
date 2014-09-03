@@ -50,7 +50,11 @@ QVariant Driver::parse(const QString &filename) {
 	if (!driver.rootCtx()->m_errors.isEmpty()) {
 		throw ErrorParserException(driver.rootCtx()->m_errors.join("\n"));
 	}
-	return driver.m_localElts;
+	QVariantMap resProps;
+	resProps[NODE_KEY_VERSION] = 1;
+	resProps[NODE_KEY_MEMBERS] = driver.m_localElts;
+	resProps[NODE_KEY_TYPE] = TYPE_NODE_FRAGMENT;
+	return resProps;
 }
 
 void Driver::pop() {

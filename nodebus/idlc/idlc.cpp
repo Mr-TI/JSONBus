@@ -25,11 +25,13 @@
 #include <nodebus/core/peeradmin.h>
 #include <nodebus/core/serializer.h>
 #include <nodebus/core/filechannel.h>
-#include <nodebus/core/idlparser/driver.h>
+#include <nodebus/core/idlparser/constants.h>
 #include <nodebus/core/parser.h>
 #include "idlc.h"
 
 nodebus_declare_master_service(IDLc)
+
+using namespace idlparser;
 
 IDLc::IDLc(int &argc, char **argv)
 	: Application(argc, argv) {
@@ -62,6 +64,10 @@ inline FileFormat formatFromString (QString fmtStr) {
 	}
 }
 
+inline void link(const QVariantList &elements) {
+	
+}
+
 int IDLc::onExec() {
 	CliArguments &args = CliArguments::getInstance();
 	const QStringList &files = args.extraArgs();
@@ -69,11 +75,13 @@ int IDLc::onExec() {
 		throw ApplicationException("No input file");
 	QString formatStr = args.getValue("output-format").toString();
 	FileFormat format;
+	QVariantMap resProps;
+	resProps[NODE_KEY_VERSION] = 1;
 	QVariantList resList;
 	QString outFile(args.getValue("output-file").toString());
 	try {
 		for (auto file: files) {
-			for (auto elt: Parser::parseFile(file, formatFromString(QFileInfo(file).suffix())).toList()) {
+			for (auto elt: Parser::parseFile(file, formatFromString(QFileInfo(file).suffix())).toMap()[NODE_KEY_MEMBERS].toList()) {
 				resList.append(elt);
 			}
 		}
@@ -90,21 +98,22 @@ int IDLc::onExec() {
 				outFile = "metadb." + formatStr.toLower();
 			}
 		}
-		if (!args.isEnabled("compile")) {
-			
-		}
 	} catch (Exception &e) {
 		logCrit() << "Compilation failed:\n" << e.message();
 		return 1;
 	}
-	if (!args.isEnabled("compile")) {
+	if (args.isEnabled("compile")) {
+		resProps[NODE_KEY_TYPE] = TYPE_NODE_FRAGMENT;
+	} else {
+		resProps[NODE_KEY_TYPE] = TYPE_NODE_BASE;
 		try {
-			
+			link(resList);
 		} catch (Exception &e) {
 			logCrit() << "Link failed:\n" << e.message();
 			return 1;
 		}
 	}
-	Serializer(new FileChannel(outFile, O_CREAT | O_TRUNC | O_WRONLY), format).serialize(resList);
+	resProps[NODE_KEY_MEMBERS] = resList;
+	Serializer(new FileChannel(outFile, O_CREAT | O_TRUNC | O_WRONLY), format).serialize(resProps);
 	return 0;
 }

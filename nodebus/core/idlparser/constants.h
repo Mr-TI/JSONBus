@@ -43,7 +43,8 @@ const char * const TYPE_VAL_STRING     = "s";
 const char * const TYPE_VAL_BYTEARRAY  = "O";
 const char * const TYPE_VAL_DATETIME   = "t";
 
-const char * const TYPE_NODE_DOCUMENT  = "D";
+const char * const TYPE_NODE_FRAGMENT  = "F";
+const char * const TYPE_NODE_BASE      = "B";
 const char * const TYPE_NODE_CONST     = "C";
 const char * const TYPE_NODE_ATTR      = "A";
 const char * const TYPE_NODE_INTERFACE = "I";
