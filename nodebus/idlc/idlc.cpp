@@ -47,6 +47,7 @@ void IDLc::onInit() {
 // 	args.define("input-format", 'i', "Output format (IDL, JSON, BSON or BCON, default: automatically detected from the extention)");
 	args.define("output-format", 'f', "Output format (JSON, BSON or BCON)", "AUTO");
 	args.define("compile", 'c', "Compile but not link");
+	args.setHelpHeader(QString("\n  IDL compiler tool (Built on ") + __DATE__ + " " + __TIME__ + ")\n  Author: Emeric Verschuur <emericv@mbedsys.org>, Copyright 2014 MBEDSYS SAS");
 	args.setExtraArgsLegend("<input file1>[ <input file1>[ <input file3>[...]]]");
 }
 
@@ -98,6 +99,10 @@ void IDLc::processIntf(IntfPtr &intf) {
 	QMap<QString, QString> symMap;
 	for (auto member : intf->members) {
 		QString memberName = member.toMap()[NODE_KEY_SNAME].toString();
+		if (symMap.contains(memberName)) {
+			m_errors.append("Undefined symbol " + intf->name + "::" + memberName);
+			continue;
+		}
 		symMap[memberName] = intf->name;
 	}
 	for (auto it = intf->ancestors.begin(); it != intf->ancestors.end(); it++) {
@@ -136,8 +141,10 @@ inline void IDLc::link(const QVariantList &elements) {
 int IDLc::onExec() {
 	CliArguments &args = CliArguments::getInstance();
 	const QStringList &files = args.extraArgs();
-	if (files.isEmpty())
-		throw ApplicationException("No input file");
+	if (files.isEmpty()) {
+		logCrit() << "No input file";
+		return 1;
+	}
 	QString formatStr = args.getValue("output-format").toString();
 	FileFormat format;
 	QVariantMap resProps;
