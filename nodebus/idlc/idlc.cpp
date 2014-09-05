@@ -45,7 +45,7 @@ void IDLc::onInit() {
 	args.define("dry-run", 'd', "Just try to compile/link and do not generate ouput file");
 	args.define("output-file", 'o', "Output file path (default: metadb.<ext>)", "");
 // 	args.define("input-format", 'i', "Output format (IDL, JSON, BSON or BCON, default: automatically detected from the extention)");
-	args.define("output-format", 'f', "Output format (JSON, BSON or BCON, default: BCON)", "AUTO");
+	args.define("output-format", 'f', "Output format (JSON, BSON or BCON)", "AUTO");
 	args.define("compile", 'c', "Compile but not link");
 	args.setExtraArgsLegend("<input file1>[ <input file1>[ <input file3>[...]]]");
 }
