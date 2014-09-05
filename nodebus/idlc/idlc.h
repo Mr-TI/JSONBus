@@ -32,12 +32,30 @@ using namespace NodeBus;
 
 nodebus_declare_exception(MasterException, Exception);
 
+class Intf;
+typedef SharedPtr<Intf> IntfPtr;
+
+class Intf: public SharedData {
+public:
+	Intf(const QVariantMap &node);
+	bool mark;
+	bool completed;
+	QString name;
+	QVariantMap members;
+	QStringList parents;
+	QMap<QString, IntfPtr > ancestors;
+};
+
 /**
  * @brief Dynamic library management.
  */
 class IDLc: public Application {
 private:
 	SettingsPtr m_settings;
+	QMap<QString, IntfPtr > m_symTbl;
+	QStringList m_errors;
+	void processIntf(IntfPtr &intf);
+	void link(const QVariantList &elements);
 public:
 	/**
 	 * @brief Service constructor.

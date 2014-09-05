@@ -49,7 +49,7 @@ void IDLc::onInit() {
 	args.setExtraArgsLegend("<input file1>[ <input file1>[ <input file3>[...]]]");
 }
 
-inline FileFormat formatFromName (QString fmtStr) {
+inline FileFormat formatFromName(QString fmtStr) {
 	fmtStr = fmtStr.toUpper();
 	if (fmtStr == "IDL") {
 		return IDL;
@@ -64,8 +64,72 @@ inline FileFormat formatFromName (QString fmtStr) {
 	}
 }
 
-inline void link(const QVariantList &elements) {
-	
+inline Intf::Intf(const QVariantMap& node)
+: mark(false), completed(false), name(node[NODE_KEY_SNAME].toString()) {
+	for (auto &member: node[NODE_KEY_MEMBERS].toList()) {
+		members[member.toMap()[NODE_KEY_SNAME].toString()] = member;
+	}
+	for (auto &parent: node[NODE_KEY_PARENTS].toList()) {
+		parents.append(parent.toString());
+	}
+}
+
+void IDLc::processIntf(IntfPtr &intf) {
+	if (intf->mark) {
+		m_errors.append("Cyclic inheritance detected for the interface " + intf->name);
+		return;
+	}
+	if (intf->completed) return;
+	intf->mark = true;
+	for (auto parent: intf->parents) {
+		if (!m_symTbl.contains(parent)) {
+			m_errors.append("Undefined symbol " + parent);
+			continue;
+		}
+		IntfPtr intfP = m_symTbl[parent];
+		processIntf(intfP);
+		for (auto ancestor : intfP->ancestors) {
+			intf->ancestors[ancestor->name] = ancestor;
+		}
+		intf->ancestors[intfP->name] = intfP;
+	}
+	intf->mark = false;
+	QMap<QString, QString> symMap;
+	for (auto member : intf->members) {
+		QString memberName = member.toMap()[NODE_KEY_SNAME].toString();
+		symMap[memberName] = intf->name;
+	}
+	for (auto it = intf->ancestors.begin(); it != intf->ancestors.end(); it++) {
+		QString nameP = it.key();
+		auto membersP = it.value()->members;
+		for (auto member : membersP) {
+			QString memberName = member.toMap()[NODE_KEY_SNAME].toString();
+			if (symMap.contains(memberName)) {
+				m_errors.append("Interface " + intf->name + ": conflict between the two symbols " +
+				symMap[memberName] + NAMESPACE_SEP + memberName + " and " + nameP + NAMESPACE_SEP + memberName);
+				continue;
+			}
+			symMap[memberName] = nameP;
+		}
+	}
+	intf->completed = true;
+}
+
+inline void IDLc::link(const QVariantList &elements) {
+	for (auto &elt: elements) {
+		IntfPtr intf = new Intf(elt.toMap());
+		if (m_symTbl.contains(intf->name)) {
+			m_errors.append("Duplicated symbol " + intf->name);
+			continue;
+		}
+		m_symTbl[intf->name] = intf;
+	}
+	for (auto intf : m_symTbl) {
+		processIntf(intf);
+	}
+	if (!m_errors.isEmpty()) {
+		throw ErrorParserException(m_errors.join("\n"));
+	}
 }
 
 int IDLc::onExec() {

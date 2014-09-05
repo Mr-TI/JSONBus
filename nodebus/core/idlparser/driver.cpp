@@ -236,15 +236,15 @@ QVariantMap& NodeIntf::map() {
 		m_infos.insert(NODE_KEY_TYPE, TYPE_NODE_INTERFACE);
 		QMap<QString, QString> symMap;
 		QString nameI = m_infos[NODE_KEY_SNAME].toString();
-		for (auto mIt = m_members.begin(); mIt != m_members.end(); mIt++) {
-			QString memberName = (*mIt).toMap()[NODE_KEY_SNAME].toString();
+		for (auto member : m_members) {
+			QString memberName = member.toMap()[NODE_KEY_SNAME].toString();
 			symMap[memberName] = nameI;
 		}
 		for (auto it = m_parents.begin(); it != m_parents.end(); it++) {
 			QString nameP = it.key();
 			auto membersP = it.value()->m_members;
-			for (auto mIt = membersP.begin(); mIt != membersP.end(); mIt++) {
-				QString memberName = (*mIt).toMap()[NODE_KEY_SNAME].toString();
+			for (auto member : membersP) {
+				QString memberName = member.toMap()[NODE_KEY_SNAME].toString();
 				if (symMap.contains(memberName)) {
 					m_driver.appendError("Interface " + nameI + ": conflict between the two symbols " +
 					symMap[memberName] + NAMESPACE_SEP + memberName + " and " + nameP + NAMESPACE_SEP + memberName);
