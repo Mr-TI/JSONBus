@@ -49,7 +49,7 @@ void IDLc::onInit() {
 	args.setExtraArgsLegend("<input file1>[ <input file1>[ <input file3>[...]]]");
 }
 
-inline FileFormat formatFromString (QString fmtStr) {
+inline FileFormat formatFromName (QString fmtStr) {
 	fmtStr = fmtStr.toUpper();
 	if (fmtStr == "IDL") {
 		return IDL;
@@ -81,7 +81,7 @@ int IDLc::onExec() {
 	QString outFile(args.getValue("output-file").toString());
 	try {
 		for (auto file: files) {
-			for (auto elt: Parser::parseFile(file, formatFromString(QFileInfo(file).suffix())).toMap()[NODE_KEY_MEMBERS].toList()) {
+			for (auto elt: Parser::parseFile(file, formatFromName(QFileInfo(file).suffix())).toMap()[NODE_KEY_MEMBERS].toList()) {
 				resList.append(elt);
 			}
 		}
@@ -90,10 +90,10 @@ int IDLc::onExec() {
 				outFile = "metadb.bcon";
 				format = BCON;
 			} else {
-				format = formatFromString(QFileInfo(outFile).suffix());
+				format = formatFromName(QFileInfo(outFile).suffix());
 			}
 		} else {
-			format = formatFromString(formatStr);
+			format = formatFromName(formatStr);
 			if (outFile.isEmpty()) {
 				outFile = "metadb." + formatStr.toLower();
 			}
