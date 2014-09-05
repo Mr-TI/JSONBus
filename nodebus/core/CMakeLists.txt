@@ -38,3 +38,9 @@ add_subdirectory(idlparser)
 # ### TARGET ###
 add_library(nodebus ${NODEBUS_LIBRARY_TYPE} ${project_SRCS} ${project_HDRS} ${project_MOC_SRCS})
 target_link_libraries(nodebus ${QT_LIBRARIES} ${OPENSSL_LIBRARIES} jsonparser idlparser)
+
+install(TARGETS nodebus 
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+)

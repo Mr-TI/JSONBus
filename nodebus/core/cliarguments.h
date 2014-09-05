@@ -104,6 +104,8 @@ public:
 	 */
 	void displayUseInstructions();
 	
+	void setHelpHeader(const QString &header);
+	
 	void setExtraArgsLegend(const QString &legend);
 	
 	void setExtraArgsDesc(const QString &desc);
@@ -133,6 +135,7 @@ private:
 	QMap<QString, Element> m_arguments;
 	QMap<char, QString> m_shortTagToName;
 	QStringList m_extraArgs;
+	QString m_helpHeader;
 	QString m_extraArgsLegend;
 	QString m_extraArgsDesc;
 };
@@ -149,6 +152,9 @@ inline void CliArguments::setExtraArgsDesc(const QString &desc) {
 	m_extraArgsDesc = desc;
 }
 
+inline void CliArguments::setHelpHeader(const QString& header) {
+	m_helpHeader = header;
+}
 
 }
 

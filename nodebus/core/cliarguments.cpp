@@ -142,6 +142,9 @@ void CliArguments::displayUseInstructions() {
 		maxlen = qMax(maxlen, argName.length());
 		list.append(LineElement(argName, COLOR_WHI + it.value().description + (argValue.type() == QVariant::String ? " (" + tr("value: ") + argValue.toString() + ")" : "")));
 	}
+	if (!m_helpHeader.isEmpty()) {
+		std::cerr << COLOR_GRE << m_helpHeader << std::endl << std::endl;
+	}
 	std::cerr << COLOR_WHI "  " << tr("Use: ") << COLOR_GRE << execName << COLOR_VIO << 
 		tr(" <options>") << COLOR_MAG << " " << m_extraArgsLegend << std::endl << 
 		std::endl << COLOR_WHI << "  " << tr("Option list:") << COLOR_RST << std::endl;

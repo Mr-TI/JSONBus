@@ -29,3 +29,9 @@ qt4_wrap_cpp(project_MOC_SRCS)
 # ### TARGET ###
 add_executable(nodebusproxy ${project_SRCS} ${project_HDRS} ${project_MOC_SRCS})
 target_link_libraries(nodebusproxy ${QT_LIBRARIES} nodebus)
+
+install(TARGETS nodebusproxy 
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+)
