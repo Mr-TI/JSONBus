@@ -135,10 +135,11 @@ void testIDLCompile(const char *filename) {
 
 int main(int argc, char **argv) {
 	try {
-		if (argc != 2) {
-			throw Exception("Missing filename");
-		}
-		testIDLCompile(argv[1]);
+// 		if (argc != 2) {
+// 			throw Exception("Missing filename");
+// 		}
+// 		testIDLCompile(argv[1]);
+		testBCONParser();
 	} catch (Exception &e) {
 		logCrit() << "terminate called after throwing an instance of " << e;
 	}
