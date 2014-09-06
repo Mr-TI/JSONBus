@@ -18,6 +18,8 @@
 #include "serializer.h"
 #include <qt4/QtCore/QVariant>
 
+#define DEBUG_TK(t) 
+
 #define BCON_TOKEN_END		((char)0x00)
 #define BCON_TOKEN_NULL		((char)0x01)
 #define BCON_TOKEN_TRUE		((char)0x02)
@@ -267,48 +269,60 @@ inline void Serializer::write64(char type, uint64_t value) {
 void Serializer::serializeBCON(const QVariant &variant, const QString *key) {
 	switch (variant.type()) {
 		case QVariant::Invalid:
+			DEBUG_TK("BCON_TOKEN_NULL");
 			m_stream << BCON_TOKEN_NULL;
 			break;
 		case QVariant::Bool: // Case of BCON boolean
+			DEBUG_TK(variant.toBool() ? "BCON_TOKEN_TRUE": "BCON_TOKEN_FALSE");
 			m_stream << (variant.toBool() ? BCON_TOKEN_TRUE: BCON_TOKEN_FALSE);
 			break;
 		case QVariant::Char: // Case of BCON boolean
+			DEBUG_TK("BCON_TOKEN_BYTE");
 			m_stream << BCON_TOKEN_BYTE
 					<< variant.toChar().toAscii();
 			break;
-		case QVariant::UInt: {
-			uint32_t num = variant.toUInt();
-			if ((num & 0xFFFF0000u) != 0)
-				write32(BCON_TOKEN_UINT32, num);
-			else
-				write16(BCON_TOKEN_UINT16, num);
-			break;
-		}
-		case QVariant::ULongLong:
-		{
-			write64(BCON_TOKEN_UINT64, variant.toUInt());
-			break;
-		}
 		case QVariant::Int:
 		{
 			int32_t num = variant.toInt();
-			if ((num & 0x7FFFFF80) != 0)
+			if ((num & 0x7FFFFF80) != 0) {
+				DEBUG_TK("BCON_TOKEN_INT8");
 				m_stream << BCON_TOKEN_BYTE
 					<< variant.toChar().toAscii();
-			else if ((num & 0x7FFF8000) != 0)
+			} else if ((num & 0x7FFF8000) != 0) {
+				DEBUG_TK("BCON_TOKEN_INT16");
 				write16(BCON_TOKEN_INT16, (uint32_t)num);
-			else
+			} else {
+				DEBUG_TK("BCON_TOKEN_INT32");
 				write32(BCON_TOKEN_INT32, (uint32_t)num);
-			write32(BCON_TOKEN_INT32, variant.toUInt());
+			}
+			break;
+		}
+		case QVariant::UInt: {
+			uint32_t num = variant.toUInt();
+			if ((num & 0xFFFF0000u) != 0) {
+				DEBUG_TK("BCON_TOKEN_UINT32");
+				write32(BCON_TOKEN_UINT32, num);
+			} else {
+				DEBUG_TK("BCON_TOKEN_UINT16");
+				write16(BCON_TOKEN_UINT16, num);
+			}
 			break;
 		}
 		case QVariant::LongLong:
 		{
+			DEBUG_TK("BCON_TOKEN_INT64");
 			write64(BCON_TOKEN_INT64, (uint64_t)variant.toUInt());
+			break;
+		}
+		case QVariant::ULongLong:
+		{
+			DEBUG_TK("BCON_TOKEN_UINT64");
+			write64(BCON_TOKEN_UINT64, variant.toUInt());
 			break;
 		}
 		case QVariant::Double:
 		{
+			DEBUG_TK("BCON_TOKEN_DOUBLE");
 			write64(BCON_TOKEN_DOUBLE, (uint64_t)variant.toDouble());
 			break;
 		}
@@ -316,25 +330,28 @@ void Serializer::serializeBCON(const QVariant &variant, const QString *key) {
 		case QVariant::Date:
 		case QVariant::Time:
 		{
+			DEBUG_TK("BCON_TOKEN_DATETIME");
 			write64(BCON_TOKEN_DATETIME, variant.toDateTime().toMSecsSinceEpoch());
-			break;
-		}
-		case QVariant::Map: // Case of BCON object
-		{
-			m_stream << BCON_TOKEN_MAP;
-			const QVariantMap elements = variant.toMap();
-			for (auto it = elements.begin(); it != elements.end(); it++) {
-				serializeBCON(it.value(), &(it.key()));
-			}
-			m_stream << BCON_TOKEN_END;
 			break;
 		}
 		case QVariant::List: // Case of BCON array
 		{
+			DEBUG_TK("BCON_TOKEN_LIST");
 			m_stream << BCON_TOKEN_LIST;
 			const QVariantList elements = variant.toList();
 			for (auto it = elements.begin(); it != elements.end(); it++) {
 				serializeBCON(*it);
+			}
+			m_stream << BCON_TOKEN_END;
+			break;
+		}
+		case QVariant::Map: // Case of BCON object
+		{
+			DEBUG_TK("BCON_TOKEN_MAP");
+			m_stream << BCON_TOKEN_MAP;
+			const QVariantMap elements = variant.toMap();
+			for (auto it = elements.begin(); it != elements.end(); it++) {
+				serializeBCON(it.value(), &(it.key()));
 			}
 			m_stream << BCON_TOKEN_END;
 			break;
@@ -344,18 +361,22 @@ void Serializer::serializeBCON(const QVariant &variant, const QString *key) {
 			QByteArray data = variant.toString().toLocal8Bit();
 			int len = data.length();
 			if (len < (LENGTH2P6)) {
+				DEBUG_TK("BCON_TOKEN_STRING6");
 				m_stream << (char) ((BCON_TOKEN_STRING6 & 0xFF) | (len & 0x3F));
 				m_stream << data;
 			} else if (len < (LENGTH2P12)) {
+				DEBUG_TK("BCON_TOKEN_STRING12");
 				m_stream << (char) ((BCON_TOKEN_STRING12 & 0xFF) | (len & 0x0F))
 						<< (char) ((len & 0xFF0) >> 4);
 				m_stream << data;
 			} else if (len < (LENGTH2P20)) {
+				DEBUG_TK("BCON_TOKEN_STRING20");
 				m_stream << (char) ((BCON_TOKEN_STRING20 & 0xFF) | (len & 0x0F))
 						<< (char) ((len & 0xFF0) >> 4)
 						<< (char) ((len & 0xFF000) >> 12);
 				m_stream << data;
 			} else if (len < (LENGTH2P36)) {
+				DEBUG_TK("BCON_TOKEN_STRING36");
 				m_stream << (char) ((BCON_TOKEN_STRING36 & 0xFF) | (len & 0x0F))
 						<< (char) ((len & 0xFF0) >> 4)
 						<< (char) ((len & 0xFF000) >> 12)
@@ -368,21 +389,26 @@ void Serializer::serializeBCON(const QVariant &variant, const QString *key) {
 		}
 		case QVariant::ByteArray: // Case of BCON string
 		{
+			DEBUG_TK();
 			QByteArray data = variant.toByteArray();
 			int len = data.length();
 			if (len < (LENGTH2P6)) {
+				DEBUG_TK("BCON_TOKEN_DATA6");
 				m_stream << (char) ((BCON_TOKEN_DATA6 & 0xFF) | (len & 0x3F));
 				m_stream << data;
 			} else if (len < (LENGTH2P12)) {
+				DEBUG_TK("BCON_TOKEN_DATA12");
 				m_stream << (char) ((BCON_TOKEN_DATA12 & 0xFF) | (len & 0x0F))
 						<< (char) ((len & 0xFF0) >> 4);
 				m_stream << data;
 			} else if (len < (LENGTH2P20)) {
+				DEBUG_TK("BCON_TOKEN_DATA20");
 				m_stream << (char) ((BCON_TOKEN_DATA20 & 0xFF) | (len & 0x0F))
 						<< (char) ((len & 0xFF0) >> 4)
 						<< (char) ((len & 0xFF000) >> 12);
 				m_stream << data;
 			} else if (len < (LENGTH2P36)) {
+				DEBUG_TK("BCON_TOKEN_DATA36");
 				m_stream << (char) ((BCON_TOKEN_DATA36 & 0xFF) | (len & 0x0F))
 						<< (char) ((len & 0xFF0) >> 4)
 						<< (char) ((len & 0xFF000) >> 12)

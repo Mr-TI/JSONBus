@@ -244,6 +244,17 @@ bool Parser::parseBCON(QVariant &res, QString* key) {
 			case BCON_TOKEN_DATETIME:
 				res = QVariant(QDateTime::fromMSecsSinceEpoch((qlonglong)read64()));
 				break;
+			case BCON_TOKEN_LIST:
+			{
+				QVariantList list;
+				while (true) {
+					QVariant value;
+					if (!parseBCON(value, NULL)) break;
+					list.append(value);
+				}
+				res = list;
+				break;
+			}
 			case BCON_TOKEN_MAP:
 			{
 				QVariantMap map;
@@ -254,17 +265,6 @@ bool Parser::parseBCON(QVariant &res, QString* key) {
 					map[key] = value;
 				}
 				res = map;
-				break;
-			}
-			case BCON_TOKEN_LIST:
-			{
-				QVariantList list;
-				while (true) {
-					QVariant value;
-					if (!parseBCON(value, NULL)) break;
-					list.append(value);
-				}
-				res = list;
 				break;
 			}
 			default:
