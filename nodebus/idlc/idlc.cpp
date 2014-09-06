@@ -42,7 +42,8 @@ IDLc::~IDLc() {
 
 void IDLc::onInit() {
 	CliArguments &args = CliArguments::getInstance();
-	args.define("dry-run", 'd', "Just try to compile/link and do not generate ouput file");
+	args.define("display", 'd', "Display result in JSON format");
+	args.define("dry-run", 'n', "Just try to compile/link and do not generate ouput file");
 	args.define("output-file", 'o', "Output file path (default: metadb.<ext>)", "");
 // 	args.define("input-format", 'i', "Output format (IDL, JSON, BSON or BCON, default: automatically detected from the extention)");
 	args.define("output-format", 'f', "Output format (JSON, BSON or BCON)", "AUTO");
@@ -186,6 +187,8 @@ int IDLc::onExec() {
 		}
 	}
 	resProps[NODE_KEY_MEMBERS] = resList;
+	if (args.isEnabled("display"))
+		logInfo() << Serializer::toJSONString(resProps, Serializer::INDENT(2));
 	if (!args.isEnabled("dry-run"))
 		Serializer(new FileChannel(outFile, O_CREAT | O_TRUNC | O_WRONLY), format).serialize(resProps);
 	return 0;
