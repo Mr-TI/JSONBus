@@ -1,7 +1,7 @@
 NodeBus
 =======
 
-[![Build Status](https://travis-ci.org/Mr-TI/NodeBus.svg?branch=master)](https://travis-ci.org/Mr-TI/NodeBus)
+[![Build Status](https://travis-ci.org/MBEDSYS/NodeBus.svg?branch=master)](https://travis-ci.org/MBEDSYS/NodeBus)
 
 prerequisites for ubuntu:
 
