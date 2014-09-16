@@ -34,12 +34,14 @@ const char * const TYPE_VAL_VOID       = "v";
 const char * const TYPE_VAL_ANY        = "a";
 const char * const TYPE_VAL_BOOLEAN    = "b";
 const char * const TYPE_VAL_BYTE       = "o";
+const char * const TYPE_VAL_UINT16     = "S";
+const char * const TYPE_VAL_INT16      = "s";
 const char * const TYPE_VAL_UINT32     = "I";
 const char * const TYPE_VAL_INT32      = "i";
 const char * const TYPE_VAL_UINT64     = "L";
 const char * const TYPE_VAL_INT64      = "l";
 const char * const TYPE_VAL_DOUBLE     = "d"; 
-const char * const TYPE_VAL_STRING     = "s";
+const char * const TYPE_VAL_STRING     = "c";
 const char * const TYPE_VAL_BYTEARRAY  = "O";
 const char * const TYPE_VAL_DATETIME   = "t";
 
