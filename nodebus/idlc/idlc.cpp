@@ -68,9 +68,9 @@ inline FileFormat formatFromName(QString fmtStr) {
 }
 
 inline Intf::Intf(const QVariantMap& node)
-: mark(false), completed(false), name(node[NODE_KEY_SNAME].toString()) {
+: mark(false), completed(false), name(node[NODE_KEY_NAME].toString()) {
 	for (auto &member: node[NODE_KEY_MEMBERS].toList()) {
-		members[member.toMap()[NODE_KEY_SNAME].toString()] = member;
+		members[member.toMap()[NODE_KEY_NAME].toString()] = member;
 	}
 	for (auto &parent: node[NODE_KEY_PARENTS].toList()) {
 		parents.append(parent.toString());
@@ -99,7 +99,7 @@ void IDLc::processIntf(IntfPtr &intf) {
 	intf->mark = false;
 	QMap<QString, QString> symMap;
 	for (auto member : intf->members) {
-		QString memberName = member.toMap()[NODE_KEY_SNAME].toString();
+		QString memberName = member.toMap()[NODE_KEY_NAME].toString();
 		if (symMap.contains(memberName)) {
 			m_errors.append("Undefined symbol " + intf->name + "::" + memberName);
 			continue;
@@ -110,7 +110,7 @@ void IDLc::processIntf(IntfPtr &intf) {
 		QString nameP = it.key();
 		auto membersP = it.value()->members;
 		for (auto member : membersP) {
-			QString memberName = member.toMap()[NODE_KEY_SNAME].toString();
+			QString memberName = member.toMap()[NODE_KEY_NAME].toString();
 			if (symMap.contains(memberName)) {
 				m_errors.append("Interface " + intf->name + ": conflict between the two symbols " +
 				symMap[memberName] + NAMESPACE_SEP + memberName + " and " + nameP + NAMESPACE_SEP + memberName);
@@ -176,9 +176,9 @@ int IDLc::onExec() {
 		return 1;
 	}
 	if (args.isEnabled("compile")) {
-		resProps[NODE_KEY_TYPE] = TYPE_NODE_FRAGMENT;
+		resProps[NODE_KEY_NODE_TYPE] = TYPE_NODE_FRAGMENT;
 	} else {
-		resProps[NODE_KEY_TYPE] = TYPE_NODE_BASE;
+		resProps[NODE_KEY_NODE_TYPE] = TYPE_NODE_BASE;
 		try {
 			link(resList);
 		} catch (Exception &e) {

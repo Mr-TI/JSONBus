@@ -20,9 +20,9 @@
 namespace idlparser {
 
 const char * const NODE_KEY_VERSION    = "V";
-const char * const NODE_KEY_TYPE       = "T";
-const char * const NODE_KEY_DTYPE      = "t";
-const char * const NODE_KEY_SNAME      = "n";
+const char * const NODE_KEY_NODE_TYPE  = "T";
+const char * const NODE_KEY_DATA_TYPE  = "t";
+const char * const NODE_KEY_NAME       = "n";
 const char * const NODE_KEY_DIRECTION  = "d";
 const char * const NODE_KEY_WRITABLE   = "w";
 const char * const NODE_KEY_VALUE      = "v";

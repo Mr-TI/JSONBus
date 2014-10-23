@@ -17,6 +17,7 @@ module Module2 {
 	interface InterfaceB {
 		attribute long attrB;
 	};
+	enum State {S1, S2, S2};
 	interface InterfaceC : Module1::Interface0, InterfaceA, Module2::InterfaceB {
 		const boolean boolval = false;
 		const long longval = 0x0A;

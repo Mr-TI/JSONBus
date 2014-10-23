@@ -53,7 +53,7 @@ QVariant Driver::parse(const QString &filename) {
 	QVariantMap resProps;
 	resProps[NODE_KEY_VERSION] = 1;
 	resProps[NODE_KEY_MEMBERS] = driver.m_localElts;
-	resProps[NODE_KEY_TYPE] = TYPE_NODE_FRAGMENT;
+	resProps[NODE_KEY_NODE_TYPE] = TYPE_NODE_FRAGMENT;
 	return resProps;
 }
 
@@ -117,7 +117,7 @@ bool Driver::setOpResult(NodePtr &pVar, NodePtr &pRes) {
 	QVariantMap &var = pVar->map();
 	QVariant::Type opDataType;
 	QString opDataTypeStr;
-	switch (var[NODE_KEY_DTYPE].toString()[0].toAscii()) {
+	switch (var[NODE_KEY_DATA_TYPE].toString()[0].toAscii()) {
 		case TYPE_VAL_VOID[0]:
 			return appendError("Error: invalid variable type void");
 		case TYPE_VAL_ANY[0]:
@@ -233,18 +233,18 @@ bool Driver::opexec(NodePtr &res, char op, NodePtr &op1_n, NodePtr &op2_n) {
 QVariantMap& NodeIntf::map() {
 	if (!m_finalized) {
 		m_infos.insert(NODE_KEY_MEMBERS, m_members);
-		m_infos.insert(NODE_KEY_TYPE, TYPE_NODE_INTERFACE);
+		m_infos.insert(NODE_KEY_NODE_TYPE, TYPE_NODE_INTERFACE);
 		QMap<QString, QString> symMap;
-		QString nameI = m_infos[NODE_KEY_SNAME].toString();
+		QString nameI = m_infos[NODE_KEY_NAME].toString();
 		for (auto member : m_members) {
-			QString memberName = member.toMap()[NODE_KEY_SNAME].toString();
+			QString memberName = member.toMap()[NODE_KEY_NAME].toString();
 			symMap[memberName] = nameI;
 		}
 		for (auto it = m_parents.begin(); it != m_parents.end(); it++) {
 			QString nameP = it.key();
 			auto membersP = it.value()->m_members;
 			for (auto member : membersP) {
-				QString memberName = member.toMap()[NODE_KEY_SNAME].toString();
+				QString memberName = member.toMap()[NODE_KEY_NAME].toString();
 				if (symMap.contains(memberName)) {
 					m_driver.appendError("Interface " + nameI + ": conflict between the two symbols " +
 					symMap[memberName] + NAMESPACE_SEP + memberName + " and " + nameP + NAMESPACE_SEP + memberName);
