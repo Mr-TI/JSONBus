@@ -46,7 +46,7 @@ inline NodeIntf::NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents)
 	for (auto parent: pParents->list()) {
 		SharedPtr<NodeIntf> pIntf = driver.curCtx()->resolve(parent.toString(), TYPE_NODE_INTERFACE);
 		if (pIntf == nullptr) continue;
-		QString parentName = pIntf->map()[NODE_KEY_SNAME].toString();
+		QString parentName = pIntf->map()[NODE_KEY_NAME].toString();
 		m_parents[parentName] = pIntf;
 		auto &gpMap = pIntf->m_parents;
 		for (auto itGP = gpMap.begin(); itGP != gpMap.end(); itGP++) {
@@ -54,13 +54,13 @@ inline NodeIntf::NodeIntf(Driver &driver, NodePtr &pSym, NodePtr &pParents)
 		}
 		parents.append(parentName);
 	}
-	m_infos.insert(NODE_KEY_SNAME, fullName);
+	m_infos.insert(NODE_KEY_NAME, fullName);
 	m_infos.insert(NODE_KEY_PARENTS, parents);
 }
 
 inline bool NodeIntf::append(NodePtr &pElt) {
 	QVariantMap elt = pElt->map();
-	QString name = m_prefix + elt[NODE_KEY_SNAME].toString();
+	QString name = m_prefix + elt[NODE_KEY_NAME].toString();
 	if (m_driver.rootCtx()->m_symTbl.contains(name)) {
 		m_driver.appendError("Dupplicated symbol " + name);
 		return false;

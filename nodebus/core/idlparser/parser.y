@@ -237,17 +237,17 @@ TYPE : TOBJECT                                    {$$ = new NodeVariant(TYPE_VAL
 FIELD : TYPE SYMBOL '<' TNUMBER '>'               {if (!driver.appendError("Error: array definition not supported")) YYABORT;}
     | TYPE SYMBOL '[' TNUMBER ']'                 {if (!driver.appendError("Error: array definition not supported")) YYABORT;}
     | TYPE SYMBOL '[' ']'                         {if (!driver.appendError("Error: array definition not supported")) YYABORT;}
-    | TYPE SYMBOL                                 {$$ = (new NodeMap())->insert(NODE_KEY_DTYPE, $1->val())->insert(NODE_KEY_SNAME, $2->val());}
+    | TYPE SYMBOL                                 {$$ = (new NodeMap())->insert(NODE_KEY_DATA_TYPE, $1->val())->insert(NODE_KEY_NAME, $2->val());}
     ;
 
-ATTRIBUTE : ATTRIBUTE_QUAL TATTRIBUTE FIELD ';'   {$$ = $3->insert(NODE_KEY_WRITABLE, $1->val())->insert(NODE_KEY_TYPE, TYPE_NODE_ATTR);}
+ATTRIBUTE : ATTRIBUTE_QUAL TATTRIBUTE FIELD ';'   {$$ = $3->insert(NODE_KEY_WRITABLE, $1->val())->insert(NODE_KEY_NODE_TYPE, TYPE_NODE_ATTR);}
     ;
 
 ATTRIBUTE_QUAL : TREADONLY                        {$$ = new NodeVariant(false);}
     |                                             {$$ = new NodeVariant(true);}
     ;
 
-CONSTANT : TCONST FIELD '=' EXPRESSION ';'        {$$ = $2; $$->insert(NODE_KEY_TYPE, TYPE_NODE_CONST); if (!driver.setOpResult($$, $4)) YYABORT;}
+CONSTANT : TCONST FIELD '=' EXPRESSION ';'        {$$ = $2; $$->insert(NODE_KEY_NODE_TYPE, TYPE_NODE_CONST); if (!driver.setOpResult($$, $4)) YYABORT;}
     ;
 
 EXPRESSION : EXPRESSION '+' EXPRESSION            {if (!driver.opexec($$, '+', $1, $3)) YYABORT;}
@@ -271,7 +271,7 @@ VALUE : TVARIANT                                  {$$ = $1;}
     ;
 
 METHOD : METHOD_HEADER RET_TYPE SYMBOL '(' PARAMETERS ')' METHOD_FOOTER ';'
-                                                  {$$ = (new NodeMap())->insert(NODE_KEY_TYPE, TYPE_NODE_METHOD)->insert(NODE_KEY_DTYPE, $2->val())->insert(NODE_KEY_SNAME, $3->val())->insert(NODE_KEY_PARAMS, $5->list());}
+                                                  {$$ = (new NodeMap())->insert(NODE_KEY_NODE_TYPE, TYPE_NODE_METHOD)->insert(NODE_KEY_DATA_TYPE, $2->val())->insert(NODE_KEY_NAME, $3->val())->insert(NODE_KEY_PARAMS, $5->list());}
     ;
 
 METHOD_HEADER : TONEWAY                           {if (!driver.appendError("Error: unsupported oneway keyword")) YYABORT;}

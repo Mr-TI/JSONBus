@@ -42,7 +42,7 @@ inline NodeModule::NodeModule(Driver &driver, NodePtr &pSym)
 
 inline bool NodeModule::append(NodePtr &pElt) {
 	QVariantMap elt = pElt->map();
-	QString name = elt[NODE_KEY_SNAME].toString();
+	QString name = elt[NODE_KEY_NAME].toString();
 	if (m_driver.rootCtx()->m_symTbl.contains(name)) {
 		m_driver.appendError("Dupplicated symbol " + name);
 		return false;
@@ -68,7 +68,7 @@ inline NodePtr NodeModule::resolve(const QString symbol, const char *type) {
 		return nullptr;
 	}
 	NodePtr result = symTbl[symName];
-	if (result->map()[NODE_KEY_TYPE].toString().at(0) != type[0]) {
+	if (result->map()[NODE_KEY_NODE_TYPE].toString().at(0) != type[0]) {
 		m_driver.appendError("Invalid symbol " + symName);
 		return nullptr;
 	}
