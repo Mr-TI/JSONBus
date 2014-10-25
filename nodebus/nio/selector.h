@@ -39,8 +39,8 @@ class SelectionKey;
  * @brief Selector
  * 
  * @author <a href="mailto:emericv@mbedsys.org">Emeric Verschuur</a>
- * @date 2014
- * @copyright Apache License, Version 2.0
+ * @copyright Copyright (C) 2012-2014 MBEDSYS SAS
+ * This library is released under the GNU Lesser General Public version 2.1
  */
 class Selector {
 	friend class SelectionKey;

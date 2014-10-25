@@ -19,7 +19,9 @@
 /**
  * @brief JSONParser : Exception management.
  * @file exception.h
- * @author Emeric VERSCHUUR <emericv@mbedsys.org>, (C) 2012
+ * @author <a href="mailto:emericv@mbedsys.org">Emeric Verschuur</a>
+ * @copyright Copyright (C) 2012-2014 MBEDSYS SAS
+ * This library is released under the GNU Lesser General Public version 2.1
  */
 #ifndef JSONPARSER_EXCEPTION_H
 #define JSONPARSER_EXCEPTION_H
