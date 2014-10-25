@@ -1,28 +1,29 @@
 /*
- *   Copyright 2012-2014 Emeric Verschuur <emericv@mbedsys.org>
+ * Copyright (C) 2012-2014 Emeric Verschuur <emericv@mbedsys.org>
  *
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- *		   http://www.apache.org/licenses/LICENSE-2.0
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <nodebus/core/sharedptr.h>
 #include <nodebus/core/logger.h>
-#include <nodebus/core/selector.h>
-#include <nodebus/core/serversocketchannel.h>
-#include <nodebus/core/selectionkey.h>
-#include <nodebus/core/socketchannel.h>
+#include <nodebus/nio/selector.h>
+#include <nodebus/nio/serversocketchannel.h>
+#include <nodebus/nio/selectionkey.h>
+#include <nodebus/nio/socketchannel.h>
 #include <nodebus/core/parser.h>
 #include <nodebus/core/serializer.h>
-#include <nodebus/core/filechannel.h>
 #include <nodebus/core/idlparser/driver.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -93,40 +94,40 @@ void testPtr() {
 	logInfo() << "DONE!";
 }
 
-void testSelect() {
-	Selector selector;
-	SharedPtr<ServerSocketChannel> server = new ServerSocketChannel("::1", 3333);
-	
-	server->registerTo(selector, SelectionKey::OP_READ);
-
-	server->accept();
-}
+// void testSelect() {
+// 	Selector selector;
+// 	SharedPtr<ServerSocketChannel> server = new ServerSocketChannel("::1", 3333);
+// 	
+// 	server->registerTo(selector, SelectionKey::OP_READ);
+// 
+// 	server->accept();
+// }
 
 void testBCONParser() {
-	QVariant v = Parser(new FileChannel("test.json", 0), FileFormat::JSON).parse();
+	QVariant v = Parser::fromFile("test.json", FileFormat::JSON);
 // 	logFiner() << Logger::dump(v);
-	Serializer(new FileChannel("test.bcon", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::BCON).serialize(v);
-	v = Parser(new FileChannel("test.bcon", 0), FileFormat::BCON).parse();
+	Serializer::toFile("test.bcon", v, FileFormat::BCON);
+	v = Parser::fromFile("test.bcon", FileFormat::BCON);
 // 	logFiner() << Logger::dump(v);
-	Serializer(new FileChannel("test_BCON.json", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::JSON).serialize(v);
+	Serializer::toFile("test_BCON.json", v, FileFormat::JSON);
 }
 
 void testBSONParser() {
-	QVariant v = Parser(new FileChannel("test.json", 0), FileFormat::JSON).parse();
+	QVariant v = Parser::fromFile("test.json", FileFormat::JSON);
 // 	logFiner() << Logger::dump(v);
-	Serializer(new FileChannel("test.bson", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::BSON).serialize(v);
-	v = Parser(new FileChannel("test.bson", 0), FileFormat::BSON).parse();
+	Serializer::toFile("test.bson", v, FileFormat::BSON);
+	v = Parser::fromFile("test.bson", FileFormat::BSON);
 // 	logFiner() << Logger::dump(v);
-	Serializer(new FileChannel("test_BSON.json", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::JSON).serialize(v);
+	Serializer::toFile("test_BSON.json", v, FileFormat::JSON);
 }
 
 void testIDLCompile(const char *filename) {
 	QString name(filename);
 	try {
 		QVariant v = idlparser::Driver::parse(name);
-// 		Serializer(new FileChannel(name + ".json", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::JSON).serialize(v);
-// 		Serializer(new FileChannel(name + ".bcon", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::BCON).serialize(v);
-// 		Serializer(new FileChannel(name + ".bson", O_CREAT | O_TRUNC | O_WRONLY), FileFormat::BSON).serialize(v);
+// 		Serializer::toFile(name + ".json", v, FileFormat::JSON);
+// 		Serializer::toFile(name + ".bcon", v, FileFormat::BCON);
+// 		Serializer::toFile(name + ".bson", v, FileFormat::BSON);
 		logInfo() << Serializer::toJSONString(v, Serializer::INDENT(2));
 	} catch (Exception &e) {
 		logCrit() << "Compilation failed:\n" << e.message();

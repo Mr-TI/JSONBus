@@ -16,13 +16,42 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "helloimpl.h"
-#include <nodebus/core/logger.h>
+#ifndef NODEBUS_SSLCONTEXT_H
+#define NODEBUS_SSLCONTEXT_H
 
-HelloImpl::HelloImpl(): Hello() {
+#include <openssl/ssl.h>
+#include <nodebus/core/sharedptr.h>
+
+/**
+ * @namespace
+ */
+namespace NodeBus {
+
+/**
+ * @brief SSL context
+ * 
+ * @author <a href="mailto:emericv@mbedsys.org">Emeric Verschuur</a>
+ * @date 2014
+ * @copyright Apache License, Version 2.0
+ */
+class SSLContext : public SharedData {
+public:
+	SSLContext();
+	
+    virtual ~SSLContext();
+	
+	virtual SSL_CTX *getCTX() = 0;
+};
+
+inline SSLContext::SSLContext() {
+}
+
+inline SSLContext::~SSLContext() {
+}
+
+
+typedef SharedPtr<SSLContext> SSLContextPtr;
 
 }
 
-void HelloImpl::sayHello(const QString &name) {
-	NodeBus::logInfo() << "Hello " << name << "!";
-}
+#endif // NODEBUS_SSLCONTEXT_H

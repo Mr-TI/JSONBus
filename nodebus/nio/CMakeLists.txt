@@ -19,21 +19,25 @@
 # ### FILES ###
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-add_definitions(-DUSE_NODEBUS_EXCEPTION)
 file(GLOB project_HDRS *.h)
 file(GLOB project_SRCS *.cpp)
 
-# ### FLEX & BISON ###
-find_package(BISON)
-find_package(FLEX)
-if ("${BISON_VERSION}" MATCHES "(^2\\..*)")
-	add_definitions(-DGNU_BISON_V2)
-bison_target(Parser parser.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cc)
-else ()
-bison_target(Parser parser.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cc COMPILE_FLAGS -Wno-deprecated)
-endif ()
-flex_target(Scanner scanner.l ${CMAKE_CURRENT_BINARY_DIR}/scanner.cc)
-add_flex_bison_dependency(Scanner Parser)
+# ### QT4 ###
+find_package(Qt4 COMPONENTS QtCore REQUIRED)
+include(${QT_USE_FILE})
+qt4_wrap_ui(project_UIS_H)
+qt4_wrap_cpp(project_MOC_SRCS channel.h peeradmin.h peer.h)
+
+# ### SSL ###
+find_package(OpenSSL REQUIRED)
+include_directories(${OPENSSL_INCLUDE_DIR})
 
 # ### TARGET ###
-add_library(jsonparser STATIC ${BISON_Parser_OUTPUTS} ${FLEX_Scanner_OUTPUTS} ${project_SRCS} ${project_HDRS})
+add_library(nodebusnio ${NODEBUS_LIBRARY_TYPE} ${project_SRCS} ${project_HDRS} ${project_MOC_SRCS})
+target_link_libraries(nodebusnio ${QT_LIBRARIES} ${OPENSSL_LIBRARIES} nodebus)
+
+install(TARGETS nodebusnio 
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+)

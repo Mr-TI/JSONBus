@@ -16,13 +16,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "helloimpl.h"
-#include <nodebus/core/logger.h>
+#include "sslcontext.h"
 
-HelloImpl::HelloImpl(): Hello() {
+namespace NodeBus {
 
-}
-
-void HelloImpl::sayHello(const QString &name) {
-	NodeBus::logInfo() << "Hello " << name << "!";
 }

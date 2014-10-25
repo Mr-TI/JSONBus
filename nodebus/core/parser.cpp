@@ -1,114 +1,90 @@
 /*
- *   Copyright 2012-2014 Emeric Verschuur <emericv@mbedsys.org>
+ * Copyright (C) 2012-2014 Emeric Verschuur <emericv@mbedsys.org>
  *
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- *		   http://www.apache.org/licenses/LICENSE-2.0
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include "common.h"
 #include "parser.h"
-#include "streamchannel.h"
 #include "jsonparser/driver.h"
 #include "logger.h"
 #include "idlparser/driver.h"
-#include "filechannel.h"
 #include <qt4/QtCore/QVariant>
 #include <qt4/QtCore/QDate>
 
-#define BCON_TOKEN_END		((char)0x00)
-#define BCON_TOKEN_NULL		((char)0x01)
-#define BCON_TOKEN_TRUE		((char)0x02)
-#define BCON_TOKEN_FALSE	((char)0x03)
-#define BCON_TOKEN_BYTE		((char)0x04)
-#define BCON_TOKEN_INT16	((char)0x05)
-#define BCON_TOKEN_UINT16	((char)0x06)
-#define BCON_TOKEN_INT32	((char)0x07)
-#define BCON_TOKEN_UINT32	((char)0x08)
-#define BCON_TOKEN_INT64	((char)0x09)
-#define BCON_TOKEN_UINT64	((char)0x0A)
-#define BCON_TOKEN_DOUBLE	((char)0x0B)
-#define BCON_TOKEN_DATETIME	((char)0x0C)
-#define BCON_TOKEN_LIST		((char)0x0E)
-#define BCON_TOKEN_MAP		((char)0x0F)
+#define BCON_TOKEN_END		((quint8)0x00)
+#define BCON_TOKEN_NULL		((quint8)0x01)
+#define BCON_TOKEN_TRUE		((quint8)0x02)
+#define BCON_TOKEN_FALSE	((quint8)0x03)
+#define BCON_TOKEN_BYTE		((quint8)0x04)
+#define BCON_TOKEN_INT16	((quint8)0x05)
+#define BCON_TOKEN_UINT16	((quint8)0x06)
+#define BCON_TOKEN_INT32	((quint8)0x07)
+#define BCON_TOKEN_UINT32	((quint8)0x08)
+#define BCON_TOKEN_INT64	((quint8)0x09)
+#define BCON_TOKEN_UINT64	((quint8)0x0A)
+#define BCON_TOKEN_DOUBLE	((quint8)0x0B)
+#define BCON_TOKEN_DATETIME	((quint8)0x0C)
+#define BCON_TOKEN_LIST		((quint8)0x0E)
+#define BCON_TOKEN_MAP		((quint8)0x0F)
 
-#define BSON_TOKEN_END		((char)0x00)
-#define BSON_TOKEN_NULL		((char)0x0A)
-#define BSON_TOKEN_TRUE		((char)0x00)
-#define BSON_TOKEN_FALSE	((char)0x01)
-#define BSON_TOKEN_INT32	((char)0x10)
-#define BSON_TOKEN_INT64	((char)0x12)
-#define BSON_TOKEN_DOUBLE	((char)0x01)
-#define BSON_TOKEN_DATETIME	((char)0x09)
-#define BSON_TOKEN_STRING	((char)0x02)
-#define BSON_TOKEN_DATA		((char)0x05)
-#define BSON_TOKEN_UNDEF	((char)0x06)
-#define BSON_TOKEN_OID		((char)0x07)
-#define BSON_TOKEN_BOOL		((char)0x08)
-#define BSON_TOKEN_REGEX	((char)0x0B)
-#define BSON_TOKEN_JSCODE	((char)0x0D)
-#define BSON_TOKEN_DEPREC	((char)0x0E)
-#define BSON_TOKEN_MAP		((char)0x03)
-#define BSON_TOKEN_LIST		((char)0x04)
-#define BSON_TOKEN_GENERIC	((char)0x00)
-#define BSON_TOKEN_OLDUUID	((char)0x03)
-#define BSON_TOKEN_UUID		((char)0x04)
+#define BSON_TOKEN_END		((quint8)0x00)
+#define BSON_TOKEN_NULL		((quint8)0x0A)
+#define BSON_TOKEN_TRUE		((quint8)0x00)
+#define BSON_TOKEN_FALSE	((quint8)0x01)
+#define BSON_TOKEN_INT32	((quint8)0x10)
+#define BSON_TOKEN_INT64	((quint8)0x12)
+#define BSON_TOKEN_DOUBLE	((quint8)0x01)
+#define BSON_TOKEN_DATETIME	((quint8)0x09)
+#define BSON_TOKEN_STRING	((quint8)0x02)
+#define BSON_TOKEN_DATA		((quint8)0x05)
+#define BSON_TOKEN_UNDEF	((quint8)0x06)
+#define BSON_TOKEN_OID		((quint8)0x07)
+#define BSON_TOKEN_BOOL		((quint8)0x08)
+#define BSON_TOKEN_REGEX	((quint8)0x0B)
+#define BSON_TOKEN_JSCODE	((quint8)0x0D)
+#define BSON_TOKEN_DEPREC	((quint8)0x0E)
+#define BSON_TOKEN_MAP		((quint8)0x03)
+#define BSON_TOKEN_LIST		((quint8)0x04)
+#define BSON_TOKEN_GENERIC	((quint8)0x00)
+#define BSON_TOKEN_OLDUUID	((quint8)0x03)
+#define BSON_TOKEN_UUID		((quint8)0x04)
 
 namespace NodeBus {
 
-struct __data_buffer_t {
-	const char *data;
-	const char *end;
-};
-
-static char __parser_datastream_getc(void* ptr) {
-	if (((__data_buffer_t*)ptr)->data == ((__data_buffer_t*)ptr)->end) {
-		throw EOFException();
-	}
-	return *(((__data_buffer_t*)ptr)->data++);
-}
-
-static char __parser_channel_getc(void* stream) {
-	return ((StreamChannel*)stream)->get();
-}
-
-Parser::Parser(fGetc_t getChar, void* ptr, FileFormat format)
-	: m_format(format), m_getChar(getChar), m_ptr(ptr) {
+Parser::Parser(QDataStream &dataStream, FileFormat format)
+: m_format(format), m_dataStream(dataStream), m_driver(NULL) {
+	m_dataStream.setByteOrder(QDataStream::LittleEndian);
 	if (format == FileFormat::JSON) {
-		m_ptr = new jsonparser::Driver(getChar, ptr);
+		m_driver = new jsonparser::Driver(dataStream);
 	}
 }
 
 QVariant Parser::parse(const QByteArray& data, FileFormat format) {
-	__data_buffer_t buf = {data.constData(), data.constData() + data.length()};
-	Parser parser(__parser_datastream_getc, &buf, format);
-	return parser.parse();
+	QDataStream dataStream(data);
+	return Parser(dataStream).parse();
 }
 
 QVariant Parser::parse(const char* data, uint len, FileFormat format) {
-	__data_buffer_t buf = {data, data + len};
-	Parser parser(__parser_datastream_getc, &buf, format);
-	return parser.parse();
-}
-
-Parser::Parser(StreamChannelPtr channel, FileFormat format)
-	: m_format(format), m_channel(channel), m_getChar(__parser_channel_getc), m_ptr(channel.data()) {
-	if (format == FileFormat::JSON) {
-		m_ptr = new jsonparser::Driver(m_getChar, m_ptr);
-	}
+	QDataStream dataStream(QByteArray(data, len));
+	return Parser(dataStream).parse();
 }
 
 Parser::~Parser() {
 	if (m_format == FileFormat::JSON) {
-		delete (jsonparser::Driver*)m_ptr;
+		delete (jsonparser::Driver*)m_driver;
 	}
 }
 
@@ -122,7 +98,7 @@ QVariant Parser::parse() {
 			res = parseBSONDocument();
 			break;
 		case FileFormat::JSON:
-			res = ((jsonparser::Driver*)(m_ptr))->parse();
+			res = ((jsonparser::Driver*)(m_driver))->parse();
 			break;
 		case FileFormat::IDL:
 			throw Exception("Unsupported IDL format");
@@ -131,77 +107,63 @@ QVariant Parser::parse() {
 	return res;
 }
 
-QVariant Parser::parseFile(const QString fileName, FileFormat format) {
+QVariant Parser::fromFile(const QString &fileName, FileFormat format) {
 	switch (format) {
 		case FileFormat::BCON:
 		case FileFormat::BSON:
-		case FileFormat::JSON:
-			return Parser(new FileChannel(fileName, 0), format).parse();
+		case FileFormat::JSON: {
+			QFile file(fileName);
+			if (!file.open(QIODevice::ReadOnly)) {
+				throw IOException(file.errorString());
+			}
+			QDataStream stream(&file);
+			return Parser(stream, format).parse();
+		}
 		case FileFormat::IDL:
 			return idlparser::Driver::parse(fileName);
 	}
 	throw ParserException();
 }
 
-inline char Parser::getc() {
-	return m_getChar(m_ptr);
-}
-
-inline uint16_t Parser::read16() {
-	return (getc() & 0xFF)
-		| ((getc() & 0xFF) << 8);
-}
-
-inline uint32_t Parser::read32() {
-	return (getc() & 0xFF)
-		| ((getc() & 0xFF) << 8)
-		| ((getc() & 0xFF) << 16)
-		| ((getc() & 0xFF) << 24);
-}
-
-inline uint64_t Parser::read64() {
-	return (uint64_t)(getc() & 0xFF)
-		| ((uint64_t)(getc() & 0xFF) << 8)
-		| ((uint64_t)(getc() & 0xFF) << 16)
-		| ((uint64_t)(getc() & 0xFF) << 24)
-		| ((uint64_t)(getc() & 0xFF) << 32)
-		| ((uint64_t)(getc() & 0xFF) << 40)
-		| ((uint64_t)(getc() & 0xFF) << 48)
-		| ((uint64_t)(getc() & 0xFF) << 56);
+template <typename T>
+inline T Parser::read() {
+	T value;
+	m_dataStream >> value;
+	return value;
 }
 
 bool Parser::parseBCON(QVariant &res, QString* key) {
-	char c = getc();
+	char c = read<quint8>();
 	if (c & 0x80) {
-		int32_t len;
+		qint32 len;
 		len = c & 0x3F;
 		char buf[len];
 		for (int i = 0; i < len; i++) {
-			buf[i] = getc();
+			buf[i] = read<quint8>();
 		}
 		res = (c & 0x40) ? QString::fromUtf8(buf, len) : QByteArray(buf, len);
 	} else if (c & 0xF0) {
-		int32_t len;
+		qint32 len;
 		len = c & 0x0F;
 		switch (c & 0x30) {
 			case 0x10:
-				len |= (getc() & 0xFF) << 4;
+				len |= read<quint8>() << 4;
 				break;
 			case 0x20:
-				len |= ((getc() & 0xFF) << 4) 
-					| ((getc() & 0xFF) << 12);
+				len |= (read<quint8>() << 4) 
+					| (read<quint8>() << 12);
 				break;
 			case 0x30:
-				len |= ((getc() & 0xFF) << 4) 
-					| ((getc() & 0xFF) << 12) 
-					| ((getc() & 0xFF) << 20);
+				len |= (read<quint8>() << 4) 
+					| (read<quint8>() << 12) 
+					| (read<quint8>() << 20);
 				break;
 			default:
-				throw ParserException("Invalid " + QString((c & 0x40) ? "BCON_TOKEN_STRING" : "BCON_TOKEN_DATA")  + " type " + QString::number(uint8_t(c & 0x30), 16));
+				throw ParserException("Invalid " + QString((c & 0x40) ? "BCON_TOKEN_STRING" : "BCON_TOKEN_DATA")  + " type " + QString::number(quint8(c & 0x30), 16));
 		}
 		char buf[len];
 		for (int i = 0; i < len; i++) {
-			buf[i] = getc();
+			buf[i] = read<quint8>();
 		}
 		res = (c & 0x40) ? QString::fromUtf8(buf, len) : QByteArray(buf, len);
 	} else {
@@ -218,31 +180,31 @@ bool Parser::parseBCON(QVariant &res, QString* key) {
 				res = QVariant(false);
 				break;
 			case BCON_TOKEN_BYTE:
-				res = QVariant(getc());
+				res = QVariant(read<quint8>());
 				break;
 			case BCON_TOKEN_INT16:
-				res = QVariant((int16_t)read16());
+				res = QVariant(read<qint16>());
 				break;
 			case BCON_TOKEN_UINT16:
-				res = QVariant((uint16_t)read16());
+				res = QVariant(read<quint16>());
 				break;
 			case BCON_TOKEN_INT32:
-				res = QVariant((int32_t)read32());
+				res = QVariant(read<qint32>());
 				break;
 			case BCON_TOKEN_UINT32:
-				res = QVariant((uint32_t)read32());
+				res = QVariant(read<quint32>());
 				break;
 			case BCON_TOKEN_INT64:
-				res = QVariant((qlonglong)read64());
+				res = QVariant(read<qlonglong>());
 				break;
 			case BCON_TOKEN_UINT64:
-				res = QVariant((qulonglong)read64());
+				res = QVariant(read<qulonglong>());
 				break;
 			case BCON_TOKEN_DOUBLE:
-				res = QVariant((double)read64());
+				res = QVariant(read<double>());
 				break;
 			case BCON_TOKEN_DATETIME:
-				res = QVariant(QDateTime::fromMSecsSinceEpoch((qlonglong)read64()));
+				res = QVariant(QDateTime::fromMSecsSinceEpoch(read<qlonglong>()));
 				break;
 			case BCON_TOKEN_LIST:
 			{
@@ -272,7 +234,7 @@ bool Parser::parseBCON(QVariant &res, QString* key) {
 		}
 	}
 	if (key) {
-		while ((c = getc()) != '\0') {
+		while ((c = read<quint8>()) != '\0') {
 			key->append(c);
 		}
 	}
@@ -280,7 +242,7 @@ bool Parser::parseBCON(QVariant &res, QString* key) {
 }
 
 QVariant Parser::parseBSONDocument() {
-	read32();
+	read<quint32>();
 	QVariantMap map;
 	while (true) {
 		QString key;
@@ -292,11 +254,11 @@ QVariant Parser::parseBSONDocument() {
 }
 
 bool Parser::parseBSONElt(QVariant &res, QString &key) {
-	char c, t = getc();
+	char c, t = read<quint8>();
 	if (t == BSON_TOKEN_END) {
 		return false;
 	}
-	while ((c = getc()) != '\0') {
+	while ((c = read<quint8>()) != '\0') {
 		key.append(c);
 	}
 	switch (t) {
@@ -306,49 +268,49 @@ bool Parser::parseBSONElt(QVariant &res, QString &key) {
 			res = QVariant();
 			break;
 		case BSON_TOKEN_BOOL:
-			res = QVariant(getc() == BSON_TOKEN_TRUE);
+			res = QVariant(read<quint8>() == BSON_TOKEN_TRUE);
 			break;
 		case BSON_TOKEN_INT32:
-			res = QVariant((int32_t)read32());
+			res = QVariant(read<qint32>());
 			break;
 		case BSON_TOKEN_INT64:
-			res = QVariant((qlonglong)read64());
+			res = QVariant(read<qlonglong>());
 			break;
 		case BSON_TOKEN_DOUBLE:
-			res = QVariant((double)read64());
+			res = QVariant(read<double>());
 			break;
 		case BSON_TOKEN_DATETIME:
-			res = QVariant(QDateTime::fromMSecsSinceEpoch((qlonglong)read64()));
+			res = QVariant(QDateTime::fromMSecsSinceEpoch(read<qlonglong>()));
 			break;
 		case BSON_TOKEN_STRING:
 		case BSON_TOKEN_JSCODE:
 		{
-			int32_t len = read32()-1;
+			quint32 len = read<quint32>()-1;
 			char buf[len];
-			for (int i = 0; i < len; i++) {
-				buf[i] = getc();
+			for (quint32 i = 0; i < len; i++) {
+				buf[i] = read<quint8>();
 			}
-			getc();
+			read<quint8>();
 			res = QVariant(QString::fromUtf8(buf, len));
 			break;
 		}
 		case BSON_TOKEN_OID:
 		{
-			int32_t len = 12;
+			quint32 len = 12;
 			char buf[len];
-			for (int i = 0; i < len; i++) {
-				buf[i] = getc();
+			for (quint32 i = 0; i < len; i++) {
+				buf[i] = read<quint8>();
 			}
 			res = QVariant(QByteArray(buf, len));
 			break;
 		}
 		case BSON_TOKEN_DATA:
 		{
-			char type = getc();
-			int32_t len = read32();
+			char type = read<quint8>();
+			quint32 len = read<quint32>();
 			char buf[len];
-			for (int i = 0; i < len; i++) {
-				buf[i] = getc();
+			for (quint32 i = 0; i < len; i++) {
+				buf[i] = read<quint8>();
 			}
 			switch (type) {
 				case BSON_TOKEN_OLDUUID:
@@ -363,7 +325,7 @@ bool Parser::parseBSONElt(QVariant &res, QString &key) {
 		}
 		case BSON_TOKEN_MAP:
 		{
-			read32();
+			read<quint32>();
 			QVariantMap map;
 			while (true) {
 				QString key;
@@ -376,7 +338,7 @@ bool Parser::parseBSONElt(QVariant &res, QString &key) {
 		}
 		case BSON_TOKEN_LIST:
 		{
-			read32();
+			read<quint32>();
 			QVariantList list;
 			while (true) {
 				QString key;

@@ -1,17 +1,19 @@
 /*
- *   Copyright 2012-2014 Emeric Verschuur <emericv@mbedsys.org>
+ * Copyright (C) 2012-2014 Emeric Verschuur <emericv@mbedsys.org>
  *
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
  *
- *		   http://www.apache.org/licenses/LICENSE-2.0
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 /**
@@ -27,7 +29,7 @@
 
 #include <nodebus/core/exception.h>
 #include <nodebus/core/global.h>
-#include <qt4/QtCore/QByteArray>
+#include <QByteArray>
 
 #ifndef NODEBUS_EXPORT
 #define NODEBUS_EXPORT
@@ -37,26 +39,17 @@ namespace NodeBus {
 
 nodebus_declare_exception(ParserException, Exception);
 nodebus_declare_exception(ErrorParserException, ParserException);
-class StreamChannel;
 
 /**
  * @brief BCON Parser management.
  */
 class NODEBUS_EXPORT Parser {
 public:
-	typedef char (*fGetc_t)(void *ptr);
-	
 	/**
 	 * @brief Parser constructor.
 	 * @param channel Channel pointer
 	 */
-	Parser(fGetc_t getChar, void *ptr, FileFormat format = JSON);
-	
-	/**
-	 * @brief Parser constructor.
-	 * @param channel Channel pointer
-	 */
-	Parser(SharedPtr<StreamChannel> channel, FileFormat format = JSON);
+	Parser(QDataStream &dataStream, FileFormat format = JSON);
 	
 	/**
 	 * @brief Parser destructor.
@@ -75,7 +68,7 @@ public:
 	 * @return QVariant object
 	 * @throw ParserException on parsing error
 	 */
-	static QVariant parseFile(const QString fileName, FileFormat format = JSON);
+	static QVariant fromFile(const QString &fileName, FileFormat format = JSON);
 	
 	/**
 	 * @brief Parse a BCON data from a byte array
@@ -93,16 +86,12 @@ public:
 	
 private:
 	bool parseBCON(QVariant &res, QString* key);
-	char getc();
-	uint16_t read16();
-	uint32_t read32();
-	uint64_t read64();
+	template <typename T> T read();
 	FileFormat m_format;
-	SharedPtr<StreamChannel> m_channel;
-	fGetc_t m_getChar;
-	void *m_ptr;
+	QDataStream &m_dataStream;
 	QVariant parseBSONDocument();
 	bool parseBSONElt(QVariant &res, QString &key);
+	void *m_driver;
 };
 
 }

@@ -17,44 +17,55 @@
  */
 
 /**
- * @brief NodeBus : NodeBus master service management.
+ * @brief NodeBus proxy : JSON task parser management.
  * 
  * @author <a href="mailto:emericv@mbedsys.org">Emeric Verschuur</a>
  * @date 2014
  * @copyright Apache License, Version 2.0
  */
 
-#ifndef NODEBUS_MASTER_H
-#define NODEBUS_MASTER_H
 
-#include <nodebus/core/application.h>
-#include <nodebus/bundle/bundle.h>
+#ifndef NODEBUS_PEERADMIN_H
+#define NODEBUS_PEERADMIN_H
 
-using namespace NodeBus;
+#include <QRunnable>
+#include <nodebus/nio/serversocketchannel.h>
+#include <nodebus/nio/socketchannel.h>
+#include <nodebus/nio/selectionkey.h>
+#include <nodebus/nio/peer.h>
 
-nodebus_declare_exception(MasterException, Exception);
+namespace NodeBus {
 
-/**
- * @brief Dynamic library management.
- */
-class Master : public Application {
-private:
-	SettingsPtr m_settings;
-	QMap<QString, BundlePtr> m_bundles;
+class PeerAdmin : public QThread {
+	Q_OBJECT
 public:
-	/**
-	 * @brief Service constructor.
-	 */
-	Master(int &argc, char **argv);
-
-	/**
-	 * @brief Service destructor.
-	 */
-	~Master();
 	
-protected:
-	virtual void onInit();
-	virtual void onStart();
+	/**
+	 * @brief Server constructor.
+	 * @param fd File descriptor
+	 * @param parent Parent object
+	 */
+	PeerAdmin(QObject* parent=0);
+	
+	virtual ~PeerAdmin();
+	
+	/**
+	 * @brief Task main
+	 */
+	virtual void run();
+	
+	void attach(ChannelPtr channel, GenericPtr attachement=NULL);
+	void processPeer(PeerPtr client);
+	
+public slots:
+	void cancel();
+private:
+	void processServer(ServerSocketChannelPtr socket, SharedPtr<Peer::Factory> factory);
+	
+	bool m_enabled;
+	Selector m_selector;
 };
 
-#endif
+}
+
+#endif // NODEBUS_PEERADMIN_H

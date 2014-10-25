@@ -27,5 +27,5 @@ qt4_wrap_ui(project_UIS_H)
 qt4_wrap_cpp(project_MOC_SRCS)
 
 # ### TARGET ###
-add_executable(test ${project_SRCS} ${project_HDRS})
-target_link_libraries(test ${QT_LIBRARIES} nodebus)
+add_executable(nodebustest ${project_SRCS} ${project_HDRS})
+target_link_libraries(nodebustest ${QT_LIBRARIES} nodebus)

@@ -16,13 +16,48 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "helloimpl.h"
-#include <nodebus/core/logger.h>
+#ifndef JSONPARSER_SOCKETCHANNEL_H
+#define JSONPARSER_SOCKETCHANNEL_H
 
-HelloImpl::HelloImpl(): Hello() {
+#include <nodebus/core/exception.h>
+#include <nodebus/nio/iochannel.h>
+
+/**
+ * @namespace
+ */
+namespace NodeBus {
+
+class ServerSocketChannel;
+
+/**
+ * @brief Abstract channel
+ * 
+ * @author <a href="mailto:emericv@mbedsys.org">Emeric Verschuur</a>
+ * @date 2014
+ * @copyright Apache License, Version 2.0
+ */
+class SocketChannel: public IOChannel {
+	friend class ServerSocketChannel;
+public:
+	/**
+	 * @brief Socket constructor
+	 */
+	SocketChannel(const QString &host, int port);
+	
+	/**
+	 * @brief Socket destructor
+	 */
+	virtual ~SocketChannel();
+	
+protected:
+	SocketChannel(int fd, const QString &name);
+	
+private:
+	QString m_name;
+};
+
+typedef SharedPtr<SocketChannel> SocketChannelPtr;
 
 }
 
-void HelloImpl::sayHello(const QString &name) {
-	NodeBus::logInfo() << "Hello " << name << "!";
-}
+#endif // JSONPARSER_SOCKETCHANNEL_H
