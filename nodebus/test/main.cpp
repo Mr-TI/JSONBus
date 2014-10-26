@@ -104,21 +104,21 @@ void testPtr() {
 // }
 
 void testBCONParser() {
-	QVariant v = Parser::fromFile("test.json", FileFormat::JSON);
+	QVariant v = Parser::fromFile("test/test.json", FileFormat::JSON);
 // 	logFiner() << Logger::dump(v);
-	Serializer::toFile("test.bcon", v, FileFormat::BCON);
-	v = Parser::fromFile("test.bcon", FileFormat::BCON);
+	Serializer::toFile("test/test.bcon", v, FileFormat::BCON);
+	v = Parser::fromFile("test/test.bcon", FileFormat::BCON);
 // 	logFiner() << Logger::dump(v);
-	Serializer::toFile("test_BCON.json", v, FileFormat::JSON);
+	Serializer::toFile("test/test_BCON.json", v, FileFormat::JSON, Serializer::INDENT(2));
 }
 
 void testBSONParser() {
-	QVariant v = Parser::fromFile("test.json", FileFormat::JSON);
+	QVariant v = Parser::fromFile("test/test.json", FileFormat::JSON);
 // 	logFiner() << Logger::dump(v);
-	Serializer::toFile("test.bson", v, FileFormat::BSON);
-	v = Parser::fromFile("test.bson", FileFormat::BSON);
+	Serializer::toFile("test/test.bson", v, FileFormat::BSON);
+	v = Parser::fromFile("test/test.bson", FileFormat::BSON);
 // 	logFiner() << Logger::dump(v);
-	Serializer::toFile("test_BSON.json", v, FileFormat::JSON);
+	Serializer::toFile("test/test_BSON.json", v, FileFormat::JSON, Serializer::INDENT(2));
 }
 
 void testIDLCompile(const char *filename) {
@@ -141,6 +141,7 @@ int main(int argc, char **argv) {
 // 		}
 // 		testIDLCompile(argv[1]);
 		testBCONParser();
+		testBSONParser();
 	} catch (Exception &e) {
 		logCrit() << "terminate called after throwing an instance of " << e;
 	}

@@ -106,7 +106,7 @@ void Serializer::toFile(const QString &fileName, const QVariant &variant, FileFo
 		case FileFormat::BSON:
 		case FileFormat::JSON: {
 			QFile file(fileName);
-			if (!file.open(QIODevice::ReadOnly)) {
+			if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
 				throw IOException(file.errorString());
 			}
 			QDataStream stream(&file);
@@ -312,7 +312,7 @@ void Serializer::serializeBCON(const QVariant &variant, const QString *key) {
 		
 	}
 		
-	if (key) m_dataStream << *key << '\0';
+	if (key) m_dataStream << (*key).toLocal8Bit() << '\0';
 }
 
 void Serializer::serializeJSON(const QVariant &variant, quint32 flags) {
