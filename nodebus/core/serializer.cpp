@@ -146,17 +146,6 @@ static QString sanitizeString( QString str ) {
 	return QString( QLatin1String( "\"%1\"" ) ).arg( str );
 }
 
-template <typename T>
-inline void Serializer::write(QByteArray& output, T value) {
-	QBuffer buf(&output);
-	DataStream(&buf) << value;
-}
-
-template <typename T>
-inline void Serializer::write(quint8 type, T value) {
-	m_dataStream << type << value;
-}
-
 void Serializer::serializeBCON(const QVariant &variant, const QString *key) {
 	switch (variant.type()) {
 		case QVariant::Invalid:
@@ -175,46 +164,46 @@ void Serializer::serializeBCON(const QVariant &variant, const QString *key) {
 		case QVariant::Int:
 		{
 			qint32 num = variant.toInt();
-			if ((num & 0x7FFFFF80) != 0) {
+			if ((num & 0x7FFFFF80) == 0) {
 				DEBUG_TK("BCON_TOKEN_BYTE");
 				m_dataStream << BCON_TOKEN_BYTE
 					<< variant.toChar().toAscii();
-			} else if ((num & 0x7FFF8000) != 0) {
+			} else if ((num & 0x7FFF8000) == 0) {
 				DEBUG_TK("BCON_TOKEN_INT16");
-				write<qint16>(BCON_TOKEN_INT16, num);
+				m_dataStream << BCON_TOKEN_INT16 << qint16(num);
 			} else {
 				DEBUG_TK("BCON_TOKEN_INT32");
-				write<qint32>(BCON_TOKEN_INT32, num);
+				m_dataStream << BCON_TOKEN_INT32 << num;
 			}
 			break;
 		}
 		case QVariant::UInt: {
 			quint32 num = variant.toUInt();
-			if ((num & 0xFFFF0000u) != 0) {
-				DEBUG_TK("BCON_TOKEN_UINT32");
-				write<quint32>(BCON_TOKEN_UINT32, num);
-			} else {
+			if ((num & 0xFFFF0000u) == 0) {
 				DEBUG_TK("BCON_TOKEN_UINT16");
-				write<quint16>(BCON_TOKEN_UINT16, num);
+				m_dataStream << BCON_TOKEN_UINT16 << quint16(num);
+			} else {
+				DEBUG_TK("BCON_TOKEN_UINT32");
+				m_dataStream << BCON_TOKEN_UINT32 << num;
 			}
 			break;
 		}
 		case QVariant::LongLong:
 		{
 			DEBUG_TK("BCON_TOKEN_INT64");
-			write<qint64>(BCON_TOKEN_INT64, variant.toLongLong());
+			m_dataStream << BCON_TOKEN_INT64 << variant.toLongLong();
 			break;
 		}
 		case QVariant::ULongLong:
 		{
 			DEBUG_TK("BCON_TOKEN_UINT64");
-			write<quint64>(BCON_TOKEN_UINT64, variant.toULongLong());
+			m_dataStream << BCON_TOKEN_UINT64 << variant.toULongLong();
 			break;
 		}
 		case QVariant::Double:
 		{
 			DEBUG_TK("BCON_TOKEN_DOUBLE");
-			write<double>(BCON_TOKEN_DOUBLE, variant.toDouble());
+			m_dataStream << BCON_TOKEN_DOUBLE << variant.toDouble();
 			break;
 		}
 		case QVariant::DateTime:
@@ -222,7 +211,7 @@ void Serializer::serializeBCON(const QVariant &variant, const QString *key) {
 		case QVariant::Time:
 		{
 			DEBUG_TK("BCON_TOKEN_DATETIME");
-			write<qint64>(BCON_TOKEN_DATETIME, variant.toDateTime().toMSecsSinceEpoch());
+			m_dataStream << BCON_TOKEN_DATETIME << variant.toDateTime().toMSecsSinceEpoch();
 			break;
 		}
 		case QVariant::List: // Case of BCON array
@@ -410,12 +399,15 @@ void Serializer::serializeJSON(const QVariant &variant, quint32 flags) {
 
 QByteArray Serializer::serializeBSONDocument(const QVariant &variant) {
 	QByteArray payload;
+	QBuffer payloadBuf(&payload);
+    payloadBuf.open(QIODevice::WriteOnly);
+	DataStream payloadDataStream(&payloadBuf);
 	switch (variant.type()) {
 		case QVariant::Map: // Case of BSON object
 		{
 			const QVariantMap elements = variant.toMap();
 			for (auto it = elements.begin(); it != elements.end(); it++) {
-				payload.append(serializeBSONElt(it.value(), it.key()));
+				serializeBSONElt(payloadDataStream, it.value(), it.key());
 			}
 			break;
 		}
@@ -424,7 +416,7 @@ QByteArray Serializer::serializeBSONDocument(const QVariant &variant) {
 			const QVariantList elements = variant.toList();
 			uint i = 0;
 			for (auto it = elements.begin(); it != elements.end(); it++, i++) {
-				payload.append(serializeBSONElt(*it, QString::number(i)));
+				serializeBSONElt(payloadDataStream, *it, QString::number(i));
 			}
 			break;
 		}
@@ -432,106 +424,81 @@ QByteArray Serializer::serializeBSONDocument(const QVariant &variant) {
 			throw SerializerException("Fatal: Invalid document.");
 	}
 	QByteArray ret;
-	write<quint32>(ret, payload.length() + 5);
-	ret.append(payload);
-	ret.append((char)BSON_TOKEN_END);
+	QBuffer retBuf(&ret);
+    retBuf.open(QIODevice::WriteOnly);
+	DataStream retDataStream(&retBuf);
+	retDataStream << qint32(payload.length() + 5) << payload << BSON_TOKEN_END;
 	return ret;
 }
 
-QByteArray Serializer::serializeBSONElt(const QVariant& variant, const QString &key) {
-	QByteArray ret;
+void Serializer::serializeBSONElt(DataStream &dataStream, const QVariant& variant, const QString &key) {
 	switch (variant.type()) {
 		case QVariant::Invalid:
-			ret.append((char)BSON_TOKEN_NULL);
-			ret.append(key.toLocal8Bit());
-			ret.append('\0');
+			DEBUG_TK("BSON_TOKEN_NULL");
+			dataStream << BSON_TOKEN_NULL << key.toLocal8Bit() << '\0';
 			break;
 		case QVariant::Bool: // Case of BSON boolean
-			ret.append((char)BSON_TOKEN_BOOL);
-			ret.append(key.toLocal8Bit());
-			ret.append('\0');
-			ret.append(variant.toBool() ? BSON_TOKEN_TRUE: BSON_TOKEN_FALSE);
+			DEBUG_TK("BSON_TOKEN_BOOL");
+			dataStream << BSON_TOKEN_BOOL << key.toLocal8Bit() << '\0' << (variant.toBool() ? BSON_TOKEN_TRUE: BSON_TOKEN_FALSE);
 			break;
 		case QVariant::UInt:
 		case QVariant::Int:
 		case QVariant::Char:
 		{
-			ret.append((char)BSON_TOKEN_INT32);
-			ret.append(key.toLocal8Bit());
-			ret.append('\0');
-			write<quint32>(ret, variant.toUInt());
+			DEBUG_TK("BSON_TOKEN_INT32");
+			dataStream << BSON_TOKEN_INT32 << key.toLocal8Bit() << '\0' << variant.toUInt();
 			break;
 		}
 		case QVariant::ULongLong:
 		case QVariant::LongLong:
 		{
-			ret.append((char)BSON_TOKEN_INT64);
-			ret.append(key.toLocal8Bit());
-			ret.append('\0');
-			write<quint64>(ret, variant.toUInt());
+			DEBUG_TK("BSON_TOKEN_INT64");
+			dataStream << BSON_TOKEN_INT64 << key.toLocal8Bit() << '\0' << variant.toUInt();
 			break;
 		}
 		case QVariant::Double:
 		{
-			ret.append((char)BSON_TOKEN_DOUBLE);
-			ret.append(key.toLocal8Bit());
-			ret.append('\0');
-			write<quint64>(ret, variant.toDouble());
+			DEBUG_TK("BSON_TOKEN_DOUBLE");
+			dataStream << BSON_TOKEN_DOUBLE << key.toLocal8Bit() << '\0' << variant.toDouble();
 			break;
 		}
 		case QVariant::DateTime:
 		case QVariant::Date:
 		case QVariant::Time:
 		{
-			ret.append((char)BSON_TOKEN_DATETIME);
-			ret.append(key.toLocal8Bit());
-			ret.append('\0');
-			write<quint64>(ret, variant.toDateTime().toMSecsSinceEpoch());
+			DEBUG_TK("BSON_TOKEN_DATETIME");
+			dataStream << BSON_TOKEN_DATETIME << key.toLocal8Bit() << '\0' << variant.toDateTime().toMSecsSinceEpoch();
 			break;
 		}
 		case QVariant::Map: // Case of BSON object
 		{
-			ret.append((char)BSON_TOKEN_MAP);
-			ret.append(key.toLocal8Bit());
-			ret.append('\0');
-			ret.append(serializeBSONDocument(variant));
+			DEBUG_TK("BSON_TOKEN_MAP");
+			dataStream << BSON_TOKEN_MAP << key.toLocal8Bit() << '\0' << serializeBSONDocument(variant);
 			break;
 		}
 		case QVariant::List: // Case of BSON array
 		{
-			ret.append((char)BSON_TOKEN_LIST);
-			ret.append(key.toLocal8Bit());
-			ret.append('\0');
-			ret.append(serializeBSONDocument(variant));
+			DEBUG_TK("BSON_TOKEN_LIST");
+			dataStream << BSON_TOKEN_LIST << key.toLocal8Bit() << '\0' << serializeBSONDocument(variant);
 			break;
 		}
 		case QVariant::String:
 		{
+			DEBUG_TK("BSON_TOKEN_STRING");
 			QByteArray data = variant.toString().toLocal8Bit();
-			ret.append((char)BSON_TOKEN_STRING);
-			ret.append(key.toLocal8Bit());
-			ret.append('\0');
-			write<quint32>(ret, data.length() + 1);
-			ret.append(data);
-			ret.append('\0');
+			dataStream << BSON_TOKEN_STRING << key.toLocal8Bit() << '\0' << data.length() + 1 << data << '\0';
 			break;
 		}
 		case QVariant::ByteArray: // Case of BSON string
 		{
+			DEBUG_TK("BSON_TOKEN_DATA");
 			QByteArray data = variant.toByteArray();
-			ret.append((char)BSON_TOKEN_DATA);
-			ret.append(key.toLocal8Bit());
-			ret.append('\0');
-			write<quint32>(ret, data.length());
-			ret.append((char)BSON_TOKEN_GENERIC);
-			ret.append(data);
+			dataStream << BSON_TOKEN_DATA << key.toLocal8Bit() << '\0' << data.length() << BSON_TOKEN_GENERIC << data;
 			break;
 		}
 		default:
 			throw SerializerException("Fatal: QVariant type not managed.");
-		
 	}
-	return ret;
 }
 
 }

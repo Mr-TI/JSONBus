@@ -104,7 +104,7 @@ void testPtr() {
 // }
 
 void testBCONParser() {
-	QVariant v = Parser::fromFile("test/test.json", FileFormat::JSON);
+	QVariant v = Parser::fromFile("test/test1.json", FileFormat::JSON);
 // 	logFiner() << Logger::dump(v);
 	Serializer::toFile("test/test.bcon", v, FileFormat::BCON);
 	v = Parser::fromFile("test/test.bcon", FileFormat::BCON);

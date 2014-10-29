@@ -44,7 +44,7 @@ using namespace std;
 #define VARIANT_NUMBER()\
 	yylval->node = new variant_t(yytext);\
 	yylval->node->convert(variant_t::LongLong);\
-	if ((yylval->node->toLongLong() & 0xFFFFFFFF00000000) == 0)\
+	if ((yylval->node->toLongLong() & 0xFFFFFFFF80000000) == 0)\
 	yylval->node->convert(variant_t::Int)
 
 #define VARIANT_FROM(_value_)\

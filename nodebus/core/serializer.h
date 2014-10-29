@@ -80,9 +80,7 @@ private:
 	void serializeBCON(const QVariant &variant, const QString *key=NULL);
 	void serializeJSON(const QVariant &variant, uint32_t flags);
 	QByteArray serializeBSONDocument(const QVariant &variant);
-	QByteArray serializeBSONElt(const QVariant& variant, const QString &key);
-	template <typename T> void write(quint8 type, T value);
-	template <typename T> void write(QByteArray& output, T value);
+	void serializeBSONElt(DataStream &dataStream, const QVariant& variant, const QString &key);
 	void write64(QByteArray& output, uint64_t value);
 	DataStream &m_dataStream;
 	FileFormat m_format;
