@@ -141,7 +141,7 @@ int main(int argc, char **argv) {
 // 		}
 // 		testIDLCompile(argv[1]);
 		testBCONParser();
-		testBSONParser();
+// 		testBSONParser();
 	} catch (Exception &e) {
 		logCrit() << "terminate called after throwing an instance of " << e;
 	}

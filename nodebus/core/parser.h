@@ -29,6 +29,7 @@
 
 #include <nodebus/core/exception.h>
 #include <nodebus/core/global.h>
+#include <nodebus/core/datastream.h>
 #include <QByteArray>
 
 #ifndef NODEBUS_EXPORT
@@ -49,7 +50,7 @@ public:
 	 * @brief Parser constructor.
 	 * @param channel Channel pointer
 	 */
-	Parser(QDataStream &dataStream, FileFormat format = JSON);
+	Parser(DataStream &dataStream, FileFormat format = JSON);
 	
 	/**
 	 * @brief Parser destructor.
@@ -88,7 +89,7 @@ private:
 	bool parseBCON(QVariant &res, QString* key);
 	template <typename T> T read();
 	FileFormat m_format;
-	QDataStream &m_dataStream;
+	DataStream &m_dataStream;
 	QVariant parseBSONDocument();
 	bool parseBSONElt(QVariant &res, QString &key);
 	void *m_driver;

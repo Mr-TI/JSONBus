@@ -24,61 +24,65 @@
 #include <qt4/QtCore/QVariant>
 #include <qt4/QtCore/QDate>
 
-#define BCON_TOKEN_END		((quint8)0x00)
-#define BCON_TOKEN_NULL		((quint8)0x01)
-#define BCON_TOKEN_TRUE		((quint8)0x02)
-#define BCON_TOKEN_FALSE	((quint8)0x03)
-#define BCON_TOKEN_BYTE		((quint8)0x04)
-#define BCON_TOKEN_INT16	((quint8)0x05)
-#define BCON_TOKEN_UINT16	((quint8)0x06)
-#define BCON_TOKEN_INT32	((quint8)0x07)
-#define BCON_TOKEN_UINT32	((quint8)0x08)
-#define BCON_TOKEN_INT64	((quint8)0x09)
-#define BCON_TOKEN_UINT64	((quint8)0x0A)
-#define BCON_TOKEN_DOUBLE	((quint8)0x0B)
-#define BCON_TOKEN_DATETIME	((quint8)0x0C)
-#define BCON_TOKEN_LIST		((quint8)0x0E)
-#define BCON_TOKEN_MAP		((quint8)0x0F)
+static const quint8 BCON_TOKEN_END	= 0x00;
+static const quint8 BCON_TOKEN_NULL	= 0x01;
+static const quint8 BCON_TOKEN_TRUE	= 0x02;
+static const quint8 BCON_TOKEN_FALSE	= 0x03;
+static const quint8 BCON_TOKEN_BYTE	= 0x04;
+static const quint8 BCON_TOKEN_INT16	= 0x05;
+static const quint8 BCON_TOKEN_UINT16	= 0x06;
+static const quint8 BCON_TOKEN_INT32	= 0x07;
+static const quint8 BCON_TOKEN_UINT32	= 0x08;
+static const quint8 BCON_TOKEN_INT64	= 0x09;
+static const quint8 BCON_TOKEN_UINT64	= 0x0A;
+static const quint8 BCON_TOKEN_DOUBLE	= 0x0B;
+static const quint8 BCON_TOKEN_DATETIME	= 0x0C;
+static const quint8 BCON_TOKEN_LIST	= 0x0E;
+static const quint8 BCON_TOKEN_MAP	= 0x0F;
 
-#define BSON_TOKEN_END		((quint8)0x00)
-#define BSON_TOKEN_NULL		((quint8)0x0A)
-#define BSON_TOKEN_TRUE		((quint8)0x00)
-#define BSON_TOKEN_FALSE	((quint8)0x01)
-#define BSON_TOKEN_INT32	((quint8)0x10)
-#define BSON_TOKEN_INT64	((quint8)0x12)
-#define BSON_TOKEN_DOUBLE	((quint8)0x01)
-#define BSON_TOKEN_DATETIME	((quint8)0x09)
-#define BSON_TOKEN_STRING	((quint8)0x02)
-#define BSON_TOKEN_DATA		((quint8)0x05)
-#define BSON_TOKEN_UNDEF	((quint8)0x06)
-#define BSON_TOKEN_OID		((quint8)0x07)
-#define BSON_TOKEN_BOOL		((quint8)0x08)
-#define BSON_TOKEN_REGEX	((quint8)0x0B)
-#define BSON_TOKEN_JSCODE	((quint8)0x0D)
-#define BSON_TOKEN_DEPREC	((quint8)0x0E)
-#define BSON_TOKEN_MAP		((quint8)0x03)
-#define BSON_TOKEN_LIST		((quint8)0x04)
-#define BSON_TOKEN_GENERIC	((quint8)0x00)
-#define BSON_TOKEN_OLDUUID	((quint8)0x03)
-#define BSON_TOKEN_UUID		((quint8)0x04)
+static const quint8 BSON_TOKEN_END	= 0x00;
+static const quint8 BSON_TOKEN_NULL	= 0x0A;
+static const quint8 BSON_TOKEN_TRUE	= 0x00;
+static const quint8 BSON_TOKEN_FALSE	= 0x01;
+static const quint8 BSON_TOKEN_INT32	= 0x10;
+static const quint8 BSON_TOKEN_INT64	= 0x12;
+static const quint8 BSON_TOKEN_DOUBLE	= 0x01;
+static const quint8 BSON_TOKEN_DATETIME	= 0x09;
+static const quint8 BSON_TOKEN_STRING	= 0x02;
+static const quint8 BSON_TOKEN_DATA	= 0x05;
+static const quint8 BSON_TOKEN_UNDEF	= 0x06;
+static const quint8 BSON_TOKEN_OID	= 0x07;
+static const quint8 BSON_TOKEN_BOOL	= 0x08;
+static const quint8 BSON_TOKEN_REGEX	= 0x0B;
+static const quint8 BSON_TOKEN_JSCODE	= 0x0D;
+static const quint8 BSON_TOKEN_DEPREC	= 0x0E;
+static const quint8 BSON_TOKEN_MAP	= 0x03;
+static const quint8 BSON_TOKEN_LIST	= 0x04;
+static const quint8 BSON_TOKEN_GENERIC	= 0x00;
+static const quint8 BSON_TOKEN_OLDUUID	= 0x03;
+static const quint8 BSON_TOKEN_UUID	= 0x04;
 
 namespace NodeBus {
 
-Parser::Parser(QDataStream &dataStream, FileFormat format)
+Parser::Parser(DataStream &dataStream, FileFormat format)
 : m_format(format), m_dataStream(dataStream), m_driver(NULL) {
-	m_dataStream.setByteOrder(QDataStream::LittleEndian);
+// 	m_dataStream.setByteOrder(QDataStream::LittleEndian);
 	if (format == FileFormat::JSON) {
 		m_driver = new jsonparser::Driver(dataStream);
 	}
 }
 
 QVariant Parser::parse(const QByteArray& data, FileFormat format) {
-	QDataStream dataStream(data);
+	QByteArray byteArray(data);
+	QBuffer buf(&byteArray);
+	DataStream dataStream(&buf);
 	return Parser(dataStream).parse();
 }
 
 QVariant Parser::parse(const char* data, uint len, FileFormat format) {
-	QDataStream dataStream(QByteArray(data, len));
+	QByteArray byteArray(data, len);
+	QBuffer buf(&byteArray);
+	DataStream dataStream(&buf);
 	return Parser(dataStream).parse();
 }
 
@@ -116,7 +120,7 @@ QVariant Parser::fromFile(const QString &fileName, FileFormat format) {
 			if (!file.open(QIODevice::ReadOnly)) {
 				throw IOException(file.errorString());
 			}
-			QDataStream stream(&file);
+			DataStream stream(&file);
 			return Parser(stream, format).parse();
 		}
 		case FileFormat::IDL:

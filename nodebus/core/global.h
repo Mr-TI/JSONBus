@@ -51,7 +51,7 @@
 #define COLOR_VIO_HL "\033[1;45m\033[1;37m"
 #define COLOR_BLU_HL "\033[1;44m\033[1;37m"
 #define COLOR_MAG_HL "\033[1;46m\033[1;37m"
-#define COLOR_WHI_HL "\033[1;45m\033[1;37m"
+#define COLOR_WHI_HL "\033[1;47m\033[1;37m"
 
 #define COLOR_RED "\033[0m\033[1;31m"
 #define COLOR_YEL "\033[0m\033[1;33m"

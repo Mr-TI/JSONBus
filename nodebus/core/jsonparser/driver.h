@@ -19,6 +19,7 @@
 #ifndef JSONPARSER_DRIVER_H
 #define JSONPARSER_DRIVER_H
 
+#include <nodebus/core/datastream.h>
 #include <QVariant>
 
 namespace jsonparser {
@@ -37,7 +38,7 @@ class r;
 class Driver {
 public:
 	typedef char (*getc_t)(void *);
-	Driver(QDataStream &dataStream);
+	Driver(NodeBus::DataStream &dataStream);
 	~Driver();
 	QVariant parse();
 private:

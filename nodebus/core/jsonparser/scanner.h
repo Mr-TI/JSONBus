@@ -30,6 +30,7 @@
 #undef yyFlexLexer
 #endif
 
+#include <nodebus/core/datastream.h>
 #include <parser.hh>
 
 /**
@@ -46,7 +47,7 @@ namespace jsonparser {
  */
 class Scanner : public jsonparserFlexLexer {
 public:
-	Scanner(QDataStream &dataStream);
+	Scanner(NodeBus::DataStream &dataStream);
 
 	virtual ~Scanner();
 
@@ -60,7 +61,7 @@ protected:
 	virtual int LexerInput( char* buf, int max_size );
 	
 private:
-	QDataStream &m_dataStream;
+	NodeBus::DataStream &m_dataStream;
 };
 
 inline void Scanner::set_debug(bool b) {

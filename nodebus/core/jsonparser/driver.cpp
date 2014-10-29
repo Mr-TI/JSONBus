@@ -32,7 +32,7 @@ using namespace NodeBus;
 
 namespace jsonparser {
 
-Driver::Driver(QDataStream &dataStream)
+Driver::Driver(DataStream &dataStream)
 		: scanner(*new Scanner(dataStream)),
 		parser(*new Parser(*this)){
 }

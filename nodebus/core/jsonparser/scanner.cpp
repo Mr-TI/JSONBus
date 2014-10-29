@@ -22,7 +22,7 @@
 
 namespace jsonparser {
 
-Scanner::Scanner(QDataStream &dataStream)
+Scanner::Scanner(NodeBus::DataStream &dataStream)
         : jsonparserFlexLexer(nullptr, nullptr), m_dataStream(dataStream) {
 }
 
@@ -30,7 +30,7 @@ Scanner::~Scanner() {
 }
 
 int Scanner::LexerInput( char* buf, int max_size ) {
-	return m_dataStream.readRawData(buf, 1);
+	return m_dataStream.read(buf, 1);
 }
 
 }

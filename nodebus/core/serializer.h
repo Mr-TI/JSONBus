@@ -34,6 +34,7 @@
 #define NODEBUS_EXPORT
 #endif
 
+#include <nodebus/core/datastream.h>
 #include <QString>
 #include <QVariant>
 
@@ -54,7 +55,7 @@ public:
 	 * @brief Serializer constructor.
 	 * @param stream A reference to the output stream
 	 */
-	Serializer(QDataStream &dataStream, FileFormat format=JSON);
+	Serializer(DataStream &dataStream, FileFormat format=JSON);
 	
 	/**
 	 * @brief Serializer destructor.
@@ -67,7 +68,7 @@ public:
 	 */
 	void serialize(const QVariant &variant, uint32_t flags = FORMAT_COMPACT);
 	
-	static void serialize(QDataStream &dataStream, const QVariant &variant, FileFormat format=JSON, uint32_t flags = FORMAT_COMPACT);
+	static void serialize(DataStream &dataStream, const QVariant &variant, FileFormat format=JSON, uint32_t flags = FORMAT_COMPACT);
 	static void toFile(const QString &fileName, const QVariant &variant, FileFormat format=JSON, uint32_t flags = FORMAT_COMPACT);
 	
 	/**
@@ -80,10 +81,10 @@ private:
 	void serializeJSON(const QVariant &variant, uint32_t flags);
 	QByteArray serializeBSONDocument(const QVariant &variant);
 	QByteArray serializeBSONElt(const QVariant& variant, const QString &key);
-	template <typename T> void write(char type, T value);
+	template <typename T> void write(quint8 type, T value);
 	template <typename T> void write(QByteArray& output, T value);
 	void write64(QByteArray& output, uint64_t value);
-	QDataStream &m_dataStream;
+	DataStream &m_dataStream;
 	FileFormat m_format;
 };
 

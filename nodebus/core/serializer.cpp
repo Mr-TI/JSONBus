@@ -20,61 +20,62 @@
 #include "serializer.h"
 #include <QVariant>
 
-#define DEBUG_TK(t) 
+#define DEBUG_TK(t) logFinest() << (t)
 
-#define BCON_TOKEN_END		((quint8)0x00)
-#define BCON_TOKEN_NULL		((quint8)0x01)
-#define BCON_TOKEN_TRUE		((quint8)0x02)
-#define BCON_TOKEN_FALSE	((quint8)0x03)
-#define BCON_TOKEN_BYTE		((quint8)0x04)
-#define BCON_TOKEN_INT16	((quint8)0x05)
-#define BCON_TOKEN_UINT16	((quint8)0x06)
-#define BCON_TOKEN_INT32	((quint8)0x07)
-#define BCON_TOKEN_UINT32	((quint8)0x08)
-#define BCON_TOKEN_INT64	((quint8)0x09)
-#define BCON_TOKEN_UINT64	((quint8)0x0A)
-#define BCON_TOKEN_DOUBLE	((quint8)0x0B)
-#define BCON_TOKEN_DATETIME	((quint8)0x0C)
-#define BCON_TOKEN_LIST		((quint8)0x0E)
-#define BCON_TOKEN_MAP		((quint8)0x0F)
-#define BCON_TOKEN_DATA6	((quint8)0xA0)
-#define BCON_TOKEN_STRING6	((quint8)0xC0)
-#define BCON_TOKEN_DATA12	((quint8)0x10)
-#define BCON_TOKEN_DATA20	((quint8)0x20)
-#define BCON_TOKEN_DATA36	((quint8)0x30)
-#define BCON_TOKEN_STRING12	((quint8)0x50)
-#define BCON_TOKEN_STRING20	((quint8)0x60)
-#define BCON_TOKEN_STRING36	((quint8)0x70)
+static const quint8 BCON_TOKEN_END	= 0x00;
+static const quint8 BCON_TOKEN_NULL	= 0x01;
+static const quint8 BCON_TOKEN_TRUE	= 0x02;
+static const quint8 BCON_TOKEN_FALSE	= 0x03;
+static const quint8 BCON_TOKEN_BYTE	= 0x04;
+static const quint8 BCON_TOKEN_INT16	= 0x05;
+static const quint8 BCON_TOKEN_UINT16	= 0x06;
+static const quint8 BCON_TOKEN_INT32	= 0x07;
+static const quint8 BCON_TOKEN_UINT32	= 0x08;
+static const quint8 BCON_TOKEN_INT64	= 0x09;
+static const quint8 BCON_TOKEN_UINT64	= 0x0A;
+static const quint8 BCON_TOKEN_DOUBLE	= 0x0B;
+static const quint8 BCON_TOKEN_DATETIME	= 0x0C;
+static const quint8 BCON_TOKEN_LIST	= 0x0E;
+static const quint8 BCON_TOKEN_MAP	= 0x0F;
+static const quint8 BCON_TOKEN_DATA6	= 0xA0;
+static const quint8 BCON_TOKEN_STRING6	= 0xC0;
+static const quint8 BCON_TOKEN_DATA12	= 0x10;
+static const quint8 BCON_TOKEN_DATA20	= 0x20;
+static const quint8 BCON_TOKEN_DATA36	= 0x30;
+static const quint8 BCON_TOKEN_STRING12	= 0x50;
+static const quint8 BCON_TOKEN_STRING20	= 0x60;
+static const quint8 BCON_TOKEN_STRING36	= 0x70;
 
 #define LENGTH2P6		64
 #define LENGTH2P12		4096
 #define LENGTH2P20		1048576
 #define LENGTH2P36		68719476736
 
-#define BSON_TOKEN_END		((quint8)0x00)
-#define BSON_TOKEN_NULL		((quint8)0x0A)
-#define BSON_TOKEN_TRUE		((quint8)0x00)
-#define BSON_TOKEN_FALSE	((quint8)0x01)
-#define BSON_TOKEN_INT32	((quint8)0x10)
-#define BSON_TOKEN_INT64	((quint8)0x12)
-#define BSON_TOKEN_DOUBLE	((quint8)0x01)
-#define BSON_TOKEN_DATETIME	((quint8)0x09)
-#define BSON_TOKEN_STRING	((quint8)0x02)
-#define BSON_TOKEN_DATA		((quint8)0x05)
-#define BSON_TOKEN_BOOL		((quint8)0x08)
-#define BSON_TOKEN_MAP		((quint8)0x03)
-#define BSON_TOKEN_LIST		((quint8)0x04)
-#define BSON_TOKEN_GENERIC	((quint8)0x00)
+static const quint8 BSON_TOKEN_END	= 0x00;
+static const quint8 BSON_TOKEN_NULL	= 0x0A;
+static const quint8 BSON_TOKEN_TRUE	= 0x00;
+static const quint8 BSON_TOKEN_FALSE	= 0x01;
+static const quint8 BSON_TOKEN_INT32	= 0x10;
+static const quint8 BSON_TOKEN_INT64	= 0x12;
+static const quint8 BSON_TOKEN_DOUBLE	= 0x01;
+static const quint8 BSON_TOKEN_DATETIME	= 0x09;
+static const quint8 BSON_TOKEN_STRING	= 0x02;
+static const quint8 BSON_TOKEN_DATA	= 0x05;
+static const quint8 BSON_TOKEN_BOOL	= 0x08;
+static const quint8 BSON_TOKEN_MAP	= 0x03;
+static const quint8 BSON_TOKEN_LIST	= 0x04;
+static const quint8 BSON_TOKEN_GENERIC	= 0x00;
 
-#define JSON_NULL		QString("null")
-#define JSON_TRUE		QString("true")
-#define JSON_FALSE		QString("false")
-#define JSON_OBJECT_BEGIN	QString("{")
-#define JSON_OBJECT_END		QString("}")
-#define JSON_MEMBER_SEP		QString(":")
-#define JSON_ELEMENT_SEP	QString(",")
-#define JSON_ARRAY_BEGIN	QString("[")
-#define JSON_ARRAY_END		QString("]")
+#define JSON_KW(s)		QString(s).toLocal8Bit()
+#define JSON_NULL		JSON_KW("null")
+#define JSON_TRUE		JSON_KW("true")
+#define JSON_FALSE		JSON_KW("false")
+#define JSON_OBJECT_BEGIN	JSON_KW("{")
+#define JSON_OBJECT_END		JSON_KW("}")
+#define JSON_MEMBER_SEP		JSON_KW(":")
+#define JSON_ELEMENT_SEP	JSON_KW(",")
+#define JSON_ARRAY_BEGIN	JSON_KW("[")
+#define JSON_ARRAY_END		JSON_KW("]")
 
 namespace NodeBus {
 
@@ -83,18 +84,19 @@ quint32 Serializer::FORMAT_COMPACT = 0x00000020u;
 
 QString Serializer::toJSONString(const QVariant& variant, quint32 flags) {
 	QByteArray data;
-	QDataStream dataStream(data);
+	QBuffer buffer(&data);
+	DataStream dataStream(&buffer);
 	serialize(dataStream, variant, JSON, flags);
 	return QString::fromLocal8Bit(data);
 }
 
-void Serializer::serialize(QDataStream& dataStream, const QVariant& variant, FileFormat format, uint32_t flags) {
+void Serializer::serialize(DataStream& dataStream, const QVariant& variant, FileFormat format, uint32_t flags) {
 	return Serializer(dataStream, format).serialize(variant, flags);
 }
 
-Serializer::Serializer(QDataStream &dataStream, FileFormat format)
+Serializer::Serializer(DataStream &dataStream, FileFormat format)
 : m_dataStream(dataStream), m_format(format) {
-	m_dataStream.setByteOrder(QDataStream::LittleEndian);
+// 	m_dataStream.setByteOrder(DataStream::LittleEndian);
 }
 
 Serializer::~Serializer() {
@@ -109,7 +111,7 @@ void Serializer::toFile(const QString &fileName, const QVariant &variant, FileFo
 			if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
 				throw IOException(file.errorString());
 			}
-			QDataStream stream(&file);
+			DataStream stream(&file);
 			return Serializer(stream, format).serialize(variant, flags);
 		}
 		case FileFormat::IDL:
@@ -146,11 +148,12 @@ static QString sanitizeString( QString str ) {
 
 template <typename T>
 inline void Serializer::write(QByteArray& output, T value) {
-	QDataStream(output) << value;
+	QBuffer buf(&output);
+	DataStream(&buf) << value;
 }
 
 template <typename T>
-inline void Serializer::write(char type, T value) {
+inline void Serializer::write(quint8 type, T value) {
 	m_dataStream << type << value;
 }
 
@@ -173,7 +176,7 @@ void Serializer::serializeBCON(const QVariant &variant, const QString *key) {
 		{
 			qint32 num = variant.toInt();
 			if ((num & 0x7FFFFF80) != 0) {
-				DEBUG_TK("BCON_TOKEN_INT8");
+				DEBUG_TK("BCON_TOKEN_BYTE");
 				m_dataStream << BCON_TOKEN_BYTE
 					<< variant.toChar().toAscii();
 			} else if ((num & 0x7FFF8000) != 0) {
@@ -250,22 +253,22 @@ void Serializer::serializeBCON(const QVariant &variant, const QString *key) {
 			int len = data.length();
 			if (len < (LENGTH2P6)) {
 				DEBUG_TK("BCON_TOKEN_STRING6");
-				m_dataStream << ((BCON_TOKEN_STRING6) | (len & 0x3F));
+				m_dataStream << quint8((BCON_TOKEN_STRING6) | (len & 0x3F));
 				m_dataStream << data;
 			} else if (len < (LENGTH2P12)) {
 				DEBUG_TK("BCON_TOKEN_STRING12");
-				m_dataStream << ((BCON_TOKEN_STRING12) | (len & 0x0F))
+				m_dataStream << quint8((BCON_TOKEN_STRING12) | (len & 0x0F))
 						<< ((len & 0xFF0) >> 4);
 				m_dataStream << data;
 			} else if (len < (LENGTH2P20)) {
 				DEBUG_TK("BCON_TOKEN_STRING20");
-				m_dataStream << ((BCON_TOKEN_STRING20) | (len & 0x0F))
+				m_dataStream << quint8((BCON_TOKEN_STRING20) | (len & 0x0F))
 						<< ((len & 0xFF0) >> 4)
 						<< ((len & 0xFF000) >> 12);
 				m_dataStream << data;
 			} else if (len < (LENGTH2P36)) {
 				DEBUG_TK("BCON_TOKEN_STRING36");
-				m_dataStream << ((BCON_TOKEN_STRING36) | (len & 0x0F))
+				m_dataStream << quint8((BCON_TOKEN_STRING36) | (len & 0x0F))
 						<< ((len & 0xFF0) >> 4)
 						<< ((len & 0xFF000) >> 12)
 						<< (len >> 20);
@@ -277,27 +280,26 @@ void Serializer::serializeBCON(const QVariant &variant, const QString *key) {
 		}
 		case QVariant::ByteArray: // Case of BCON string
 		{
-			DEBUG_TK();
 			QByteArray data = variant.toByteArray();
 			int len = data.length();
 			if (len < (LENGTH2P6)) {
 				DEBUG_TK("BCON_TOKEN_DATA6");
-				m_dataStream << ((BCON_TOKEN_DATA6) | (len & 0x3F));
+				m_dataStream << quint8((BCON_TOKEN_DATA6) | (len & 0x3F));
 				m_dataStream << data;
 			} else if (len < (LENGTH2P12)) {
 				DEBUG_TK("BCON_TOKEN_DATA12");
-				m_dataStream << ((BCON_TOKEN_DATA12) | (len & 0x0F))
+				m_dataStream << quint8((BCON_TOKEN_DATA12) | (len & 0x0F))
 						<< ((len & 0xFF0) >> 4);
 				m_dataStream << data;
 			} else if (len < (LENGTH2P20)) {
 				DEBUG_TK("BCON_TOKEN_DATA20");
-				m_dataStream << ((BCON_TOKEN_DATA20) | (len & 0x0F))
+				m_dataStream << quint8((BCON_TOKEN_DATA20) | (len & 0x0F))
 						<< ((len & 0xFF0) >> 4)
 						<< ((len & 0xFF000) >> 12);
 				m_dataStream << data;
 			} else if (len < (LENGTH2P36)) {
 				DEBUG_TK("BCON_TOKEN_DATA36");
-				m_dataStream << ((BCON_TOKEN_DATA36) | (len & 0x0F))
+				m_dataStream << quint8((BCON_TOKEN_DATA36) | (len & 0x0F))
 						<< ((len & 0xFF0) >> 4)
 						<< ((len & 0xFF000) >> 12)
 						<< (len >> 20);
