@@ -380,11 +380,23 @@ void Serializer::serializeJSON(const QVariant &variant, quint32 flags) {
 		}
 		case QVariant::Char:
 		case QVariant::Int:
-		case QVariant::UInt:
-		case QVariant::LongLong:
-		case QVariant::ULongLong:
 		{
 			m_dataStream << QString::number(variant.toInt()).replace("inf", "infinity");
+			break;
+		}
+		case QVariant::UInt:
+		{
+			m_dataStream << QString::number(variant.toUInt()).replace("inf", "infinity");
+			break;
+		}
+		case QVariant::LongLong:
+		{
+			m_dataStream << QString::number(variant.toLongLong()).replace("inf", "infinity");
+			break;
+		}
+		case QVariant::ULongLong:
+		{
+			m_dataStream << QString::number(variant.toULongLong()).replace("inf", "infinity");
 			break;
 		}
 		case QVariant::Double:
